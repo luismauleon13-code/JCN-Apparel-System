@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCN User Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="premium-sidebar">
+      <div class="sidebar-brand">
+        <img src="logo.png" alt="JCN Logo" class="sidebar-logo">
+        <div>
+          <h4>JCN</h4>
+          <small>Apparel Printing</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="#" class="active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+        <a href="#"><i class="fa-solid fa-shirt"></i> Customize</a>
+        <a href="#"><i class="fa-solid fa-upload"></i> Upload Design</a>
+        <a href="#"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+        <a href="#"><i class="fa-solid fa-box"></i> Orders</a>
+        <a href="#"><i class="fa-solid fa-user"></i> Profile</a>
+      </nav>
+
+      <button id="logoutBtn" class="sidebar-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="premium-dashboard-main">
+
+      <!-- TOP BAR -->
+      <div class="dashboard-topbar">
+        <div>
+          <p class="dashboard-mini-title">JCN USER PORTAL</p>
+          <h2>Welcome back, User</h2>
+        </div>
+
+        <button class="premium-action-btn">
+          <i class="fa-solid fa-plus"></i> New Design
+        </button>
+      </div>
+
+      <!-- HERO PANEL -->
+      <section class="premium-dashboard-hero">
+        <div>
+          <p class="text-gold fw-bold mb-2">CUSTOM APPAREL DESIGN</p>
+          <h1>Design your product with a premium experience.</h1>
+          <p>
+            Upload your artwork, customize apparel colors and sizes, preview your design,
+            and proceed to checkout with a smooth ordering flow.
+          </p>
+
+          <div class="hero-actions">
+            <button class="premium-main-btn small-btn">Start Designing</button>
+            <button class="premium-outline-btn">View Orders</button>
+          </div>
+        </div>
+
+        <div class="product-preview-card">
+          <i class="fa-solid fa-shirt"></i>
+          <span>3D Preview Area</span>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="dashboard-stats">
+        <div class="stat-card">
+          <i class="fa-solid fa-palette"></i>
+          <div>
+            <h3>12</h3>
+            <p>Saved Designs</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <i class="fa-solid fa-box"></i>
+          <div>
+            <h3>5</h3>
+            <p>Orders</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <i class="fa-solid fa-clock"></i>
+          <div>
+            <h3>2</h3>
+            <p>Pending</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <i class="fa-solid fa-check"></i>
+          <div>
+            <h3>3</h3>
+            <p>Completed</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN GRID -->
+      <section class="dashboard-grid">
+
+        <!-- UPLOAD DESIGN -->
+        <div class="premium-panel">
+          <div class="panel-header">
+            <h4>Upload Your Design</h4>
+            <i class="fa-solid fa-upload text-gold"></i>
+          </div>
+
+          <div class="advanced-upload-box">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <h5>Drag & Drop your artwork</h5>
+            <p>Supports PNG, JPG, SVG</p>
+            <button class="premium-main-btn small-btn">Browse File</button>
+          </div>
+        </div>
+
+        <!-- CUSTOMIZATION -->
+        <div class="premium-panel">
+          <div class="panel-header">
+            <h4>Customize Product</h4>
+            <i class="fa-solid fa-sliders text-gold"></i>
+          </div>
+
+          <label class="dashboard-label">Choose Color</label>
+          <div class="color-picker-row mb-3">
+            <span class="color-dot black"></span>
+            <span class="color-dot white"></span>
+            <span class="color-dot gold"></span>
+            <span class="color-dot gray"></span>
+            <span class="color-dot beige"></span>
+          </div>
+
+          <label class="dashboard-label">Choose Size</label>
+          <div class="size-row mb-3">
+            <button>S</button>
+            <button>M</button>
+            <button>L</button>
+            <button>XL</button>
+          </div>
+
+          <label class="dashboard-label">Quantity</label>
+          <input type="number" class="premium-dashboard-input" value="1" min="1">
+        </div>
+
+        <!-- ORDER TRACKING -->
+        <div class="premium-panel">
+          <div class="panel-header">
+            <h4>Order Tracking</h4>
+            <i class="fa-solid fa-truck-fast text-gold"></i>
+          </div>
+
+          <div class="order-step done">
+            <span></span>
+            <div>
+              <h6>Order Placed</h6>
+              <p>Your custom order has been received.</p>
+            </div>
+          </div>
+
+          <div class="order-step active">
+            <span></span>
+            <div>
+              <h6>Printing Process</h6>
+              <p>Your apparel design is now being prepared.</p>
+            </div>
+          </div>
+
+          <div class="order-step">
+            <span></span>
+            <div>
+              <h6>Ready for Pickup</h6>
+              <p>You will be notified once completed.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CART SUMMARY -->
+        <div class="premium-panel">
+          <div class="panel-header">
+            <h4>Cart Summary</h4>
+            <i class="fa-solid fa-cart-shopping text-gold"></i>
+          </div>
+
+          <div class="cart-summary-item">
+            <div>
+              <h6>Custom T-Shirt</h6>
+              <p>Black / Size M / Qty 1</p>
+            </div>
+            <strong>₱499</strong>
+          </div>
+
+          <div class="cart-total">
+            <span>Total</span>
+            <strong>₱499</strong>
+          </div>
+
+          <button class="premium-main-btn w-100">Proceed to Checkout</button>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- LOGOUT CONFIRMATION MODAL -->
+  <div id="logoutModal" class="modal hidden">
+    <div class="modal-overlay"></div>
+
+    <div class="modal-box p-4 text-center">
+      <h4 class="text-white mb-3">Confirm Logout</h4>
+      <p class="text-secondary-light">Are you sure you want to log out?</p>
+
+      <div class="d-flex gap-3 mt-4">
+        <button id="confirmLogout" class="btn btn-gold w-100">Yes, Logout</button>
+        <button id="cancelLogout" class="btn btn-outline-gold w-100">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutModal = document.getElementById("logoutModal");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
+
+    logoutBtn.addEventListener("click", () => {
+      logoutModal.classList.remove("hidden");
+    });
+
+    cancelLogout.addEventListener("click", () => {
+      logoutModal.classList.add("hidden");
+    });
+
+    confirmLogout.addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+  </script>
+
+</body>
+</html>

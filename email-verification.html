@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification</title>
+  <link rel="stylesheet" href="email-verification.css">
+</head>
+<body>
+
+  <div class="verification-container">
+    <div class="verification-card">
+      <div class="icon-box">✉️</div>
+
+      <h2>Email Verification</h2>
+      <p>
+        We sent a 6-digit verification code to your email.
+        Please enter the code below.
+      </p>
+
+      <form>
+        <div class="otp-inputs">
+          <input type="text" maxlength="1">
+          <input type="text" maxlength="1">
+          <input type="text" maxlength="1">
+          <input type="text" maxlength="1">
+          <input type="text" maxlength="1">
+          <input type="text" maxlength="1">
+        </div>
+
+        <button type="submit">Verify Code</button>
+      </form>
+
+      <p class="resend">
+        Didn’t receive the code?
+        <a href="#">Resend</a>
+      </p>
+    </div>
+  </div>
+<script src="email-verifiaction.js"></script>
+</body>
+</html>

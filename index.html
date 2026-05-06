@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCN Apparel Printing Services</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand-left">
+        <img src="logo.png" alt="JCN Logo" class="logo-img">
+        <h1>JCN Apparel Printing Services</h1>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Shop</a>
+        <a href="#">About</a>
+        <button id="openLoginBtn" class="login-btn">Sign in</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero-section">
+    <div class="hero-content">
+
+      <div class="hero-brand">
+        <img src="logo.png" alt="JCN Logo" class="hero-logo">
+        <h2>JCN Apparel Printing Services</h2>
+      </div>
+
+      <div class="hero-subtitle">
+        <span></span>
+        <p>JCN APPAREL PRINTING SERVICES</p>
+        <span></span>
+      </div>
+
+      <h3 class="welcome-text">WELCOME</h3>
+
+      <div class="hero-description">
+        Create custom apparel designs, preview products, upload artwork, and
+        manage your orders through one complete printing platform.
+      </div>
+
+      <button id="openPortalBtn" class="portal-btn">Get Started</button>
+    </div>
+  </section>
+
+  <!-- FEATURE CARDS -->
+  <section class="feature-section">
+    <div class="feature-grid">
+      <div class="feature-card">Manage Users</div>
+      <div class="feature-card">Track Orders</div>
+      <div class="feature-card">Post Announcements</div>
+      <div class="feature-card">System Settings</div>
+    </div>
+  </section>
+
+  <script>
+  const openLoginBtn = document.getElementById("openLoginBtn");
+  const openPortalBtn = document.getElementById("openPortalBtn");
+
+  openLoginBtn.addEventListener("click", function () {
+    window.location.href = "user-login.html";
+  });
+
+  openPortalBtn.addEventListener("click", function () {
+    window.location.href = "user-register.html";
+  });
+</script>
+</body>
+</html>
