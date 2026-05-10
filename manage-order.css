@@ -1,0 +1,95 @@
+:root {
+    --bg-dark: #0b0b0b;
+    --card-bg: #121212;
+    --gold: #d4af37;
+    --gold-hover: #b8952d;
+    --text-muted: #888888;
+    --border-color: #1f1f1f;
+}
+
+body.dashboard-body {
+    background-color: var(--bg-dark);
+    color: #ffffff;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.dashboard-nav {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.text-gold { color: var(--gold) !important; }
+.btn-gold {
+    background-color: var(--gold);
+    border-color: var(--gold);
+    color: #000;
+    font-weight: 600;
+}
+
+.dashboard-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.dashboard-menu .list-group-item {
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 8px !important;
+}
+
+.active-menu {
+    background-color: rgba(212, 175, 55, 0.15) !important;
+    color: var(--gold) !important;
+}
+
+.table-dark-custom {
+    --bs-table-bg: transparent;
+    --bs-table-color: #fff;
+}
+
+.table-dark-custom thead th {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px;
+}
+
+.table-dark-custom tbody td {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Order Status Badges */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-pending { background: rgba(212, 175, 55, 0.1); color: var(--gold); border: 1px solid var(--gold); }
+.status-shipped { background: rgba(0, 123, 255, 0.1); color: #007bff; border: 1px solid #007bff; }
+.status-delivered { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid #28a745; }
+
+.hidden { display: none; }
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1050;
+}
+.modal-box {
+    background-color: var(--card-bg);
+    border: 1px solid var(--gold);
+    border-radius: 15px;
+    max-width: 400px;
+    margin: 10% auto;
+    position: relative;
+    z-index: 1060;
+}
+.border-gold { border-color: var(--gold) !important; }

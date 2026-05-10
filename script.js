@@ -58,6 +58,7 @@ if (userLoginForm) {
 }
 
 /* CUSTOMER REGISTER */
+/* CUSTOMER REGISTER */
 if (userRegisterForm) {
   userRegisterForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -82,6 +83,7 @@ if (userRegisterForm) {
     }
 
     try {
+
       const response = await fetch(`${API_URL}/register`, {
         method: "POST",
         headers: {
@@ -98,21 +100,32 @@ if (userRegisterForm) {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Verification code sent to your email!");
-        localStorage.setItem("verifyEmail", email);
-        window.location.href = "email-verification.html";
+
+        message.style.color = "#9cffb0";
+        message.textContent = "Registration successful! Redirecting...";
+
+        setTimeout(() => {
+          window.location.href = "user-login.html";
+        }, 1000);
+
       } else {
+
         message.style.color = "#ff8b8b";
         message.textContent = data.message || "Registration failed.";
+
       }
 
     } catch (error) {
+
       console.error(error);
+
       message.style.color = "#ff8b8b";
       message.textContent = "Cannot connect to server.";
+
     }
   });
 }
+
 
 /* ADMIN LOGIN */
 if (adminLoginForm) {

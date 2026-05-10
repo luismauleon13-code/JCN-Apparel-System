@@ -1,40 +1,130 @@
-app.post("/api/auth/register", async (req, res) => {
-  const { fullname, email, username, password } = req.body;
+const express = require("express");
+const cors = require("cors");
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+const app = express();
+
+/* MIDDLEWARE */
+app.use(cors());
+app.use(express.json());
+
+/* TEST */
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
+
+/* REGISTER */
+app.post("/api/auth/register", async (req, res) => {
 
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "luismauleon13@gmail.com", // sender email mo
-        pass: "empt mntl xltp ffdb"            // Gmail app password
-      }
-    });
 
-    await transporter.sendMail({
-  from: "JCN Clothing <luismauleon13@gmail.com>",
-  to: email,
-  subject: "JCN Email Verification Code",
-  html: `
-    <h2>Hello ${fullname},</h2>
-    <p>Your verification code is:</p>
-    <h1>${otp}</h1>
-    <p>Please enter this code to verify your account.</p>
-  `
-});
-    });
+    const { fullname, email, username, password } = req.body;
+
+    console.log("REGISTER:");
+    console.log(fullname, email, username);
 
     res.status(200).json({
-  success: true,
-  message: "Verification code sent to your email!"
-});
+      success: true,
+      message: "Registration successful!"
+    });
 
   } catch (error) {
+
     console.error(error);
+
     res.status(500).json({
       success: false,
-      message: "Failed to send verification email."
+      message: "Server error"
     });
+
   }
+
+});
+
+/* CUSTOMER LOGIN */
+app.post("/api/auth/customer-login", async (req, res) => {
+
+  try {
+
+    const { username, password } = req.body;
+
+    if (username && password) {
+
+      res.status(200).json({
+        success: true,
+        token: "customer-token",
+        user: {
+          username
+        }
+      });
+
+    } else {
+
+      res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+
+});
+
+/* ADMIN LOGIN */
+app.post("/api/auth/admin-login", async (req, res) => {
+
+  try {
+
+    const { username, password } = req.body;
+
+    if (
+      username === "admin" &&
+      password === "admin123"
+    ) {
+
+      res.status(200).json({
+        success: true,
+        token: "admin-token",
+        user: {
+          username: "admin",
+          role: "admin"
+        }
+      });
+
+    } else {
+
+      res.status(401).json({
+        success: false,
+        message: "Invalid admin credentials"
+      });
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+
+});
+
+/* PORT */
+const PORT = 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

@@ -1,42 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Verification</title>
-  <link rel="stylesheet" href="email-verification.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - JCN Apparel</title>
+    <link rel="stylesheet" href="email-verification.css">
 </head>
 <body>
 
-  <div class="verification-container">
-    <div class="verification-card">
-      <div class="icon-box">✉️</div>
+    <div class="verification-container">
+        <div class="verification-card">
+            <div class="logo-container">
+                <div class="logo-placeholder">JCN</div>
+            </div>
 
-      <h2>Email Verification</h2>
-      <p>
-        We sent a 6-digit verification code to your email.
-        Please enter the code below.
-      </p>
+            <div class="company-name">JCN Apparel Printing Services</div>
+            <h2 class="title">Verify Email</h2>
+            <p class="description">
+                We sent a 6-digit verification code to your email.<br>
+                Please enter the code below.
+            </p>
 
-      <form>
-        <div class="otp-inputs">
-          <input type="text" maxlength="1">
-          <input type="text" maxlength="1">
-          <input type="text" maxlength="1">
-          <input type="text" maxlength="1">
-          <input type="text" maxlength="1">
-          <input type="text" maxlength="1">
+            <form>
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                </div>
+
+                <button type="submit" class="verify-btn">Verify Code</button>
+            </form>
+
+            <div class="footer-links">
+                <p class="resend">
+                    Didn’t receive the code?
+                    <a href="#">Resend</a>
+                </p>
+                <a href="#" class="back-link">← Back to Home</a>
+            </div>
         </div>
-
-        <button type="submit">Verify Code</button>
-      </form>
-
-      <p class="resend">
-        Didn’t receive the code?
-        <a href="#">Resend</a>
-      </p>
     </div>
-  </div>
-<script src="email-verifiaction.js"></script>
+
 </body>
 </html>

@@ -27,9 +27,13 @@
 
           <div class="collapse navbar-collapse" id="adminNav">
             <ul class="navbar-nav mx-auto gap-lg-4">
-              <li class="nav-item"><a class="nav-link text-light" href="#">Overview</a></li>
-              <li class="nav-item"><a class="nav-link text-light" href="#">Users</a></li>
-              <li class="nav-item"><a class="nav-link text-light" href="#">Orders</a></li>
+              <li class="nav-item">
+        <a class="nav-link text-light" href="admin-dashboard.html">Overview</a>
+    </li>
+              <li class="nav-item">
+        <a class="nav-link text-light" href="manage-user.html">Users</a>
+</li>
+              <li class="nav-item"><a class="nav-link text-light" href="manage-order.html">Orders</a></li>
               <li class="nav-item"><a class="nav-link text-gold fw-semibold" href="#">Reports</a></li>
             </ul>
 
@@ -70,16 +74,20 @@
           <div class="dashboard-card p-4 h-100">
             <h4 class="text-light mb-4">Admin Menu</h4>
             <div class="list-group dashboard-menu">
-              <a href="#" class="list-group-item list-group-item-action active-menu">
-                <i class="fa-solid fa-chart-line me-2"></i> Overview
-              </a>
-              <a href="#" class="list-group-item list-group-item-action">
-                <i class="fa-solid fa-users me-2"></i> Manage Users
-              </a>
-              <a href="#" class="list-group-item list-group-item-action">
-                <i class="fa-solid fa-cart-shopping me-2"></i> Manage Orders
-              </a>
-              <a href="#" class="list-group-item list-group-item-action">
+              <div class="list-group dashboard-menu">
+    <a href="admin-dashboard.html" class="list-group-item list-group-item-action active-menu">
+        <i class="fa-solid fa-chart-line me-2"></i> Overview
+    </a>
+
+    <a href="manage-user.html" class="list-group-item list-group-item-action">
+        <i class="fa-solid fa-users me-2"></i> Manage Users
+    </a>
+
+    <a href="manage-order.html" class="list-group-item list-group-item-action">
+        <i class="fa-solid fa-cart-shopping me-2"></i> Manage Orders
+    </a>
+</div>
+              <a href="announcement.html" class="list-group-item list-group-item-action">
                 <i class="fa-solid fa-bullhorn me-2"></i> Announcements
               </a>
               <a href="#" class="list-group-item list-group-item-action">

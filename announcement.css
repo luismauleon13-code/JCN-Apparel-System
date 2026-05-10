@@ -1,0 +1,73 @@
+:root {
+    --bg-dark: #0b0b0b;
+    --card-bg: #121212;
+    --gold: #d4af37;
+    --border-color: #1f1f1f;
+    --input-bg: #1a1a1a;
+}
+
+body.dashboard-body {
+    background-color: var(--bg-dark);
+    color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.dashboard-nav, .dashboard-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.text-gold { color: var(--gold) !important; }
+.btn-gold { background-color: var(--gold); border-color: var(--gold); color: #000; font-weight: 600; }
+
+.active-menu { background-color: rgba(212, 175, 55, 0.15) !important; color: var(--gold) !important; }
+.dashboard-menu .list-group-item { background: transparent; color: #fff; border: none; }
+
+/* Composer Styling */
+.announcement-composer {
+    background-color: rgba(212, 175, 55, 0.02);
+    border: 1px dashed var(--gold);
+    border-radius: 12px;
+}
+
+.custom-input {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.custom-input:focus {
+    background-color: var(--input-bg);
+    border-color: var(--gold);
+    color: #fff;
+    box-shadow: none;
+}
+
+/* List Styling */
+.announcement-item {
+    background-color: #161616;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.announcement-item:hover {
+    border-color: #333;
+}
+
+.announcement-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.smallest { font-size: 0.7rem; }
+.hidden { display: none; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1050; }
+.modal-box { background: var(--card-bg); border: 1px solid var(--gold); border-radius: 15px; max-width: 400px; margin: 10% auto; position: relative; z-index: 1060; }
