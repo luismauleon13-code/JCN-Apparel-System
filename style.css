@@ -1702,4 +1702,270 @@ body {
   .admin-hero-icon i {
     font-size: 72px;
   }
+  .sales-summary-wide .inner-panel {
+  transition: 0.3s ease;
+}
+
+.sales-summary-wide .inner-panel:hover {
+  transform: translateY(-4px);
+  border: 1px solid rgba(242, 193, 78, 0.25);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+}
+
+/* =========================
+   REGISTER PAGE UPGRADE
+   First Name, Middle Name, Last Name,
+   Phone Number, and Password Eye Button
+========================= */
+.optional-text {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+#userRegisterForm .premium-input-group {
+  margin-bottom: 18px;
+}
+
+.premium-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.premium-input-wrap i:first-child {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #d4af37;
+  font-size: 14px;
+  z-index: 2;
+}
+
+.premium-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  height: 56px;
+  padding: 0 52px 0 46px;
+  color: #111;
+  font-size: 15px;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.premium-input::placeholder {
+  color: #6f6f6f;
+}
+
+.premium-input:focus {
+  border-color: #f2c14e;
+  box-shadow:
+    0 0 0 0.22rem rgba(242, 193, 78, 0.20),
+    0 0 18px rgba(242, 193, 78, 0.18);
+  transform: translateY(-1px);
+}
+
+.password-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.password-eye-btn:hover {
+  background: rgba(242, 193, 78, 0.10);
+  color: #ffd65a;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.password-eye-btn i {
+  font-size: 14px;
+}
+
+.password-guide {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: -6px;
+  margin-bottom: 10px;
+}
+
+#userRegisterMessage {
+  min-height: 24px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+input[type="tel"] {
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+input[type="tel"]::-webkit-inner-spin-button,
+input[type="tel"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media (max-width: 576px) {
+  .premium-auth-card {
+    border-radius: 22px;
+    padding: 28px 22px !important;
+  }
+
+  .premium-auth-title {
+    font-size: 28px;
+  }
+
+  .premium-input,
+  .premium-main-btn {
+    height: 52px;
+  }
+
+  .password-eye-btn {
+    right: 10px;
+  }
+
+  .premium-label {
+    font-size: 13px;
+  }
+
+  .password-guide {
+    font-size: 11px;
+  }
+
+  /* OTP Modal */
+  .otp-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.otp-modal.active {
+  display: flex;
+}
+
+.otp-box {
+  width: 430px;
+  max-width: 95%;
+  background: #111;
+  color: #fff;
+  border: 1px solid rgba(255, 204, 54, 0.4);
+  border-radius: 22px;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 0 35px rgba(255, 204, 54, 0.18);
+}
+
+.otp-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  border: none;
+  background: transparent;
+  color: #ffcc36;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.otp-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #ffcc36;
+  color: #000;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+}
+
+.otp-box h2 {
+  color: #ffcc36;
+  margin-bottom: 10px;
+}
+
+.otp-box p {
+  color: #cfcfcf;
+  font-size: 14px;
+}
+
+.verification-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.verify-method {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 204, 54, 0.4);
+  background: transparent;
+  color: #ffcc36;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.verify-method.active,
+.verify-method:hover {
+  background: #ffcc36;
+  color: #000;
+}
+
+.send-otp-btn,
+.verify-otp-btn {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background: #ffcc36;
+  color: #000;
+  font-weight: 900;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+#registerOtp {
+  width: 100%;
+  height: 50px;
+  margin-top: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 204, 54, 0.35);
+  background: #090909;
+  color: #fff;
+  padding: 0 15px;
+  text-align: center;
+  letter-spacing: 4px;
+  font-size: 18px;
+  outline: none;
+}
 }
