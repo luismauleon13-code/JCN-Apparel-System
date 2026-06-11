@@ -1,48 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification - JCN Apparel</title>
-    <link rel="stylesheet" href="email-verification.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Verification - JCN Apparel</title>
+
+  <link rel="stylesheet" href="email-verification.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
+
 <body>
 
-    <div class="verification-container">
-        <div class="verification-card">
-            <div class="logo-container">
-                <div class="logo-placeholder">JCN</div>
-            </div>
+  <div class="verification-container">
+    <div class="verification-card">
 
-            <div class="company-name">JCN Apparel Printing Services</div>
-            <h2 class="title">Verify Email</h2>
-            <p class="description">
-                We sent a 6-digit verification code to your email.<br>
-                Please enter the code below.
-            </p>
+      <div class="logo-container">
+        <div class="logo-placeholder">JCN</div>
+      </div>
 
-            <form>
-                <div class="otp-inputs">
-                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
-                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
-                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
-                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
-                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
-                    <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric">
-                </div>
+      <p class="company-name">JCN Apparel Printing Services</p>
 
-                <button type="submit" class="verify-btn">Verify Code</button>
-            </form>
+      <div class="icon-circle">
+        <i class="fa-solid fa-envelope-circle-check"></i>
+      </div>
 
-            <div class="footer-links">
-                <p class="resend">
-                    Didn’t receive the code?
-                    <a href="#">Resend</a>
-                </p>
-                <a href="#" class="back-link">← Back to Home</a>
-            </div>
+      <h2 class="title">Verify Your Email</h2>
+
+      <p class="description">
+        Enter the 6-digit verification code sent to your email address.
+      </p>
+
+      <p class="email-text" id="emailText">
+        your-email@example.com
+      </p>
+
+      <form id="otpForm">
+        <div class="otp-inputs">
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-box" />
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-box" />
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-box" />
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-box" />
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-box" />
+          <input type="text" maxlength="1" inputmode="numeric" class="otp-box" />
         </div>
+
+        <p id="otpMessage" class="otp-message"></p>
+
+        <button type="submit" class="verify-btn">
+          Verify Code
+        </button>
+      </form>
+
+      <button type="button" id="resendOtpBtn" class="resend-btn">
+        Resend Code
+      </button>
+
+      <a href="index.html" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Home
+      </a>
+
     </div>
+  </div>
+
+  
+    <script>
+const API_URL = "http://localhost:5000/api/auth";
+
+const emailText = document.getElementById("emailText");
+const otpForm = document.getElementById("otpForm");
+const otpInputs = document.querySelectorAll(".otp-box");
+const otpMessage = document.getElementById("otpMessage");
+const resendOtpBtn = document.getElementById("resendOtpBtn");
+
+const pendingEmail = localStorage.getItem("pendingEmail");
+
+/* SHOW EMAIL */
+if (!pendingEmail) {
+  emailText.textContent = "No email found. Please register first.";
+} else {
+  emailText.textContent = pendingEmail;
+}
+
+/* OTP INPUT AUTO MOVE */
+otpInputs.forEach((input, index) => {
+
+  input.addEventListener("input", () => {
+
+    input.value = input.value.replace(/[^0-9]/g, "");
+
+    if (input.value && index < otpInputs.length - 1) {
+      otpInputs[index + 1].focus();
+    }
+
+  });
+
+  input.addEventListener("keydown", (e) => {
+
+    if (e.key === "Backspace" &&
+        !input.value &&
+        index > 0) {
+
+      otpInputs[index - 1].focus();
+    }
+
+  });
+
+});
+
+/* SEND OTP */
+resendOtpBtn.addEventListener("click", async () => {
+
+  if (!pendingEmail) {
+
+    otpMessage.style.color = "#ff8b8b";
+    otpMessage.textContent =
+      "No email found. Please register again.";
+
+    return;
+  }
+
+  try {
+
+    otpMessage.style.color = "#ffcc36";
+    otpMessage.textContent =
+      "Sending verification code...";
+
+    const res = await fetch(
+      `${API_URL}/send-otp`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: pendingEmail
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      otpMessage.style.color = "#9cffb0";
+      otpMessage.textContent =
+        "Verification code sent successfully.";
+
+    } else {
+
+      otpMessage.style.color = "#ff8b8b";
+      otpMessage.textContent =
+        data.message || "Failed to send OTP.";
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    otpMessage.style.color = "#ff8b8b";
+    otpMessage.textContent =
+      "Cannot connect to server.";
+
+  }
+
+});
+
+/* VERIFY OTP + REGISTER */
+otpForm.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const otp =
+    Array.from(otpInputs)
+      .map(input => input.value)
+      .join("");
+
+  if (otp.length !== 6) {
+
+    otpMessage.style.color = "#ff8b8b";
+    otpMessage.textContent =
+      "Please enter the 6-digit OTP.";
+
+    return;
+  }
+
+  try {
+
+    otpMessage.style.color = "#ffcc36";
+    otpMessage.textContent =
+      "Verifying account...";
+
+    const res = await fetch(
+      `${API_URL}/register`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+
+          firstName:
+            localStorage.getItem("pendingFirstName"),
+
+          middleName:
+            localStorage.getItem("pendingMiddleName"),
+
+          lastName:
+            localStorage.getItem("pendingLastName"),
+
+          phone:
+            localStorage.getItem("pendingPhone"),
+
+          email:
+            localStorage.getItem("pendingEmail"),
+
+          username:
+            localStorage.getItem("pendingUsername"),
+
+          password:
+            localStorage.getItem("pendingPassword"),
+
+          otp
+
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      otpMessage.style.color = "#9cffb0";
+      otpMessage.textContent =
+        "Registration successful! Redirecting...";
+
+      localStorage.removeItem("pendingFirstName");
+      localStorage.removeItem("pendingMiddleName");
+      localStorage.removeItem("pendingLastName");
+      localStorage.removeItem("pendingPhone");
+      localStorage.removeItem("pendingEmail");
+      localStorage.removeItem("pendingUsername");
+      localStorage.removeItem("pendingPassword");
+
+      setTimeout(() => {
+
+        window.location.href =
+          "user-login.html";
+
+      }, 1500);
+
+    } else {
+
+      otpMessage.style.color = "#ff8b8b";
+      otpMessage.textContent =
+        data.message || "Invalid OTP.";
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    otpMessage.style.color = "#ff8b8b";
+    otpMessage.textContent =
+      "Cannot connect to server.";
+
+  }
+
+});
+</script>
+
 
 </body>
 </html>

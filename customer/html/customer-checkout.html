@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>JCN | Checkout</title>
+
+  <link rel="stylesheet" href="../css/customer-checkout.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+</head>
+
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">J</div>
+
+      <div>
+        <h2>JCN</h2>
+        <p>Apparel Printing</p>
+      </div>
+    </div>
+
+    <nav class="menu">
+      <a href="dashboard.html">
+        <i class="fa-solid fa-house"></i> Home
+      </a>
+
+      <a href="customer-shop.html">
+        <i class="fa-solid fa-shirt"></i> Shop Products
+      </a>
+
+      <a href="customer-customize.html">
+        <i class="fa-solid fa-palette"></i> Customization
+      </a>
+
+      <a href="customer-notifications.html">
+        <i class="fa-solid fa-bullhorn"></i> Notifications
+      </a>
+
+      <a href="customer-cart.html">
+        <i class="fa-solid fa-cart-shopping"></i> Cart
+      </a>
+
+      <a href="customer-orders.html">
+        <i class="fa-solid fa-box"></i> Orders
+      </a>
+
+      <a href="customer-profile.html">
+        <i class="fa-solid fa-user"></i> Profile
+      </a>
+    </nav>
+
+    <button id="customerLogoutBtn" class="logout-btn">
+      <i class="fa-solid fa-sign-out-alt"></i>
+      Logout
+    </button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p>JCN CHECKOUT</p>
+        <h1>Checkout</h1>
+      </div>
+
+      <a href="customer-cart.html" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back to Cart
+      </a>
+    </header>
+
+    <section class="checkout-layout">
+
+      <form class="checkout-panel" id="checkoutForm">
+        <h2>Shipping Address</h2>
+
+        <label for="fullName">Full Name</label>
+        <input
+          type="text"
+          id="fullName"
+          placeholder="Enter full name"
+          required
+        />
+
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter email address"
+          required
+        />
+
+        <label for="phone">Contact Number</label>
+        <input
+          type="text"
+          id="phone"
+          placeholder="Enter contact number"
+          required
+        />
+
+        <label for="address">Complete Address</label>
+        <textarea
+          id="address"
+          placeholder="Enter complete address"
+          required
+        ></textarea>
+
+        <label>Payment Method</label>
+
+        <div class="payment-options">
+
+          <button
+            type="button"
+            class="payment-card active"
+            data-method="COD"
+          >
+            <i class="fa-solid fa-money-bill-wave"></i>
+
+            <div>
+              <h4>Cash on Delivery</h4>
+              <p>Pay when your order arrives</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            class="payment-card"
+            data-method="PayPal"
+          >
+            <i class="fa-brands fa-paypal"></i>
+
+            <div>
+              <h4>PayPal</h4>
+              <p>You will be redirected to PayPal payment page.</p>
+            </div>
+          </button>
+
+        </div>
+
+        <input type="hidden" id="paymentMethod" value="COD" />
+
+        <button type="submit" class="confirm-btn">
+          Confirm Order
+        </button>
+      </form>
+
+      <div class="summary-panel">
+        <h2>Order Summary</h2>
+
+        <div id="orderItems" class="order-items"></div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong id="subtotal">₱0.00</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Delivery Fee</span>
+          <strong id="deliveryFee">₱80.00</strong>
+        </div>
+
+        <div class="summary-row total">
+          <span>Total</span>
+          <strong id="grandTotal">₱0.00</strong>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <div class="success-modal" id="successModal">
+    <div class="success-box">
+      <i class="fa-solid fa-circle-check"></i>
+
+      <h2>Order Confirmed!</h2>
+      <p>Your order number is:</p>
+
+      <h3 id="orderNumberText"></h3>
+
+      <button id="goOrdersBtn" type="button">
+        View My Orders
+      </button>
+    </div>
+  </div>
+
+  <div id="customerLogoutModal" class="customer-logout-modal hidden">
+    <div class="modal-overlay"></div>
+
+    <div class="modal-box">
+      <h4>Confirm Logout</h4>
+      <p>Are you sure you want to log out?</p>
+
+      <div class="logout-modal-actions">
+        <button
+          id="customerConfirmLogout"
+          class="modal-confirm-btn"
+          type="button"
+        >
+          Yes, Logout
+        </button>
+
+        <button
+          id="customerCancelLogout"
+          class="modal-cancel-btn"
+          type="button"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const logoutBtn = document.getElementById("customerLogoutBtn");
+      const logoutModal = document.getElementById("customerLogoutModal");
+      const confirmBtn = document.getElementById("customerConfirmLogout");
+      const cancelBtn = document.getElementById("customerCancelLogout");
+
+      logoutBtn?.addEventListener("click", function (e) {
+        e.preventDefault();
+        logoutModal.classList.remove("hidden");
+      });
+
+      cancelBtn?.addEventListener("click", function () {
+        logoutModal.classList.add("hidden");
+      });
+
+      confirmBtn?.addEventListener("click", function () {
+        localStorage.removeItem("customerToken");
+        localStorage.removeItem("customerUser");
+        localStorage.removeItem("customerCart");
+
+        window.location.href = "index.html";
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../js/customer-checkout.js"></script>
+
+</body>
+</html>

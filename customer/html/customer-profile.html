@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCN | Profile Settings</title>
+
+  <link rel="stylesheet" href="../css/customer-profile.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">J</div>
+    <div>
+      <h2>JCN</h2>
+      <p>Apparel Printing</p>
+    </div>
+  </div>
+
+  <nav class="menu">
+    <a href="dashboard.html"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="customer-shop.html"><i class="fa-solid fa-shirt"></i> Shop Products</a>
+    <a href="customer-customize.html"><i class="fa-solid fa-palette"></i> Customization</a>
+    <a href="customer-notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+    <a href="customer-cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+    <a href="customer-orders.html"><i class="fa-solid fa-box"></i> Orders</a>
+    <a href="customer-profile.html" class="active"><i class="fa-solid fa-user"></i> Profile</a>
+  </nav>
+
+<button id="customerLogoutBtn" class="logout-btn">
+  <i class="fas fa-sign-out-alt"></i>
+  Logout
+</button>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <p>JCN PROFILE SETTINGS</p>
+      <h1>Profile Settings</h1>
+    </div>
+  </header>
+
+  <section class="profile-layout">
+
+    <div class="profile-card">
+      <div class="avatar">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <h2 id="profileName">Customer Name</h2>
+      <p id="profileEmail">customer@email.com</p>
+      <span class="status">Active Account</span>
+    </div>
+
+    <form class="settings-panel" id="profileForm">
+      <h2>Account Information</h2>
+
+      <label>Full Name</label>
+      <input type="text" id="fullName" required />
+
+      <label>Email</label>
+      <input type="email" id="email" required />
+
+      <div class="address-grid">
+  <div>
+    <label>House No. / Street / Unit</label>
+    <input type="text" id="houseStreet" placeholder="House No., Street, Unit">
+  </div>
+
+  <div>
+    <label>Barangay</label>
+    <input type="text" id="barangay" placeholder="Enter barangay">
+  </div>
+
+  <div>
+    <label>City / Municipality</label>
+    <input type="text" id="city" placeholder="Enter city">
+  </div>
+
+  <div>
+    <label>Province</label>
+    <input type="text" id="province" placeholder="Enter province">
+  </div>
+</div>
+
+      <label>Phone Number</label>
+      <input type="text" id="phone" />
+
+      <label>Username</label>
+      <input type="text" id="username" required />
+
+      <button type="submit" class="save-btn">
+        Save Profile Changes
+      </button>
+    </form>
+
+    <form class="settings-panel password-panel" id="passwordForm">
+      <h2>Change Password</h2>
+
+      <label>Current Password</label>
+      <div class="password-box">
+        <input type="password" id="currentPassword" />
+        <i class="fa-solid fa-eye toggle-password" data-target="currentPassword"></i>
+      </div>
+
+      <label>New Password</label>
+      <div class="password-box">
+        <input type="password" id="newPassword" />
+        <i class="fa-solid fa-eye toggle-password" data-target="newPassword"></i>
+      </div>
+
+      <label>Confirm New Password</label>
+      <div class="password-box">
+        <input type="password" id="confirmPassword" />
+        <i class="fa-solid fa-eye toggle-password" data-target="confirmPassword"></i>
+      </div>
+
+      <button type="submit" class="save-btn">
+        Save New Password
+      </button>
+    </form>
+  </section>
+</main>
+
+<div id="customerLogoutModal" class="customer-logout-modal hidden">
+  <div class="modal-overlay"></div>
+
+  <div class="modal-box">
+    <h4>Confirm Logout</h4>
+    <p>Are you sure you want to log out?</p>
+
+    <div class="logout-modal-actions">
+      <button id="customerConfirmLogout" class="modal-confirm-btn">
+        Yes, Logout
+      </button>
+
+      <button id="customerCancelLogout" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("customerLogoutBtn");
+  const logoutModal = document.getElementById("customerLogoutModal");
+  const confirmBtn = document.getElementById("customerConfirmLogout");
+  const cancelBtn = document.getElementById("customerCancelLogout");
+
+  logoutBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    logoutModal.classList.remove("hidden");
+  });
+
+  cancelBtn.addEventListener("click", function () {
+    logoutModal.classList.add("hidden");
+  });
+
+  confirmBtn.addEventListener("click", function () {
+    localStorage.removeItem("customerToken");
+    localStorage.removeItem("customerUser");
+    localStorage.removeItem("customerCart");
+
+    window.location.href = "index.html";
+  });
+});
+</script>
+
+
+<script src="../js/customer-profile.js"></script>
+<script src="../../server.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

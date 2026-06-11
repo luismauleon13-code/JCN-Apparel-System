@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCN | 3D Customization</title>
+  <link rel="stylesheet" href="../css/customer-customize.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">J</div>
+    <div>
+      <h2>JCN</h2>
+      <p>Apparel Printing</p>
+    </div>
+  </div>
+
+  <nav class="menu">
+    <a href="dashboard.html"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="customer-shop.html"><i class="fa-solid fa-shirt"></i> Shop Products</a>
+    <a href="customer-customize.html" class="active"><i class="fa-solid fa-palette"></i> Customization</a>
+    <a href="customer-notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+    <a href="customer-cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+    <a href="customer-orders.html"><i class="fa-solid fa-box"></i> Orders</a>
+    <a href="customer-profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+  </nav>
+
+  <button id="customerLogoutBtn" class="logout-btn">
+  <i class="fas fa-sign-out-alt"></i>
+  Logout
+</button>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <p>JCN CUSTOMIZATION</p>
+      <h1>3D Apparel Customization</h1>
+    </div>
+  </header>
+
+  <section class="custom-layout">
+
+    <div class="control-panel">
+      <h2>Customize Design</h2>
+
+      <label>Choose Apparel Type</label>
+      <select id="apparelType">
+  <option value="tshirt">T-Shirt</option>
+  <option value="hoodie">Hoodie</option>
+  <option value="sweatshirt">Sweatshirt</option>
+  <option value="polo">Polo Shirt</option>
+</select>
+
+      <label>Change Color</label>
+      <div class="color-row">
+        <button class="color-btn black" data-color="#111111"></button>
+        <button class="color-btn white" data-color="#f5f5f5"></button>
+        <button class="color-btn yellow" data-color="#ffcc36"></button>
+        <button class="color-btn blue" data-color="#1d4ed8"></button>
+        <button class="color-btn red" data-color="#b91c1c"></button>
+      </div>
+
+      <label>Add Text</label>
+      <input type="text" id="customText" placeholder="Enter your design text" />
+
+      <label>Upload Logo</label>
+      <input type="file" id="logoUpload" accept="image/*" />
+
+      <label>Quantity</label>
+      <input type="number" id="quantityInput" min="1" value="1" />
+
+      <div class="btn-grid">
+        <button id="frontBtn">Front View</button>
+        <button id="backBtn">Back View</button>
+      </div>
+
+      <button id="saveDesignBtn" class="save-btn">Save Design</button>
+      <button id="addCartBtn" class="cart-btn">Add to Cart</button>
+    </div>
+
+    <div class="preview-panel">
+      <div class="preview-header">
+        <h2 id="viewLabel">Front Preview</h2>
+        <span>Drag text/logo to adjust position</span>
+      </div>
+
+      <div id="designArea" class="design-area">
+        <div id="shirtModel" class="shirt-model">
+          <div class="sleeve left"></div>
+          <div class="sleeve right"></div>
+          <div class="neck"></div>
+          <div id="textLayer" class="design-text"></div>
+          <img id="logoLayer" class="design-logo" />
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="customerLogoutModal" class="customer-logout-modal hidden">
+  <div class="modal-overlay"></div>
+
+  <div class="modal-box">
+    <h4>Confirm Logout</h4>
+    <p>Are you sure you want to log out?</p>
+
+    <div class="logout-modal-actions">
+      <button id="customerConfirmLogout" class="modal-confirm-btn">
+        Yes, Logout
+      </button>
+
+      <button id="customerCancelLogout" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("customerLogoutBtn");
+  const logoutModal = document.getElementById("customerLogoutModal");
+  const confirmBtn = document.getElementById("customerConfirmLogout");
+  const cancelBtn = document.getElementById("customerCancelLogout");
+
+  logoutBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    logoutModal.classList.remove("hidden");
+  });
+
+  cancelBtn.addEventListener("click", function () {
+    logoutModal.classList.add("hidden");
+  });
+
+  confirmBtn.addEventListener("click", function () {
+    localStorage.removeItem("customerToken");
+    localStorage.removeItem("customerUser");
+    localStorage.removeItem("customerCart");
+
+    window.location.href = "index.html";
+  });
+});
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="../js/customer-customize.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCN | Shop Products</title>
+
+  <link rel="stylesheet" href="../css/customer-shop.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">J</div>
+    <div>
+      <h2>JCN</h2>
+      <p>Apparel Printing</p>
+    </div>
+  </div>
+
+  <nav class="menu">
+    <a href="dashboard.html">
+      <i class="fa-solid fa-house"></i> Home
+    </a>
+
+    <a href="customer-shop.html" class="active">
+      <i class="fa-solid fa-shirt"></i> Shop Products
+    </a>
+
+    <a href="customer-customize.html">
+      <i class="fa-solid fa-palette"></i> Customization
+    </a>
+
+    <a href="customer-notifications.html">
+      <i class="fa-solid fa-bell"></i> Notifications
+    </a>
+
+    <a href="customer-cart.html">
+      <i class="fa-solid fa-cart-shopping"></i> Cart
+    </a>
+
+    <a href="customer-orders.html">
+      <i class="fa-solid fa-box"></i> Orders
+    </a>
+
+    <a href="customer-profile.html">
+      <i class="fa-solid fa-user"></i> Profile
+    </a>
+  </nav>
+
+  <button id="customerLogoutBtn" class="logout-btn">
+    <i class="fas fa-sign-out-alt"></i>
+    Logout
+  </button>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <p>JCN SHOP PAGE</p>
+      <h1>Browse Products</h1>
+    </div>
+
+    <a href="customer-cart.html" class="cart-btn">
+      <i class="fa-solid fa-cart-shopping"></i>
+      Cart <span id="cartCount">0</span>
+    </a>
+  </header>
+
+  <section class="filters">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchInput" placeholder="Search product..." />
+    </div>
+
+    <select id="categoryFilter">
+      <option value="">All Categories</option>
+    </select>
+  </section>
+
+  <section class="product-grid" id="productList">
+    <p class="empty">Loading products...</p>
+  </section>
+</main>
+
+<!-- BUY NOW MODAL -->
+<div id="buyNowModal" class="buy-modal hidden">
+  <div class="buy-modal-overlay" onclick="closeBuyModal()"></div>
+
+  <div class="buy-modal-box">
+    <button type="button" class="buy-close" onclick="closeBuyModal()">
+      &times;
+    </button>
+
+    <div class="buy-modal-image-box">
+      <img id="buyModalImage" src="" alt="Product Image">
+    </div>
+
+    <div class="buy-modal-info">
+      <p id="buyModalCategory" class="buy-category"></p>
+      <h3 id="buyModalTitle"></h3>
+      <p id="buyModalDescription"></p>
+      <h2 id="buyModalPrice"></h2>
+
+      <div class="buy-field">
+        <label for="buyModalSize">Available Size</label>
+        <select id="buyModalSize"></select>
+      </div>
+
+      <div class="buy-field">
+        <label for="buyModalColor">Available Color</label>
+        <select id="buyModalColor"></select>
+      </div>
+
+      <div class="buy-field">
+        <label for="buyModalQty">Quantity</label>
+        <input type="number" id="buyModalQty" min="1" value="1">
+        <small id="buyStockText"></small>
+      </div>
+
+      <button type="button" class="buy-confirm-btn" onclick="confirmBuyNow()">
+        Continue Checkout
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER LOGOUT MODAL -->
+<div id="customerLogoutModal" class="customer-logout-modal hidden">
+  <div class="modal-overlay"></div>
+
+  <div class="modal-box">
+    <h4>Confirm Logout</h4>
+    <p>Are you sure you want to log out?</p>
+
+    <div class="logout-modal-actions">
+      <button id="customerConfirmLogout" class="modal-confirm-btn">
+        Yes, Logout
+      </button>
+
+      <button id="customerCancelLogout" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/customer-shop.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("customerLogoutBtn");
+  const logoutModal = document.getElementById("customerLogoutModal");
+  const confirmBtn = document.getElementById("customerConfirmLogout");
+  const cancelBtn = document.getElementById("customerCancelLogout");
+
+  if (logoutBtn && logoutModal) {
+    logoutBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      logoutModal.classList.remove("hidden");
+    });
+  }
+
+  if (cancelBtn && logoutModal) {
+    cancelBtn.addEventListener("click", function () {
+      logoutModal.classList.add("hidden");
+    });
+  }
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", function () {
+      localStorage.removeItem("customerToken");
+      localStorage.removeItem("customerUser");
+      localStorage.removeItem("customerCart");
+      window.location.href = "index.html";
+    });
+  }
+});
+</script>
+
+</body>
+</html>

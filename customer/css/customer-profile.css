@@ -1,0 +1,382 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+:root {
+  --bg: #0b0b0b;
+  --panel: #151515;
+  --gold: #ffcc36;
+  --text: #fff;
+  --muted: #bdbdbd;
+  --border: rgba(255, 204, 54, 0.35);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background: #070707;
+  border-right: 1px solid rgba(255, 204, 54, 0.25);
+  padding: 25px 15px;
+  position: fixed;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 38px;
+}
+
+.logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #000;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  box-shadow: 0 0 20px rgba(255, 204, 54, 0.45);
+}
+
+.brand h2 {
+  color: var(--gold);
+}
+
+.brand p {
+  font-size: 12px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu a {
+  color: #fff;
+  text-decoration: none;
+  padding: 15px 14px;
+  border-radius: 12px;
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.menu a i {
+  color: var(--gold);
+  width: 18px;
+}
+
+.menu a.active,
+.menu a:hover {
+  background: rgba(255, 204, 54, 0.16);
+  color: var(--gold);
+}
+
+.logout-btn {
+  position: absolute;
+  bottom: 22px;
+  left: 15px;
+  right: 15px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 204, 54, 0.55);
+  background: transparent;
+  color: var(--gold);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: var(--gold);
+  color: #000;
+}
+
+.main {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  padding: 30px;
+}
+
+.topbar {
+  margin-bottom: 25px;
+}
+
+.topbar p {
+  color: var(--gold);
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+
+.topbar h1 {
+  font-size: 35px;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 22px;
+}
+
+.profile-card,
+.settings-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 25px;
+}
+
+.profile-card {
+  text-align: center;
+  height: fit-content;
+}
+
+.avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #000;
+  display: grid;
+  place-items: center;
+  font-size: 45px;
+  margin: 0 auto 18px;
+  box-shadow: 0 0 25px rgba(255, 204, 54, 0.35);
+}
+
+.profile-card h2 {
+  margin-bottom: 8px;
+}
+
+.profile-card p {
+  color: var(--muted);
+  margin-bottom: 15px;
+}
+
+.status {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--gold);
+  background: rgba(255, 204, 54, 0.15);
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.settings-panel h2 {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin: 14px 0 7px;
+  font-weight: 800;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #090909;
+  color: #fff;
+  outline: none;
+}
+
+.password-box {
+  position: relative;
+}
+
+.password-box input {
+  padding-right: 45px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 14px;
+  color: var(--gold);
+  cursor: pointer;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: var(--gold);
+  color: #000;
+  font-weight: 900;
+  cursor: pointer;
+  margin-top: 22px;
+}
+
+.save-btn:hover {
+  box-shadow: 0 0 18px rgba(255, 204, 54, 0.35);
+}
+
+.password-panel {
+  grid-column: 2 / 3;
+}
+
+@media (max-width: 950px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .password-panel {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 750px) {
+  body {
+    display: block;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+  }
+
+  .logout-btn {
+    position: relative;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    margin-top: 25px;
+  }
+
+  .main {
+    margin-left: 0;
+    width: 100%;
+    padding: 18px;
+  }
+  textarea {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #090909;
+  color: #fff;
+  outline: none;
+  resize: vertical;
+}
+
+.address-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.address-grid input {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .address-grid {
+    grid-template-columns: 1fr;
+  }
+}
+}
+
+/* LOGOUT MODAL */
+.hidden {
+  display: none !important;
+}
+
+.customer-logout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.customer-logout-modal .modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+}
+
+.customer-logout-modal .modal-box {
+  position: relative;
+  z-index: 2;
+  width: 390px;
+  max-width: 90%;
+  background: #171717;
+  border: 1px solid rgba(255, 204, 54, 0.35);
+  border-radius: 18px;
+  padding: 22px 18px 18px;
+  text-align: center;
+  box-shadow: none;
+}
+
+.customer-logout-modal .modal-box h4 {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.customer-logout-modal .modal-box p {
+  color: #cfcfcf;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.logout-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.logout-modal-actions button {
+  position: relative;
+  z-index: 3;
+  height: 30px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.modal-confirm-btn {
+  border: none;
+  background: linear-gradient(135deg, #d8a21f, #ffcc36);
+  color: #000;
+}
+
+.modal-cancel-btn {
+  background: transparent;
+  border: 1px solid #ffcc36;
+  color: #ffcc36;
+}
+
+.modal-confirm-btn:hover {
+  background: #ffcc36;
+  color: #000;
+}
+
+.modal-cancel-btn:hover {
+  background: #ffcc36;
+  color: #000;
+}

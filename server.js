@@ -2,9 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
 require("dotenv").config();
+const axios = require("axios");
 const multer = require("multer");
+const nodemailer = require("nodemailer");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const supabase = require("./backend/config/supabaseClient");
@@ -13,12 +14,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-/* ===========================
-   EMAIL OTP CONFIG
-=========================== */
-
 const otpStore = {};
+const resetOtps = {};
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -26,10 +23,6 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   }
-});
-
-app.get("/", (req, res) => {
-  res.send("Server is running");
 });
 
 /* TEST CUSTOMER TABLE */
@@ -54,15 +47,74 @@ app.get("/api/test-admin", async (req, res) => {
   res.json({ success: true, data });
 });
 
-/* SEND OTP */
+/* CUSTOMER REGISTER */
+/* SMS HELPER */
+async function sendSMS(number, message) {
+  await axios.post(
+    "https://api.semaphore.co/api/v4/messages",
+    new URLSearchParams({
+      apikey: process.env.SEMAPHORE_API_KEY,
+      number,
+      message
+    }),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }
+  );
+}
+
+/* SEND OTP - EMAIL OR SMS */
 app.post("/api/auth/send-otp", async (req, res) => {
   try {
-    const { email } = req.body;
+    const {
+      email,
+      username,
+      phone,
+      otp_method
+    } = req.body;
 
-    if (!email) {
+    if (!email || !username || !phone || !otp_method) {
       return res.status(400).json({
         success: false,
-        message: "Email is required."
+        message: "Email, username, phone, and OTP method are required."
+      });
+    }
+
+    if (!["email", "sms"].includes(otp_method)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP method."
+      });
+    }
+
+    const { data: existingUser, error } = await supabase
+      .from("customer_users")
+      .select("id, email, username, phone")
+      .or(`email.eq.${email},username.eq.${username},phone.eq.${phone}`)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (existingUser) {
+      const errors = [];
+
+      if (existingUser.email === email) {
+        errors.push("Email is already registered");
+      }
+
+      if (existingUser.username === username) {
+        errors.push("Username is already taken");
+      }
+
+      if (existingUser.phone === phone) {
+        errors.push("Phone number is already registered");
+      }
+
+      return res.status(409).json({
+        success: false,
+        message: errors.join(" • ")
       });
     }
 
@@ -70,110 +122,118 @@ app.post("/api/auth/send-otp", async (req, res) => {
 
     otpStore[email] = {
       otp,
+      otp_method,
+      phone,
       expiresAt: Date.now() + 5 * 60 * 1000
     };
 
-    await transporter.sendMail({
-      from: `"JCN Apparel" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "JCN Email Verification Code",
-      html: `
-        <h2>JCN Apparel Email Verification</h2>
-        <p>Your verification code is:</p>
-        <h1>${otp}</h1>
-        <p>This code will expire in 5 minutes.</p>
-      `
-    });
+    if (otp_method === "email") {
+      await transporter.sendMail({
+        from: `"JCN Apparel" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "JCN Email Verification Code",
+        html: `
+          <h2>JCN Apparel Email Verification</h2>
+          <p>Your verification code is:</p>
+          <h1>${otp}</h1>
+          <p>This code will expire in 5 minutes.</p>
+        `
+      });
+    }
+
+    if (otp_method === "sms") {
+      await sendSMS(
+        phone,
+        `Your JCN verification code is ${otp}. It will expire in 5 minutes.`
+      );
+    }
 
     res.json({
       success: true,
-      message: "OTP sent to email."
+      message:
+        otp_method === "sms"
+          ? "OTP sent to your phone number."
+          : "OTP sent to your email."
     });
 
   } catch (error) {
     console.error("SEND OTP ERROR:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to send OTP.",
-      error: error.message
+      message: error.message
     });
   }
 });
-/* CUSTOMER REGISTER */
+
+/* REGISTER AFTER OTP */
 app.post("/api/auth/register", async (req, res) => {
   try {
     const {
-  firstName,
-  middleName,
-  lastName,
-  phone,
-  email,
-  username,
-  password,
-  otp
-} = req.body;
+      firstName,
+      middleName,
+      lastName,
+      phone,
+      email,
+      username,
+      password,
+      otp
+    } = req.body;
 
-const storedOtp = otpStore[email];
-
-if (!storedOtp) {
-  return res.status(400).json({
-    success: false,
-    message: "Please request an OTP first."
-  });
-}
-
-if (Date.now() > storedOtp.expiresAt) {
-  delete otpStore[email];
-
-  return res.status(400).json({
-    success: false,
-    message: "OTP expired. Please request a new one."
-  });
-}
-
-if (storedOtp.otp !== otp) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid OTP code."
-  });
-}
-
-delete otpStore[email];
-
-/* COMBINE FULL NAME */
-const fullname =
-  `${firstName} ${middleName} ${lastName}`
-    .replace(/\s+/g, " ")
-    .trim();
-
-    if (!fullname || !email || !username || !password) {
+    if (!firstName || !lastName || !phone || !email || !username || !password || !otp) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required"
+        message: "All required fields must be completed."
       });
     }
-    if (!fullname || !email || !username || !password) {
-  return res.status(400).json({
-    success: false,
-    message: "All fields are required"
-  });
-}
+
+    const storedOtp = otpStore[email];
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Please request OTP first."
+      });
+    }
+
+    if (Date.now() > storedOtp.expiresAt) {
+      delete otpStore[email];
+
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired. Please request a new one."
+      });
+    }
+
+    if (storedOtp.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP code."
+      });
+    }
+
+    delete otpStore[email];
+
+    const fullName = `${firstName} ${middleName || ""} ${lastName}`
+      .replace(/\s+/g, " ")
+      .trim();
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const { error } = await supabase.from("customer_users").insert([
-      {   
-  full_name: fullname,
-  first_name: firstName,
-  middle_name: middleName,
-  last_name: lastName,
-  phone,
-  email,
-  username,
-  password: hashedPassword,
-  status: "active"
-}    
-    ]);
+    const { error } = await supabase
+      .from("customer_users")
+      .insert([
+        {
+          full_name: fullName,
+          first_name: firstName,
+          middle_name: middleName || "",
+          last_name: lastName,
+          phone,
+          email,
+          username,
+          password: hashedPassword,
+          status: "active"
+        }
+      ]);
 
     if (error) {
       return res.status(400).json({
@@ -184,14 +244,14 @@ const fullname =
 
     res.json({
       success: true,
-      message: "Registration successful!"
+      message: "Registration successful."
     });
 
   } catch (error) {
+    console.error("REGISTER ERROR:", error);
     res.status(500).json({
       success: false,
-      message: "Server error",
-      error: error.message
+      message: error.message
     });
   }
 });
@@ -208,10 +268,12 @@ app.post("/api/auth/customer-login", async (req, res) => {
       });
     }
 
+    const cleanUsername = username.trim();
+
     const { data: customer, error } = await supabase
       .from("customer_users")
       .select("*")
-      .eq("username", username)
+      .eq("username", cleanUsername)
       .maybeSingle();
 
     if (error) {
@@ -236,9 +298,12 @@ app.post("/api/auth/customer-login", async (req, res) => {
       });
     }
 
-    const passwordMatch = customer.password.startsWith("$2")
-      ? await bcrypt.compare(password, customer.password)
-      : password === customer.password;
+    const storedPassword = String(customer.password).trim();
+
+    const passwordMatch =
+      storedPassword.startsWith("$2")
+        ? await bcrypt.compare(password, storedPassword)
+        : password === storedPassword;
 
     if (!passwordMatch) {
       return res.status(401).json({
@@ -251,6 +316,22 @@ app.post("/api/auth/customer-login", async (req, res) => {
       return res.status(403).json({
         success: false,
         message: "Your account has been restricted by admin."
+      });
+    }
+
+    // UPDATE LAST LOGIN AND REACTIVATE USER
+    const { error: updateLoginError } = await supabase
+      .from("customer_users")
+      .update({
+        last_login: new Date().toISOString(),
+        status: "active"
+      })
+      .eq("id", customer.id);
+
+    if (updateLoginError) {
+      return res.status(500).json({
+        success: false,
+        message: updateLoginError.message
       });
     }
 
@@ -273,7 +354,7 @@ app.post("/api/auth/customer-login", async (req, res) => {
         fullname: customer.full_name,
         email: customer.email,
         username: customer.username,
-        status: customer.status || "active",
+        status: "active",
         role: "customer"
       }
     });
@@ -363,6 +444,290 @@ app.post("/api/auth/admin-login", async (req, res) => {
   }
 });
 
+/*customer reset password*/
+app.post("/api/auth/reset-password", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP, and new password are required."
+      });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanOtp = otp.trim();
+
+    const savedOtp = resetOtps[cleanEmail];
+
+    if (!savedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "No OTP request found."
+      });
+    }
+
+    if (Date.now() > savedOtp.expires) {
+      delete resetOtps[cleanEmail];
+
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired."
+      });
+    }
+
+    if (savedOtp.otp !== cleanOtp) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid OTP."
+  });
+}
+
+const strongPassword =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$/;
+
+if (!strongPassword.test(newPassword)) {
+  return res.status(400).json({
+    success: false,
+    message:
+      "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character."
+  });
+}
+
+const { error } = await supabase
+  .from("customer_users")
+  .update({
+    password: newPassword
+  })
+  .ilike("email", cleanEmail);
+
+if (error) throw error;
+
+    delete resetOtps[cleanEmail];
+
+    res.json({
+      success: true,
+      message: "Customer password reset successfully."
+    });
+
+  } catch (error) {
+    console.error("CUSTOMER RESET PASSWORD ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/*customer forgot password*/
+app.post("/api/auth/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || email.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required."
+      });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    console.log("CUSTOMER RESET EMAIL:", cleanEmail);
+
+    const { data: user, error } = await supabase
+      .from("customer_users")
+      .select("*")
+      .ilike("email", cleanEmail)
+      .maybeSingle();
+
+    console.log("CUSTOMER FOUND:", user);
+    console.log("SUPABASE ERROR:", error);
+
+    if (error || !user) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer email not found."
+      });
+    }
+
+    const otp =
+      Math.floor(100000 + Math.random() * 900000).toString();
+
+    resetOtps[cleanEmail] = {
+      otp,
+      expires: Date.now() + 5 * 60 * 1000
+    };
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: cleanEmail,
+      subject: "JCN Customer Password Reset OTP",
+      html: `
+        <h2>JCN Password Reset</h2>
+        <p>Your OTP is:</p>
+        <h1>${otp}</h1>
+        <p>Valid for 5 minutes only.</p>
+      `
+    });
+
+    res.json({
+      success: true,
+      message: "OTP sent to customer email."
+    });
+
+  } catch (error) {
+    console.error("CUSTOMER FORGOT PASSWORD ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/*admin reset-password*/
+app.post("/api/auth/admin-reset-password", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP, and new password are required."
+      });
+    }
+
+    const savedOtp = resetOtps[email];
+
+    if (!savedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "No OTP request found."
+      });
+    }
+
+    if (Date.now() > savedOtp.expires) {
+      delete resetOtps[email];
+
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired."
+      });
+    }
+
+    if (savedOtp.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP."
+      });
+    }
+
+    const strongPassword =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$/;
+
+if (!strongPassword.test(newPassword)) {
+  return res.status(400).json({
+    success: false,
+    message:
+      "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character."
+  });
+}
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const { error } = await supabase
+      .from("admin_users")
+      .update({
+        password: hashedPassword
+      })
+      .eq("email", email);
+
+    if (error) throw error;
+
+    delete resetOtps[email];
+
+    res.json({
+      success: true,
+      message: "Admin password reset successfully."
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+}); 
+
+/*admin forgot password*/
+app.post("/api/auth/admin-forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required."
+      });
+    }
+
+    const { data: admin, error } = await supabase
+  .from("admin_users")
+  .select("*")
+  .eq("email", email)
+  .single();
+
+    if (error || !admin) {
+  return res.status(404).json({
+    success: false,
+    message: "Admin email not found."
+  });
+}
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    resetOtps[email] = {
+      otp,
+      expires: Date.now() + 5 * 60 * 1000
+    };
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "JCN Password Reset OTP",
+      html: `
+        <h2>Password Reset</h2>
+        <p>Your OTP code is:</p>
+        <h1>${otp}</h1>
+        <p>This code will expire in 5 minutes.</p>
+      `
+    });
+
+    res.json({
+      success: true,
+      message: "OTP sent to your email."
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+
 /* ADMIN DASHBOARD OVERVIEW */
 app.get("/api/admin/overview", async (req, res) => {
   try {
@@ -370,54 +735,37 @@ app.get("/api/admin/overview", async (req, res) => {
       .from("customer_users")
       .select("*", { count: "exact", head: true });
 
-    if (usersError) {
-      return res.status(500).json({
-        success: false,
-        message: usersError.message
-      });
-    }
+    if (usersError) throw usersError;
 
     const { count: pendingOrders, error: pendingError } = await supabase
       .from("orders")
       .select("*", { count: "exact", head: true })
       .eq("status", "Preparing");
 
-    if (pendingError) {
-      return res.status(500).json({
-        success: false,
-        message: pendingError.message
-      });
-    }
+    if (pendingError) throw pendingError;
 
     const { count: completedOrders, error: completedError } = await supabase
       .from("orders")
       .select("*", { count: "exact", head: true })
       .eq("status", "Completed");
 
-    if (completedError) {
-      return res.status(500).json({
-        success: false,
-        message: completedError.message
-      });
-    }
+    if (completedError) throw completedError;
 
-    const { data: salesData, error: salesError } = await supabase
-      .from("orders")
-      .select("total_amount")
-      .eq("status", "completed");
+    const today = new Date();
+today.setHours(0, 0, 0, 0);
 
-    if (salesError) {
-      return res.status(500).json({
-        success: false,
-        message: salesError.message
-      });
-    }
+const { data: salesData, error: salesError } = await supabase
+  .from("orders")
+  .select("total_amount, created_at")
+  .eq("status", "Completed")
+  .gte("created_at", today.toISOString());
 
-    let revenue = 0;
+    if (salesError) throw salesError;
 
-    (salesData || []).forEach(order => {
-      revenue += Number(order.total_amount || 0);
-    });
+    const todayRevenue = (salesData || []).reduce(
+  (sum, order) => sum + Number(order.total_amount || 0),
+  0
+);
 
     const { data: recentOrders, error: recentError } = await supabase
       .from("orders")
@@ -425,36 +773,32 @@ app.get("/api/admin/overview", async (req, res) => {
       .order("created_at", { ascending: false })
       .limit(5);
 
-    if (recentError) {
-      return res.status(500).json({
-        success: false,
-        message: recentError.message
-      });
-    }
+    if (recentError) throw recentError;
 
-    const { data: recentAnnouncements } = await supabase
-  .from("announcements")
-  .select("*")
-  .order("created_at", { ascending: false })
-  .limit(5);
+    const { data: recentAnnouncements, error: announcementError } = await supabase
+      .from("announcements")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    if (announcementError) throw announcementError;
 
     res.json({
-      success: true,
-      totalUsers: totalUsers || 0,
-      pendingOrders: pendingOrders || 0,
-      completedOrders: completedOrders || 0,
-      revenue,
-      recentOrders: recentOrders || [],
-      recentAnnouncements: recentAnnouncements || []
-    });
+  success: true,
+  totalUsers: totalUsers || 0,
+  pendingOrders: pendingOrders || 0,
+  completedOrders: completedOrders || 0,
+  revenue: todayRevenue,
+  recentOrders: recentOrders || [],
+  recentAnnouncements: recentAnnouncements || []
+});
 
   } catch (error) {
     console.error("ADMIN OVERVIEW ERROR:", error);
 
     res.status(500).json({
       success: false,
-      message: "Server error",
-      error: error.message
+      message: error.message
     });
   }
 });
@@ -529,16 +873,15 @@ app.get("/api/admin/sales-summary", async (req, res) => {
 
 /* CREATE ORDER */
 app.post("/api/orders", async (req, res) => {
-
   try {
-
     const {
       user_id,
       customer_name,
       customer_email,
       customer_phone,
       total_amount,
-      payment_method
+      payment_method,
+      items
     } = req.body;
 
     if (!total_amount || !payment_method) {
@@ -555,28 +898,178 @@ app.post("/api/orders", async (req, res) => {
       });
     }
 
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No order items found."
+      });
+    }
+
+    // CHECK TOTAL STOCK AND SIZE STOCK FIRST
+    for (const item of items) {
+      const productId = item.product_id || item.id;
+      const orderQty = Number(item.quantity || item.qty || 1);
+      const selectedSize = item.size;
+
+      const { data: product, error: productError } = await supabase
+        .from("products")
+        .select("title, quantity, sizes")
+        .eq("id", productId)
+        .single();
+
+      if (productError) throw productError;
+
+      let sizes = product.sizes || [];
+
+      if (typeof sizes === "string") {
+        sizes = JSON.parse(sizes);
+      }
+
+      const sizeData = sizes.find(sizeItem => sizeItem.size === selectedSize);
+
+      if (!sizeData) {
+        return res.status(400).json({
+          success: false,
+          message: `${selectedSize || "Selected size"} is not available.`
+        });
+      }
+
+      const currentSizeQty = Number(sizeData.qty || 0);
+      const currentTotalQty = Number(product.quantity || 0);
+
+      if (currentSizeQty < orderQty) {
+        return res.status(400).json({
+          success: false,
+          message: `${product.title || "Product"} ${selectedSize} has not enough stock.`
+        });
+      }
+
+      if (currentTotalQty < orderQty) {
+        return res.status(400).json({
+          success: false,
+          message: `${product.title || "Product"} has not enough total stock.`
+        });
+      }
+    }
+
+    // CREATE ORDER
     const { data, error } = await supabase
       .from("orders")
       .insert([
         {
           user_id: user_id || null,
-
           customer_name,
           customer_email,
           customer_phone,
-
           total_amount: Number(total_amount),
-
           payment_method,
-
-          payment_status:
-            payment_method === "PayPal"
-              ? "Paid"
-              : "Pending",
-
+          payment_status: payment_method === "PayPal" ? "Paid" : "Pending",
           status: "Preparing"
         }
       ])
+      .select();
+
+    if (error) throw error;
+
+    // DEDUCT TOTAL QUANTITY AND SIZE QUANTITY
+    for (const item of items) {
+      const productId = item.product_id || item.id;
+      const orderQty = Number(item.quantity || item.qty || 1);
+      const selectedSize = item.size;
+
+      const { data: product, error: productError } = await supabase
+        .from("products")
+        .select("quantity, sizes")
+        .eq("id", productId)
+        .single();
+
+      if (productError) throw productError;
+
+      let sizes = product.sizes || [];
+
+      if (typeof sizes === "string") {
+        sizes = JSON.parse(sizes);
+      }
+
+      const updatedSizes = sizes.map(sizeItem => {
+        if (sizeItem.size === selectedSize) {
+          return {
+            ...sizeItem,
+            qty: Number(sizeItem.qty || 0) - orderQty
+          };
+        }
+
+        return sizeItem;
+      });
+
+      const currentTotalQty = Number(product.quantity || 0);
+
+      const { error: updateError } = await supabase
+        .from("products")
+        .update({
+          quantity: currentTotalQty - orderQty,
+          sizes: updatedSizes
+        })
+        .eq("id", productId);
+
+      if (updateError) throw updateError;
+    }
+
+    res.json({
+      success: true,
+      message: "Order placed successfully.",
+      order: data[0]
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+
+/* GET ALL ORDERS */
+app.get("/api/customer/orders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.json({
+      success: true,
+      orders: data
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* CANCEL ORDER */
+app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status: "Cancelled" })
+      .eq("id", id)
       .select();
 
     if (error) {
@@ -588,19 +1081,16 @@ app.post("/api/orders", async (req, res) => {
 
     res.json({
       success: true,
-      message: "Order placed successfully.",
+      message: "Order cancelled successfully.",
       order: data[0]
     });
 
   } catch (error) {
-
     res.status(500).json({
       success: false,
       message: error.message
     });
-
   }
-
 });
 
 /* MANAGE USERS - GET ALL USERS */
@@ -715,10 +1205,63 @@ app.delete("/api/admin/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("customer_users")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      console.error("DELETE USER SUPABASE ERROR:", error);
+
+      if (
+        error.message.includes("foreign key constraint") ||
+        error.message.includes("orders_user_id_fkey")
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "This customer cannot be deleted because they have existing orders."
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: "Failed to delete user. Please try again."
+      });
+    }
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or was not deleted."
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "User deleted successfully."
+    });
+
+  } catch (error) {
+    console.error("DELETE USER ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while deleting user."
+    });
+  }
+});
+
+/* Announcements delete */
+app.delete("/api/admin/announcements/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("announcements")
+      .delete()
+      .eq("id", id)
+      .select();
 
     if (error) {
       return res.status(400).json({
@@ -727,20 +1270,26 @@ app.delete("/api/admin/users/:id", async (req, res) => {
       });
     }
 
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Announcement not found."
+      });
+    }
+
     res.json({
       success: true,
-      message: "User deleted successfully"
+      message: "Announcement deleted successfully."
     });
 
   } catch (error) {
-    console.error("DELETE USER ERROR:", error);
-
     res.status(500).json({
       success: false,
-      message: error.message
+      message: "Server error while deleting announcement."
     });
   }
 });
+
 /* GET PRODUCTS */
 app.get("/api/admin/products", async (req, res) => {
   try {
@@ -772,7 +1321,15 @@ app.get("/api/admin/products", async (req, res) => {
 /* ADD PRODUCT WITH IMAGE */
 app.post("/api/admin/products", upload.single("product_image"), async (req, res) => {
   try {
-    const { title, description, price, category, colors, sizes } = req.body;
+    const {
+  title,
+  description,
+  price,
+  category,
+  quantity,
+  colors,
+  sizes
+} = req.body;
 
     let imageUrl = null;
 
@@ -796,17 +1353,20 @@ app.post("/api/admin/products", upload.single("product_image"), async (req, res)
       imageUrl = publicUrl.publicUrl;
     }
 
-    const { error } = await supabase.from("products").insert([
-      {
-        title,
-        description,
-        price: Number(price),
-        category,
-        product_image: imageUrl,
-        colors: JSON.parse(colors),
-        sizes: JSON.parse(sizes)
-      }
-    ]);
+    const { error } = await supabase
+  .from("products")
+  .insert([
+    {
+      title,
+      description,
+      price: Number(price),
+      category,
+      quantity: Number(quantity || 0),
+      product_image: imageUrl,
+      colors: JSON.parse(colors),
+      sizes: JSON.parse(sizes)
+    }
+  ]);
 
     if (error) return res.status(400).json({ success: false, message: error.message });
 
@@ -833,23 +1393,18 @@ app.delete("/api/admin/products/:id", async (req, res) => {
 
 /* ADD / UPDATE PRODUCT SALE */
 app.patch("/api/admin/products/:id/sale", async (req, res) => {
-
   try {
-
     const { id } = req.params;
+    const { sale_percent, sale_end } = req.body;
 
-    const {
-      sale_percent,
-      sale_end
-    } = req.body;
-
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("products")
       .update({
         sale_percent: Number(sale_percent || 0),
-        sale_end
+        sale_end: sale_end
       })
-      .eq("id", id);
+      .eq("id", id)
+      .select();
 
     if (error) {
       return res.status(400).json({
@@ -858,13 +1413,20 @@ app.patch("/api/admin/products/:id/sale", async (req, res) => {
       });
     }
 
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found or sale not updated."
+      });
+    }
+
     res.json({
       success: true,
-      message: "Sale updated successfully."
+      message: "Sale updated successfully.",
+      product: data[0]
     });
 
   } catch (error) {
-
     res.status(500).json({
       success: false,
       message: error.message
@@ -977,25 +1539,32 @@ app.get("/api/admin/reports", async (req, res) => {
 
     const allOrders = orders || [];
 
-    const totalSales = allOrders
+    // Hindi kasama ang cancelled sa total orders/report table
+    const activeOrders = allOrders.filter(
+      order => order.status !== "Cancelled"
+    );
+
+    // Sales lang ng completed at hindi cancelled
+    const totalSales = activeOrders
       .filter(order => order.status === "Completed")
       .reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
 
     const statusCounts = {
-      Preparing: allOrders.filter(o => o.status === "Preparing").length,
-      "To Deliver": allOrders.filter(o => o.status === "To Deliver").length,
-      Completed: allOrders.filter(o => o.status === "Completed").length,
+      Pending: activeOrders.filter(o => o.status === "Pending").length,
+      Preparing: activeOrders.filter(o => o.status === "Preparing").length,
+      "To Deliver": activeOrders.filter(o => o.status === "To Deliver").length,
+      Completed: activeOrders.filter(o => o.status === "Completed").length,
       Cancelled: allOrders.filter(o => o.status === "Cancelled").length
     };
 
     res.json({
       success: true,
       totalSales,
-      totalOrders: allOrders.length,
+      totalOrders: activeOrders.length,
       totalUsers: totalUsers || 0,
       delivered: statusCounts.Completed,
       statusCounts,
-      orders: allOrders
+      orders: activeOrders
     });
 
   } catch (error) {
@@ -1016,15 +1585,10 @@ app.get("/api/admin/settings", async (req, res) => {
     const { data, error } = await supabase
       .from("admin_settings")
       .select("*")
-      .limit(1)
+      .eq("id", 1)
       .single();
 
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.message
-      });
-    }
+    if (error) throw error;
 
     res.json({
       success: true,
@@ -1039,50 +1603,59 @@ app.get("/api/admin/settings", async (req, res) => {
   }
 });
 
+
 /* UPDATE ADMIN SETTINGS */
 app.put("/api/admin/settings", async (req, res) => {
   try {
-    const {
-      id,
-      admin_name,
-      email,
-      contact_number,
-      shop_name,
-      shop_address,
-      business_email,
-      email_notifications,
-      auto_generate_reports,
-      maintenance_mode
-    } = req.body;
+    const settings = req.body;
 
     const { data, error } = await supabase
       .from("admin_settings")
       .update({
-        admin_name,
-        email,
-        contact_number,
-        shop_name,
-        shop_address,
-        business_email,
-        email_notifications,
-        auto_generate_reports,
-        maintenance_mode,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", id)
-      .select();
+        shop_name: settings.shop_name,
+        shop_email: settings.shop_email,
+        shop_phone: settings.shop_phone,
+        shop_address: settings.shop_address,
+        business_hours: settings.business_hours,
 
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.message
-      });
-    }
+        admin_name: settings.admin_name,
+        admin_username: settings.admin_username,
+        admin_email: settings.admin_email,
+
+        delivery_fee: settings.delivery_fee,
+        free_shipping_min: settings.free_shipping_min,
+        delivery_days: settings.delivery_days,
+
+        paypal_client_id: settings.paypal_client_id,
+        paypal_mode: settings.paypal_mode,
+
+        email_order_confirmation: settings.email_order_confirmation,
+        email_tracking_updates: settings.email_tracking_updates,
+        email_delivery_updates: settings.email_delivery_updates,
+
+        ai_enabled: settings.ai_enabled,
+        ai_style: settings.ai_style,
+        ai_design_suggestions: settings.ai_design_suggestions,
+
+        announcement_title: settings.announcement_title,
+        announcement_message: settings.announcement_message,
+        announcement_enabled: settings.announcement_enabled,
+
+        session_timeout: settings.session_timeout,
+        strong_password_required: settings.strong_password_required,
+
+        updated_at: new Date()
+      })
+      .eq("id", 1)
+      .select()
+      .single();
+
+    if (error) throw error;
 
     res.json({
       success: true,
-      message: "Settings saved successfully.",
-      settings: data[0]
+      message: "Settings updated successfully.",
+      settings: data
     });
 
   } catch (error) {
@@ -1324,8 +1897,430 @@ app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
   }
 });
 
+app.post("/api/orders/:id/tracking", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tracking_number } = req.body || {};
+
+    if (!tracking_number || tracking_number.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Tracking number is required."
+      });
+    }
+
+    const trackingNumber = tracking_number.trim();
+
+    try {
+      await axios.post(
+        "https://api.aftership.com/tracking/2024-04/trackings",
+        {
+          tracking: {
+            tracking_number: trackingNumber,
+            slug: "jtexpress-ph"
+          }
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "as-api-key": process.env.AFTERSHIP_API_KEY
+          }
+        }
+      );
+    } catch (aftershipError) {
+      console.log(
+        "AfterShip error:",
+        aftershipError.response?.data || aftershipError.message
+      );
+    }
+
+    const { error } = await supabase
+      .from("orders")
+      .update({
+  tracking_number: trackingNumber,
+  status: "To Deliver"
+})
+      .eq("id", id);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Tracking number added successfully."
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+app.get("/api/orders", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.json({
+      success: true,
+      orders: data || []
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+app.get("/api/orders/:id/sync-tracking", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: order, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+
+    if (!order.tracking_number) {
+      return res.json({
+        success: false,
+        message: "No tracking number found."
+      });
+    }
+
+    const response = await axios.get(
+      `https://api.aftership.com/tracking/2024-04/trackings/jtexpress-ph/${order.tracking_number}`,
+      {
+        headers: {
+          "as-api-key": process.env.AFTERSHIP_API_KEY
+        }
+      }
+    );
+
+    const tag = response.data?.tracking?.tag;
+
+    let newStatus = order.status;
+
+    if (tag === "InfoReceived") newStatus = "Preparing";
+    if (tag === "InTransit") newStatus = "To Deliver";
+    if (tag === "OutForDelivery") newStatus = "To Deliver";
+    if (tag === "Delivered") newStatus = "Completed";
+    if (tag === "Exception") newStatus = "To Deliver";
+
+    await supabase
+      .from("orders")
+      .update({
+        status: newStatus,
+        tracking_status: tag
+      })
+      .eq("id", id);
+
+    res.json({
+      success: true,
+      status: newStatus,
+      tracking_status: tag
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.response?.data?.meta?.message || error.message
+    });
+  }
+});
+
+app.patch("/api/customer/orders/:id/complete", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        status: "Completed",
+        payment_status: "Paid"
+      })
+      .eq("id", id);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Order completed successfully."
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+async function getPayPalAccessToken() {
+  const auth = Buffer.from(
+    `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
+  ).toString("base64");
+
+  const response = await fetch(`${process.env.PAYPAL_BASE_URL}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "grant_type=client_credentials"
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error_description || "PayPal token error");
+  }
+
+  return data.access_token;
+}
+
+app.post("/api/paypal/create-order", async (req, res) => {
+  try {
+    const accessToken = await getPayPalAccessToken();
+
+    const response = await fetch(`${process.env.PAYPAL_BASE_URL}/v2/checkout/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        intent: "CAPTURE",
+        purchase_units: [
+          {
+            amount: {
+              currency_code: "PHP",
+              value: "1.00"
+            }
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(400).json(data);
+    }
+
+    res.json(data);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* CREATE PAYPAL REDIRECT ORDER */
+app.post("/api/paypal/create-redirect-order", async (req, res) => {
+  try {
+    const { system_order_id } = req.body;
+
+    if (!system_order_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing system order ID."
+      });
+    }
+
+    const accessToken = await getPayPalAccessToken();
+
+    const response = await fetch(
+      `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: String(system_order_id),
+              amount: {
+                currency_code: "PHP",
+                value: "1.00"
+              }
+            }
+          ],
+          application_context: {
+            brand_name: "JCN Clothing",
+            landing_page: "LOGIN",
+            user_action: "PAY_NOW",
+            return_url: `http://localhost:5000/api/paypal/success?system_order_id=${system_order_id}`,
+            cancel_url: `http://localhost:5000/api/paypal/cancel?system_order_id=${system_order_id}`
+          }
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot create PayPal order.",
+        paypal: data
+      });
+    }
+
+    const approveLink = data.links?.find(
+      link => link.rel === "approve" || link.rel === "payer-action"
+    );
+
+    if (!approveLink) {
+      return res.status(400).json({
+        success: false,
+        message: "No PayPal approval URL found.",
+        paypal: data
+      });
+    }
+
+    await supabase
+      .from("orders")
+      .update({
+        paypal_order_id: data.id,
+        payment_method: "PayPal",
+        payment_status: "Unpaid",
+        status: "Pending Payment"
+      })
+      .eq("id", system_order_id);
+
+    res.json({
+      success: true,
+      paypal_order_id: data.id,
+      approve_url: approveLink.href
+    });
+
+  } catch (error) {
+    console.error("CREATE PAYPAL REDIRECT ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+
+/* PAYPAL SUCCESS RETURN */
+app.get("/api/paypal/success", async (req, res) => {
+  try {
+    const { token, system_order_id } = req.query;
+
+    if (!token || !system_order_id) {
+      return res.redirect(
+        "http://localhost:5500/complete-payment.html?status=missing"
+      );
+    }
+
+    const accessToken = await getPayPalAccessToken();
+
+    const response = await fetch(
+      `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${token}/capture`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || data.status !== "COMPLETED") {
+      return res.redirect(
+        "http://localhost:5500/complete-payment.html?status=failed"
+      );
+    }
+
+    const captureId =
+      data.purchase_units?.[0]?.payments?.captures?.[0]?.id || null;
+
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        status: "Processing",
+        payment_status: "Paid",
+        payment_method: "PayPal",
+        paypal_order_id: token,
+        paypal_capture_id: captureId
+      })
+      .eq("id", system_order_id);
+
+    if (error) throw error;
+
+    res.redirect(
+      "http://localhost:5500/complete-payment.html?status=success"
+    );
+
+  } catch (error) {
+    console.error("PAYPAL SUCCESS ERROR:", error);
+
+    res.redirect(
+      "http://localhost:5500/complete-payment.html?status=error"
+    );
+  }
+});
+
+
+/* PAYPAL CANCEL RETURN */
+app.get("/api/paypal/cancel", async (req, res) => {
+  const { system_order_id } = req.query;
+
+  if (system_order_id) {
+    await supabase
+      .from("orders")
+      .update({
+        status: "Pending Payment",
+        payment_status: "Unpaid"
+      })
+      .eq("id", system_order_id);
+  }
+
+  res.redirect(
+    "http://localhost:5500/customer-checkout.html?paypal=cancelled"
+  );
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+  

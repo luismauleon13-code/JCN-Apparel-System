@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JCN Apparel Printing Services</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin/css/style.css" />
 </head>
 <body>
 
@@ -18,9 +18,9 @@
       </div>
 
       <nav class="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Shop</a>
-        <a href="#">About</a>
+        <a href="customer/html/user-login.html">Home</a>
+        <a href="customer/html/user-shop.html">Shop</a>
+        <a href="customer/html/user-about.html">About</a>
         <button id="openLoginBtn" class="login-btn">Sign in</button>
       </nav>
     </div>
@@ -67,7 +67,7 @@
   const openPortalBtn = document.getElementById("openPortalBtn");
 
   openLoginBtn.addEventListener("click", function () {
-    window.location.href = "user-login.html";
+    window.location.href = "customer/html/user-login.html";
   });
 
   openPortalBtn.addEventListener("click", function () {

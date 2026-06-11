@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCN | My Orders</title>
+
+  <link rel="stylesheet" href="../css/customer-orders.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">J</div>
+    <div>
+      <h2>JCN</h2>
+      <p>Apparel Printing</p>
+    </div>
+  </div>
+
+  <nav class="menu">
+    <a href="dashboard.html"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="customer-shop.html"><i class="fa-solid fa-shirt"></i> Shop Products</a>
+    <a href="customer-customize.html"><i class="fa-solid fa-palette"></i> Customization</a>
+    <a href="customer-notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+    <a href="customer-cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+    <a href="customer-orders.html" class="active"><i class="fa-solid fa-box"></i> Orders</a>
+    <a href="customer-profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+  </nav>
+
+  <button id="customerLogoutBtn" class="logout-btn">
+  <i class="fas fa-sign-out-alt"></i>
+  Logout
+</button>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <p>JCN MY ORDERS</p>
+      <h1>My Orders</h1>
+    </div>
+  </header>
+
+  <div class="order-tabs">
+    <button class="tab-btn active" data-filter="All">All</button>
+<button class="tab-btn" data-filter="Pending">To Pay</button>
+<button class="tab-btn" data-filter="Processing">Processing</button>
+<button class="tab-btn" data-filter="ToShip">To Ship</button>
+<button class="tab-btn" data-filter="ToReceive">To Receive</button>
+<button class="tab-btn" data-filter="Completed">Completed</button>
+<button class="tab-btn" data-filter="Cancelled">Cancelled</button>
+  </div>
+
+  <section class="orders-layout">
+    <div class="orders-panel">
+      <h2>Order List</h2>
+
+      <div id="ordersList" class="orders-list">
+        <p class="empty">Loading orders...</p>
+      </div>
+    </div>
+
+    <div class="details-panel">
+      <h2>Order Details</h2>
+
+      <div id="orderDetails">
+        <p class="empty">Select an order to view details.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<div id="customerLogoutModal" class="customer-logout-modal hidden">
+  <div class="modal-overlay"></div>
+
+  <div class="modal-box">
+    <h4>Confirm Logout</h4>
+    <p>Are you sure you want to log out?</p>
+
+    <div class="logout-modal-actions">
+      <button id="customerConfirmLogout" class="modal-confirm-btn">
+        Yes, Logout
+      </button>
+
+      <button id="customerCancelLogout" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("customerLogoutBtn");
+  const logoutModal = document.getElementById("customerLogoutModal");
+  const confirmBtn = document.getElementById("customerConfirmLogout");
+  const cancelBtn = document.getElementById("customerCancelLogout");
+
+  logoutBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    logoutModal.classList.remove("hidden");
+  });
+
+  cancelBtn.addEventListener("click", function () {
+    logoutModal.classList.add("hidden");
+  });
+
+  confirmBtn.addEventListener("click", function () {
+    localStorage.removeItem("customerToken");
+    localStorage.removeItem("customerUser");
+    localStorage.removeItem("customerCart");
+
+    window.location.href = "index.html";
+  });
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../js/customer-orders.js"></script>
+</body>
+</html>
