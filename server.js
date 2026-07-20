@@ -951,7 +951,7 @@ app.post("/api/orders", async (req, res) => {
         });
       }
     }
-
+    
     // CREATE ORDER
     const { data, error } = await supabase
       .from("orders")
@@ -1318,6 +1318,68 @@ app.get("/api/admin/products", async (req, res) => {
   }
 });
 
+app.patch("/api/admin/products/:id/stock", async (req, res) => {
+  console.log("EDIT STOCK ROUTE HIT");
+  console.log("PRODUCT ID:", req.params.id);
+  console.log("BODY:", req.body);
+
+  try {
+    const { id } = req.params;
+    const { sizes } = req.body;
+
+    if (!Array.isArray(sizes)) {
+      return res.status(400).json({
+        success: false,
+        message: "Sizes must be an array."
+      });
+    }
+
+    const cleanSizes = sizes.map(item => ({
+      size: item.size,
+      length: item.length,
+      width: item.width,
+      sleeve: item.sleeve,
+      qty: Number(item.qty || 0)
+    }));
+
+    const totalQuantity = cleanSizes.reduce((sum, item) => {
+      return sum + Number(item.qty || 0);
+    }, 0);
+
+    const { data, error } = await supabase
+      .from("products")
+      .update({
+        sizes: cleanSizes,
+        quantity: totalQuantity
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.log("SUPABASE STOCK ERROR:", error);
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Stock updated successfully.",
+      product: data
+    });
+
+  } catch (error) {
+    console.log("EDIT STOCK SERVER ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 /* ADD PRODUCT WITH IMAGE */
 app.post("/api/admin/products", upload.single("product_image"), async (req, res) => {
   try {
@@ -1539,12 +1601,12 @@ app.get("/api/admin/reports", async (req, res) => {
 
     const allOrders = orders || [];
 
-    // Hindi kasama ang cancelled sa total orders/report table
+    
     const activeOrders = allOrders.filter(
       order => order.status !== "Cancelled"
     );
 
-    // Sales lang ng completed at hindi cancelled
+    
     const totalSales = activeOrders
       .filter(order => order.status === "Completed")
       .reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
@@ -1857,17 +1919,73 @@ app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
     }
 
     if (
+      order.status === "To Ship" ||
       order.status === "To Deliver" ||
-      order.status === "Shipped" ||
-      order.status === "Completed" ||
-      order.status === "Delivered"
+      order.status === "To Receive" ||
+      order.status === "Completed"
     ) {
       return res.status(400).json({
         success: false,
-        message: "You cannot cancel this order because it is already shipped or completed."
+        message: "This order can no longer be cancelled."
       });
     }
 
+    /* PAYPAL REFUND */
+    if (
+      order.payment_method === "PayPal" &&
+      order.payment_status === "Paid" &&
+      order.paypal_capture_id
+    ) {
+      const accessToken = await getPayPalAccessToken();
+
+      const refundResponse = await fetch(
+        `${process.env.PAYPAL_BASE_URL}/v2/payments/captures/${order.paypal_capture_id}/refund`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      const refundData = await refundResponse.json();
+
+      if (!refundResponse.ok) {
+        console.error("PAYPAL REFUND ERROR:", refundData);
+
+        return res.status(400).json({
+          success: false,
+          message: refundData.message || "PayPal refund failed."
+        });
+      }
+
+      const { data, error } = await supabase
+        .from("orders")
+        .update({
+          status: "Cancelled",
+          payment_status: "Refunded",
+          paypal_refund_id: refundData.id,
+          refunded_at: new Date().toISOString()
+        })
+        .eq("id", id)
+        .select();
+
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: error.message
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Order cancelled and PayPal payment refunded.",
+        order: data[0]
+      });
+    }
+
+    /* COD / UNPAID */
     const { data, error } = await supabase
       .from("orders")
       .update({
@@ -1890,6 +2008,8 @@ app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
     });
 
   } catch (error) {
+    console.error("CANCEL ORDER ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message
@@ -2241,10 +2361,11 @@ app.get("/api/paypal/success", async (req, res) => {
   try {
     const { token, system_order_id } = req.query;
 
+    const CHECKOUT_PAGE =
+      "http://localhost:5500/customer/html/customer-checkout.html";
+
     if (!token || !system_order_id) {
-      return res.redirect(
-        "http://localhost:5500/complete-payment.html?status=missing"
-      );
+      return res.redirect(`${CHECKOUT_PAGE}?payment=missing`);
     }
 
     const accessToken = await getPayPalAccessToken();
@@ -2260,18 +2381,18 @@ app.get("/api/paypal/success", async (req, res) => {
       }
     );
 
-    const data = await response.json();
+    const paypalData = await response.json();
 
-    if (!response.ok || data.status !== "COMPLETED") {
-      return res.redirect(
-        "http://localhost:5500/complete-payment.html?status=failed"
-      );
+    console.log("PAYPAL CAPTURE DATA:", paypalData);
+
+    if (!response.ok || paypalData.status !== "COMPLETED") {
+      return res.redirect(`${CHECKOUT_PAGE}?payment=failed`);
     }
 
     const captureId =
-      data.purchase_units?.[0]?.payments?.captures?.[0]?.id || null;
+      paypalData.purchase_units?.[0]?.payments?.captures?.[0]?.id || null;
 
-    const { error } = await supabase
+    const { data: updatedOrder, error } = await supabase
       .from("orders")
       .update({
         status: "Processing",
@@ -2280,41 +2401,56 @@ app.get("/api/paypal/success", async (req, res) => {
         paypal_order_id: token,
         paypal_capture_id: captureId
       })
-      .eq("id", system_order_id);
+      .eq("id", system_order_id)
+      .select("*")
+      .maybeSingle();
 
-    if (error) throw error;
+    console.log("UPDATED PAYPAL ORDER:", updatedOrder);
+    console.log("UPDATE ERROR:", error);
 
-    res.redirect(
-      "http://localhost:5500/complete-payment.html?status=success"
+    if (error || !updatedOrder) {
+      return res.redirect(`${CHECKOUT_PAGE}?payment=update_failed`);
+    }
+
+    return res.redirect(
+      `${CHECKOUT_PAGE}?payment=success&order_number=${encodeURIComponent(updatedOrder.order_number)}`
     );
 
   } catch (error) {
     console.error("PAYPAL SUCCESS ERROR:", error);
 
-    res.redirect(
-      "http://localhost:5500/complete-payment.html?status=error"
+    return res.redirect(
+      "http://localhost:5500/customer/html/customer-checkout.html?payment=error"
     );
   }
 });
 
-
 /* PAYPAL CANCEL RETURN */
 app.get("/api/paypal/cancel", async (req, res) => {
-  const { system_order_id } = req.query;
+  try {
+    const { system_order_id } = req.query;
 
-  if (system_order_id) {
-    await supabase
-      .from("orders")
-      .update({
-        status: "Pending Payment",
-        payment_status: "Unpaid"
-      })
-      .eq("id", system_order_id);
+    if (system_order_id) {
+      await supabase
+        .from("orders")
+        .update({
+          status: "Pending Payment",
+          payment_status: "Unpaid"
+        })
+        .eq("id", system_order_id);
+    }
+
+    return res.redirect(
+      `http://localhost:5500/customer/html/customer-checkout.html?paypal=cancelled&order_id=${system_order_id || ""}`
+    );
+
+  } catch (error) {
+    console.error("PAYPAL CANCEL ERROR:", error);
+
+    return res.redirect(
+      "http://localhost:5500/customer/html/customer-checkout.html?paypal=error"
+    );
   }
-
-  res.redirect(
-    "http://localhost:5500/customer-checkout.html?paypal=cancelled"
-  );
 });
 
 const PORT = process.env.PORT || 5000;
