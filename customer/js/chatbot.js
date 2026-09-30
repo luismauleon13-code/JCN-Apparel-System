@@ -49,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
-
 /* =========================================
    INITIALIZE CHATBOT
 ========================================= */
@@ -83,7 +82,6 @@ function initializeJCNChatbot() {
   }
 
 }
-
 
 /* =========================================
    CHATBOT EVENTS

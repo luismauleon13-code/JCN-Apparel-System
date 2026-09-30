@@ -1,209 +1,412 @@
-/* =============================
-   ANNOUNCEMENTS
-============================= */
+"use strict";
 
-const announcementTitle = document.getElementById("announcementTitle");
-const announcementMessage = document.getElementById("announcementMessage");
-const postAnnouncementBtn = document.getElementById("postAnnouncementBtn");
-const announcementHistory = document.getElementById("announcementHistory");
+(() => {
+  const API_BASE = "http://localhost:5000";
+  const LOGIN_PAGE = "admin-login.html";
 
-async function loadAnnouncements() {
-  if (!announcementHistory) return;
+  const $ = id => document.getElementById(id);
 
-  const res = await fetch("http://localhost:5000/api/announcements");
-  const data = await res.json();
+  let announcements = [];
+  let selectedAnnouncement = null;
 
-  announcementHistory.innerHTML = "";
+  let loading = false;
+  let posting = false;
+  let deleting = false;
 
-  if (!data.success || data.announcements.length === 0) {
-    announcementHistory.innerHTML = `
-      <p class="text-secondary">No announcements yet.</p>
-    `;
-    return;
-  }
-  
+  // Used to ignore an older list response after a successful change.
+  let loadVersion = 0;
 
-  data.announcements.forEach(item => {
-  announcementHistory.innerHTML += `
-  <div class="announcement-item">
+  function logout() {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
+    localStorage.removeItem("admin");
 
-    <div class="announcement-icon">
-      <i class="fa-solid fa-bullhorn"></i>
-    </div>
-
-    <div class="announcement-content">
-      <div class="announcement-header">
-
-        <h6 class="announcement-title">
-          ${item.title}
-        </h6>
-
-        <div class="announcement-actions">
-
-          <span class="announcement-date">
-            ${new Date(item.created_at).toLocaleString()}
-          </span>
-
-          <button
-            class="delete-announcement-btn"
-            onclick="deleteAnnouncement('${item.id}')"
-            title="Delete Announcement">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-
-        </div>
-
-      </div>
-
-      <p class="announcement-message">
-        ${item.message}
-      </p>
-    </div>
-
-  </div>
-`;
-});
-}
-
-postAnnouncementBtn?.addEventListener("click", async () => {
-  const title = announcementTitle.value.trim();
-  const message = announcementMessage.value.trim();
-
-  if (!title || !message) {
-    alert("Please enter title and message.");
-    return;
+    window.location.replace(LOGIN_PAGE);
   }
 
-  const res = await fetch("http://localhost:5000/api/admin/announcements", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      title,
-      message
-    })
-  });
+  async function request(path, method = "GET", body) {
+    const token = localStorage.getItem("adminToken");
 
-  const data = await res.json();
+    if (!token) {
+      logout();
+      throw new Error("Please log in again.");
+    }
 
-  if (data.success) {
-    alert("Announcement posted.");
+    let response;
 
-    announcementTitle.value = "";
-    announcementMessage.value = "";
-
-    loadAnnouncements();
-  } else {
-    alert(data.message);
-  }
-});
-
-async function deleteAnnouncement(id) {
-  const result = await Swal.fire({
-    title: "Delete Announcement",
-    html: `
-      <div class="delete-warning-icon">
-        <i class="fa-solid fa-bullhorn"></i>
-      </div>
-      <p class="delete-warning-text">
-        Are you sure you want to permanently delete this announcement?
-      </p>
-    `,
-    showCancelButton: true,
-    confirmButtonText: "Delete",
-    cancelButtonText: "Cancel",
-    customClass: {
-      popup: "premium-delete-popup",
-      title: "premium-delete-title",
-      confirmButton: "premium-delete-confirm",
-      cancelButton: "premium-delete-cancel"
-    },
-    buttonsStyling: false
-  });
-
-  if (!result.isConfirmed) return;
-
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/admin/announcements/${id}`,
-      {
-        method: "DELETE"
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      await Swal.fire({
-        icon: "error",
-        title: "Delete Failed",
-        text: data.message || "Failed to delete announcement.",
-        confirmButtonText: "OK",
-        customClass: {
-          popup: "jcn-alert-popup",
-          title: "jcn-error-title",
-          confirmButton: "jcn-alert-btn"
+    try {
+      response = await fetch(API_BASE + path, {
+        method,
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(body !== undefined
+            ? { "Content-Type": "application/json" }
+            : {})
         },
-        buttonsStyling: false
+        ...(body !== undefined
+          ? { body: JSON.stringify(body) }
+          : {})
       });
+    } catch {
+      throw new Error(
+        "Cannot reach the server. Make sure Node.js is running on port 5000."
+      );
+    }
+
+    if (response.status === 401) {
+      logout();
+      throw new Error("Session expired. Please log in again.");
+    }
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error(
+        "The server returned an unexpected response. Check the announcements API."
+      );
+    }
+
+    if (!response.ok || data?.success === false) {
+      throw new Error(
+        data?.message || "The announcement request failed."
+      );
+    }
+
+    return data;
+  }
+
+  function notice(message) {
+    $("pageNotice").textContent = message;
+  }
+
+  function updateControls() {
+    const mutationBusy = posting || deleting;
+
+    $("postAnnouncementBtn").disabled = mutationBusy;
+    $("announcementTitle").disabled = mutationBusy;
+    $("announcementMessage").disabled = mutationBusy;
+
+    $("refreshAnnouncements").disabled = loading || mutationBusy;
+    $("adminLogoutBtn").disabled = mutationBusy;
+
+    $("confirmDelete").disabled = mutationBusy;
+    $("cancelDelete").disabled = deleting;
+
+    document
+      .querySelectorAll(".delete-announcement-btn")
+      .forEach(button => {
+        button.disabled = mutationBusy;
+      });
+
+    $("announcementForm").setAttribute(
+      "aria-busy",
+      String(posting)
+    );
+  }
+
+  function showHistoryMessage(message, isError = false) {
+    const paragraph = document.createElement("p");
+
+    paragraph.className = isError ? "empty error" : "empty";
+    paragraph.textContent = message;
+
+    $("announcementHistory").replaceChildren(paragraph);
+  }
+
+  function renderAnnouncements() {
+    const history = $("announcementHistory");
+    history.replaceChildren();
+
+    $("historyCount").textContent =
+      `${announcements.length} loaded announcement(s)`;
+
+    if (!announcements.length) {
+      showHistoryMessage("No announcements yet.");
       return;
     }
 
-    await Swal.fire({
-      icon: "success",
-      title: "Deleted",
-      text: "Announcement deleted successfully.",
-      confirmButtonText: "OK",
-      customClass: {
-        popup: "jcn-alert-popup",
-        title: "jcn-success-title",
-        confirmButton: "jcn-alert-btn"
-      },
-      buttonsStyling: false
+    const fragment = document.createDocumentFragment();
+
+    announcements.forEach(item => {
+      const article = document.createElement("article");
+      article.className = "announcement-item";
+
+      const icon = document.createElement("div");
+      icon.className = "announcement-icon";
+
+      // Static markup only; database content uses textContent.
+      icon.innerHTML =
+        '<i class="fa-solid fa-bullhorn" aria-hidden="true"></i>';
+
+      const content = document.createElement("div");
+      content.className = "announcement-content";
+
+      const header = document.createElement("div");
+      header.className = "announcement-header";
+
+      const headingGroup = document.createElement("div");
+
+      const title = document.createElement("h3");
+      title.className = "announcement-title";
+      title.textContent = item.title || "Untitled announcement";
+
+      const date = document.createElement("time");
+      date.className = "announcement-date";
+
+      const createdAt = item.created_at
+        ? new Date(item.created_at)
+        : null;
+
+      if (createdAt && !Number.isNaN(createdAt.getTime())) {
+        date.dateTime = createdAt.toISOString();
+        date.textContent = createdAt.toLocaleString("en-PH", {
+          timeZone: "Asia/Manila",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit"
+        }) + " PHT";
+      } else {
+        date.textContent = "Date unavailable";
+      }
+
+      headingGroup.append(title, date);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-announcement-btn";
+      deleteButton.dataset.id = String(item.id);
+      deleteButton.title = "Delete announcement";
+      deleteButton.setAttribute(
+        "aria-label",
+        `Delete announcement: ${item.title || "Untitled announcement"}`
+      );
+      deleteButton.innerHTML =
+        '<i class="fa-solid fa-trash-can" aria-hidden="true"></i>';
+
+      header.append(headingGroup, deleteButton);
+
+      const message = document.createElement("p");
+      message.className = "announcement-message";
+      message.textContent = item.message || "";
+
+      content.append(header, message);
+      article.append(icon, content);
+      fragment.append(article);
     });
+
+    history.append(fragment);
+    updateControls();
+  }
+
+  async function loadAnnouncements() {
+    const version = ++loadVersion;
+
+    loading = true;
+    updateControls();
+
+    $("announcementHistory").setAttribute("aria-busy", "true");
+    $("historyCount").textContent = "";
+    showHistoryMessage("Loading announcements…");
+
+    try {
+      const data = await request("/api/announcements");
+
+      if (version !== loadVersion) return;
+
+      if (!Array.isArray(data.announcements)) {
+        throw new Error(
+          "The server did not return an announcement list."
+        );
+      }
+
+      announcements = [...data.announcements].sort((a, b) => {
+        const aTime = Date.parse(a.created_at) || 0;
+        const bTime = Date.parse(b.created_at) || 0;
+
+        return bTime - aTime;
+      });
+
+      renderAnnouncements();
+    } catch (error) {
+      if (version !== loadVersion) return;
+
+      announcements = [];
+
+      showHistoryMessage(
+        `${error.message} Use Refresh to try again.`,
+        true
+      );
+    } finally {
+      if (version === loadVersion) {
+        loading = false;
+        $("announcementHistory").setAttribute("aria-busy", "false");
+        updateControls();
+      }
+    }
+  }
+
+  async function postAnnouncement(event) {
+    event.preventDefault();
+
+    if (posting || deleting) return;
+
+    const title = $("announcementTitle").value.trim();
+    const message = $("announcementMessage").value.trim();
+
+    $("formError").textContent = "";
+
+    if (!title || !message) {
+      $("formError").textContent =
+        "Please enter both a title and a message.";
+      return;
+    }
+
+    if (title.length > 150 || message.length > 5000) {
+      $("formError").textContent =
+        "Use up to 150 characters for the title and 5000 for the message.";
+      return;
+    }
+
+    posting = true;
+    notice("");
+    updateControls();
+
+    try {
+      const data = await request(
+        "/api/admin/announcements",
+        "POST",
+        { title, message }
+      );
+
+      $("announcementForm").reset();
+
+      notice(
+        data.message || "Announcement posted successfully."
+      );
+
+      await loadAnnouncements();
+    } catch (error) {
+      // Keep the draft so the user does not lose their text.
+      $("formError").textContent = error.message;
+    } finally {
+      posting = false;
+      updateControls();
+    }
+  }
+
+  function openDelete(id) {
+    if (posting || deleting) return;
+
+    const item = announcements.find(
+      announcement => String(announcement.id) === id
+    );
+
+    if (!item) return;
+
+    selectedAnnouncement = item;
+
+    $("deleteAnnouncementTitle").textContent =
+      item.title || "Untitled announcement";
+
+    $("deleteError").textContent = "";
+    $("deleteModal").showModal();
+    $("cancelDelete").focus();
+  }
+
+  async function confirmDelete() {
+    if (!selectedAnnouncement || deleting || posting) return;
+
+    const id = selectedAnnouncement.id;
+
+    deleting = true;
+    $("deleteError").textContent = "";
+    notice("");
+    updateControls();
+
+    try {
+      const data = await request(
+        `/api/admin/announcements/${encodeURIComponent(id)}`,
+        "DELETE"
+      );
+
+      $("deleteModal").close();
+
+      notice(
+        data.message || "Announcement deleted successfully."
+      );
+
+      await loadAnnouncements();
+    } catch (error) {
+      $("deleteError").textContent = error.message;
+    } finally {
+      deleting = false;
+      updateControls();
+    }
+  }
+
+  function init() {
+    if (!localStorage.getItem("adminToken")) {
+      logout();
+      return;
+    }
+
+    $("announcementForm").addEventListener(
+      "submit",
+      postAnnouncement
+    );
+
+    $("refreshAnnouncements").addEventListener("click", () => {
+      if (!loading && !posting && !deleting) {
+        loadAnnouncements();
+      }
+    });
+
+    $("announcementHistory").addEventListener("click", event => {
+      const button = event.target.closest(
+        ".delete-announcement-btn"
+      );
+
+      if (button) openDelete(button.dataset.id);
+    });
+
+    $("confirmDelete").addEventListener("click", confirmDelete);
+
+    $("cancelDelete").addEventListener("click", () => {
+      if (!deleting) $("deleteModal").close();
+    });
+
+    $("deleteModal").addEventListener("cancel", event => {
+      if (deleting) event.preventDefault();
+    });
+
+    $("deleteModal").addEventListener("close", () => {
+      selectedAnnouncement = null;
+    });
+
+    $("adminLogoutBtn").addEventListener("click", () => {
+      $("adminLogoutModal").showModal();
+      $("adminCancelLogout").focus();
+    });
+
+    $("adminCancelLogout").addEventListener("click", () => {
+      $("adminLogoutModal").close();
+    });
+
+    $("adminConfirmLogout").addEventListener("click", logout);
 
     loadAnnouncements();
-
-  } catch (error) {
-    console.error(error);
-
-    await Swal.fire({
-      icon: "error",
-      title: "Server Error",
-      text: "Unable to delete announcement.",
-      confirmButtonText: "OK",
-      customClass: {
-        popup: "jcn-alert-popup",
-        title: "jcn-error-title",
-        confirmButton: "jcn-alert-btn"
-      },
-      buttonsStyling: false
-    });
   }
-}
 
-loadAnnouncements();
-
-
-/*logout modal*/
-document.addEventListener("DOMContentLoaded", () => {
-  const adminLogoutBtn = document.getElementById("adminLogoutBtn");
-  const adminLogoutModal = document.getElementById("adminLogoutModal");
-  const adminConfirmLogout = document.getElementById("adminConfirmLogout");
-  const adminCancelLogout = document.getElementById("adminCancelLogout");
-
-  adminLogoutBtn?.addEventListener("click", () => {
-    adminLogoutModal?.classList.remove("hidden");
-  });
-
-  adminCancelLogout?.addEventListener("click", () => {
-    adminLogoutModal?.classList.add("hidden");
-  });
-
-  adminConfirmLogout?.addEventListener("click", () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminUser");
-    window.location.href = "index.html";
-  });
-});
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, {
+      once: true
+    });
+  } else {
+    init();
+  }
+})();

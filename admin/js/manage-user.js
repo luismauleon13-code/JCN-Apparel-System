@@ -1,385 +1,476 @@
-const USERS_API = "http://localhost:5000/api/admin/users";
+"use strict";
 
-let selectedUserId = null;
-let selectedUnrestrictUserId = null;
-let selectedDeleteUserId = null;
+(() => {
+  const USERS_API = "http://localhost:5000/api/admin/users";
+  const LOGIN_PAGE = "admin-login.html";
 
-/* SUCCESS MODAL */
-function showSuccess(message) {
-  const modal = document.getElementById("successModal");
-  const text = document.getElementById("successMessage");
+  const $ = id => document.getElementById(id);
 
-  const icon = document.querySelector("#successModal i");
-  const title = document.querySelector("#successModal h3");
+  let users = [];
+  let selected = null;
+  let saving = false;
+  let loading = false;
 
-  if (!modal || !text) return;
+  const escapeHTML = value =>
+    String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[character]));
 
-  text.textContent = message;
-
-  if (icon) {
-    icon.className = "fa-solid fa-circle-check";
-    icon.style.color = "#22c55e";
+  function clearAdminSession() {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
+    localStorage.removeItem("admin");
   }
 
-  if (title) {
-    title.textContent = "Success";
-    title.style.color = "#facc15";
+  function redirectToLogin() {
+    clearAdminSession();
+    window.location.replace(LOGIN_PAGE);
   }
 
-  modal.style.display = "flex";
-}
-
-function closeSuccessModal() {
-  const modal = document.getElementById("successModal");
-  if (modal) modal.style.display = "none";
-}
-
-/* ERROR */
-function showError(message) {
-  const modal = document.getElementById("successModal");
-  const text = document.getElementById("successMessage");
-
-  const icon = document.querySelector("#successModal i");
-  const title = document.querySelector("#successModal h3");
-
-  if (!modal || !text) return;
-
-  text.textContent = message;
-
-  if (icon) {
-    icon.className = "fa-solid fa-circle-xmark";
-    icon.style.color = "#ef4444";
+  function statusOf(user) {
+    return String(user.status || "unknown").trim().toLowerCase();
   }
 
-  if (title) {
-    title.textContent = "Delete Failed";
-    title.style.color = "#ef4444";
+  function nameOf(user) {
+    return String(
+      user.full_name ||
+      [user.first_name, user.middle_name, user.last_name]
+        .filter(Boolean)
+        .join(" ") ||
+      user.username ||
+      "Unnamed customer"
+    ).trim();
   }
 
-  modal.style.display = "flex";
-}
+  function initialsOf(name) {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(word => word[0])
+      .join("")
+      .toUpperCase() || "?";
+  }
 
-/* GET REMAINING RESTRICTION DAYS */
-function getRestrictionDays(user) {
-  if (user.status !== "restricted" || !user.restriction_until) return "";
-
-  const now = new Date();
-  const until = new Date(user.restriction_until);
-  const diff = until - now;
-
-  const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-  if (daysLeft <= 0) return "Restriction expired";
-
-  return `${daysLeft} day(s) left`;
-}
-
-/* LOAD USERS */
-async function loadUsers() {
-  const tableBody = document.getElementById("usersTableBody");
-  if (!tableBody) return;
-
-  try {
-    const res = await fetch(USERS_API);
-    const data = await res.json();
-
-    tableBody.innerHTML = "";
-
-    if (!data.success || !data.users || data.users.length === 0) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center text-secondary py-4">
-            No registered users yet.
-          </td>
-        </tr>
-      `;
-      return;
+  function restrictionDetails(user) {
+    if (!user.restriction_until) {
+      return "No expiry recorded";
     }
 
-    data.users.forEach(user => {
-      const name = user.full_name || user.username || "Unknown User";
-      const email = user.email || "No Email";
-      const status = user.status || "active";
+    const until = new Date(user.restriction_until);
 
-      const initials = name
-        .split(" ")
-        .map(word => word[0])
-        .join("")
-        .substring(0, 2)
-        .toUpperCase();
+    if (Number.isNaN(until.getTime())) {
+      return "Invalid expiry date";
+    }
 
-      tableBody.innerHTML += `
+    const remaining = until.getTime() - Date.now();
+
+    if (remaining <= 0) {
+      return "Expiry passed — refresh or unrestrict";
+    }
+
+    const days = Math.ceil(remaining / 86400000);
+
+    return `${days} day(s) left · Until ${
+      until.toLocaleDateString("en-PH")
+    }`;
+  }
+
+  async function request(path = "", method = "GET", body) {
+    const token = localStorage.getItem("adminToken");
+
+    if (!token) {
+      redirectToLogin();
+      throw new Error("Please log in again.");
+    }
+
+    let response;
+
+    try {
+      response = await fetch(USERS_API + path, {
+        method,
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(body !== undefined
+            ? { "Content-Type": "application/json" }
+            : {})
+        },
+        ...(body !== undefined
+          ? { body: JSON.stringify(body) }
+          : {})
+      });
+    } catch {
+      throw new Error(
+        "Cannot reach the server. Make sure Node.js is running on port 5000."
+      );
+    }
+
+    if (response.status === 401) {
+      redirectToLogin();
+      throw new Error("Your session expired. Please log in again.");
+    }
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error(
+        "The server returned an unexpected response. Check the users API."
+      );
+    }
+
+    if (!response.ok || data?.success === false) {
+      throw new Error(data?.message || "The request failed.");
+    }
+
+    return data;
+  }
+
+  function renderUsers() {
+    const query = $("customerSearch").value.trim().toLowerCase();
+    const filter = $("statusFilter").value;
+
+    const visible = users.filter(user => {
+      const searchable = [
+        nameOf(user),
+        user.username,
+        user.email,
+        user.phone
+      ].join(" ").toLowerCase();
+
+      return searchable.includes(query) &&
+        (filter === "all" || statusOf(user) === filter);
+    });
+
+    $("customerCount").textContent =
+      `Showing ${visible.length} of ${users.length} loaded customer(s)`;
+
+    $("usersTableBody").innerHTML = visible.map(user => {
+      const name = nameOf(user);
+      const status = statusOf(user);
+
+      const knownStatus = [
+        "active",
+        "restricted",
+        "inactive"
+      ].includes(status);
+
+      const statusClass = knownStatus ? status : "unknown";
+      const statusLabel = knownStatus
+        ? status[0].toUpperCase() + status.slice(1)
+        : "Unknown";
+
+      const isRestricted = status === "restricted";
+      const action = isRestricted ? "unrestrict" : "restrict";
+      const actionLabel = isRestricted
+        ? "Unrestrict customer"
+        : "Restrict customer";
+
+      const actionIcon = isRestricted ? "fa-unlock" : "fa-ban";
+      const id = escapeHTML(user.id);
+
+      return `
         <tr>
           <td>
-            <div class="d-flex align-items-center gap-3">
-              <div class="user-avatar">${initials}</div>
-              <span class="text-light fw-semibold">${name}</span>
+            <div class="customer-cell">
+              <div class="user-avatar" aria-hidden="true">
+                ${escapeHTML(initialsOf(name))}
+              </div>
+              <span class="customer-name">${escapeHTML(name)}</span>
             </div>
           </td>
 
-          <td class="text-secondary">${email}</td>
+          <td class="contact-cell">
+            ${escapeHTML(user.email || "Not provided")}
+          </td>
 
-          <td class="text-secondary">${user.phone || "N/A"}</td>
-
-          <td>
-            <span class="badge-role role-user">Customer</span>
+          <td class="contact-cell phone-cell">
+            ${escapeHTML(user.phone || "Not provided")}
           </td>
 
           <td>
-            ${
-              status === "restricted"
-                ? `
-                  <span class="text-danger small fw-bold d-block">
-                    <i class="fa-solid fa-circle status-indicator"></i>
-                    Restricted
-                  </span>
-
-                  <small class="text-warning d-block mt-1">
-                    ${getRestrictionDays(user)}
-                  </small>
-
-                  <small class="text-secondary d-block">
-                    ${user.restriction_reason || "No reason provided"}
-                  </small>
-                `
-                : `
-                  <span class="text-success small fw-bold">
-                    <i class="fa-solid fa-circle status-indicator"></i>
-                    Active
-                  </span>
-                `
-            }
+            <span class="badge-role">Customer</span>
           </td>
 
-          <td class="text-end">
-            ${
-              status === "restricted"
-                ? `
-                  <button
-                    onclick="openUnrestrictModal('${user.id}')"
-                    class="btn btn-sm text-success"
-                    title="Unrestrict User"
-                  >
-                    <i class="fa-solid fa-unlock"></i>
-                  </button>
-                `
-                : `
-                  <button
-                    onclick="openRestrictModal('${user.id}')"
-                    class="btn btn-sm text-gold"
-                    title="Restrict User"
-                  >
-                    <i class="fa-solid fa-ban"></i>
-                  </button>
-                `
-            }
+          <td>
+            <span class="status status-${statusClass}">
+              ${statusLabel}
+            </span>
 
-            <button
-              onclick="openDeleteModal('${user.id}')"
-              class="btn btn-sm text-danger ms-2"
-              title="Delete User"
-            >
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
+            ${isRestricted ? `
+              <small class="restriction-detail">
+                ${escapeHTML(restrictionDetails(user))}
+              </small>
+              <small class="restriction-detail">
+                ${escapeHTML(
+                  user.restriction_reason || "No reason provided"
+                )}
+              </small>
+            ` : ""}
+          </td>
+
+          <td>
+            <div class="action-buttons">
+              <button
+                type="button"
+                class="icon-button ${isRestricted ? "restore" : ""}"
+                data-action="${action}"
+                data-id="${id}"
+                title="${actionLabel}"
+                aria-label="${actionLabel}: ${escapeHTML(name)}"
+              >
+                <i class="fa-solid ${actionIcon}" aria-hidden="true"></i>
+              </button>
+
+              <button
+                type="button"
+                class="icon-button delete"
+                data-action="delete"
+                data-id="${id}"
+                title="Delete customer"
+                aria-label="Delete customer: ${escapeHTML(name)}"
+              >
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              </button>
+            </div>
           </td>
         </tr>
       `;
-    });
-
-  } catch (error) {
-    console.error("Load users error:", error);
-
-    tableBody.innerHTML = `
+    }).join("") || `
       <tr>
-        <td colspan="6" class="text-center text-danger py-4">
-          Cannot load users. Make sure backend is running.
+        <td colspan="6" class="empty">
+          ${users.length
+            ? "No customers match your search."
+            : "No registered customers yet."}
         </td>
       </tr>
     `;
   }
-}
 
-/* RESTRICT MODAL */
-function openRestrictModal(id) {
-  selectedUserId = id;
+  async function loadUsers() {
+    if (loading) return;
 
-  const input = document.getElementById("restrictDays");
-  const modal = document.getElementById("restrictModal");
+    loading = true;
+    $("refreshUsers").disabled = true;
+    $("customerSearch").disabled = true;
+    $("statusFilter").disabled = true;
+    $("customerCount").textContent = "";
 
-  if (input) input.value = "";
-  if (modal) modal.style.display = "flex";
-}
+    $("usersTableBody").innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">Loading customers…</td>
+      </tr>
+    `;
 
-function closeRestrictModal() {
-  selectedUserId = null;
+    try {
+      const data = await request();
 
-  const modal = document.getElementById("restrictModal");
-  if (modal) modal.style.display = "none";
-}
+      if (!Array.isArray(data.users)) {
+        throw new Error("The server did not return a customer list.");
+      }
 
-document.getElementById("confirmRestrict")?.addEventListener("click", async () => {
-  const input = document.getElementById("restrictDays");
-  const days = input?.value.trim();
+      users = data.users;
+      renderUsers();
+    } catch (error) {
+      users = [];
 
-  if (!selectedUserId) {
-    showError("No user selected.");
-    return;
+      $("usersTableBody").innerHTML = `
+        <tr>
+          <td colspan="6" class="empty error">
+            ${escapeHTML(error.message)}
+            Use Refresh to try again.
+          </td>
+        </tr>
+      `;
+    } finally {
+      loading = false;
+      $("refreshUsers").disabled = false;
+      $("customerSearch").disabled = false;
+      $("statusFilter").disabled = false;
+    }
   }
 
-  if (!days || Number(days) <= 0 || isNaN(Number(days))) {
-    showError("Please enter a valid number of days.");
-    input?.focus();
-    return;
-  }
+  function openAction(action, id) {
+    if (saving || loading) return;
 
-  try {
-    const res = await fetch(`${USERS_API}/${selectedUserId}/restrict`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        days: Number(days),
-        reason: "Violation"
-      })
-    });
+    const user = users.find(item => String(item.id) === id);
 
-    const data = await res.json();
-
-    closeRestrictModal();
-    showSuccess(data.message || `User restricted for ${days} day(s).`);
-    loadUsers();
-
-  } catch (error) {
-    console.error("Restrict user error:", error);
-    showError("Cannot restrict user.");
-  }
-});
-
-document.getElementById("cancelRestrict")?.addEventListener("click", closeRestrictModal);
-
-document.getElementById("restrictModal")?.addEventListener("click", e => {
-  if (e.target.id === "restrictModal") closeRestrictModal();
-});
-
-/* UNRESTRICT MODAL */
-function openUnrestrictModal(id) {
-  selectedUnrestrictUserId = id;
-
-  const modal = document.getElementById("unrestrictModal");
-  if (modal) modal.style.display = "flex";
-}
-
-function closeUnrestrictModal() {
-  selectedUnrestrictUserId = null;
-
-  const modal = document.getElementById("unrestrictModal");
-  if (modal) modal.style.display = "none";
-}
-
-document.getElementById("confirmUnrestrict")?.addEventListener("click", async () => {
-  if (!selectedUnrestrictUserId) {
-    showError("No user selected.");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${USERS_API}/${selectedUnrestrictUserId}/unrestrict`, {
-      method: "PATCH"
-    });
-
-    const data = await res.json();
-
-    closeUnrestrictModal();
-    showSuccess(data.message || "User unrestricted successfully.");
-    loadUsers();
-
-  } catch (error) {
-    console.error("Unrestrict user error:", error);
-    showError("Cannot unrestrict user.");
-  }
-});
-
-document.getElementById("cancelUnrestrict")?.addEventListener("click", closeUnrestrictModal);
-
-document.getElementById("unrestrictModal")?.addEventListener("click", e => {
-  if (e.target.id === "unrestrictModal") closeUnrestrictModal();
-});
-
-/* DELETE MODAL */
-function openDeleteModal(id) {
-  selectedDeleteUserId = id;
-
-  const modal = document.getElementById("deleteModal");
-  if (modal) modal.style.display = "flex";
-}
-
-function closeDeleteModal() {
-  selectedDeleteUserId = null;
-
-  const modal = document.getElementById("deleteModal");
-  if (modal) modal.style.display = "none";
-}
-
-document.getElementById("confirmDelete")?.addEventListener("click", async () => {
-  if (!selectedDeleteUserId) {
-    showError("No user selected.");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${USERS_API}/${selectedDeleteUserId}`, {
-      method: "DELETE"
-    });
-
-    const data = await res.json();
-
-    console.log("DELETE RESPONSE:", data);
-
-    closeDeleteModal();
-
-    if (!res.ok || data.success === false) {
-      showError(data.message || "Delete failed.");
+    if (!user || !["restrict", "unrestrict", "delete"].includes(action)) {
       return;
     }
 
-    showSuccess(data.message || "User deleted successfully.");
-    loadUsers();
+    selected = { action, id };
+    $("actionForm").reset();
+    $("actionError").textContent = "";
 
-  } catch (error) {
-    console.error("Delete user error:", error);
-    showError("Cannot delete user.");
+    const restrict = action === "restrict";
+
+    $("restrictionFields").hidden = !restrict;
+    $("restrictDays").disabled = !restrict;
+    $("restrictReason").disabled = !restrict;
+    $("restrictDays").required = restrict;
+    $("restrictReason").required = restrict;
+
+    const labels = {
+      restrict: "Restrict Customer",
+      unrestrict: "Unrestrict Customer",
+      delete: "Delete Customer"
+    };
+
+    $("actionTitle").textContent = labels[action];
+
+    const name = nameOf(user);
+
+    $("actionDescription").textContent =
+      action === "restrict"
+        ? `Set the restriction duration and reason for ${name}.`
+        : action === "unrestrict"
+          ? `Restore account access for ${name}?`
+          : `Permanently delete ${name}'s account? Customers with existing orders cannot be deleted.`;
+
+    $("confirmAction").textContent =
+      action === "restrict"
+        ? "Restrict"
+        : action === "unrestrict"
+          ? "Unrestrict"
+          : "Delete";
+
+    $("confirmAction").className =
+      action === "delete" ? "btn btn-danger" : "btn btn-gold";
+
+    $("actionModal").showModal();
+
+    if (restrict) {
+      $("restrictDays").focus();
+    } else {
+      $("cancelAction").focus();
+    }
   }
-});
 
-document.getElementById("cancelDelete")?.addEventListener("click", closeDeleteModal);
+  function setSaving(value) {
+    saving = value;
 
-document.getElementById("deleteModal")?.addEventListener("click", e => {
-  if (e.target.id === "deleteModal") closeDeleteModal();
-});
+    $("confirmAction").disabled = value;
+    $("cancelAction").disabled = value;
+    $("actionForm").setAttribute("aria-busy", String(value));
 
-/* SUCCESS BUTTON */
-document.getElementById("closeSuccessModal")?.addEventListener("click", closeSuccessModal);
+    const restrict = selected?.action === "restrict";
+    $("restrictDays").disabled = value || !restrict;
+    $("restrictReason").disabled = value || !restrict;
+  }
 
-/* LOAD USERS */
-loadUsers();
+  async function submitAction(event) {
+    event.preventDefault();
 
-/* LOGOUT MODAL */
-const adminLogoutBtn = document.getElementById("adminLogoutBtn");
-const adminLogoutModal = document.getElementById("adminLogoutModal");
-const adminConfirmLogout = document.getElementById("adminConfirmLogout");
-const adminCancelLogout = document.getElementById("adminCancelLogout");
+    if (!selected || saving) return;
 
-adminLogoutBtn?.addEventListener("click", () => {
-  adminLogoutModal.classList.remove("hidden");
-});
+    const { action, id } = selected;
+    let body;
 
-adminCancelLogout?.addEventListener("click", () => {
-  adminLogoutModal.classList.add("hidden");
-});
+    if (action === "restrict") {
+      const days = Number($("restrictDays").value);
+      const reason = $("restrictReason").value.trim();
 
-adminConfirmLogout?.addEventListener("click", () => {
-  localStorage.removeItem("admin");
-  localStorage.removeItem("adminToken");
-  window.location.href = "index.html";
-});
+      if (!Number.isInteger(days) || days < 1 || days > 3650) {
+        $("actionError").textContent =
+          "Enter a whole number of days between 1 and 3650.";
+        return;
+      }
+
+      if (!reason || reason.length > 300) {
+        $("actionError").textContent =
+          "Enter a reason of 1 to 300 characters.";
+        return;
+      }
+
+      body = { days, reason };
+    }
+
+    $("actionError").textContent = "";
+    $("pageNotice").textContent = "";
+    setSaving(true);
+
+    const encodedId = encodeURIComponent(id);
+
+    try {
+      const path = action === "delete"
+        ? `/${encodedId}`
+        : `/${encodedId}/${action}`;
+
+      const data = await request(
+        path,
+        action === "delete" ? "DELETE" : "PATCH",
+        body
+      );
+
+      $("actionModal").close();
+
+      $("pageNotice").textContent =
+        data.message || "Customer account updated successfully.";
+
+      await loadUsers();
+    } catch (error) {
+      $("actionError").textContent = error.message;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function init() {
+    if (!localStorage.getItem("adminToken")) {
+      redirectToLogin();
+      return;
+    }
+
+    $("refreshUsers").addEventListener("click", loadUsers);
+    $("customerSearch").addEventListener("input", renderUsers);
+    $("statusFilter").addEventListener("change", renderUsers);
+
+    $("usersTableBody").addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+
+      if (button) {
+        openAction(button.dataset.action, button.dataset.id);
+      }
+    });
+
+    $("actionForm").addEventListener("submit", submitAction);
+
+    $("cancelAction").addEventListener("click", () => {
+      if (!saving) $("actionModal").close();
+    });
+
+    $("actionModal").addEventListener("cancel", event => {
+      if (saving) event.preventDefault();
+    });
+
+    $("actionModal").addEventListener("close", () => {
+      selected = null;
+    });
+
+    $("adminLogoutBtn").addEventListener("click", () => {
+      $("adminLogoutModal").showModal();
+      $("adminCancelLogout").focus();
+    });
+
+    $("adminCancelLogout").addEventListener("click", () => {
+      $("adminLogoutModal").close();
+    });
+
+    $("adminConfirmLogout").addEventListener("click", redirectToLogin);
+
+    loadUsers();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+})();

@@ -1,0 +1,322 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --gold: #f2c14e;
+  --gold-dark: #d4a92f;
+  --black: #050505;
+  --card: #0d0d0d;
+  --border: rgba(242, 193, 78, 0.22);
+  --text: #ffffff;
+  --muted: #a8a8a8;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, rgba(242, 193, 78, 0.12), transparent 30%), linear-gradient(135deg, #050505, #0b0b0b 55%, #000000);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 470px;
+  padding: 42px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(13, 13, 13, 0.96);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.55);
+}
+
+.brand-section {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.brand-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(242, 193, 78, 0.35);
+  border-radius: 50%;
+  background: rgba(242, 193, 78, 0.08);
+  color: var(--gold);
+  font-size: 29px;
+  box-shadow: 0 0 30px rgba(242, 193, 78, 0.08);
+}
+
+.brand-label {
+  margin-bottom: 8px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.brand-section h1 {
+  margin-bottom: 10px;
+  font-size: 31px;
+  font-weight: 800;
+}
+
+.brand-description {
+  margin: 0 auto;
+  max-width: 360px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 9px;
+  color: #dddddd;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.input-box {
+  position: relative;
+}
+
+.input-box > i {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: var(--gold);
+}
+
+.input-box input {
+  width: 100%;
+  height: 52px;
+  padding: 0 50px 0 46px;
+  border: 1px solid #292929;
+  border-radius: 12px;
+  outline: none;
+  background: #080808;
+  color: #ffffff;
+  transition: 0.2s ease;
+}
+
+.input-box input::placeholder {
+  color: #666666;
+}
+
+.input-box input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(242, 193, 78, 0.08);
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: #888888;
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  color: var(--gold);
+}
+
+.login-message {
+  min-height: 20px;
+  margin: -5px 0 12px;
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.login-button {
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #080808;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(242, 193, 78, 0.18);
+}
+
+.login-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.portal-info {
+  margin-top: 28px;
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-top: 1px solid #1d1d1d;
+  color: #777777;
+  font-size: 12px;
+}
+
+/* =========================================================
+   STAFF PORTAL - BOTTOM SECTION
+========================================================= */
+
+.portal-info {
+  width: 100%;
+  margin-top: 24px;
+  padding-top: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  color: #a7a7a7;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.portal-info i {
+  color: #f2c14e;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   BACK TO ADMIN LOGIN
+========================================================= */
+
+.back-login {
+  width: 100%;
+  margin-top: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-login a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 9px 16px;
+
+  color: #f2c14e !important;
+  background: rgba(242, 193, 78, 0.05);
+
+  border: 1px solid rgba(242, 193, 78, 0.18);
+  border-radius: 999px;
+
+  text-decoration: none !important;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  transition:
+    color 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.back-login a i {
+  color: #f2c14e;
+  font-size: 11px;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+/* HOVER */
+.back-login a:hover {
+  color: #ffffff !important;
+
+  background: rgba(242, 193, 78, 0.12);
+  border-color: rgba(242, 193, 78, 0.55);
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 6px 18px rgba(242, 193, 78, 0.08);
+}
+
+.back-login a:hover i {
+  color: #ffffff;
+  transform: translateX(-3px);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 576px) {
+
+  .portal-info {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+
+  .back-login {
+    margin-top: 14px;
+  }
+
+  .back-login a {
+    padding: 9px 14px;
+    font-size: 11px;
+  }
+}
+
+.portal-info i {
+  color: var(--gold);
+}
+
+@media (max-width: 576px) {
+  .login-card {
+    padding: 30px 22px;
+  }
+
+  .brand-section h1 {
+    font-size: 27px;
+  }
+  
+}

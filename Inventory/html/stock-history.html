@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>JCN | Stock History</title>
+
+  <link
+    rel="stylesheet"
+    href="../css/stock-history.css"
+  >
+
+  <script
+    defer
+    src="../js/stock-history.js"
+  ></script>
+</head>
+
+<body data-page="stock-history">
+  <div class="container shell">
+
+    <!-- TOP NAVIGATION -->
+    <header class="topbar">
+      <a
+        href="inventory-product.html"
+        class="brand"
+      >
+        <span aria-hidden="true">▣</span>
+        JCN Inventory
+      </a>
+
+      <nav aria-label="Main navigation">
+        <a href="inventory-product.html">
+          Products
+        </a>
+
+        <a href="stock-management.html">
+          Stock
+        </a>
+
+        <a href="order-preparation.html">
+          Orders
+        </a>
+
+        <a
+          href="stock-history.html"
+          class="active"
+          aria-current="page"
+        >
+          History
+        </a>
+      </nav>
+
+      <span
+        id="inventoryStaffName"
+        class="staff-badge staff"
+      >
+        Inventory Staff
+      </span>
+    </header>
+
+    <!-- PAGE HEADING -->
+    <section
+      class="page-heading heading"
+      aria-labelledby="page-title"
+    >
+      <small>INVENTORY MANAGEMENT</small>
+
+      <h1 id="page-title">
+        Stock History
+      </h1>
+
+      <p>
+        Review recorded stock additions, deductions,
+        and physical count adjustments.
+      </p>
+    </section>
+
+    <!-- PAGE LAYOUT -->
+    <div class="layout">
+
+      <!-- INVENTORY MENU -->
+      <aside
+        class="panel sidebar"
+        aria-labelledby="inventory-menu-title"
+      >
+        <h2 id="inventory-menu-title">
+          <span aria-hidden="true">▣</span>
+          Inventory Menu
+        </h2>
+
+        <nav aria-label="Inventory menu">
+          <a href="inventory-product.html">
+            Manage Products
+          </a>
+
+          <a href="stock-management.html">
+            Stock Management
+          </a>
+
+          <a href="order-preparation.html">
+            Order Preparation
+          </a>
+
+          <a
+            href="stock-history.html"
+            class="active"
+            aria-current="page"
+          >
+            Stock History
+          </a>
+        </nav>
+      </aside>
+
+      <!--
+        The live stock-history.js renders the history table,
+        search, refresh, pagination, and CSV export here.
+      -->
+      <main
+        id="main"
+        aria-label="Stock movement history"
+      >
+        <section class="panel">
+          <h2>Movement History</h2>
+
+          <p role="status">
+            Loading stock history…
+          </p>
+
+          <noscript>
+            <p>
+              Please enable JavaScript to view stock history.
+            </p>
+          </noscript>
+        </section>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- STATUS AND ERROR MESSAGES -->
+  <div
+    id="notification"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+</body>
+</html>

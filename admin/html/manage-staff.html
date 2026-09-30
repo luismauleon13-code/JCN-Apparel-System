@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Staff | JCN</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Manage Staff CSS -->
+  <link rel="stylesheet" href="../css/manage-staff.css">
+</head>
+
+<body>
+
+  <div class="container-fluid py-4">
+    <div class="staff-wrapper mx-auto">
+
+      <!-- ====================================== -->
+      <!-- NAVBAR -->
+      <!-- ====================================== -->
+
+      <nav class="navbar navbar-expand-lg staff-navbar px-4 py-3 mb-4">
+        <div class="container-fluid p-0">
+
+          <a class="navbar-brand text-light fw-bold d-flex align-items-center gap-2" href="admin-dashboard.html">
+            <i class="fa-solid fa-user-shield text-gold"></i>
+            Admin Dashboard
+          </a>
+
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+            <i class="fa-solid fa-bars text-light"></i>
+          </button>
+
+          <div class="collapse navbar-collapse" id="adminNav">
+
+            <ul class="navbar-nav mx-auto gap-lg-4">
+              <li class="nav-item"><a class="nav-link text-light" href="admin-dashboard.html">Overview</a></li>
+              <li class="nav-item"><a class="nav-link text-light" href="manage-user.html">Customers</a></li>
+              <li class="nav-item"><a class="nav-link active-link" href="manage-staff.html">Staff</a></li>
+              <li class="nav-item"><a class="nav-link text-light" href="reports.html">Reports</a></li>
+            </ul>
+
+            <button id="adminLogoutBtn" class="btn btn-gold px-4" type="button">
+              <i class="fa-solid fa-right-from-bracket me-2"></i>
+              Logout
+            </button>
+
+          </div>
+        </div>
+      </nav>
+
+      <!-- ====================================== -->
+      <!-- PAGE HEADER -->
+      <!-- ====================================== -->
+
+      <section class="page-header mb-4">
+        <div class="row align-items-center g-3">
+
+          <div class="col-lg-8">
+            <p class="page-eyebrow mb-2">STAFF MANAGEMENT</p>
+            <h1 class="page-title">Manage Staff Accounts</h1>
+            <p class="page-description mb-0">Create and manage accounts for Inventory Staff, Graphic Designers, and Cashiers.</p>
+          </div>
+
+          <div class="col-lg-4 text-lg-end">
+            <button type="button" class="btn-add-staff" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+              <i class="fa-solid fa-user-plus"></i>
+              Add Staff Account
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================== -->
+      <!-- STAFF SUMMARY CARDS -->
+      <!-- ====================================== -->
+
+      <section class="row g-4 mb-4">
+
+        <!-- TOTAL STAFF -->
+        <div class="col-md-6 col-xl-3">
+          <div class="summary-card">
+            <div class="summary-icon"><i class="fa-solid fa-users"></i></div>
+            <div>
+              <p>Total Staff</p>
+              <h3 id="totalStaffCount">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- INVENTORY STAFF -->
+        <div class="col-md-6 col-xl-3">
+          <div class="summary-card">
+            <div class="summary-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div>
+              <p>Inventory Staff</p>
+              <h3 id="inventoryStaffCount">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRAPHIC DESIGNERS -->
+        <div class="col-md-6 col-xl-3">
+          <div class="summary-card">
+            <div class="summary-icon"><i class="fa-solid fa-pen-ruler"></i></div>
+            <div>
+              <p>Graphic Designers</p>
+              <h3 id="designerStaffCount">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASHIERS -->
+        <div class="col-md-6 col-xl-3">
+          <div class="summary-card">
+            <div class="summary-icon"><i class="fa-solid fa-cash-register"></i></div>
+            <div>
+              <p>Cashiers</p>
+              <h3 id="cashierStaffCount">0</h3>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ====================================== -->
+      <!-- STAFF TABLE -->
+      <!-- ====================================== -->
+
+      <section class="staff-panel">
+
+        <div class="staff-panel-header">
+
+          <div>
+            <h3>Staff Accounts</h3>
+            <p>View and manage registered JCN staff members.</p>
+          </div>
+
+          <div class="staff-tools">
+
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="staffSearch" placeholder="Search staff...">
+            </div>
+
+            <select id="roleFilter" class="staff-filter">
+              <option value="all">All Roles</option>
+              <option value="inventory_staff">Inventory Staff</option>
+              <option value="graphic_designer">Graphic Designer</option>
+              <option value="cashier">Cashier</option>
+            </select>
+
+            <select id="statusFilter" class="staff-filter">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="restricted">Restricted</option>
+            </select>
+
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="staff-table">
+
+            <thead>
+              <tr>
+                <th>Staff</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last Login</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="staffTableBody">
+              <tr id="emptyStaffRow">
+                <td colspan="6" class="empty-table">
+                  <div class="empty-icon"><i class="fa-solid fa-users"></i></div>
+                  <h4>No staff accounts yet</h4>
+                  <p>Create your first Inventory Staff, Graphic Designer, or Cashier account.</p>
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ====================================== -->
+  <!-- ADD STAFF MODAL -->
+  <!-- ====================================== -->
+
+  <div class="modal fade" id="addStaffModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content staff-modal">
+
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">NEW STAFF ACCOUNT</p>
+            <h4 class="modal-title">Add Staff</h4>
+          </div>
+
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <form id="addStaffForm">
+
+          <div class="modal-body">
+            <div class="row g-4">
+
+              <!-- FULL NAME -->
+              <div class="col-md-6">
+                <label for="staffFullName" class="form-label">Full Name</label>
+                <div class="input-group-custom">
+                  <i class="fa-solid fa-user"></i>
+                  <input type="text" id="staffFullName" placeholder="Enter full name" required>
+                </div>
+              </div>
+
+              <!-- USERNAME -->
+              <div class="col-md-6">
+                <label for="staffUsername" class="form-label">Username</label>
+                <div class="input-group-custom">
+                  <i class="fa-solid fa-at"></i>
+                  <input type="text" id="staffUsername" placeholder="Enter username" required>
+                </div>
+              </div>
+
+              <!-- EMAIL -->
+              <div class="col-md-6">
+                <label for="staffEmail" class="form-label">Email Address</label>
+                <div class="input-group-custom">
+                  <i class="fa-solid fa-envelope"></i>
+                  <input type="email" id="staffEmail" placeholder="staff@example.com" required>
+                </div>
+              </div>
+
+              <!-- ROLE -->
+              <div class="col-md-6">
+                <label for="staffRole" class="form-label">Staff Role</label>
+                <div class="input-group-custom">
+                  <i class="fa-solid fa-id-badge"></i>
+                  <select id="staffRole" required>
+                    <option value="">Select staff role</option>
+                    <option value="inventory_staff">Inventory Staff</option>
+                    <option value="graphic_designer">Graphic Designer</option>
+                    <option value="cashier">Cashier</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- PASSWORD -->
+              <div class="col-md-6">
+                <label for="staffPassword" class="form-label">Password</label>
+                <div class="input-group-custom">
+                  <i class="fa-solid fa-lock"></i>
+                  <input type="password" id="staffPassword" placeholder="Create password" required>
+                </div>
+              </div>
+
+              <!-- CONFIRM PASSWORD -->
+              <div class="col-md-6">
+                <label for="staffConfirmPassword" class="form-label">Confirm Password</label>
+                <div class="input-group-custom">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <input type="password" id="staffConfirmPassword" placeholder="Confirm password" required>
+                </div>
+              </div>
+
+              <!-- STATUS -->
+              <div class="col-12">
+                <label for="staffStatus" class="form-label">Account Status</label>
+                <div class="input-group-custom">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <select id="staffStatus" required>
+                    <option value="active" selected>Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="restricted">Restricted</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="account-note">
+              <i class="fa-solid fa-circle-info"></i>
+              <div>
+                <strong>Staff Access</strong>
+                <p>The staff member will only be able to access modules assigned to their selected role.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
+
+            <button type="submit" id="saveStaffBtn" class="btn-create">
+              <i class="fa-solid fa-user-plus"></i>
+              Create Staff Account
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================== -->
+  <!-- LOGOUT MODAL -->
+  <!-- ====================================== -->
+
+  <div id="adminLogoutModal" class="custom-logout-modal hidden">
+    <div class="logout-backdrop"></div>
+
+    <div class="logout-box">
+      <div class="logout-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
+
+      <h4>Logout Confirmation</h4>
+      <p>Are you sure you want to end your current session?</p>
+
+      <div class="logout-actions">
+        <button id="adminConfirmLogout" type="button" class="confirm-logout">Yes, Logout</button>
+        <button id="adminCancelLogout" type="button" class="cancel-logout">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Manage Staff JS -->
+  <script src="../js/manage-staff.js"></script>
+
+</body>
+</html>

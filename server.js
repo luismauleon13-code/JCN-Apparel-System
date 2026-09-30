@@ -727,6 +727,998 @@ app.post("/api/auth/admin-forgot-password", async (req, res) => {
   }
 });
 
+/* =========================================================
+   STAFF / ADMIN AUTH MIDDLEWARE
+========================================================= */
+
+function verifyStaffToken(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "No authorization token."
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "jcn_secret_12345"
+    );
+
+    req.staff = decoded;
+
+    next();
+
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired session."
+    });
+  }
+}
+
+function allowRoles(...roles) {
+  return (req, res, next) => {
+    if (!req.staff) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized."
+      });
+    }
+
+    if (!roles.includes(req.staff.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to access this resource."
+      });
+    }
+
+    next();
+  };
+}
+
+/* =========================================================
+   ADMIN - MANAGE STAFF
+========================================================= */
+
+const STAFF_ROLES = [
+  "inventory_staff",
+  "graphic_designer",
+  "cashier"
+];
+
+const STAFF_STATUSES = [
+  "active",
+  "inactive",
+  "restricted"
+];
+
+
+/* =========================================================
+   GET ALL STAFF
+========================================================= */
+
+app.get(
+  "/api/admin/staff",
+  verifyStaffToken,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+
+      const { data: staff, error } = await supabase
+        .from("admin_users")
+        .select(`
+          id,
+          full_name,
+          username,
+          email,
+          role,
+          status,
+          last_login_at,
+          created_at
+        `)
+        .in("role", STAFF_ROLES)
+        .order("created_at", {
+          ascending: false
+        });
+
+      if (error) {
+        console.error("GET STAFF ERROR:", error);
+
+        return res.status(400).json({
+          success: false,
+          message: error.message
+        });
+      }
+
+      const staffList = staff || [];
+
+      const counts = {
+        total: staffList.length,
+
+        inventory: staffList.filter(
+          user =>
+            user.role === "inventory_staff"
+        ).length,
+
+        designers: staffList.filter(
+          user =>
+            user.role === "graphic_designer"
+        ).length,
+
+        cashiers: staffList.filter(
+          user =>
+            user.role === "cashier"
+        ).length
+      };
+
+      return res.json({
+        success: true,
+        staff: staffList,
+        counts
+      });
+
+    } catch (error) {
+
+      console.error(
+        "GET STAFF SERVER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Server error."
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   CREATE STAFF ACCOUNT
+========================================================= */
+
+app.post(
+  "/api/admin/staff",
+  verifyStaffToken,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+
+      const {
+        full_name,
+        username,
+        email,
+        password,
+        role,
+        status
+      } = req.body;
+
+      /* =========================
+         REQUIRED FIELDS
+      ========================= */
+
+      if (
+        !full_name ||
+        !username ||
+        !email ||
+        !password ||
+        !role
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Full name, username, email, password, and role are required."
+        });
+      }
+
+      /* =========================
+         CLEAN VALUES
+      ========================= */
+
+      const cleanFullName =
+        full_name.trim();
+
+      const cleanUsername =
+        username.trim();
+
+      const cleanEmail =
+        email.trim().toLowerCase();
+
+      const cleanRole =
+        role.trim();
+
+      const cleanStatus =
+        status || "active";
+
+      /* =========================
+         VALIDATE ROLE
+      ========================= */
+
+      if (
+        !STAFF_ROLES.includes(cleanRole)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid staff role."
+        });
+      }
+
+      /* =========================
+         VALIDATE STATUS
+      ========================= */
+
+      if (
+        !STAFF_STATUSES.includes(
+          cleanStatus
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid staff status."
+        });
+      }
+
+      /* =========================
+         PASSWORD LENGTH
+      ========================= */
+
+      if (password.length < 8) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Password must contain at least 8 characters."
+        });
+      }
+
+      /* =========================
+         CHECK USERNAME
+      ========================= */
+
+      const {
+        data: existingUsername,
+        error: usernameCheckError
+      } = await supabase
+        .from("admin_users")
+        .select("id")
+        .eq("username", cleanUsername)
+        .maybeSingle();
+
+      if (usernameCheckError) {
+        console.error(
+          "USERNAME CHECK ERROR:",
+          usernameCheckError
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            usernameCheckError.message
+        });
+      }
+
+      if (existingUsername) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Username is already in use."
+        });
+      }
+
+      /* =========================
+         CHECK EMAIL
+      ========================= */
+
+      const {
+        data: existingEmail,
+        error: emailCheckError
+      } = await supabase
+        .from("admin_users")
+        .select("id")
+        .eq("email", cleanEmail)
+        .maybeSingle();
+
+      if (emailCheckError) {
+        console.error(
+          "EMAIL CHECK ERROR:",
+          emailCheckError
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            emailCheckError.message
+        });
+      }
+
+      if (existingEmail) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Email address is already in use."
+        });
+      }
+
+      /* =========================
+         HASH PASSWORD
+      ========================= */
+
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          12
+        );
+
+      /* =========================
+         INSERT STAFF
+      ========================= */
+
+      const {
+        data: newStaff,
+        error: insertError
+      } = await supabase
+        .from("admin_users")
+        .insert([
+          {
+            full_name:
+              cleanFullName,
+
+            username:
+              cleanUsername,
+
+            email:
+              cleanEmail,
+
+            password:
+              hashedPassword,
+
+            role:
+              cleanRole,
+
+            status:
+              cleanStatus
+          }
+        ])
+        .select(`
+          id,
+          full_name,
+          username,
+          email,
+          role,
+          status,
+          last_login_at,
+          created_at
+        `)
+        .single();
+
+      if (insertError) {
+
+        console.error(
+          "CREATE STAFF ERROR:",
+          insertError
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            insertError.message
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+
+        message:
+          "Staff account created successfully.",
+
+        staff:
+          newStaff
+      });
+
+    } catch (error) {
+
+      console.error(
+        "CREATE STAFF SERVER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Server error while creating staff account."
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   UPDATE STAFF INFORMATION
+========================================================= */
+
+app.patch(
+  "/api/admin/staff/:id",
+  verifyStaffToken,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+
+      const { id } = req.params;
+
+      const {
+        full_name,
+        email,
+        role
+      } = req.body;
+
+      if (
+        !full_name ||
+        !email ||
+        !role
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Full name, email, and role are required."
+        });
+      }
+
+      if (
+        !STAFF_ROLES.includes(role)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid staff role."
+        });
+      }
+
+      const cleanEmail =
+        email.trim().toLowerCase();
+
+      /* =========================
+         CHECK DUPLICATE EMAIL
+      ========================= */
+
+      const {
+        data: existingEmail,
+        error: emailCheckError
+      } = await supabase
+        .from("admin_users")
+        .select("id")
+        .eq("email", cleanEmail)
+        .neq("id", id)
+        .maybeSingle();
+
+      if (emailCheckError) {
+        return res.status(400).json({
+          success: false,
+          message:
+            emailCheckError.message
+        });
+      }
+
+      if (existingEmail) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Email address is already in use."
+        });
+      }
+
+      /* =========================
+         UPDATE STAFF
+      ========================= */
+
+      const {
+        data,
+        error
+      } = await supabase
+        .from("admin_users")
+        .update({
+          full_name:
+            full_name.trim(),
+
+          email:
+            cleanEmail,
+
+          role
+        })
+        .eq("id", id)
+        .in("role", STAFF_ROLES)
+        .select(`
+          id,
+          full_name,
+          username,
+          email,
+          role,
+          status,
+          last_login_at,
+          created_at
+        `)
+        .maybeSingle();
+
+      if (error) {
+
+        console.error(
+          "UPDATE STAFF ERROR:",
+          error
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            error.message
+        });
+      }
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Staff account not found."
+        });
+      }
+
+      return res.json({
+        success: true,
+
+        message:
+          "Staff information updated successfully.",
+
+        staff:
+          data
+      });
+
+    } catch (error) {
+
+      console.error(
+        "UPDATE STAFF SERVER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Server error."
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   CHANGE STAFF STATUS
+========================================================= */
+
+app.patch(
+  "/api/admin/staff/:id/status",
+  verifyStaffToken,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+
+      const { id } =
+        req.params;
+
+      const { status } =
+        req.body;
+
+      if (
+        !STAFF_STATUSES.includes(status)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid staff status."
+        });
+      }
+
+      const {
+        data,
+        error
+      } = await supabase
+        .from("admin_users")
+        .update({
+          status
+        })
+        .eq("id", id)
+        .in("role", STAFF_ROLES)
+        .select(`
+          id,
+          full_name,
+          username,
+          email,
+          role,
+          status,
+          last_login_at
+        `)
+        .maybeSingle();
+
+      if (error) {
+
+        console.error(
+          "UPDATE STAFF STATUS ERROR:",
+          error
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            error.message
+        });
+      }
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Staff account not found."
+        });
+      }
+
+      return res.json({
+        success: true,
+
+        message:
+          "Staff status updated successfully.",
+
+        staff:
+          data
+      });
+
+    } catch (error) {
+
+      console.error(
+        "STAFF STATUS SERVER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Server error."
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   RESET STAFF PASSWORD
+========================================================= */
+
+app.patch(
+  "/api/admin/staff/:id/password",
+  verifyStaffToken,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+
+      const { id } =
+        req.params;
+
+      const { password } =
+        req.body;
+
+      if (!password) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "New password is required."
+        });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Password must contain at least 8 characters."
+        });
+      }
+
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          12
+        );
+
+      const {
+        data,
+        error
+      } = await supabase
+        .from("admin_users")
+        .update({
+          password:
+            hashedPassword
+        })
+        .eq("id", id)
+        .in("role", STAFF_ROLES)
+        .select(`
+          id,
+          full_name,
+          username,
+          email,
+          role,
+          status
+        `)
+        .maybeSingle();
+
+      if (error) {
+
+        console.error(
+          "RESET STAFF PASSWORD ERROR:",
+          error
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            error.message
+        });
+      }
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Staff account not found."
+        });
+      }
+
+      return res.json({
+        success: true,
+        message:
+          "Staff password updated successfully."
+      });
+
+    } catch (error) {
+
+      console.error(
+        "STAFF PASSWORD SERVER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Server error."
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   DELETE STAFF
+========================================================= */
+
+app.delete(
+  "/api/admin/staff/:id",
+  verifyStaffToken,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+
+      const { id } =
+        req.params;
+
+      const {
+        data,
+        error
+      } = await supabase
+        .from("admin_users")
+        .delete()
+        .eq("id", id)
+        .in("role", STAFF_ROLES)
+        .select(`
+          id,
+          full_name,
+          username,
+          role
+        `)
+        .maybeSingle();
+
+      if (error) {
+
+        console.error(
+          "DELETE STAFF ERROR:",
+          error
+        );
+
+        return res.status(400).json({
+          success: false,
+          message:
+            error.message
+        });
+      }
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Staff account not found."
+        });
+      }
+
+      return res.json({
+        success: true,
+
+        message:
+          "Staff account deleted successfully."
+      });
+
+    } catch (error) {
+
+      console.error(
+        "DELETE STAFF SERVER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Server error."
+      });
+    }
+  }
+);
+
+/* =========================================================
+   STAFF LOGIN
+========================================================= */
+
+app.post("/api/staff/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and password are required."
+      });
+    }
+
+    const cleanUsername = username.trim();
+
+    const { data: staff, error } = await supabase
+      .from("admin_users")
+      .select("*")
+      .eq("username", cleanUsername)
+      .maybeSingle();
+
+    if (error) {
+      console.error("STAFF LOGIN DATABASE ERROR:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Database error."
+      });
+    }
+
+    if (!staff) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid username or password."
+      });
+    }
+
+    /* ================================
+       CHECK ROLE
+    ================================= */
+
+    const allowedStaffRoles = [
+      "inventory_staff",
+      "graphic_designer",
+      "cashier"
+    ];
+
+    if (!allowedStaffRoles.includes(staff.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "This account is not authorized for the Staff Portal."
+      });
+    }
+
+    /* ================================
+       CHECK STATUS
+    ================================= */
+
+    if (staff.status !== "active") {
+      return res.status(403).json({
+        success: false,
+        message: "Your staff account is currently inactive or restricted."
+      });
+    }
+
+    /* ================================
+       CHECK PASSWORD
+    ================================= */
+
+    const passwordMatch = await bcrypt.compare(
+      password,
+      staff.password
+    );
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid username or password."
+      });
+    }
+
+    /* ================================
+       CREATE TOKEN
+    ================================= */
+
+    const token = jwt.sign(
+      {
+        id: staff.id,
+        username: staff.username,
+        role: staff.role
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "8h"
+      }
+    );
+
+    /* ================================
+       UPDATE LAST LOGIN
+    ================================= */
+
+    const loginTime = new Date().toISOString();
+
+    const { error: updateError } = await supabase
+      .from("admin_users")
+      .update({
+        last_login_at: loginTime
+      })
+      .eq("id", staff.id);
+
+    if (updateError) {
+      console.error(
+        "LAST LOGIN UPDATE ERROR:",
+        updateError
+      );
+    }
+
+    /* ================================
+       RESPONSE
+    ================================= */
+
+    return res.json({
+      success: true,
+      message: "Login successful.",
+
+      token,
+
+      user: {
+        id: staff.id,
+        full_name: staff.full_name,
+        username: staff.username,
+        email: staff.email,
+        role: staff.role,
+        status: staff.status,
+        last_login_at: loginTime
+      }
+    });
+
+  } catch (error) {
+    console.error("STAFF LOGIN ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error."
+    });
+  }
+});
 
 /* ADMIN DASHBOARD OVERVIEW */
 app.get("/api/admin/overview", async (req, res) => {
@@ -872,165 +1864,35 @@ app.get("/api/admin/sales-summary", async (req, res) => {
 });
 
 /* CREATE ORDER */
+// Create order and deduct stock atomically; save item snapshots for preparation.
 app.post("/api/orders", async (req, res) => {
   try {
     const {
-      user_id,
-      customer_name,
-      customer_email,
-      customer_phone,
-      total_amount,
-      payment_method,
-      items
+      user_id, customer_name, customer_email, customer_phone,
+      total_amount, payment_method, items
     } = req.body;
-
-    if (!total_amount || !payment_method) {
-      return res.status(400).json({
-        success: false,
-        message: "Total amount and payment method required."
-      });
+    if (!Array.isArray(items) || items.length === 0 ||
+        !["PayPal", "COD"].includes(payment_method) ||
+        !Number.isFinite(Number(total_amount)) || Number(total_amount) <= 0) {
+      return res.status(400).json({ success: false, message: "Valid items, payment method and total amount are required." });
     }
-
-    if (!["PayPal", "COD"].includes(payment_method)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid payment method."
-      });
-    }
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No order items found."
-      });
-    }
-
-    // CHECK TOTAL STOCK AND SIZE STOCK FIRST
-    for (const item of items) {
-      const productId = item.product_id || item.id;
-      const orderQty = Number(item.quantity || item.qty || 1);
-      const selectedSize = item.size;
-
-      const { data: product, error: productError } = await supabase
-        .from("products")
-        .select("title, quantity, sizes")
-        .eq("id", productId)
-        .single();
-
-      if (productError) throw productError;
-
-      let sizes = product.sizes || [];
-
-      if (typeof sizes === "string") {
-        sizes = JSON.parse(sizes);
+    const { data, error } = await supabase.rpc("jcn_inventory_create_order", {
+      p_payload: {
+        user_id: user_id || null, customer_name, customer_email, customer_phone,
+        total_amount, payment_method, items
       }
-
-      const sizeData = sizes.find(sizeItem => sizeItem.size === selectedSize);
-
-      if (!sizeData) {
-        return res.status(400).json({
-          success: false,
-          message: `${selectedSize || "Selected size"} is not available.`
-        });
-      }
-
-      const currentSizeQty = Number(sizeData.qty || 0);
-      const currentTotalQty = Number(product.quantity || 0);
-
-      if (currentSizeQty < orderQty) {
-        return res.status(400).json({
-          success: false,
-          message: `${product.title || "Product"} ${selectedSize} has not enough stock.`
-        });
-      }
-
-      if (currentTotalQty < orderQty) {
-        return res.status(400).json({
-          success: false,
-          message: `${product.title || "Product"} has not enough total stock.`
-        });
-      }
-    }
-    
-    // CREATE ORDER
-    const { data, error } = await supabase
-      .from("orders")
-      .insert([
-        {
-          user_id: user_id || null,
-          customer_name,
-          customer_email,
-          customer_phone,
-          total_amount: Number(total_amount),
-          payment_method,
-          payment_status: payment_method === "PayPal" ? "Paid" : "Pending",
-          status: "Preparing"
-        }
-      ])
-      .select();
-
-    if (error) throw error;
-
-    // DEDUCT TOTAL QUANTITY AND SIZE QUANTITY
-    for (const item of items) {
-      const productId = item.product_id || item.id;
-      const orderQty = Number(item.quantity || item.qty || 1);
-      const selectedSize = item.size;
-
-      const { data: product, error: productError } = await supabase
-        .from("products")
-        .select("quantity, sizes")
-        .eq("id", productId)
-        .single();
-
-      if (productError) throw productError;
-
-      let sizes = product.sizes || [];
-
-      if (typeof sizes === "string") {
-        sizes = JSON.parse(sizes);
-      }
-
-      const updatedSizes = sizes.map(sizeItem => {
-        if (sizeItem.size === selectedSize) {
-          return {
-            ...sizeItem,
-            qty: Number(sizeItem.qty || 0) - orderQty
-          };
-        }
-
-        return sizeItem;
-      });
-
-      const currentTotalQty = Number(product.quantity || 0);
-
-      const { error: updateError } = await supabase
-        .from("products")
-        .update({
-          quantity: currentTotalQty - orderQty,
-          sizes: updatedSizes
-        })
-        .eq("id", productId);
-
-      if (updateError) throw updateError;
-    }
-
-    res.json({
-      success: true,
-      message: "Order placed successfully.",
-      order: data[0]
     });
-
+    if (error) throw error;
+    return res.json({ success: true, message: "Order placed successfully.", order: data });
   } catch (error) {
-    res.status(500).json({
+    console.error("CREATE ORDER ERROR:", error.message);
+    return res.status(error.code === "P0001" ? 400 : 500).json({
       success: false,
-      message: error.message
+      message: error.code === "P0001" ? error.message : "Could not create order. Check inventory migration and server logs."
     });
   }
 });
 
-
-/* GET ALL ORDERS */
 app.get("/api/customer/orders/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -1379,6 +2241,8 @@ app.patch("/api/admin/products/:id/stock", async (req, res) => {
     });
   }
 });
+
+
 
 /* ADD PRODUCT WITH IMAGE */
 app.post("/api/admin/products", upload.single("product_image"), async (req, res) => {
@@ -2017,68 +2881,510 @@ app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
   }
 });
 
+/* =========================================================
+   ADD J&T TRACKING NUMBER
+========================================================= */
+
 app.post("/api/orders/:id/tracking", async (req, res) => {
   try {
     const { id } = req.params;
     const { tracking_number } = req.body || {};
 
-    if (!tracking_number || tracking_number.trim() === "") {
+    /* =====================================================
+       1. VALIDATE TRACKING NUMBER
+    ===================================================== */
+
+    if (
+      !tracking_number ||
+      String(tracking_number).trim() === ""
+    ) {
       return res.status(400).json({
         success: false,
         message: "Tracking number is required."
       });
     }
 
-    const trackingNumber = tracking_number.trim();
+    const trackingNumber =
+      String(tracking_number).trim();
 
-    try {
-      await axios.post(
-        "https://api.aftership.com/tracking/2024-04/trackings",
-        {
-          tracking: {
-            tracking_number: trackingNumber,
-            slug: "jtexpress-ph"
-          }
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "as-api-key": process.env.AFTERSHIP_API_KEY
-          }
-        }
-      );
-    } catch (aftershipError) {
-      console.log(
-        "AfterShip error:",
-        aftershipError.response?.data || aftershipError.message
-      );
-    }
 
-    const { error } = await supabase
+    /* =====================================================
+       2. CHECK IF ORDER EXISTS
+    ===================================================== */
+
+    const {
+      data: order,
+      error: orderFetchError
+    } = await supabase
       .from("orders")
-      .update({
-  tracking_number: trackingNumber,
-  status: "To Deliver"
-})
-      .eq("id", id);
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (error) {
-      return res.status(400).json({
+
+    if (orderFetchError || !order) {
+      console.error(
+        "ORDER FETCH ERROR:",
+        orderFetchError
+      );
+
+      return res.status(404).json({
         success: false,
-        message: error.message
+        message: "Order not found."
       });
     }
 
-    res.json({
+
+    /* =====================================================
+       3. CHECK ORDER STATUS
+    ===================================================== */
+
+    if (
+      order.status === "Cancelled" ||
+      order.status === "Canceled"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot add tracking to a cancelled order."
+      });
+    }
+
+
+    if (
+      order.status === "Completed" ||
+      order.status === "Delivered"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot add tracking to a completed order."
+      });
+    }
+
+
+    /* =====================================================
+       4. CREATE TRACKING IN AFTERSHIP
+    ===================================================== */
+
+    let aftershipTracking = null;
+
+    try {
+      const aftershipResponse =
+        await axios.post(
+          "https://api.aftership.com/tracking/2024-04/trackings",
+          {
+            tracking: {
+              tracking_number:
+                trackingNumber,
+
+              slug:
+                "jtexpress-ph",
+
+              title:
+                order.order_number ||
+                `Order ${order.id}`,
+
+              order_id:
+                String(
+                  order.order_number ||
+                  order.id
+                )
+            }
+          },
+          {
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              "as-api-key":
+                process.env.AFTERSHIP_API_KEY
+            }
+          }
+        );
+
+
+      aftershipTracking =
+        aftershipResponse.data
+          ?.data
+          ?.tracking || null;
+
+
+      console.log(
+        "AFTERSHIP TRACKING CREATED:",
+        aftershipTracking
+      );
+
+    } catch (aftershipError) {
+
+      /*
+        Hindi natin agad ipa-fail ang request.
+
+        Posibleng existing na ang tracking
+        number sa AfterShip.
+      */
+
+      console.error(
+        "AFTERSHIP CREATE ERROR:",
+        aftershipError.response?.data ||
+        aftershipError.message
+      );
+    }
+
+
+    /* =====================================================
+       5. GET INITIAL AFTERSHIP INFORMATION
+    ===================================================== */
+
+    let aftershipTrackingId = null;
+
+    let latestLocation = null;
+
+    let latestCheckpointDate = null;
+
+    let latestMessage = null;
+
+
+    if (aftershipTracking) {
+
+      aftershipTrackingId =
+        aftershipTracking.id ||
+        null;
+
+
+      const checkpoints =
+        Array.isArray(
+          aftershipTracking.checkpoints
+        )
+          ? aftershipTracking.checkpoints
+          : [];
+
+
+      /* ===================================================
+         GET LATEST CHECKPOINT
+      =================================================== */
+
+      if (checkpoints.length > 0) {
+
+        const sortedCheckpoints =
+          [...checkpoints].sort(
+            (a, b) => {
+
+              const dateA =
+                new Date(
+                  a.checkpoint_time || 0
+                ).getTime();
+
+              const dateB =
+                new Date(
+                  b.checkpoint_time || 0
+                ).getTime();
+
+              return dateB - dateA;
+            }
+          );
+
+
+        const latest =
+          sortedCheckpoints[0];
+
+
+        /* LOCATION */
+
+        latestLocation =
+          latest.location ||
+
+          [
+            latest.city,
+            latest.state,
+            latest.country_name
+          ]
+            .filter(Boolean)
+            .join(", ") ||
+
+          null;
+
+
+        /* DATE */
+
+        latestCheckpointDate =
+          latest.checkpoint_time ||
+          null;
+
+
+        /* MESSAGE */
+
+        latestMessage =
+          latest.message ||
+          latest.subtag_message ||
+          null;
+      }
+    }
+
+
+    /* =====================================================
+       6. DETERMINE INITIAL STATUS
+    ===================================================== */
+
+    /*
+      IMPORTANT:
+
+      Ang pagkakaroon lang ng tracking number
+      ay HINDI ibig sabihin na picked up na
+      ng J&T ang parcel.
+
+      Kaya default:
+      To Ship = Waiting for Courier
+    */
+
+    let newOrderStatus =
+      "To Ship";
+
+
+    /*
+      Kung may initial AfterShip status,
+      iche-check natin kung may actual movement.
+    */
+
+    const aftershipStatus =
+      String(
+        aftershipTracking?.tag || ""
+      )
+        .trim()
+        .toLowerCase();
+
+
+    console.log(
+      "INITIAL AFTERSHIP STATUS:",
+      aftershipStatus
+    );
+
+
+    /*
+      Pending / Info Received
+
+      Tracking number registered,
+      pero hindi pa picked up.
+    */
+
+    if (
+      aftershipStatus === "" ||
+      aftershipStatus === "pending" ||
+      aftershipStatus === "inforeceived" ||
+      aftershipStatus === "info_received"
+    ) {
+
+      newOrderStatus =
+        "To Ship";
+
+    }
+
+
+    /*
+      Actual carrier movement detected.
+    */
+
+    else if (
+      aftershipStatus === "intransit" ||
+      aftershipStatus === "in_transit" ||
+      aftershipStatus === "outfordelivery" ||
+      aftershipStatus === "out_for_delivery" ||
+      aftershipStatus === "attemptfail" ||
+      aftershipStatus === "attempt_fail" ||
+      aftershipStatus === "exception"
+    ) {
+
+      newOrderStatus =
+        "To Receive";
+
+    }
+
+
+    /*
+      Even if J&T says Delivered,
+      customer still needs to press
+      "Order Received / Complete Order".
+
+      So keep it To Receive.
+    */
+
+    else if (
+      aftershipStatus === "delivered"
+    ) {
+
+      newOrderStatus =
+        "To Receive";
+
+    }
+
+
+    /* =====================================================
+       7. DEFAULT MESSAGE
+    ===================================================== */
+
+    if (
+      newOrderStatus === "To Ship" &&
+      !latestMessage
+    ) {
+
+      latestMessage =
+        "Waiting for J&T courier pickup.";
+
+    }
+
+
+    /* =====================================================
+       8. BUILD DATABASE UPDATE
+    ===================================================== */
+
+    const updatePayload = {
+
+      tracking_number:
+        trackingNumber,
+
+      courier:
+        "J&T Express",
+
+      status:
+        newOrderStatus,
+
+      tracking_message:
+        latestMessage
+
+    };
+
+
+    /* AFTERSHIP ID */
+
+    if (aftershipTrackingId) {
+
+      updatePayload
+        .aftership_tracking_id =
+        aftershipTrackingId;
+
+    }
+
+
+    /* LOCATION */
+
+    if (latestLocation) {
+
+      updatePayload
+        .tracking_location =
+        latestLocation;
+
+    }
+
+
+    /* DATE */
+
+    if (latestCheckpointDate) {
+
+      updatePayload
+        .tracking_updated_at =
+        latestCheckpointDate;
+
+    }
+
+
+    /* =====================================================
+       9. UPDATE ORDER IN SUPABASE
+    ===================================================== */
+
+    const {
+      data: updatedOrder,
+      error: updateError
+    } = await supabase
+      .from("orders")
+      .update(updatePayload)
+      .eq("id", id)
+      .select()
+      .single();
+
+
+    if (updateError) {
+
+      console.error(
+        "TRACKING DATABASE UPDATE ERROR:",
+        updateError
+      );
+
+
+      return res.status(400).json({
+        success: false,
+        message: updateError.message
+      });
+    }
+
+
+    /* =====================================================
+       10. SUCCESS RESPONSE
+    ===================================================== */
+
+    return res.json({
+
       success: true,
-      message: "Tracking number added successfully."
+
+      message:
+        newOrderStatus === "To Ship"
+
+          ? "Tracking number added. Waiting for J&T courier pickup."
+
+          : "Tracking number added and shipment is already in transit.",
+
+
+      order:
+        updatedOrder,
+
+
+      tracking: {
+
+        tracking_number:
+          trackingNumber,
+
+        courier:
+          "J&T Express",
+
+        aftership_tracking_id:
+          aftershipTrackingId,
+
+        status:
+          newOrderStatus === "To Ship"
+            ? "Waiting for Courier"
+            : "In Transit",
+
+        latest_location:
+          latestLocation,
+
+        latest_date:
+          latestCheckpointDate,
+
+        latest_message:
+          latestMessage
+
+      }
+
     });
 
+
   } catch (error) {
-    res.status(500).json({
+
+    console.error(
+      "ADD J&T TRACKING ERROR:",
+      error
+    );
+
+
+    return res.status(500).json({
+
       success: false,
-      message: error.message
+
+      message:
+        error.message ||
+        "Unable to add J&T tracking number."
+
     });
+
   }
 });
 
@@ -2452,6 +3758,12 @@ app.get("/api/paypal/cancel", async (req, res) => {
     );
   }
 });
+
+// LIVE INVENTORY ROUTES
+app.use("/api/inventory", require("./backend/routes/inventory")({
+  supabase,
+  verifyStaffToken
+}));
 
 const PORT = process.env.PORT || 5000;
 

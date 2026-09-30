@@ -1,0 +1,842 @@
+/* =========================================
+   JCN AI CHATBOT
+   BLACK + GOLD PREMIUM DESIGN
+========================================= */
+
+:root {
+  --jcn-gold: #d4af37;
+  --jcn-gold-light: #f3d56b;
+  --jcn-black: #080808;
+  --jcn-dark: #111111;
+  --jcn-card: #171717;
+  --jcn-text: #ffffff;
+  --jcn-muted: #9f9f9f;
+  --jcn-green: #35db75;
+}
+
+
+/* =========================================
+   CHATBOT FLOATING BUTTON
+========================================= */
+
+.jcn-chat-toggle {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+
+  width: 64px;
+  height: 64px;
+
+  border: 1px solid rgba(212, 175, 55, 0.75);
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 30% 25%,
+      #f7dc75,
+      #d4af37 45%,
+      #806719 100%
+    );
+
+  color: #070707;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 25px;
+
+  cursor: pointer;
+
+  z-index: 999999;
+
+  box-shadow:
+    0 0 22px rgba(212, 175, 55, 0.35),
+    0 12px 40px rgba(0, 0, 0, 0.55);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+.jcn-chat-toggle:hover {
+  transform: translateY(-4px) scale(1.05);
+
+  box-shadow:
+    0 0 35px rgba(212, 175, 55, 0.55),
+    0 15px 45px rgba(0, 0, 0, 0.65);
+}
+
+
+.jcn-chat-toggle i {
+  pointer-events: none;
+}
+
+
+/* =========================================
+   ONLINE INDICATOR
+========================================= */
+
+.jcn-chat-online {
+  position: absolute;
+
+  width: 14px;
+  height: 14px;
+
+  right: 1px;
+  top: 3px;
+
+  border-radius: 50%;
+
+  background: var(--jcn-green);
+
+  border: 3px solid #090909;
+
+  box-shadow:
+    0 0 10px rgba(53, 219, 117, 0.7);
+}
+
+
+/* =========================================
+   CHAT WINDOW
+========================================= */
+
+.jcn-chat-window {
+  position: fixed;
+
+  width: 390px;
+  height: 590px;
+
+  right: 28px;
+  bottom: 105px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(212, 175, 55, 0.08),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(24, 24, 24, 0.98),
+      rgba(7, 7, 7, 0.99)
+    );
+
+  border:
+    1px solid rgba(212, 175, 55, 0.3);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.75),
+    0 0 30px rgba(212, 175, 55, 0.08);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  z-index: 999998;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transform:
+    translateY(25px)
+    scale(0.95);
+
+  transform-origin: bottom right;
+
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+/* OPEN STATE */
+
+.jcn-chat-window.active {
+  opacity: 1;
+  visibility: visible;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+/* =========================================
+   CHATBOT HEADER
+========================================= */
+
+.jcn-chat-header {
+  min-height: 82px;
+
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(212, 175, 55, 0.14),
+      rgba(212, 175, 55, 0.02)
+    );
+
+  border-bottom:
+    1px solid rgba(212, 175, 55, 0.16);
+}
+
+
+/* =========================================
+   AI AVATAR
+========================================= */
+
+.jcn-ai-avatar {
+  width: 48px;
+  height: 48px;
+
+  min-width: 48px;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #050505;
+
+  border:
+    2px solid var(--jcn-gold);
+
+  box-shadow:
+    0 0 15px rgba(212, 175, 55, 0.28);
+}
+
+
+.jcn-ai-avatar img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+
+/* =========================================
+   CHAT TITLE
+========================================= */
+
+.jcn-chat-title {
+  flex: 1;
+
+  margin-left: 12px;
+}
+
+
+.jcn-chat-title h4 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  letter-spacing: 0.2px;
+}
+
+
+.jcn-chat-title p {
+  margin: 4px 0 0;
+
+  color: #929292;
+
+  font-size: 11px;
+}
+
+
+.jcn-chat-title p span {
+  color: var(--jcn-green);
+
+  margin-right: 3px;
+}
+
+
+/* =========================================
+   CLOSE BUTTON
+========================================= */
+
+.jcn-chat-close {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    rgba(255, 255, 255, 0.05);
+
+  color: #ffffff;
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.jcn-chat-close:hover {
+  background:
+    rgba(212, 175, 55, 0.13);
+
+  color: var(--jcn-gold);
+
+  transform: rotate(5deg);
+}
+
+
+/* =========================================
+   MESSAGES AREA
+========================================= */
+
+.jcn-chat-messages {
+  flex: 1;
+
+  padding: 18px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scroll-behavior: smooth;
+}
+
+
+/* CUSTOM SCROLLBAR */
+
+.jcn-chat-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+
+.jcn-chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.jcn-chat-messages::-webkit-scrollbar-thumb {
+  background:
+    rgba(212, 175, 55, 0.35);
+
+  border-radius: 20px;
+}
+
+
+/* =========================================
+   MESSAGE ROW
+========================================= */
+
+.jcn-message-row {
+  width: 100%;
+
+  display: flex;
+
+  margin-bottom: 14px;
+
+  animation:
+    jcnMessageIn 0.25s ease;
+}
+
+
+.jcn-message-row.bot {
+  justify-content: flex-start;
+}
+
+
+.jcn-message-row.user {
+  justify-content: flex-end;
+}
+
+
+/* =========================================
+   MESSAGE BUBBLE
+========================================= */
+
+.jcn-message {
+  max-width: 80%;
+
+  padding: 11px 14px;
+
+  border-radius: 16px;
+
+  font-size: 13px;
+  line-height: 1.55;
+
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+
+/* BOT MESSAGE */
+
+.jcn-message.bot {
+  color: #eeeeee;
+
+  background:
+    linear-gradient(
+      145deg,
+      #1b1b1b,
+      #151515
+    );
+
+  border:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  border-bottom-left-radius: 5px;
+
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+
+/* USER MESSAGE */
+
+.jcn-message.user {
+  color: #090909;
+
+  font-weight: 500;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f1d267,
+      #d4af37 55%,
+      #ae8d25
+    );
+
+  border-bottom-right-radius: 5px;
+
+  box-shadow:
+    0 5px 18px rgba(212, 175, 55, 0.15);
+}
+
+
+/* =========================================
+   QUICK ACTIONS
+========================================= */
+
+.jcn-quick-actions {
+  width: 100%;
+
+  padding:
+    2px 17px 12px;
+
+  display: flex;
+
+  gap: 7px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  flex-shrink: 0;
+}
+
+
+.jcn-quick-actions::-webkit-scrollbar {
+  display: none;
+}
+
+
+.jcn-quick-btn {
+  flex-shrink: 0;
+
+  padding:
+    8px 12px;
+
+  border-radius: 20px;
+
+  border:
+    1px solid rgba(212, 175, 55, 0.25);
+
+  background:
+    rgba(212, 175, 55, 0.05);
+
+  color: #d9bd62;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.jcn-quick-btn:hover {
+  background: var(--jcn-gold);
+
+  border-color:
+    var(--jcn-gold);
+
+  color: #080808;
+
+  transform:
+    translateY(-2px);
+}
+
+
+/* =========================================
+   CHAT INPUT AREA
+========================================= */
+
+.jcn-chat-input-wrapper {
+  flex-shrink: 0;
+
+  padding:
+    12px 13px 14px;
+
+  background:
+    rgba(7, 7, 7, 0.98);
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+/* INPUT BOX */
+
+.jcn-chat-input-box {
+  width: 100%;
+  min-height: 49px;
+
+  padding:
+    5px 6px 5px 15px;
+
+  display: flex;
+  align-items: center;
+
+  border-radius: 15px;
+
+  background:
+    #161616;
+
+  border:
+    1px solid rgba(212, 175, 55, 0.17);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.jcn-chat-input-box:focus-within {
+  border-color:
+    rgba(212, 175, 55, 0.6);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(212, 175, 55, 0.05);
+}
+
+
+/* =========================================
+   INPUT
+========================================= */
+
+#jcnChatInput {
+  width: 100%;
+  flex: 1;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #ffffff;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 13px;
+}
+
+
+#jcnChatInput::placeholder {
+  color: #717171;
+}
+
+
+/* =========================================
+   SEND BUTTON
+========================================= */
+
+.jcn-send-btn {
+  width: 39px;
+  height: 39px;
+
+  min-width: 39px;
+
+  border: none;
+  border-radius: 11px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f1d164,
+      #d4af37
+    );
+
+  color: #080808;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 16px rgba(212, 175, 55, 0.15);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.jcn-send-btn:hover {
+  background:
+    linear-gradient(
+      135deg,
+      #f8df82,
+      #e0bd46
+    );
+
+  transform: scale(1.05);
+
+  box-shadow:
+    0 6px 20px rgba(212, 175, 55, 0.25);
+}
+
+
+.jcn-send-btn:active {
+  transform: scale(0.96);
+}
+
+
+/* =========================================
+   TYPING INDICATOR
+========================================= */
+
+.jcn-typing {
+  width: max-content;
+
+  padding:
+    13px 15px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  border-radius:
+    16px 16px 16px 5px;
+
+  background:
+    #191919;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+.jcn-typing span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background:
+    var(--jcn-gold);
+
+  animation:
+    jcnTyping 1.2s infinite ease-in-out;
+}
+
+
+.jcn-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+
+.jcn-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes jcnTyping {
+
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+
+    transform:
+      translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+
+    transform:
+      translateY(-4px);
+  }
+
+}
+
+
+@keyframes jcnMessageIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 768px) {
+
+  .jcn-chat-window {
+    right: 20px;
+
+    width: 370px;
+  }
+
+
+  .jcn-chat-toggle {
+    right: 20px;
+  }
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+
+  .jcn-chat-toggle {
+    width: 58px;
+    height: 58px;
+
+    right: 16px;
+    bottom: 16px;
+
+    font-size: 22px;
+  }
+
+
+  .jcn-chat-window {
+    width:
+      calc(100% - 24px);
+
+    height: 72vh;
+
+    max-height: 650px;
+
+    right: 12px;
+    bottom: 88px;
+
+    border-radius: 20px;
+  }
+
+
+  .jcn-chat-header {
+    min-height: 74px;
+
+    padding: 13px 15px;
+  }
+
+
+  .jcn-ai-avatar {
+    width: 43px;
+    height: 43px;
+
+    min-width: 43px;
+  }
+
+
+  .jcn-chat-title h4 {
+    font-size: 15px;
+  }
+
+
+  .jcn-message {
+    max-width: 86%;
+
+    font-size: 12.5px;
+  }
+
+
+  .jcn-chat-messages {
+    padding: 15px;
+  }
+
+
+  .jcn-quick-actions {
+    padding:
+      2px 14px 10px;
+  }
+
+
+  .jcn-chat-input-wrapper {
+    padding:
+      10px 11px 12px;
+  }
+
+}
