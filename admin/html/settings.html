@@ -1,384 +1,704 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Settings - Admin Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>JCN | Admin Settings</title>
 
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  >
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
   <link rel="stylesheet" href="../css/settings.css">
 </head>
 
 <body class="dashboard-body">
+  <div class="container-fluid py-4">
+    <div class="dashboard-wrapper mx-auto">
 
-<div class="container-fluid py-4">
-  <div class="dashboard-wrapper mx-auto">
+      <!-- TOP NAVIGATION -->
+      <nav
+        class="navbar navbar-expand-lg dashboard-nav px-4 py-3 mb-4"
+        aria-label="Main navigation"
+      >
+        <div class="container-fluid p-0">
+          <a
+            class="navbar-brand text-light fw-bold d-flex align-items-center gap-2"
+            href="admin-dashboard.html"
+          >
+            <i
+              class="fa-solid fa-user-shield text-gold"
+              aria-hidden="true"
+            ></i>
+            Admin Dashboard
+          </a>
 
-    <nav class="navbar navbar-expand-lg dashboard-nav px-4 py-3 mb-4">
-      <div class="container-fluid p-0">
+          <button
+            class="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#adminNav"
+            aria-controls="adminNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="fa-solid fa-bars text-light" aria-hidden="true"></i>
+          </button>
 
-        <a class="navbar-brand text-light fw-bold d-flex align-items-center gap-2" href="admin-dashboard.html">
-          <i class="fa-solid fa-user-shield text-gold"></i>
-          Admin Dashboard
-        </a>
+          <div class="collapse navbar-collapse" id="adminNav">
+            <ul class="navbar-nav mx-auto gap-lg-4">
+              <li class="nav-item">
+                <a class="nav-link text-light" href="admin-dashboard.html">
+                  Overview
+                </a>
+              </li>
 
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
-          <i class="fa-solid fa-bars text-light"></i>
+              <li class="nav-item">
+                <a class="nav-link text-light" href="manage-user.html">
+                  Customers
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link text-light" href="manage-staff.html">
+                  Staff
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link text-light" href="reports.html">
+                  Reports
+                </a>
+              </li>
+            </ul>
+
+            <button
+              type="button"
+              id="adminLogoutBtn"
+              class="premium-logout-btn"
+            >
+              <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- PAGE HEADING -->
+      <header class="dashboard-card p-4 mb-4">
+        <div class="settings-header">
+          <div>
+            <p class="text-gold fw-bold small mb-2">
+              JCN APPAREL PRINTING SERVICES
+            </p>
+            <h1 class="h3 text-light fw-bold mb-2">Settings</h1>
+            <p class="text-light opacity-75 mb-0">
+              Manage shop information and system preferences.
+            </p>
+          </div>
+
+          <span class="badge border border-gold text-gold rounded-pill px-3 py-2">
+            <i class="fa-solid fa-user-shield me-1" aria-hidden="true"></i>
+            Administrator
+          </span>
+        </div>
+      </header>
+
+      <div class="row g-4">
+
+        <!-- ADMIN SIDEBAR -->
+        <aside class="col-lg-3">
+          <div class="dashboard-card p-4">
+            <h2 class="h5 text-light mb-4">Admin Menu</h2>
+
+            <nav class="list-group dashboard-menu" aria-label="Admin menu">
+              <a
+                href="admin-dashboard.html"
+                class="list-group-item list-group-item-action"
+              >
+                <i class="fa-solid fa-chart-line me-2" aria-hidden="true"></i>
+                Overview
+              </a>
+
+              <a
+                href="manage-user.html"
+                class="list-group-item list-group-item-action"
+              >
+                <i class="fa-solid fa-users me-2" aria-hidden="true"></i>
+                Manage Customers
+              </a>
+
+              <a
+                href="manage-staff.html"
+                class="list-group-item list-group-item-action"
+              >
+                <i class="fa-solid fa-user-tie me-2" aria-hidden="true"></i>
+                Manage Staff
+              </a>
+
+              <a
+                href="announcement.html"
+                class="list-group-item list-group-item-action"
+              >
+                <i class="fa-solid fa-bullhorn me-2" aria-hidden="true"></i>
+                Announcements
+              </a>
+
+              <a
+                href="reports.html"
+                class="list-group-item list-group-item-action"
+              >
+                <i class="fa-solid fa-file-lines me-2" aria-hidden="true"></i>
+                Reports
+              </a>
+
+              <a
+                href="settings.html"
+                class="list-group-item list-group-item-action active-menu"
+                aria-current="page"
+              >
+                <i class="fa-solid fa-gear me-2" aria-hidden="true"></i>
+                Settings
+              </a>
+            </nav>
+          </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="col-lg-9" id="mainContent">
+          <div class="dashboard-card p-4">
+
+            <div class="settings-header mb-4">
+              <div>
+                <h2 class="h4 text-light mb-2">Admin Settings</h2>
+                <p class="setting-help text-light opacity-75 mb-0">
+                  Review your preferences, then click Save Changes.
+                </p>
+              </div>
+
+              <span
+                id="settingsStatus"
+                class="settings-status"
+                role="status"
+                aria-live="polite"
+              >
+                Connecting…
+              </span>
+            </div>
+
+            <noscript>
+              <p class="alert alert-warning">
+                Enable JavaScript to load and save settings.
+              </p>
+            </noscript>
+
+            <div
+              id="settingsMessage"
+              class="settings-message d-none"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            ></div>
+
+            <form id="settingsForm">
+              <!-- settings.js enables this after a successful load. -->
+              <fieldset id="settingsFields" disabled>
+                <legend class="visually-hidden">System settings</legend>
+
+                <div class="settings-grid">
+
+                  <!-- SHOP INFORMATION -->
+                  <section class="setting-panel" aria-labelledby="shopHeading">
+                    <h5 id="shopHeading">
+                      <i class="fa-solid fa-store" aria-hidden="true"></i>
+                      Shop Information
+                    </h5>
+
+                    <div class="input-group-custom">
+                      <label for="shop_name">Shop Name</label>
+                      <input
+                        type="text"
+                        id="shop_name"
+                        name="shop_name"
+                        autocomplete="organization"
+                        placeholder="JCN Apparel Printing Services"
+                        required
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="shop_email">Shop Email</label>
+                      <input
+                        type="email"
+                        id="shop_email"
+                        name="shop_email"
+                        placeholder="Shop email address"
+                        required
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="shop_phone">Shop Phone</label>
+                      <input
+                        type="tel"
+                        id="shop_phone"
+                        name="shop_phone"
+                        placeholder="09XXXXXXXXX"
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="shop_address">Shop Address</label>
+                      <textarea
+                        id="shop_address"
+                        name="shop_address"
+                        rows="3"
+                        placeholder="Shop address"
+                      ></textarea>
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="business_hours">Business Hours</label>
+                      <input
+                        type="text"
+                        id="business_hours"
+                        name="business_hours"
+                        placeholder="Monday - Saturday, 8:00 AM - 6:00 PM"
+                      >
+                    </div>
+                  </section>
+
+                  <!-- ADMIN ACCOUNT -->
+                  <section class="setting-panel" aria-labelledby="adminHeading">
+                    <h5 id="adminHeading">
+                      <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                      Admin Account
+                    </h5>
+
+                    <div class="input-group-custom">
+                      <label for="admin_name">Admin Name</label>
+                      <input
+                        type="text"
+                        id="admin_name"
+                        name="admin_name"
+                        autocomplete="name"
+                        placeholder="Admin name"
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="admin_username">Username</label>
+                      <input
+                        type="text"
+                        id="admin_username"
+                        name="admin_username"
+                        autocomplete="username"
+                        placeholder="Admin username"
+                        required
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="admin_email">Email</label>
+                      <input
+                        type="email"
+                        id="admin_email"
+                        name="admin_email"
+                        autocomplete="email"
+                        placeholder="Admin email"
+                        required
+                      >
+                    </div>
+                  </section>
+
+                  <!-- DELIVERY -->
+                  <section class="setting-panel" aria-labelledby="deliveryHeading">
+                    <h5 id="deliveryHeading">
+                      <i class="fa-solid fa-truck" aria-hidden="true"></i>
+                      Delivery Settings
+                    </h5>
+
+                    <div class="input-group-custom">
+                      <label for="delivery_fee">Delivery Fee (₱)</label>
+                      <input
+                        type="number"
+                        id="delivery_fee"
+                        name="delivery_fee"
+                        min="0"
+                        step="0.01"
+                        placeholder="80"
+                        required
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="free_shipping_min">
+                        Free Shipping Minimum (₱)
+                      </label>
+                      <input
+                        type="number"
+                        id="free_shipping_min"
+                        name="free_shipping_min"
+                        min="0"
+                        step="0.01"
+                        placeholder="1500"
+                        required
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="delivery_days">Estimated Delivery Days</label>
+                      <input
+                        type="number"
+                        id="delivery_days"
+                        name="delivery_days"
+                        min="1"
+                        step="1"
+                        placeholder="3"
+                        required
+                      >
+                    </div>
+                  </section>
+
+                  <!-- PAYMENT -->
+                  <section class="setting-panel" aria-labelledby="paymentHeading">
+                    <h5 id="paymentHeading">
+                      <i class="fa-brands fa-paypal" aria-hidden="true"></i>
+                      Payment Settings
+                    </h5>
+
+                    <div class="input-group-custom">
+                      <label for="paypal_client_id">PayPal Client ID</label>
+                      <input
+                        type="text"
+                        id="paypal_client_id"
+                        name="paypal_client_id"
+                        placeholder="PayPal client ID"
+                        spellcheck="false"
+                        autocapitalize="none"
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="paypal_mode">PayPal Mode</label>
+                      <select id="paypal_mode" name="paypal_mode">
+                        <option value="Sandbox">Sandbox</option>
+                        <option value="Live">Live</option>
+                      </select>
+                    </div>
+                  </section>
+
+                  <!-- EMAIL -->
+                  <section class="setting-panel" aria-labelledby="emailHeading">
+                    <h5 id="emailHeading">
+                      <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                      Email Settings
+                    </h5>
+
+                    <div class="setting-toggle">
+                      <div>
+                        <label for="email_order_confirmation" class="fw-bold">
+                          Order Confirmation
+                        </label>
+                        <p>Send email after a customer places an order.</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="email_order_confirmation"
+                        name="email_order_confirmation"
+                      >
+                    </div>
+
+                    <div class="setting-toggle">
+                      <div>
+                        <label for="email_tracking_updates" class="fw-bold">
+                          Tracking Updates
+                        </label>
+                        <p>Send email when tracking is updated.</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="email_tracking_updates"
+                        name="email_tracking_updates"
+                      >
+                    </div>
+
+                    <div class="setting-toggle">
+                      <div>
+                        <label for="email_delivery_updates" class="fw-bold">
+                          Delivery Updates
+                        </label>
+                        <p>Send email when an order is delivered.</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="email_delivery_updates"
+                        name="email_delivery_updates"
+                      >
+                    </div>
+                  </section>
+
+                  <!-- AI -->
+                  <section class="setting-panel" aria-labelledby="aiHeading">
+                    <h5 id="aiHeading">
+                      <i class="fa-solid fa-robot" aria-hidden="true"></i>
+                      AI Settings
+                    </h5>
+
+                    <div class="setting-toggle">
+                      <div>
+                        <label for="ai_enabled" class="fw-bold">
+                          Enable AI Assistant
+                        </label>
+                        <p>Allow AI support for customization.</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="ai_enabled"
+                        name="ai_enabled"
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="ai_style">AI Response Style</label>
+                      <select id="ai_style" name="ai_style">
+                        <option value="Friendly">Friendly</option>
+                        <option value="Professional">Professional</option>
+                        <option value="Creative">Creative</option>
+                      </select>
+                    </div>
+
+                    <div class="setting-toggle">
+                      <div>
+                        <label for="ai_design_suggestions" class="fw-bold">
+                          Auto Design Suggestions
+                        </label>
+                        <p>Suggest design ideas automatically.</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="ai_design_suggestions"
+                        name="ai_design_suggestions"
+                      >
+                    </div>
+                  </section>
+
+                  <!-- ANNOUNCEMENTS -->
+                  <section
+                    class="setting-panel"
+                    aria-labelledby="announcementHeading"
+                  >
+                    <h5 id="announcementHeading">
+                      <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
+                      Announcement Settings
+                    </h5>
+
+                    <div class="input-group-custom">
+                      <label for="announcement_title">Announcement Title</label>
+                      <input
+                        type="text"
+                        id="announcement_title"
+                        name="announcement_title"
+                        placeholder="Announcement title"
+                      >
+                    </div>
+
+                    <div class="input-group-custom">
+                      <label for="announcement_message">
+                        Announcement Message
+                      </label>
+                      <textarea
+                        id="announcement_message"
+                        name="announcement_message"
+                        rows="3"
+                        placeholder="Announcement message"
+                      ></textarea>
+                    </div>
+
+                    <div class="setting-toggle">
+                      <div>
+                        <label for="announcement_enabled" class="fw-bold">
+                          Enable Announcement
+                        </label>
+                        <p>Show announcement on the customer page.</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="announcement_enabled"
+                        name="announcement_enabled"
+                      >
+                    </div>
+                  </section>
+
+                  <!-- SECURITY -->
+                  <section class="setting-panel" aria-labelledby="securityHeading">
+                    <h5 id="securityHeading">
+                      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                      Security Settings
+                    </h5>
+
+                    <div class="input-group-custom">
+                      <label for="session_timeout">
+                        Session Timeout (minutes)
+                      </label>
+                      <input
+                        type="number"
+                        id="session_timeout"
+                        name="session_timeout"
+                        min="1"
+                        step="1"
+                        placeholder="30"
+                        required
+                      >
+                    </div>
+
+                    <div class="setting-toggle">
+                      <div>
+                        <label for="strong_password_required" class="fw-bold">
+                          Require Strong Password
+                        </label>
+                        <p>Require a strong admin password.</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="strong_password_required"
+                        name="strong_password_required"
+                      >
+                    </div>
+                  </section>
+
+                  <!-- SETTINGS BACKUP -->
+                  <section class="setting-panel" aria-labelledby="backupHeading">
+                    <h5 id="backupHeading">
+                      <i class="fa-solid fa-database" aria-hidden="true"></i>
+                      Settings Backup &amp; Restore
+                    </h5>
+
+                    <p class="setting-help text-light opacity-75">
+                      Export settings only. Orders, products, and users
+                      are not included. Review imported settings before saving.
+                    </p>
+
+                    <input
+                      type="file"
+                      id="settingsImport"
+                      accept=".json,application/json"
+                      aria-label="Import settings JSON file"
+                      hidden
+                    >
+
+                    <button
+                      type="button"
+                      class="settings-tool-btn"
+                      id="backupBtn"
+                    >
+                      <i
+                        class="fa-solid fa-cloud-arrow-down"
+                        aria-hidden="true"
+                      ></i>
+                      Export Saved Settings
+                    </button>
+
+                    <button
+                      type="button"
+                      class="settings-tool-btn"
+                      id="restoreBtn"
+                    >
+                      <i class="fa-solid fa-file-import" aria-hidden="true"></i>
+                      Import Settings JSON
+                    </button>
+
+                    <button
+                      type="button"
+                      class="settings-tool-btn danger"
+                      id="resetSettingsBtn"
+                    >
+                      <i
+                        class="fa-solid fa-arrow-rotate-left"
+                        aria-hidden="true"
+                      ></i>
+                      Reset Default Preferences
+                    </button>
+                  </section>
+
+                </div>
+              </fieldset>
+
+              <div class="settings-actions">
+                <button
+                  type="button"
+                  class="btn btn-outline-warning text-gold border-gold px-4"
+                  id="cancelSettingsBtn"
+                >
+                  Reload Saved
+                </button>
+
+                <button
+                  type="submit"
+                  class="btn btn-gold px-4"
+                  id="saveSettingsBtn"
+                  disabled
+                >
+                  <i class="fa-solid fa-floppy-disk me-2" aria-hidden="true"></i>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGOUT MODAL -->
+  <div
+    class="logout-modal-overlay"
+    id="adminLogoutModal"
+    aria-hidden="true"
+  >
+    <div
+      class="logout-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="logoutTitle"
+      aria-describedby="logoutDescription"
+      tabindex="-1"
+    >
+      <div class="logout-modal-icon">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+      </div>
+
+      <h3 id="logoutTitle">Confirm Admin Logout</h3>
+      <p id="logoutDescription">Are you sure you want to log out?</p>
+
+      <div class="logout-modal-actions">
+        <button
+          type="button"
+          id="adminConfirmLogout"
+          class="logout-confirm-btn"
+        >
+          Yes, Logout
         </button>
 
-        <div class="collapse navbar-collapse" id="adminNav">
-          <ul class="navbar-nav mx-auto gap-lg-4">
-            <li class="nav-item"><a class="nav-link text-light" href="admin-dashboard.html">Overview</a></li>
-            <li class="nav-item"><a class="nav-link text-light" href="manage-user.html">Users</a></li>
-            <li class="nav-item"><a class="nav-link text-light" href="manage-order.html">Orders</a></li>
-            <li class="nav-item"><a class="nav-link text-light" href="manage-product.html">Products</a></li>
-            <li class="nav-item"><a class="nav-link text-light" href="reports.html">Reports</a></li>
-          </ul>
-
-          <button type="button" id="adminLogoutBtn" class="premium-logout-btn">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Logout</span>
-          </button>
-        </div>
-
+        <button
+          type="button"
+          id="adminCancelLogout"
+          class="logout-cancel-btn"
+        >
+          Cancel
+        </button>
       </div>
-    </nav>
-
-    <section class="row g-4">
-
-      <div class="col-lg-3">
-        <div class="dashboard-card p-4">
-          <h5 class="text-light mb-4">Admin Menu</h5>
-
-          <div class="list-group dashboard-menu">
-            <a href="admin-dashboard.html" class="list-group-item list-group-item-action">
-              <i class="fa-solid fa-chart-line me-2"></i> Overview
-            </a>
-
-            <a href="manage-user.html" class="list-group-item list-group-item-action">
-              <i class="fa-solid fa-users me-2"></i> Manage Users
-            </a>
-
-            <a href="manage-product.html" class="list-group-item list-group-item-action">
-              <i class="fa-solid fa-shirt me-2"></i> Manage Products
-            </a>
-
-            <a href="manage-order.html" class="list-group-item list-group-item-action">
-              <i class="fa-solid fa-cart-shopping me-2"></i> Manage Orders
-            </a>
-
-            <a href="announcement.html" class="list-group-item list-group-item-action">
-              <i class="fa-solid fa-bullhorn me-2"></i> Announcements
-            </a>
-
-            <a href="reports.html" class="list-group-item list-group-item-action">
-              <i class="fa-solid fa-file-lines me-2"></i> Reports
-            </a>
-
-            <a href="settings.html" class="list-group-item list-group-item-action active-menu">
-              <i class="fa-solid fa-gear me-2"></i> Settings
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-9">
-        <div class="dashboard-card p-4">
-
-          <div class="settings-header mb-4">
-            <div>
-              <h4 class="text-light m-0">Admin Settings</h4>
-              <p class="text-secondary mb-0 small">
-                Manage shop information, admin account, delivery, payment, email, AI, announcement, security, and backup settings.
-              </p>
-            </div>
-
-            <span class="settings-status">
-              <i class="fa-solid fa-circle-check"></i> System Active
-            </span>
-          </div>
-
-          <div id="settingsMessage" class="settings-message d-none"></div>
-
-          <form id="settingsForm">
-
-            <div class="settings-grid">
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-store"></i> Shop Information</h5>
-
-                <div class="input-group-custom">
-                  <label>Shop Name</label>
-                  <input type="text" id="shop_name" placeholder="JCN Apparel Printing Services">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Shop Email</label>
-                  <input type="email" id="shop_email" placeholder="jcnapparel@gmail.com">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Shop Phone</label>
-                  <input type="text" id="shop_phone" placeholder="09XXXXXXXXX">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Shop Address</label>
-                  <textarea id="shop_address" rows="3" placeholder="Shop address"></textarea>
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Business Hours</label>
-                  <input type="text" id="business_hours" placeholder="Monday - Saturday, 8:00 AM - 6:00 PM">
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-user-gear"></i> Admin Account</h5>
-
-                <div class="input-group-custom">
-                  <label>Admin Name</label>
-                  <input type="text" id="admin_name" placeholder="Admin name">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Username</label>
-                  <input type="text" id="admin_username" placeholder="Admin username">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Email</label>
-                  <input type="email" id="admin_email" placeholder="Admin email">
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-truck"></i> Delivery Settings</h5>
-
-                <div class="input-group-custom">
-                  <label>Delivery Fee</label>
-                  <input type="number" id="delivery_fee" placeholder="80">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Free Shipping Minimum</label>
-                  <input type="number" id="free_shipping_min" placeholder="1500">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Estimated Delivery Days</label>
-                  <input type="number" id="delivery_days" placeholder="3">
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-brands fa-paypal"></i> Payment Settings</h5>
-
-                <div class="input-group-custom">
-                  <label>PayPal Client ID</label>
-                  <input type="text" id="paypal_client_id" placeholder="PayPal client ID">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>PayPal Mode</label>
-                  <select id="paypal_mode">
-                    <option value="Sandbox">Sandbox</option>
-                    <option value="Live">Live</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-envelope"></i> Email Settings</h5>
-
-                <div class="setting-toggle">
-                  <div>
-                    <strong>Order Confirmation</strong>
-                    <p>Send email after customer orders.</p>
-                  </div>
-                  <input type="checkbox" id="email_order_confirmation">
-                </div>
-
-                <div class="setting-toggle">
-                  <div>
-                    <strong>Tracking Updates</strong>
-                    <p>Send email when tracking number is updated.</p>
-                  </div>
-                  <input type="checkbox" id="email_tracking_updates">
-                </div>
-
-                <div class="setting-toggle">
-                  <div>
-                    <strong>Delivery Updates</strong>
-                    <p>Send email when order is delivered.</p>
-                  </div>
-                  <input type="checkbox" id="email_delivery_updates">
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-robot"></i> AI Settings</h5>
-
-                <div class="setting-toggle">
-                  <div>
-                    <strong>Enable AI Assistant</strong>
-                    <p>Allow AI support for customization.</p>
-                  </div>
-                  <input type="checkbox" id="ai_enabled">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>AI Response Style</label>
-                  <select id="ai_style">
-                    <option value="Friendly">Friendly</option>
-                    <option value="Professional">Professional</option>
-                    <option value="Creative">Creative</option>
-                  </select>
-                </div>
-
-                <div class="setting-toggle">
-                  <div>
-                    <strong>Auto Design Suggestions</strong>
-                    <p>Suggest design ideas automatically.</p>
-                  </div>
-                  <input type="checkbox" id="ai_design_suggestions">
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-bullhorn"></i> Announcement Settings</h5>
-
-                <div class="input-group-custom">
-                  <label>Announcement Title</label>
-                  <input type="text" id="announcement_title" placeholder="Announcement title">
-                </div>
-
-                <div class="input-group-custom">
-                  <label>Announcement Message</label>
-                  <textarea id="announcement_message" rows="3" placeholder="Announcement message"></textarea>
-                </div>
-
-                <div class="setting-toggle">
-                  <div>
-                    <strong>Enable Announcement</strong>
-                    <p>Show announcement on customer page.</p>
-                  </div>
-                  <input type="checkbox" id="announcement_enabled">
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-shield-halved"></i> Security Settings</h5>
-
-                <div class="input-group-custom">
-                  <label>Session Timeout</label>
-                  <input type="number" id="session_timeout" placeholder="30">
-                </div>
-
-                <div class="setting-toggle">
-                  <div>
-                    <strong>Require Strong Password</strong>
-                    <p>Force admin to use strong password.</p>
-                  </div>
-                  <input type="checkbox" id="strong_password_required">
-                </div>
-              </div>
-
-              <div class="setting-panel">
-                <h5><i class="fa-solid fa-database"></i> Backup & Restore</h5>
-
-                <button type="button" class="settings-tool-btn" id="backupBtn">
-                  <i class="fa-solid fa-cloud-arrow-down"></i>
-                  Create Backup
-                </button>
-
-                <button type="button" class="settings-tool-btn" id="restoreBtn">
-                  <i class="fa-solid fa-rotate-left"></i>
-                  Restore Backup
-                </button>
-
-                <button type="button" class="settings-tool-btn danger" id="resetSettingsBtn">
-                  <i class="fa-solid fa-trash"></i>
-                  Reset Default Settings
-                </button>
-              </div>
-
-            </div>
-
-            <div class="settings-actions">
-              <button type="button" class="btn btn-outline-warning text-gold border-gold px-4" id="cancelSettingsBtn">
-                Cancel
-              </button>
-
-              <button type="submit" class="btn btn-gold px-4" id="saveSettingsBtn">
-                <i class="fa-solid fa-floppy-disk me-2"></i>Save Changes
-              </button>
-            </div>
-
-          </form>
-
-        </div>
-      </div>
-
-    </section>
-  </div>
-</div>
-
-<div class="logout-modal-overlay" id="adminLogoutModal">
-  <div class="logout-modal">
-    <div class="logout-modal-icon">
-      <i class="fa-solid fa-right-from-bracket"></i>
-    </div>
-
-    <h3>Confirm Admin Logout</h3>
-    <p>Are you sure you want to log out?</p>
-
-    <div class="logout-modal-actions">
-      <button type="button" id="adminConfirmLogout" class="logout-confirm-btn">
-        Yes, Logout
-      </button>
-
-      <button type="button" id="adminCancelLogout" class="logout-cancel-btn">
-        Cancel
-      </button>
     </div>
   </div>
-</div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const adminLogoutBtn = document.getElementById("adminLogoutBtn");
-    const adminLogoutModal = document.getElementById("adminLogoutModal");
-    const adminConfirmLogout = document.getElementById("adminConfirmLogout");
-    const adminCancelLogout = document.getElementById("adminCancelLogout");
-
-    adminLogoutBtn?.addEventListener("click", () => {
-      adminLogoutModal.classList.add("show");
-    });
-
-    adminCancelLogout?.addEventListener("click", () => {
-      adminLogoutModal.classList.remove("show");
-    });
-
-    adminLogoutModal?.addEventListener("click", (e) => {
-      if (e.target === adminLogoutModal) {
-        adminLogoutModal.classList.remove("show");
-      }
-    });
-
-    adminConfirmLogout?.addEventListener("click", () => {
-      localStorage.removeItem("adminToken");
-      localStorage.removeItem("adminUser");
-      window.location.href = "admin-login.html";
-    });
-  });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../js/settings.js"></script>
-<script src="session-timeout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/settings.js"></script>
+  <script src="session-timeout.js"></script>
 </body>
 </html>
