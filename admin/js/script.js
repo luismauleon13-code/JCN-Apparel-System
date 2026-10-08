@@ -1,1183 +1,1681 @@
-const userLoginForm = document.getElementById("userLoginForm");
-const userRegisterForm = document.getElementById("userRegisterForm");
-const adminLoginForm = document.getElementById("adminLoginForm");
-const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+"use strict";
 
-const API_URL = "http://localhost:5000/api/auth";
 
-/* =========================
-   CUSTOMER LOGIN
-========================= */
 
-if (userLoginForm) {
-  userLoginForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
+(() => {
 
-    const username = document
-      .getElementById("loginUsername")
-      .value.trim();
+  if (window.__JCN_SHARED_SCRIPT_READY__) return;
 
-    const password = document
-      .getElementById("loginPassword")
-      .value.trim();
+  window.__JCN_SHARED_SCRIPT_READY__ = true;
 
-    const message = document.getElementById("userLoginMessage");
 
-    if (!username || !password) {
-      message.style.color = "#ff8b8b";
-      message.textContent = "Please enter username and password.";
-      return;
+
+  // =====================================================
+
+  // SETTINGS
+
+  // This file belongs in admin/js/script.js.
+
+  // =====================================================
+
+
+
+  const API_ROOT = "http://localhost:5000/api";
+
+  const PENDING_KEY = "pendingRegistration";
+
+  const VERIFY_EMAIL_KEY = "verifyEmail";
+
+
+
+  const source = document.currentScript?.src;
+
+
+
+  const projectRoot = source
+
+    ? new URL("../../", source)
+
+    : new URL("./", window.location.href);
+
+
+
+  const pages = {
+
+    customerLogin: new URL(
+
+      "customer/html/user-login.html",
+
+      projectRoot
+
+    ).href,
+
+
+
+    customerDashboard: new URL(
+
+      "customer/html/dashboard.html",
+
+      projectRoot
+
+    ).href,
+
+
+
+    adminLogin: new URL(
+
+      "admin/html/admin-login.html",
+
+      projectRoot
+
+    ).href,
+
+
+
+    adminDashboard: new URL(
+
+      "admin/html/admin-dashboard.html",
+
+      projectRoot
+
+    ).href,
+
+
+
+    register: new URL(
+
+      "user-register.html",
+
+      projectRoot
+
+    ).href,
+
+
+
+    verification: new URL(
+
+      "email-verification.html",
+
+      projectRoot
+
+    ).href
+
+  };
+
+
+
+  const $ = id => document.getElementById(id);
+
+  let navigating = false;
+
+
+
+  // =====================================================
+
+  // HELPERS
+
+  // =====================================================
+
+
+
+  function setText(id, value) {
+
+    const element = $(id);
+
+    if (element) element.textContent = String(value ?? "");
+
+  }
+
+
+
+  function showMessage(element, value, success = false) {
+
+    if (!element) return;
+
+
+
+    element.textContent = value;
+
+    element.classList.toggle("text-danger", !success);
+
+    element.classList.toggle("text-success", success);
+
+    element.setAttribute("role", "status");
+
+    element.setAttribute("aria-live", "polite");
+
+  }
+
+
+
+  function ensureMessage(form, ids) {
+
+    let element = ids.map(id => $(id)).find(Boolean);
+
+
+
+    if (!element) {
+
+      element = document.createElement("p");
+
+      element.id = ids[0];
+
+      element.className = "small text-center mb-3";
+
+      form.appendChild(element);
+
     }
 
-    try {
-      const response = await fetch(`${API_URL}/customer-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username,
-          password
-        })
-      });
 
-      const data = await response.json();
 
-      if (data.success) {
-        localStorage.setItem("customerToken", data.token);
-        localStorage.setItem(
-          "customerUser",
-          JSON.stringify(data.user)
-        );
+    return element;
 
-        message.style.color = "#9cffb0";
-        message.textContent = "Login successful! Redirecting...";
+  }
 
-        setTimeout(() => {
-          window.location.href = "../html/dashboard.html";
-        }, 1000);
-      } else {
-        message.style.color = "#ff8b8b";
-        message.textContent = data.message || "Login failed.";
-      }
-    } catch (error) {
-      console.error("Customer login error:", error);
-      message.style.color = "#ff8b8b";
-      message.textContent = "Cannot connect to server.";
+
+
+  function setVisible(element, visible) {
+
+    if (!element) return;
+
+
+
+    element.classList.toggle("hidden", !visible);
+
+    element.setAttribute("aria-hidden", String(!visible));
+
+  }
+
+
+
+  function escapeHTML(value) {
+
+    return String(value ?? "").replace(
+
+      /[&<>"']/g,
+
+      character => ({
+
+        "&": "&amp;",
+
+        "<": "&lt;",
+
+        ">": "&gt;",
+
+        '"': "&quot;",
+
+        "'": "&#39;"
+
+      })[character]
+
+    );
+
+  }
+
+
+
+  function peso(value) {
+
+    const amount = Number(value ?? 0);
+
+
+
+    return new Intl.NumberFormat("en-PH", {
+
+      style: "currency",
+
+      currency: "PHP",
+
+      minimumFractionDigits: 0,
+
+      maximumFractionDigits: 2
+
+    }).format(Number.isFinite(amount) ? amount : 0);
+
+  }
+
+
+
+  function formatDate(value) {
+
+    const date = new Date(value);
+
+
+
+    if (!value || Number.isNaN(date.getTime())) {
+
+      return "—";
+
     }
-  });
-}
 
-/* =========================
-   CUSTOMER REGISTER
-========================= */
 
-if (userRegisterForm) {
-  userRegisterForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
 
-    const firstName = document
-      .getElementById("registerFirstName").value.trim();
+    return new Intl.DateTimeFormat("en-PH", {
 
-    const middleName = document
-      .getElementById("registerMiddleName").value.trim();
+      timeZone: "Asia/Manila",
 
-    const lastName = document
-      .getElementById("registerLastName").value.trim();
+      dateStyle: "medium",
 
-    const phone = document
-      .getElementById("registerPhone").value.trim();
+      timeStyle: "short"
 
-    const email = document
-      .getElementById("registerEmail").value.trim();
+    }).format(date);
 
-    const username = document
-      .getElementById("registerUsername").value.trim();
+  }
 
-    const password = document
-      .getElementById("registerPassword").value.trim();
 
-    const confirmPassword = document
-      .getElementById("registerConfirmPassword").value.trim();
 
-    const otpMethod = document.querySelector(
-      'input[name="otpMethod"]:checked'
-    )?.value;
+  function clearAdminSession() {
 
-    const message = document.getElementById("userRegisterMessage");
-    message.textContent = "";
+    ["adminToken", "adminUser", "admin"].forEach(key => {
+
+      localStorage.removeItem(key);
+
+    });
+
+  }
+
+
+
+  function goToAdminLogin() {
+
+    clearAdminSession();
+
+
 
     if (
-      !firstName ||
-      !lastName ||
-      !phone ||
-      !email ||
-      !username ||
-      !password ||
-      !confirmPassword ||
-      !otpMethod
+
+      navigating ||
+
+      window.location.pathname === new URL(pages.adminLogin).pathname
+
     ) {
-      message.style.color = "#ff8b8b";
-      message.textContent = "Please fill in all required fields.";
+
       return;
+
     }
 
-    if (!/^09\d{9}$/.test(phone)) {
-      message.style.color = "#ff8b8b";
-      message.textContent =
-        "Phone number must be 11 digits and start with 09.";
-      return;
+
+
+    navigating = true;
+
+    window.location.replace(pages.adminLogin);
+
+  }
+
+
+
+  function setButtonLabel(button, label) {
+
+    if (!button) return;
+
+
+
+    if (button.tagName === "INPUT") {
+
+      button.value = label;
+
+    } else {
+
+      button.textContent = label;
+
     }
 
-    if (password !== confirmPassword) {
-      message.style.color = "#ff8b8b";
-      message.textContent = "Passwords do not match.";
-      return;
+  }
+
+
+
+  function findField(form, name, ids = []) {
+
+    return form.elements.namedItem(name) ||
+
+      ids.map(id => $(id)).find(Boolean) ||
+
+      null;
+
+  }
+
+
+
+  // =====================================================
+
+  // API
+
+  // =====================================================
+
+
+
+  async function apiRequest(path, options = {}, admin = false) {
+
+    const headers = new Headers(options.headers || {});
+
+    headers.set("Accept", "application/json");
+
+
+
+    if (options.body && !(options.body instanceof FormData)) {
+
+      headers.set("Content-Type", "application/json");
+
     }
 
-    const strongPassword =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
-    if (!strongPassword.test(password)) {
-      message.style.color = "#ff8b8b";
-      message.textContent =
-        "Password must contain uppercase, lowercase, number, special character, and minimum 8 characters.";
-      return;
-    }
 
-    try {
-      message.style.color = "#ffcc36";
-      message.textContent =
-        otpMethod === "sms"
-          ? "Sending OTP to phone number..."
-          : "Sending OTP to email...";
+    if (admin) {
 
-      const res = await fetch(`${API_URL}/send-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          username,
-          phone,
-          otp_method: otpMethod
-        })
-      });
+      const token = localStorage.getItem("adminToken");
 
-      const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        message.style.color = "#ff8b8b";
-        message.textContent =
-          data.message || "Email, username, or phone number already exists.";
-        return;
+
+      if (!token) {
+
+        goToAdminLogin();
+
+        throw new Error("Please sign in as administrator.");
+
       }
 
-      localStorage.setItem("pendingFirstName", firstName);
-      localStorage.setItem("pendingMiddleName", middleName);
-      localStorage.setItem("pendingLastName", lastName);
-      localStorage.setItem("pendingPhone", phone);
-      localStorage.setItem("pendingEmail", email);
-      localStorage.setItem("pendingUsername", username);
-      localStorage.setItem("pendingPassword", password);
-      localStorage.setItem("pendingOtpMethod", otpMethod);
 
-      message.style.color = "#9cffb0";
-      message.textContent =
-        otpMethod === "sms"
-          ? "OTP sent to your phone! Redirecting..."
-          : "OTP sent to your email! Redirecting...";
 
-      setTimeout(() => {
-        window.location.href = "email-verification.html";
-      }, 1000);
-    } catch (error) {
-      console.error("SEND OTP ERROR:", error);
-      message.style.color = "#ff8b8b";
-      message.textContent =
-        "Server error. Please check if backend is running.";
+      headers.set("Authorization", `Bearer ${token}`);
+
     }
-  });
-}
 
-/* =========================
-   ADMIN LOGIN
-========================= */
 
-if (adminLoginForm) {
-  adminLoginForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
 
-    const username = document
-      .getElementById("adminUsername").value.trim();
+    const controller = new AbortController();
 
-    const password = document
-      .getElementById("adminPassword").value.trim();
+    const timer = setTimeout(() => controller.abort(), 30000);
 
-    const message = document.getElementById("adminLoginMessage");
 
-    if (!username || !password) {
-      message.style.color = "#ff8b8b";
-      message.textContent = "Please enter username and password.";
-      return;
-    }
 
     try {
-      const response = await fetch(`${API_URL}/admin-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username,
-          password
-        })
+
+      const response = await fetch(`${API_ROOT}${path}`, {
+
+        ...options,
+
+        headers,
+
+        cache: "no-store",
+
+        signal: controller.signal
+
       });
 
-      const data = await response.json();
 
-      if (data.success) {
-        localStorage.setItem("adminToken", data.token);
-        localStorage.setItem(
-          "adminUser",
-          JSON.stringify(data.user)
+
+      const data = await response.json().catch(() => null);
+
+
+
+      if (admin && response.status === 401) {
+
+        goToAdminLogin();
+
+        throw new Error(
+
+          data?.message || "Your admin session has expired."
+
         );
 
-        message.style.color = "#9cffb0";
-        message.textContent =
-          "Admin login successful! Redirecting...";
-
-        setTimeout(() => {
-          window.location.href = "admin-dashboard.html";
-        }, 1000);
-      } else {
-        message.style.color = "#ff8b8b";
-        message.textContent = data.message || "Login failed.";
       }
+
+
+
+      if (!response.ok) {
+
+        throw new Error(
+
+          data?.message ||
+
+          `Request failed (${response.status}): ${path}`
+
+        );
+
+      }
+
+
+
+      if (!data || typeof data !== "object") {
+
+        throw new Error("The server returned an invalid response.");
+
+      }
+
+
+
+      if (data.success === false) {
+
+        throw new Error(data.message || "Request failed.");
+
+      }
+
+
+
+      return data;
+
     } catch (error) {
-      console.error("Admin login error:", error);
-      message.style.color = "#ff8b8b";
-      message.textContent = "Cannot connect to server.";
-    }
-  });
-}
 
-/* =========================
-   SHOW / HIDE PASSWORD
-========================= */
+      if (error.name === "AbortError") {
 
-document.addEventListener("DOMContentLoaded", () => {
-  const passwordButtons = document.querySelectorAll(
-    ".password-eye-btn, .toggle-password"
-  );
+        throw new Error(
 
-  passwordButtons.forEach(button => {
-    button.addEventListener("click", function (event) {
-      event.preventDefault();
+          "Request timed out. Check the server and try again."
 
-      const targetId = this.getAttribute("data-target");
-      const input = document.getElementById(targetId);
-      const icon = this.querySelector("i");
+        );
 
-      if (!input || !icon) return;
-
-      if (input.type === "password") {
-        input.type = "text";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
-      } else {
-        input.type = "password";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
       }
-    });
-  });
-});
 
-/* =========================
-   LEGACY MANAGE USERS
-   Runs only when #usersTable exists.
-========================= */
 
-const usersTable = document.getElementById("usersTable");
 
-function getRestrictionDays(user) {
-  if (user.status !== "restricted" || !user.restriction_until) {
-    return "";
+      if (error instanceof TypeError) {
+
+        throw new Error(
+
+          "Cannot connect to http://localhost:5000. " +
+
+          "Check that the backend is running."
+
+        );
+
+      }
+
+
+
+      throw error;
+
+    } finally {
+
+      clearTimeout(timer);
+
+    }
+
   }
 
-  const now = new Date();
-  const until = new Date(user.restriction_until);
 
-  const daysLeft = Math.ceil(
-    (until - now) / (1000 * 60 * 60 * 24)
-  );
 
-  if (daysLeft <= 0) return "Restriction expired";
+  function postAuth(endpoint, payload) {
 
-  return `${daysLeft} day(s) left`;
-}
+    return apiRequest(`/auth/${endpoint}`, {
 
-async function loadUsers() {
-  if (!usersTable) return;
+      method: "POST",
 
-  const res = await fetch("http://localhost:5000/api/admin/users");
-  const data = await res.json();
+      body: JSON.stringify(payload)
 
-  usersTable.innerHTML = "";
-
-  data.users.forEach(user => {
-    usersTable.innerHTML += `
-      <tr>
-        <td>${user.full_name || "Unknown"}</td>
-        <td>${user.email || ""}</td>
-        <td>${user.username || ""}</td>
-
-        <td>
-          <span class="${
-            user.status === "restricted"
-              ? "text-danger"
-              : "text-success"
-          }">
-            ${user.status || "active"}
-          </span>
-
-          ${
-            user.status === "restricted"
-              ? `
-                <small class="text-warning d-block mt-1">
-                  ${getRestrictionDays(user)}
-                </small>
-              `
-              : ""
-          }
-        </td>
-
-        <td>
-          <button
-            type="button"
-            class="btn btn-sm btn-warning"
-            onclick="restrictUser('${user.id}')"
-          >
-            Restrict
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-sm btn-success"
-            onclick="unrestrictUser('${user.id}')"
-          >
-            Unrestrict
-          </button>
-        </td>
-      </tr>
-    `;
-  });
-}
-
-if (usersTable) {
-  loadUsers();
-}
-
-/* =========================
-   FORGOT PASSWORD CUSTOMER
-========================= */
-
-let customerResetStep = 1;
-let customerResetEmailValue = "";
-
-const customerResetModal =
-  document.getElementById("customerResetModal");
-const customerResetText =
-  document.getElementById("customerResetText");
-const customerResetEmail =
-  document.getElementById("customerResetEmail");
-const customerResetOtp =
-  document.getElementById("customerResetOtp");
-const customerResetNewPassword =
-  document.getElementById("customerResetNewPassword");
-const customerResetConfirmPassword =
-  document.getElementById("customerResetConfirmPassword");
-const customerResetMessage =
-  document.getElementById("customerResetMessage");
-const customerResetNextBtn =
-  document.getElementById("customerResetNextBtn");
-const customerCancelResetBtn =
-  document.getElementById("customerCancelResetBtn");
-const customerSuccessModal =
-  document.getElementById("customerSuccessModal");
-const customerSuccessOkBtn =
-  document.getElementById("customerSuccessOkBtn");
-
-if (forgotPasswordBtn) {
-  forgotPasswordBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-
-    customerResetStep = 1;
-    customerResetEmailValue = "";
-
-    customerResetText.textContent =
-      "Enter your email to receive OTP.";
-    customerResetNextBtn.textContent = "Send OTP";
-    customerResetMessage.textContent = "";
-
-    customerResetEmail.classList.remove("hidden");
-    customerResetOtp.classList.add("hidden");
-    customerResetNewPassword.classList.add("hidden");
-    customerResetConfirmPassword.classList.add("hidden");
-
-    customerResetEmail.value = "";
-    customerResetOtp.value = "";
-    customerResetNewPassword.value = "";
-    customerResetConfirmPassword.value = "";
-
-    customerResetModal.classList.remove("hidden");
-  });
-}
-
-customerCancelResetBtn?.addEventListener("click", () => {
-  customerResetModal.classList.add("hidden");
-});
-
-customerSuccessOkBtn?.addEventListener("click", () => {
-  customerSuccessModal.classList.add("hidden");
-});
-
-customerResetNextBtn?.addEventListener("click", async () => {
-  try {
-    if (customerResetStep === 1) {
-      const email = customerResetEmail.value.trim();
-
-      if (!email) {
-        customerResetMessage.textContent = "Please enter your email.";
-        return;
-      }
-
-      const res = await fetch(`${API_URL}/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        customerResetMessage.textContent =
-          data.message || "Failed to send OTP.";
-        return;
-      }
-
-      customerResetEmailValue = email;
-      customerResetStep = 2;
-
-      customerResetText.textContent =
-        "Enter the OTP sent to your email.";
-
-      customerResetEmail.classList.add("hidden");
-      customerResetOtp.classList.remove("hidden");
-      customerResetNextBtn.textContent = "Continue";
-      customerResetMessage.textContent = "OTP sent successfully.";
-      return;
-    }
-
-    if (customerResetStep === 2) {
-      if (!customerResetOtp.value.trim()) {
-        customerResetMessage.textContent = "Please enter OTP.";
-        return;
-      }
-
-      // The server verifies the OTP during the reset request.
-      customerResetStep = 3;
-
-      customerResetText.textContent = "Create your new password.";
-      customerResetOtp.classList.add("hidden");
-      customerResetNewPassword.classList.remove("hidden");
-      customerResetConfirmPassword.classList.remove("hidden");
-      customerResetNextBtn.textContent = "Reset Password";
-      customerResetMessage.textContent = "";
-      return;
-    }
-
-    if (customerResetStep === 3) {
-      const newPassword = customerResetNewPassword.value.trim();
-      const confirmPassword = customerResetConfirmPassword.value.trim();
-
-      if (!newPassword || !confirmPassword) {
-        customerResetMessage.textContent =
-          "Please fill in both password fields.";
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        customerResetMessage.textContent = "Passwords do not match.";
-        return;
-      }
-
-      const resetRes = await fetch(`${API_URL}/reset-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: customerResetEmailValue,
-          otp: customerResetOtp.value.trim(),
-          newPassword
-        })
-      });
-
-      const resetData = await resetRes.json();
-
-      if (!resetRes.ok) {
-        customerResetMessage.textContent =
-          resetData.message || "Password reset failed.";
-        return;
-      }
-
-      customerResetModal.classList.add("hidden");
-      customerSuccessModal.classList.remove("hidden");
-    }
-  } catch (error) {
-    console.error(error);
-    customerResetMessage.textContent =
-      "Server error. Please try again.";
-  }
-});
-
-/* =========================
-   FORGOT PASSWORD ADMIN
-========================= */
-
-let resetStep = 1;
-let resetEmailValue = "";
-
-const adminForgotPasswordBtn =
-  document.getElementById("adminForgotPasswordBtn");
-const resetModal =
-  document.getElementById("resetModal");
-const resetText =
-  document.getElementById("resetText");
-const resetEmail =
-  document.getElementById("resetEmail");
-const resetOtp =
-  document.getElementById("resetOtp");
-const resetNewPassword =
-  document.getElementById("resetNewPassword");
-const resetConfirmPassword =
-  document.getElementById("resetConfirmPassword");
-const resetMessage =
-  document.getElementById("resetMessage");
-const resetNextBtn =
-  document.getElementById("resetNextBtn");
-const cancelResetBtn =
-  document.getElementById("cancelResetBtn");
-
-adminForgotPasswordBtn?.addEventListener("click", e => {
-  e.preventDefault();
-
-  resetStep = 1;
-  resetEmailValue = "";
-
-  resetText.textContent = "Enter your admin email to receive OTP.";
-  resetNextBtn.textContent = "Send OTP";
-  resetMessage.textContent = "";
-
-  resetEmail.classList.remove("hidden");
-  resetOtp.classList.add("hidden");
-  resetNewPassword.classList.add("hidden");
-  resetConfirmPassword.classList.add("hidden");
-
-  resetEmail.value = "";
-  resetOtp.value = "";
-  resetNewPassword.value = "";
-  resetConfirmPassword.value = "";
-
-  resetModal.classList.remove("hidden");
-});
-
-cancelResetBtn?.addEventListener("click", () => {
-  resetModal.classList.add("hidden");
-});
-
-document.getElementById("successOkBtn")?.addEventListener("click", () => {
-  document.getElementById("successModal")?.classList.add("hidden");
-});
-
-resetNextBtn?.addEventListener("click", async () => {
-  try {
-    if (resetStep === 1) {
-      const email = resetEmail.value.trim();
-
-      if (!email) {
-        resetMessage.textContent = "Please enter admin email.";
-        return;
-      }
-
-      const res = await fetch(`${API_URL}/admin-forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        resetMessage.textContent =
-          data.message || "Failed to send OTP.";
-        return;
-      }
-
-      resetEmailValue = email;
-      resetStep = 2;
-
-      resetText.textContent = "Enter the OTP sent to your email.";
-      resetEmail.classList.add("hidden");
-      resetOtp.classList.remove("hidden");
-      resetNextBtn.textContent = "Continue";
-      resetMessage.textContent = "OTP sent successfully.";
-      return;
-    }
-
-    if (resetStep === 2) {
-      if (!resetOtp.value.trim()) {
-        resetMessage.textContent = "Please enter OTP.";
-        return;
-      }
-
-      // The server verifies the OTP during the reset request.
-      resetStep = 3;
-
-      resetText.textContent = "Create your new admin password.";
-      resetOtp.classList.add("hidden");
-      resetNewPassword.classList.remove("hidden");
-      resetConfirmPassword.classList.remove("hidden");
-      resetNextBtn.textContent = "Reset Password";
-      resetMessage.textContent = "";
-      return;
-    }
-
-    if (resetStep === 3) {
-      const newPassword = resetNewPassword.value.trim();
-      const confirmPassword = resetConfirmPassword.value.trim();
-
-      if (!newPassword || !confirmPassword) {
-        resetMessage.textContent = "Please fill in both password fields.";
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        resetMessage.textContent = "Passwords do not match.";
-        return;
-      }
-
-      const res = await fetch(`${API_URL}/admin-reset-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: resetEmailValue,
-          otp: resetOtp.value.trim(),
-          newPassword
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        resetMessage.textContent =
-          data.message || "Password reset failed.";
-        return;
-      }
-
-      resetModal.classList.add("hidden");
-      document.getElementById("successModal")?.classList.remove("hidden");
-    }
-  } catch (error) {
-    console.error("Admin reset error:", error);
-    resetMessage.textContent = "Server error. Please try again.";
-  }
-});
-
-/* =========================
-   LEGACY MANAGE ORDERS
-========================= */
-
-const ordersTable = document.getElementById("ordersTable");
-const searchInput = document.getElementById("searchInput");
-
-let currentOrders = [];
-let selectedTrackingOrderId = null;
-
-/* LOAD ORDERS — SINGLE DEFINITION */
-
-async function loadOrders() {
-  if (!ordersTable) return;
-
-  try {
-    const res = await fetch("http://localhost:5000/api/orders");
-    const data = await res.json();
-
-    if (!data.success) {
-      console.log(data.message);
-      return;
-    }
-
-    currentOrders = (data.orders || []).filter(order => {
-      const status = (order.status || "").trim();
-      return status !== "Cancelled";
     });
 
-    renderOrders(currentOrders);
-  } catch (error) {
-    console.error("Load orders error:", error);
-  }
-}
-
-/* RENDER ORDERS */
-
-function renderOrders(orders) {
-  if (!ordersTable) return;
-
-  ordersTable.innerHTML = "";
-
-  if (!orders || orders.length === 0) {
-    ordersTable.innerHTML = `
-      <tr>
-        <td colspan="6" class="text-center text-secondary py-4">
-          No orders found.
-        </td>
-      </tr>
-    `;
-    return;
   }
 
-  orders.forEach(order => {
-    ordersTable.innerHTML += `
-      <tr>
-        <td>
-          <span class="text-gold fw-bold">
-            #${String(order.id || "").substring(0, 6)}
-          </span>
-        </td>
 
-        <td class="text-light">
-          ${order.customer_name || "Unknown"}<br>
-          <small class="text-secondary">
-            ${order.customer_email || ""}
-          </small>
-        </td>
 
-        <td class="text-light">
-          ₱${Number(order.total_amount || 0).toLocaleString()}
-        </td>
+  // =====================================================
 
-        <td>
-          <select
-            class="form-select form-select-sm bg-dark text-light border-warning"
-            onchange="updateStatus('${order.id}', this.value)"
-          >
-            <option
-              value="Pending"
-              ${order.status === "Pending" ? "selected" : ""}
-            >Pending</option>
+  // LANDING PAGE
 
-            <option
-              value="Preparing"
-              ${order.status === "Preparing" ? "selected" : ""}
-            >Preparing</option>
+  // =====================================================
 
-            <option
-              value="To Deliver"
-              ${order.status === "To Deliver" ? "selected" : ""}
-            >To Deliver</option>
 
-            <option
-              value="Completed"
-              ${order.status === "Completed" ? "selected" : ""}
-            >Completed</option>
-          </select>
 
-          ${
-            order.tracking_number
-              ? `
-                <small class="text-warning d-block mt-1">
-                  J&amp;T: ${order.tracking_number}
-                </small>
-              `
-              : ""
-          }
-        </td>
+  function setupLandingPage() {
 
-        <td class="text-secondary">
-          ${order.payment_method || "N/A"}<br>
-          <small>${order.payment_status || "Pending"}</small>
-        </td>
+    const destinations = {
 
-        <td class="text-end">
-          <button
-            type="button"
-            class="btn btn-sm text-gold"
-            onclick="addTracking('${order.id}')"
-            title="Add tracking"
-          >
-            <i class="fa-solid fa-truck-fast"></i>
-          </button>
+      openLoginBtn: pages.customerLogin,
 
-          <button
-            type="button"
-            class="btn btn-sm text-danger ms-2"
-            onclick="deleteOrder('${order.id}')"
-            title="Delete order"
-          >
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        </td>
-      </tr>
-    `;
-  });
-}
+      openPortalBtn: pages.register
 
-/* SEARCH ORDERS */
-
-searchInput?.addEventListener("keyup", () => {
-  const keyword = searchInput.value.toLowerCase().trim();
-
-  const filtered = currentOrders.filter(order =>
-    (order.customer_name || "").toLowerCase().includes(keyword) ||
-    (order.customer_email || "").toLowerCase().includes(keyword) ||
-    (order.customer_phone || "").toLowerCase().includes(keyword) ||
-    (order.tracking_number || "").toLowerCase().includes(keyword)
-  );
-
-  renderOrders(filtered);
-});
-
-/* FILTER ORDERS */
-
-function filterOrders(status) {
-  document.querySelectorAll(".filter-btn").forEach(button => {
-    button.classList.remove("active");
-  });
-
-  const clickedButton = [...document.querySelectorAll(".filter-btn")]
-    .find(button => button.textContent.trim() === status);
-
-  if (clickedButton) clickedButton.classList.add("active");
-
-  if (status === "All") {
-    renderOrders(currentOrders);
-    return;
-  }
-
-  const filtered = currentOrders.filter(order =>
-    (order.status || "").trim().toLowerCase() === status.toLowerCase()
-  );
-
-  renderOrders(filtered);
-}
-
-/* UPDATE STATUS */
-
-async function updateStatus(id, status) {
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/orders/${encodeURIComponent(id)}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ status })
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.ok && data.success) {
-      loadOrders();
-    } else {
-      alert(data.message || "Unable to update order status.");
-    }
-  } catch (error) {
-    console.error("Update status error:", error);
-  }
-}
-
-/* OPEN TRACKING MODAL */
-
-function addTracking(id) {
-  selectedTrackingOrderId = id;
-
-  const modal = document.getElementById("trackingModal");
-  const input = document.getElementById("trackingInput");
-  const message = document.getElementById("trackingMessage");
-
-  if (!modal || !input || !message) {
-    console.error("Tracking modal elements not found.");
-    return;
-  }
-
-  input.value = "";
-  message.textContent = "";
-  modal.classList.remove("hidden");
-}
-
-/* CANCEL TRACKING */
-
-document.getElementById("cancelTrackingBtn")?.addEventListener("click", () => {
-  document.getElementById("trackingModal")?.classList.add("hidden");
-});
-
-/* SAVE TRACKING */
-
-document.getElementById("saveTrackingBtn")?.addEventListener("click", async () => {
-  const input = document.getElementById("trackingInput");
-  const message = document.getElementById("trackingMessage");
-  const modal = document.getElementById("trackingModal");
-
-  if (!input || !message || !modal) return;
-
-  const tracking = input.value.trim();
-
-  if (!tracking) {
-    message.textContent = "Please enter J&T tracking number.";
-    return;
-  }
-
-  if (!selectedTrackingOrderId) {
-    message.textContent = "No order selected.";
-    return;
-  }
-
-  try {
-    message.textContent = "Saving tracking number...";
-
-    const res = await fetch(
-      `http://localhost:5000/api/orders/${
-        encodeURIComponent(selectedTrackingOrderId)
-      }/tracking`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          tracking_number: tracking
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      message.textContent =
-        data.message || "Failed to save tracking number.";
-      return;
-    }
-
-    modal.classList.add("hidden");
-
-    if (window.Swal) {
-      await Swal.fire({
-        icon: "success",
-        title: "Tracking Added",
-        text: `Tracking number ${tracking} saved successfully.`,
-        confirmButtonColor: "#d4af37",
-        background: "#111",
-        color: "#fff"
-      });
-    } else {
-      alert(`Tracking number ${tracking} saved successfully.`);
-    }
-
-    await loadOrders();
-  } catch (error) {
-    console.error("ADD TRACKING ERROR:", error);
-    message.textContent = "Failed to connect to server.";
-  }
-});
-
-/* CANCEL ORDER */
-
-async function cancelOrder(orderId) {
-  if (!confirm("Cancel this order?")) return;
-
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/orders/${
-        encodeURIComponent(orderId)
-      }/cancel`,
-      {
-        method: "PATCH"
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      alert(data.message || "Unable to cancel order.");
-      return;
-    }
-
-    alert("Order cancelled.");
-    loadOrders();
-  } catch (error) {
-    console.error("Cancel order error:", error);
-    alert("Cannot connect to server.");
-  }
-}
-
-/* DELETE ORDER */
-
-async function deleteOrder(id) {
-  if (!confirm("Delete this order?")) return;
-
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/orders/${encodeURIComponent(id)}`,
-      {
-        method: "DELETE"
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.ok && data.success) {
-      alert("Order deleted.");
-      loadOrders();
-    } else {
-      alert(data.message || "Unable to delete order.");
-    }
-  } catch (error) {
-    console.error("Delete order error:", error);
-  }
-}
-
-if (ordersTable) {
-  loadOrders();
-}
-
-/* =========================
-   PRODUCT IMAGE PREVIEW
-========================= */
-
-const productImageInput = document.getElementById("productImage");
-const previewImage = document.getElementById("previewImage");
-const uploadPlaceholder = document.getElementById("uploadPlaceholder");
-
-if (productImageInput && previewImage) {
-  productImageInput.addEventListener("change", function () {
-    const file = this.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function (e) {
-      previewImage.src = e.target.result;
-      previewImage.style.display = "block";
-
-      if (uploadPlaceholder) {
-        uploadPlaceholder.style.display = "none";
-      }
     };
 
-    reader.readAsDataURL(file);
-  });
-}
 
-/* =========================
-   ADMIN OVERVIEW
-========================= */
 
-const recentActivityBox = document.getElementById("recentActivityBox");
+    Object.entries(destinations).forEach(([id, destination]) => {
 
-async function loadAdminOverview() {
-  if (!recentActivityBox) return;
+      const element = $(id);
 
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/admin/overview"
+      if (!element) return;
+
+
+
+      if (element.tagName === "A") {
+
+        element.href = destination;
+
+        return;
+
+      }
+
+
+
+      element.type = "button";
+
+
+
+      element.addEventListener("click", event => {
+
+        event.preventDefault();
+
+        window.location.assign(destination);
+
+      });
+
+    });
+
+  }
+
+
+
+  // =====================================================
+
+  // PASSWORD VISIBILITY
+
+  // =====================================================
+
+
+
+  function setupPasswordButtons() {
+
+    document.querySelectorAll(".password-eye-btn[data-target]")
+
+      .forEach(button => {
+
+        button.type = "button";
+
+
+
+        button.addEventListener("click", event => {
+
+          event.preventDefault();
+
+
+
+          const input = $(button.dataset.target);
+
+          if (!input) return;
+
+
+
+          const show = input.type === "password";
+
+          input.type = show ? "text" : "password";
+
+
+
+          button.setAttribute(
+
+            "aria-label",
+
+            show ? "Hide password" : "Show password"
+
+          );
+
+
+
+          const icon = button.querySelector("i");
+
+
+
+          if (icon) {
+
+            icon.classList.toggle("fa-eye", !show);
+
+            icon.classList.toggle("fa-eye-slash", show);
+
+          }
+
+        });
+
+      });
+
+  }
+
+
+
+  // =====================================================
+
+  // ADMIN / CUSTOMER LOGIN
+
+  // =====================================================
+
+
+
+  function setupLogin(form, accountType) {
+
+    const isCustomer = accountType === "customer";
+
+
+
+    const usernameInput = findField(form, "username", isCustomer
+
+      ? ["loginUsername", "userUsername", "customerUsername"]
+
+      : ["adminUsername"]
+
     );
 
-    const data = await res.json();
 
-    if (!data.success) {
-      recentActivityBox.innerHTML = `
-        <div class="activity-item">
-          <h6>Error loading activity</h6>
-          <p>${data.message || "Unable to load overview."}</p>
-        </div>
-      `;
-      return;
-    }
 
-    const activities = [
-      ...(data.recentAnnouncements || []).map(item => ({
-        type: "announcement",
-        title: item.title,
-        message: item.message,
-        date: item.created_at
-      })),
+    const passwordInput = findField(form, "password", isCustomer
 
-      ...(data.recentOrders || []).map(item => ({
-        type: "order",
-        title: "New Order",
-        message:
-          `${item.customer_name || "Customer"} ordered ₱${
-            Number(item.total_amount || 0).toLocaleString()
-          }`,
-        date: item.created_at
-      }))
-    ];
+      ? ["loginPassword", "userPassword", "customerPassword"]
 
-    activities.sort(
-      (a, b) => new Date(b.date) - new Date(a.date)
+      : ["adminPassword"]
+
     );
 
-    recentActivityBox.innerHTML = "";
 
-    if (activities.length === 0) {
-      recentActivityBox.innerHTML = `
-        <div class="activity-item">
-          <h6>No recent activity</h6>
-          <p>No announcements or orders yet.</p>
-        </div>
-      `;
-      return;
+
+    const messageElement = ensureMessage(form, isCustomer
+
+      ? ["userLoginMessage", "customerLoginMessage", "loginMessage"]
+
+      : ["adminLoginMessage"]
+
+    );
+
+
+
+    const button = form.querySelector('[type="submit"]');
+
+    let busy = false;
+
+
+
+    form.addEventListener("submit", async event => {
+
+      event.preventDefault();
+
+
+
+      if (busy) return;
+
+
+
+      if (!usernameInput || !passwordInput) {
+
+        showMessage(messageElement, "Login inputs were not found.");
+
+        return;
+
+      }
+
+
+
+      if (!form.reportValidity()) return;
+
+
+
+      const username = usernameInput.value.trim();
+
+      const password = passwordInput.value;
+
+
+
+      if (!username || !password) {
+
+        showMessage(
+
+          messageElement,
+
+          "Please enter your username and password."
+
+        );
+
+        return;
+
+      }
+
+
+
+      busy = true;
+
+
+
+      const originalLabel = button
+
+        ? (button.tagName === "INPUT" ? button.value : button.innerHTML)
+
+        : "";
+
+
+
+      if (button) button.disabled = true;
+
+      setButtonLabel(button, "Signing in...");
+
+      showMessage(messageElement, "");
+
+
+
+      try {
+
+        const data = await postAuth(
+
+          isCustomer ? "customer-login" : "admin-login",
+
+          { username, password }
+
+        );
+
+
+
+        if (
+
+          typeof data.token !== "string" ||
+
+          !data.token.trim() ||
+
+          !data.user ||
+
+          data.user.role !== accountType
+
+        ) {
+
+          throw new Error(
+
+            "The server returned an invalid login response."
+
+          );
+
+        }
+
+
+
+        const user = {
+
+          ...data.user,
+
+          full_name: data.user.full_name || data.user.fullname || ""
+
+        };
+
+
+
+        const prefix = isCustomer ? "customer" : "admin";
+
+
+
+        localStorage.setItem(`${prefix}Token`, data.token);
+
+        localStorage.setItem(`${prefix}User`, JSON.stringify(user));
+
+
+
+        showMessage(
+
+          messageElement,
+
+          "Login successful. Opening dashboard...",
+
+          true
+
+        );
+
+
+
+        window.location.assign(
+
+          isCustomer ? pages.customerDashboard : pages.adminDashboard
+
+        );
+
+      } catch (error) {
+
+        console.error("LOGIN ERROR:", error);
+
+        showMessage(messageElement, error.message);
+
+      } finally {
+
+        busy = false;
+
+
+
+        if (button) {
+
+          button.disabled = false;
+
+
+
+          if (button.tagName === "INPUT") {
+
+            button.value = originalLabel;
+
+          } else {
+
+            button.innerHTML = originalLabel;
+
+          }
+
+        }
+
+      }
+
+    });
+
+  }
+
+
+
+  // =====================================================
+
+  // REGISTRATION -> EMAIL VERIFICATION PAGE
+
+  // No Supabase insert happens on the registration page.
+
+  // =====================================================
+
+
+
+  function setupCustomerRegistration(form) {
+    const messageElement = ensureMessage(form, [
+      "userRegisterMessage",
+      "registerMessage"
+    ]);
+
+    const button = form.querySelector('[type="submit"]');
+
+    const fields = {
+      firstName: findField(form, "firstName", ["registerFirstName"]),
+      middleName: findField(form, "middleName", ["registerMiddleName"]),
+      lastName: findField(form, "lastName", ["registerLastName"]),
+      phone: findField(form, "phone", ["registerPhone"]),
+      email: findField(form, "email", ["registerEmail"]),
+      username: findField(form, "username", ["registerUsername"]),
+      password: findField(form, "password", ["registerPassword"]),
+      confirmPassword: findField(
+        form,
+        "confirmPassword",
+        ["registerConfirmPassword"]
+      )
+    };
+
+    // OTP is entered on email-verification.html, not on this page.
+    [
+      form.querySelector('[name="otp"]'),
+      $("registerOtp"),
+      $("sendOtpBtn")
+    ].filter(Boolean).forEach(element => {
+      element.disabled = true;
+      element.hidden = true;
+      element.required = false;
+    });
+
+    setButtonLabel(button, "Get Started");
+
+    let busy = false;
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      if (busy) return;
+
+      const requiredNames = [
+        "firstName",
+        "lastName",
+        "phone",
+        "email",
+        "username",
+        "password",
+        "confirmPassword"
+      ];
+
+      const missing = requiredNames.filter(name => !fields[name]);
+
+      if (missing.length) {
+        showMessage(
+          messageElement,
+          `Missing registration inputs: ${missing.join(", ")}`
+        );
+        return;
+      }
+
+      if (!form.reportValidity()) return;
+
+      const method = form.querySelector(
+        'input[name="otpMethod"]:checked'
+      )?.value || "email";
+
+      // This verification page is currently the email OTP flow.
+      if (method !== "email") {
+        showMessage(
+          messageElement,
+          "Please select Email OTP for this verification flow."
+        );
+        return;
+      }
+
+      const registration = {
+        firstName: fields.firstName.value.trim(),
+        middleName: fields.middleName?.value.trim() || "",
+        lastName: fields.lastName.value.trim(),
+        phone: fields.phone.value.trim(),
+        email: fields.email.value.trim().toLowerCase(),
+        username: fields.username.value.trim(),
+        password: fields.password.value,
+        otp_method: "email"
+      };
+
+      if (
+        !registration.firstName ||
+        !registration.lastName ||
+        !registration.phone ||
+        !registration.email ||
+        !registration.username ||
+        !registration.password
+      ) {
+        showMessage(messageElement, "Complete all required fields.");
+        return;
+      }
+
+      if (!/^09[0-9]{9}$/.test(registration.phone)) {
+        showMessage(
+          messageElement,
+          "Enter an 11-digit phone number starting with 09."
+        );
+        return;
+      }
+
+      const strongPassword =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$/;
+
+      if (!strongPassword.test(registration.password)) {
+        showMessage(
+          messageElement,
+          "Use at least 8 characters with uppercase, lowercase, " +
+          "a number, and a special character."
+        );
+        return;
+      }
+
+      if (registration.password !== fields.confirmPassword.value) {
+        showMessage(messageElement, "Passwords do not match.");
+        return;
+      }
+
+      busy = true;
+      if (button) button.disabled = true;
+      setButtonLabel(button, "Sending email code...");
+      showMessage(messageElement, "");
+
+      try {
+        // Save the complete registration only for this browser tab.
+        // email-verification.js will read this after OTP verification.
+        const pending = {
+          ...registration,
+          createdAt: Date.now(),
+          expiresAt: Date.now() + 5 * 60 * 1000
+        };
+
+        sessionStorage.setItem(
+          PENDING_KEY,
+          JSON.stringify(pending)
+        );
+
+        // IMPORTANT: email-verification.js reads this exact key.
+        sessionStorage.setItem(
+          VERIFY_EMAIL_KEY,
+          registration.email
+        );
+
+        // Keep only the email as a localStorage fallback.
+        localStorage.setItem(
+          VERIFY_EMAIL_KEY,
+          registration.email
+        );
+
+        console.log("REGISTRATION EMAIL SAVED:", registration.email);
+        console.log(
+          "pendingRegistration:",
+          sessionStorage.getItem(PENDING_KEY)
+        );
+        console.log(
+          "verifyEmail:",
+          sessionStorage.getItem(VERIFY_EMAIL_KEY)
+        );
+
+        const data = await postAuth("send-otp", {
+          email: registration.email,
+          username: registration.username,
+          phone: registration.phone,
+          otp_method: "email"
+        });
+
+        if (data.success !== true) {
+          throw new Error(
+            data.message || "The server did not confirm sending the code."
+          );
+        }
+
+        // Refresh the local expiry timestamp after the backend confirms send.
+        pending.expiresAt = Date.now() + 5 * 60 * 1000;
+        sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+
+        showMessage(
+          messageElement,
+          "Code sent. Opening email verification...",
+          true
+        );
+
+        window.location.assign(pages.verification);
+      } catch (error) {
+        // Keep no stale registration if sending the OTP failed.
+        sessionStorage.removeItem(PENDING_KEY);
+        sessionStorage.removeItem(VERIFY_EMAIL_KEY);
+        localStorage.removeItem(VERIFY_EMAIL_KEY);
+
+        console.error("REGISTRATION OTP ERROR:", error);
+        showMessage(messageElement, error.message);
+      } finally {
+        busy = false;
+        if (button) button.disabled = false;
+        setButtonLabel(button, "Get Started");
+      }
+    });
+  }
+
+
+  // =====================================================
+
+  // ADMIN RESET MODAL
+
+  // Preserve existing controls; reset API handler still
+
+  // needs to be connected separately.
+
+  // =====================================================
+
+
+
+  function setupAdminResetModal() {
+
+    const modal = $("resetModal");
+
+
+
+    function close() {
+
+      setVisible(modal, false);
+
+      setText("resetMessage", "");
+
+
+
+      [
+
+        "resetEmail",
+
+        "resetOtp",
+
+        "resetNewPassword",
+
+        "resetConfirmPassword"
+
+      ].forEach(id => {
+
+        if ($(id)) $(id).value = "";
+
+      });
+
     }
 
-    activities.slice(0, 8).forEach(item => {
-      recentActivityBox.innerHTML += `
-        <div class="activity-item">
-          <div class="activity-icon">
-            <i class="fa-solid ${
-              item.type === "announcement"
-                ? "fa-bullhorn"
-                : "fa-cart-shopping"
-            }"></i>
-          </div>
 
-          <div class="activity-content">
-            <div class="activity-header">
-              <h6>${item.title}</h6>
-              <span>
-                ${new Date(item.date).toLocaleString()}
-              </span>
+
+    $("adminForgotPasswordBtn")?.addEventListener("click", event => {
+
+      event.preventDefault();
+
+      setVisible(modal, true);
+
+      $("resetEmail")?.focus();
+
+    });
+
+
+
+    $("cancelResetBtn")?.addEventListener("click", close);
+
+
+
+    $("resetNextBtn")?.addEventListener("click", event => {
+
+      event.preventDefault();
+
+
+
+      showMessage(
+
+        $("resetMessage"),
+
+        "Password reset is not configured on this page yet."
+
+      );
+
+    });
+
+
+
+    modal?.addEventListener("click", event => {
+
+      if (event.target === modal) close();
+
+    });
+
+
+
+    $("successOkBtn")?.addEventListener("click", () => {
+
+      setVisible($("successModal"), false);
+
+    });
+
+
+
+    document.addEventListener("keydown", event => {
+
+      if (event.key === "Escape") close();
+
+    });
+
+  }
+
+
+
+  // =====================================================
+
+  // ADMIN OVERVIEW
+
+  // =====================================================
+
+
+
+  async function loadOverview() {
+
+    const activityElement = $("recentActivity");
+
+
+
+    try {
+
+      const data = await apiRequest("/admin/overview", {}, true);
+
+
+
+      setText("totalUsers", Number(data.totalUsers || 0));
+
+      setText("pendingOrders", Number(data.pendingOrders || 0));
+
+      setText("completedOrders", Number(data.completedOrders || 0));
+
+      setText("revenue", peso(data.revenue));
+
+
+
+      if (!activityElement) return;
+
+
+
+      const announcements = Array.isArray(data.recentAnnouncements)
+
+        ? data.recentAnnouncements
+
+        : [];
+
+
+
+      const orders = Array.isArray(data.recentOrders)
+
+        ? data.recentOrders
+
+        : [];
+
+
+
+      const activities = [
+
+        ...announcements.map(item => ({
+
+          icon: "fa-bullhorn",
+
+          title: item.title || "Announcement",
+
+          message: item.message || "",
+
+          date: item.created_at
+
+        })),
+
+
+
+        ...orders.map(order => ({
+
+          icon: "fa-cart-shopping",
+
+          title: `Order #${order.order_number || order.id || ""}`,
+
+          message:
+
+            `Status: ${order.status || "Unknown"} | ` +
+
+            `Payment: ${order.payment_status || "Unknown"} | ` +
+
+            `Amount: ${peso(order.total_amount)}`,
+
+          date: order.created_at
+
+        }))
+
+      ];
+
+
+
+      activities.sort((a, b) =>
+
+        (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0)
+
+      );
+
+
+
+      activityElement.innerHTML = activities.length
+
+        ? activities.slice(0, 8).map(item => `
+
+            <div class="inner-panel p-3 mb-3 d-flex gap-3 align-items-start">
+
+              <div class="activity-icon">
+
+                <i class="fa-solid ${item.icon}"></i>
+
+              </div>
+
+
+
+              <div class="flex-grow-1">
+
+                <p class="text-light mb-1 fw-semibold">
+
+                  ${escapeHTML(item.title)}
+
+                </p>
+
+                <small class="text-secondary-light">
+
+                  ${escapeHTML(item.message)}
+
+                </small>
+
+              </div>
+
+
+
+              <small class="text-secondary-light text-end">
+
+                ${escapeHTML(formatDate(item.date))}
+
+              </small>
+
             </div>
 
-            <p>${item.message}</p>
-          </div>
-        </div>
-      `;
-    });
-  } catch (error) {
-    console.error("Admin overview error:", error);
-  }
-}
+          `).join("")
 
-loadAdminOverview();
+        : `
+
+            <div class="inner-panel p-3">
+
+              <p class="text-light mb-1">No recent activity</p>
+
+              <small class="text-secondary-light">
+
+                No orders or announcements yet.
+
+              </small>
+
+            </div>
+
+          `;
+
+    } catch (error) {
+
+      console.error("ADMIN OVERVIEW ERROR:", error);
+
+
+
+      ["totalUsers", "pendingOrders", "completedOrders", "revenue"]
+
+        .forEach(id => setText(id, "—"));
+
+
+
+      if (activityElement) {
+
+        activityElement.innerHTML = `
+
+          <div class="inner-panel p-3">
+
+            <p class="text-danger mb-1">Unable to load dashboard</p>
+
+            <small class="text-secondary-light">
+
+              ${escapeHTML(error.message)}
+
+            </small>
+
+          </div>
+
+        `;
+
+      }
+
+    }
+
+  }
+
+
+
+  // =====================================================
+
+  // ADMIN SALES
+
+  // =====================================================
+
+
+
+  async function loadSalesSummary() {
+
+    const fields = {
+
+      salesToday: "today",
+
+      salesWeek: "week",
+
+      salesMonth: "month",
+
+      salesQuarterly: "quarterly",
+
+      salesYearly: "yearly"
+
+    };
+
+
+
+    if (!Object.keys(fields).some(id => $(id))) return;
+
+
+
+    try {
+
+      const data = await apiRequest("/admin/sales-summary", {}, true);
+
+
+
+      Object.entries(fields).forEach(([id, key]) => {
+
+        setText(id, peso(data[key]));
+
+      });
+
+    } catch (error) {
+
+      console.error("ADMIN SALES ERROR:", error);
+
+
+
+      Object.keys(fields).forEach(id => {
+
+        setText(id, "—");
+
+        if ($(id)) $(id).title = error.message;
+
+      });
+
+    }
+
+  }
+
+
+
+  // =====================================================
+
+  // ADMIN LOGOUT
+
+  // =====================================================
+
+
+
+  function setupLogout() {
+
+    const modal = $("adminLogoutModal");
+
+
+
+    $("adminLogoutBtn")?.addEventListener("click", event => {
+
+      event.preventDefault();
+
+
+
+      if (modal) setVisible(modal, true);
+
+      else goToAdminLogin();
+
+    });
+
+
+
+    $("adminConfirmLogout")?.addEventListener("click", event => {
+
+      event.preventDefault();
+
+      goToAdminLogin();
+
+    });
+
+
+
+    $("adminCancelLogout")?.addEventListener("click", event => {
+
+      event.preventDefault();
+
+      setVisible(modal, false);
+
+    });
+
+
+
+    modal?.addEventListener("click", event => {
+
+      if (
+
+        event.target === modal ||
+
+        event.target.classList.contains("logout-backdrop")
+
+      ) {
+
+        setVisible(modal, false);
+
+      }
+
+    });
+
+
+
+    document.addEventListener("keydown", event => {
+
+      if (event.key === "Escape") {
+
+        setVisible(modal, false);
+
+      }
+
+    });
+
+  }
+
+
+
+  // =====================================================
+
+  // PAGE INITIALIZATION
+
+  // =====================================================
+
+
+
+  function start() {
+
+    const pathname = window.location.pathname.toLowerCase();
+
+
+
+    // The verification page uses its own email-verification.js.
+
+    if (pathname.endsWith("/email-verification.html")) {
+
+      return;
+
+    }
+
+
+
+    setupLandingPage();
+
+    setupPasswordButtons();
+
+
+
+    // Registration must be initialized before other page guards.
+
+    const registerForm = $("userRegisterForm");
+
+
+
+    if (registerForm) {
+
+      setupCustomerRegistration(registerForm);
+
+      return;
+
+    }
+
+
+
+    const isCustomerLogin =
+
+      pathname.endsWith("/customer/html/user-login.html") ||
+
+      pathname.endsWith("/customer/html/customer-login.html") ||
+
+      document.body.dataset.page === "customer-login";
+
+
+
+    if (isCustomerLogin) {
+
+      const form =
+
+        $("userLoginForm") ||
+
+        $("customerLoginForm") ||
+
+        $("loginForm");
+
+
+
+      if (form) setupLogin(form, "customer");
+
+      return;
+
+    }
+
+
+
+    // Do not apply admin session handling to other portals.
+
+    if (
+
+      pathname.includes("/customer/") ||
+
+      pathname.includes("/staff/")
+
+    ) {
+
+      return;
+
+    }
+
+
+
+    const adminForm = $("adminLoginForm");
+
+
+
+    if (adminForm) {
+
+      setupLogin(adminForm, "admin");
+
+      setupAdminResetModal();
+
+      return;
+
+    }
+
+
+
+    const isAdminDashboard =
+
+      pathname.includes("/admin/html/") &&
+
+      Boolean($("totalUsers") && $("recentActivity"));
+
+
+
+    if (!isAdminDashboard) return;
+
+
+
+    setupLogout();
+
+
+
+    if (!localStorage.getItem("adminToken")) {
+
+      goToAdminLogin();
+
+      return;
+
+    }
+
+
+
+    Promise.all([
+
+      loadOverview(),
+
+      loadSalesSummary()
+
+    ]).catch(error => {
+
+      console.error("ADMIN INITIALIZATION ERROR:", error);
+
+    });
+
+  }
+
+
+
+  if (document.readyState === "loading") {
+
+    document.addEventListener("DOMContentLoaded", start, {
+
+      once: true
+
+    });
+
+  } else {
+
+    start();
+
+  }
+
+})();

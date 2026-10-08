@@ -3,575 +3,413 @@
 // File: staff/js/staff-login.js
 // =========================================================
 
-const API_BASE_URL = "http://localhost:5000";
+"use strict";
 
-document.addEventListener("DOMContentLoaded", () => {
+(() => {
+  const API_BASE_URL = "http://localhost:5000";
 
+  const STAFF_PAGES = {
+  inventory_staff: "../../Inventory/html/inventory-product.html",
+  cashier: "../../Cashier/cashier-dashboard.html"
+};
+
+  function initializeStaffLogin() {
     // =====================================================
-    // GET HTML ELEMENTS
+    // HTML ELEMENTS
     // =====================================================
 
     const loginForm = document.getElementById("staffLoginForm");
     const usernameInput = document.getElementById("username");
     const passwordInput = document.getElementById("password");
     const togglePassword = document.getElementById("togglePassword");
-    const loginButton = document.getElementById("loginButton");
+
+    const loginButton =
+      document.getElementById("loginButton") ||
+      loginForm?.querySelector('[type="submit"]');
+
     const loginMessage = document.getElementById("loginMessage");
 
-
-    // =====================================================
-    // CHECK REQUIRED ELEMENTS
-    // =====================================================
-
-    if (!loginForm) {
-        console.error("ERROR: #staffLoginForm not found.");
-        return;
+    if (!loginForm || !usernameInput || !passwordInput) {
+      console.error(
+        "Staff login requires #staffLoginForm, #username, and #password."
+      );
+      return;
     }
 
-    if (!usernameInput) {
-        console.error("ERROR: #username not found.");
-        return;
-    }
+    let isSubmitting = false;
 
-    if (!passwordInput) {
-        console.error("ERROR: #password not found.");
-        return;
-    }
-
+    const originalButtonHTML = loginButton
+      ? loginButton.innerHTML
+      : "";
 
     // =====================================================
-    // IMPORTANT:
-    // DO NOT AUTO REDIRECT EXISTING STAFF SESSION
+    // EXISTING SESSION BEHAVIOR
     // =====================================================
 
-    /*
-        Dati may checkExistingSession() dito.
-
-        Tinanggal natin iyon para kapag pinindot ang
-        "Staff Login", palaging Staff Login page muna
-        ang makikita.
-
-        Hindi na automatic pupunta sa Inventory dashboard.
-    */
-
+    // Intentionally no automatic redirect.
+    // Opening Staff Login will show the login page first.
+    // Dashboard redirect only happens after successful login.
 
     // =====================================================
     // SHOW / HIDE PASSWORD
     // =====================================================
 
     if (togglePassword) {
+      // Prevent an eye button inside the form from submitting it.
+      if (togglePassword.tagName === "BUTTON") {
+        togglePassword.type = "button";
+      }
 
-        togglePassword.addEventListener("click", () => {
+      function updatePasswordToggle() {
+        const isVisible = passwordInput.type === "text";
+        const icon = togglePassword.querySelector("i");
 
-            const icon = togglePassword.querySelector("i");
+        if (icon) {
+          icon.classList.toggle("fa-eye", !isVisible);
+          icon.classList.toggle("fa-eye-slash", isVisible);
+        }
 
-            if (passwordInput.type === "password") {
+        togglePassword.setAttribute(
+          "aria-label",
+          isVisible ? "Hide password" : "Show password"
+        );
 
-                passwordInput.type = "text";
+        togglePassword.setAttribute(
+          "aria-pressed",
+          String(isVisible)
+        );
+      }
 
-                if (icon) {
-                    icon.classList.remove("fa-eye");
-                    icon.classList.add("fa-eye-slash");
-                }
+      updatePasswordToggle();
 
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Hide password"
-                );
+      togglePassword.addEventListener("click", (event) => {
+        event.preventDefault();
 
-            } else {
+        passwordInput.type =
+          passwordInput.type === "password" ? "text" : "password";
 
-                passwordInput.type = "password";
-
-                if (icon) {
-                    icon.classList.remove("fa-eye-slash");
-                    icon.classList.add("fa-eye");
-                }
-
-                togglePassword.setAttribute(
-                    "aria-label",
-                    "Show password"
-                );
-            }
-        });
+        updatePasswordToggle();
+      });
     }
 
-
     // =====================================================
-    // STAFF LOGIN FORM
+    // LOGIN FORM
     // =====================================================
 
     loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-        event.preventDefault();
+      // Prevent duplicate requests.
+      if (isSubmitting) return;
 
-        clearMessage();
+      clearMessage();
 
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value;
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
 
+      if (!username) {
+        showError("Please enter your username.");
+        usernameInput.focus();
+        return;
+      }
 
-        // =================================================
-        // VALIDATE USERNAME
-        // =================================================
+      if (!password) {
+        showError("Please enter your password.");
+        passwordInput.focus();
+        return;
+      }
 
-        if (!username) {
+      setLoading(true);
 
-            showError("Please enter your username.");
+      const controller = new AbortController();
 
-            usernameInput.focus();
+      const timeoutId = window.setTimeout(() => {
+        controller.abort();
+      }, 20000);
 
-            return;
-        }
-
-
-        // =================================================
-        // VALIDATE PASSWORD
-        // =================================================
-
-        if (!password) {
-
-            showError("Please enter your password.");
-
-            passwordInput.focus();
-
-            return;
-        }
-
+      try {
+        // Clear the old staff identity before a new login attempt.
+        clearStaffSession();
 
         // =================================================
-        // START LOADING
+        // EXISTING STAFF LOGIN ENDPOINT
         // =================================================
 
-        setLoading(true);
+        const response = await fetch(
+          `${API_BASE_URL}/api/staff/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            body: JSON.stringify({
+              username,
+              password
+            }),
+            signal: controller.signal
+          }
+        );
 
+        let data;
 
         try {
-
-            console.log("=================================");
-            console.log("JCN STAFF LOGIN");
-            console.log("Username:", username);
-            console.log(
-                "API:",
-                `${API_BASE_URL}/api/staff/login`
-            );
-            console.log("=================================");
-
-
-            // =================================================
-            // SEND LOGIN REQUEST TO NODE.JS
-            // =================================================
-
-            const response = await fetch(
-                `${API_BASE_URL}/api/staff/login`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        username: username,
-                        password: password
-                    })
-                }
-            );
-
-
-            // =================================================
-            // CONVERT RESPONSE TO JSON
-            // =================================================
-
-            let data;
-
-            try {
-
-                data = await response.json();
-
-            } catch (jsonError) {
-
-                console.error(
-                    "Invalid JSON response:",
-                    jsonError
-                );
-
-                throw new Error(
-                    "Invalid response from the server."
-                );
-            }
-
-
-            console.log("Server response:", data);
-
-
-            // =================================================
-            // CHECK LOGIN RESULT
-            // =================================================
-
-            if (!response.ok || data.success !== true) {
-
-                throw new Error(
-                    data.message ||
-                    "Invalid username or password."
-                );
-            }
-
-
-            // =================================================
-            // CHECK TOKEN
-            // =================================================
-
-            if (!data.token) {
-
-                throw new Error(
-                    "Login successful, but authentication token is missing."
-                );
-            }
-
-
-            // =================================================
-            // CHECK USER INFORMATION
-            // =================================================
-
-            if (!data.user) {
-
-                throw new Error(
-                    "Login successful, but staff information is missing."
-                );
-            }
-
-
-            // =================================================
-            // NORMALIZE ROLE
-            // =================================================
-
-            const role = String(
-                data.user.role || ""
-            )
-                .trim()
-                .toLowerCase();
-
-
-            // =================================================
-            // NORMALIZE STATUS
-            // =================================================
-
-            const status = String(
-                data.user.status || ""
-            )
-                .trim()
-                .toLowerCase();
-
-
-            console.log("Staff ID:", data.user.id);
-            console.log(
-                "Staff username:",
-                data.user.username
-            );
-            console.log("Staff role:", role);
-            console.log("Staff status:", status);
-
-
-            // =================================================
-            // CHECK STAFF STATUS
-            // =================================================
-
-            if (status !== "active") {
-
-                clearStaffSession();
-
-                throw new Error(
-                    "Your staff account is inactive or restricted."
-                );
-            }
-
-
-            
-// =================================================
-// INVENTORY STAFF
-// =================================================
-
-if (role === "inventory_staff") {
-
-    // Remove old staff session
-    clearStaffSession();
-
-    // Save authenticated Inventory Staff session
-    saveStaffSession(
-        data.token,
-        data.user
-    );
-
-    console.log(
-        "Inventory Staff login successful."
-    );
-
-    console.log(
-        "Redirecting to Inventory Product page..."
-    );
-
-    showSuccess(
-        "Welcome Inventory Staff!",
-        "Login successful. Opening Inventory Management..."
-    );
-
-    // Redirect to the EXISTING Inventory page
-    setTimeout(() => {
-
-        window.location.href =
-            "../../Inventory/html/inventory-product.html";
-
-    }, 800);
-
-    return;
-}
-
-
-            // =================================================
-            // GRAPHIC DESIGNER
-            // =================================================
-
-            if (role === "graphic_designer") {
-
-                clearStaffSession();
-
-                throw new Error(
-                    "Graphic Designer Dashboard is not available yet."
-                );
-            }
-
-
-            // =================================================
-            // CASHIER
-            // =================================================
-
-            if (role === "cashier") {
-
-                clearStaffSession();
-
-                throw new Error(
-                    "Cashier Dashboard is not available yet."
-                );
-            }
-
-
-            // =================================================
-            // ADMIN
-            // =================================================
-
-            if (role === "admin") {
-
-                clearStaffSession();
-
-                throw new Error(
-                    "Admin accounts must use the Admin Login."
-                );
-            }
-
-
-            // =================================================
-            // UNKNOWN ROLE
-            // =================================================
-
-            clearStaffSession();
-
-            throw new Error(
-                `Unknown or unauthorized staff role: ${
-                    data.user.role || "No role"
-                }`
-            );
-
-
+          data = await response.json();
         } catch (error) {
+          if (error.name === "AbortError") throw error;
 
-            console.error(
-                "STAFF LOGIN ERROR:",
-                error
-            );
-
-
-            showError(
-                error.message ||
-                "Unable to login. Please try again."
-            );
-
-
-            setLoading(false);
+          throw new Error(
+            "Invalid response from the server. Check the staff login API."
+          );
         }
+
+        if (!response.ok || data?.success !== true) {
+          throw new Error(
+            typeof data?.message === "string"
+              ? data.message
+              : "Login failed. Please check your username and password."
+          );
+        }
+
+        // =================================================
+        // VALIDATE LOGIN RESPONSE
+        // =================================================
+
+        if (
+          typeof data.token !== "string" ||
+          !data.token.trim()
+        ) {
+          throw new Error(
+            "Login successful, but authentication token is missing."
+          );
+        }
+
+        if (
+          !data.user ||
+          typeof data.user !== "object" ||
+          Array.isArray(data.user)
+        ) {
+          throw new Error(
+            "Login successful, but staff information is missing."
+          );
+        }
+
+        const role = String(data.user.role || "")
+          .trim()
+          .toLowerCase();
+
+        const status = String(data.user.status || "")
+          .trim()
+          .toLowerCase();
+
+        if (status !== "active") {
+          throw new Error(
+            "Your staff account is inactive or restricted. Please contact the administrator."
+          );
+        }
+
+        // =================================================
+        // ROLE VALIDATION
+        // =================================================
+
+        if (role === "admin") {
+          throw new Error(
+            "Admin accounts must use the Admin Login."
+          );
+        }
+
+        if (role === "graphic_designer") {
+          throw new Error(
+            "Graphic Designer Dashboard is not available yet."
+          );
+        }
+
+        if (
+          !Object.prototype.hasOwnProperty.call(STAFF_PAGES, role)
+        ) {
+          throw new Error(
+            "Your account does not have an authorized staff role. Please contact the administrator."
+          );
+        }
+
+        // =================================================
+        // SAVE STAFF SESSION
+        // =================================================
+
+        const staffUser = {
+          ...data.user,
+          role,
+          status
+        };
+
+        saveStaffSession(data.token, staffUser);
+
+        passwordInput.value = "";
+
+        // =================================================
+        // ROLE-BASED REDIRECT
+        // =================================================
+
+        if (role === "cashier") {
+          showSuccess(
+            "Welcome Cashier!",
+            "Login successful. Opening Cashier Dashboard..."
+          );
+        } else {
+          showSuccess(
+            "Welcome Inventory Staff!",
+            "Login successful. Opening Inventory Management..."
+          );
+        }
+
+        const dashboardURL = new URL(
+  STAFF_PAGES[role],
+  window.location.href
+);
+
+console.log("Staff role:", role);
+console.log("Dashboard URL:", dashboardURL.href);
+
+window.location.replace(dashboardURL.href);
+
+        // Keep the button disabled while redirecting.
+      } catch (error) {
+        let message =
+          error.message || "Unable to login. Please try again.";
+
+        if (error.name === "AbortError") {
+          message =
+            "The login request timed out. Please check your connection and try again.";
+        } else if (error instanceof TypeError) {
+          message =
+            "Cannot connect to the server. Make sure the backend is running at http://localhost:5000.";
+        }
+
+        showError(message);
+        setLoading(false);
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
     });
 
-
     // =====================================================
-    // SAVE STAFF SESSION
+    // SESSION HELPERS
     // =====================================================
 
     function saveStaffSession(token, user) {
+      try {
+        localStorage.setItem("staffUser", JSON.stringify(user));
+        localStorage.setItem("staffToken", token);
+      } catch {
+        // Remove any partially saved session.
+        try {
+          clearStaffSession();
+        } catch {
+          // Browser storage may be unavailable.
+        }
 
-        localStorage.setItem(
-            "staffToken",
-            token
+        throw new Error(
+          "Cannot save your login session. Please allow browser storage and try again."
         );
-
-
-        localStorage.setItem(
-            "staffUser",
-            JSON.stringify(user)
-        );
-
-
-        console.log(
-            "Staff session saved successfully."
-        );
+      }
     }
-
-
-    // =====================================================
-    // CLEAR STAFF SESSION
-    // =====================================================
 
     function clearStaffSession() {
-
-        localStorage.removeItem(
-            "staffToken"
-        );
-
-
-        localStorage.removeItem(
-            "staffUser"
-        );
+      localStorage.removeItem("staffToken");
+      localStorage.removeItem("staffUser");
     }
 
-
     // =====================================================
-    // CLEAR LOGIN MESSAGE
+    // MESSAGE HELPERS
     // =====================================================
 
     function clearMessage() {
+      if (!loginMessage) return;
 
-        if (!loginMessage) {
-            return;
-        }
-
-
-        loginMessage.textContent = "";
-
-        loginMessage.className =
-            "login-message";
+      loginMessage.textContent = "";
+      loginMessage.className = "login-message";
     }
-
-
-    // =====================================================
-    // SHOW ERROR
-    // =====================================================
 
     function showError(message) {
+      if (loginMessage) {
+        loginMessage.textContent = message;
+        loginMessage.className = "login-message error";
+        loginMessage.setAttribute("role", "alert");
+      }
 
-        if (loginMessage) {
-
-            loginMessage.textContent =
-                message;
-
-
-            loginMessage.className =
-                "login-message error";
-        }
-
-
-        if (typeof Swal !== "undefined") {
-
-            Swal.fire({
-
-                icon: "error",
-
-                title: "Login Failed",
-
-                text: message,
-
-                background: "#111111",
-
-                color: "#ffffff",
-
-                confirmButtonText: "OK",
-
-                confirmButtonColor: "#d4af37"
-
-            });
-        }
+      if (
+        window.Swal &&
+        typeof window.Swal.fire === "function"
+      ) {
+        window.Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: message,
+          background: "#111111",
+          color: "#ffffff",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#d4af37"
+        });
+      } else if (!loginMessage) {
+        window.alert(message);
+      }
     }
-
-
-    // =====================================================
-    // SHOW SUCCESS
-    // =====================================================
 
     function showSuccess(title, message) {
+      if (loginMessage) {
+        loginMessage.textContent = message;
+        loginMessage.className = "login-message success";
+        loginMessage.setAttribute("role", "status");
+      }
 
-        if (loginMessage) {
-
-            loginMessage.textContent =
-                "Login successful. Redirecting...";
-
-
-            loginMessage.className =
-                "login-message success";
-        }
-
-
-        if (typeof Swal !== "undefined") {
-
-            Swal.fire({
-
-                icon: "success",
-
-                title: title,
-
-                text: message,
-
-                background: "#111111",
-
-                color: "#ffffff",
-
-                showConfirmButton: false,
-
-                timer: 700,
-
-                timerProgressBar: true
-
-            });
-        }
+      if (
+        window.Swal &&
+        typeof window.Swal.fire === "function"
+      ) {
+        window.Swal.fire({
+          icon: "success",
+          title,
+          text: message,
+          background: "#111111",
+          color: "#ffffff",
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          timer: 700,
+          timerProgressBar: true
+        });
+      }
     }
 
-
     // =====================================================
-    // LOGIN BUTTON LOADING
+    // LOADING STATE
     // =====================================================
 
-    function setLoading(isLoading) {
+    function setLoading(loading) {
+      isSubmitting = loading;
 
-        if (!loginButton) {
-            return;
-        }
+      loginForm.setAttribute("aria-busy", String(loading));
 
+      if (!loginButton) return;
 
-        loginButton.disabled =
-            isLoading;
+      loginButton.disabled = loading;
 
-
-        if (isLoading) {
-
-            loginButton.innerHTML = `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                <span>Signing In...</span>
-            `;
-
-        } else {
-
-            loginButton.innerHTML = `
-                <i class="fa-solid fa-right-to-bracket"></i>
-                <span>Sign In</span>
-            `;
-        }
+      loginButton.innerHTML = loading
+        ? `
+          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+          <span>Signing In...</span>
+        `
+        : originalButtonHTML;
     }
+  }
 
-});
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeStaffLogin,
+      { once: true }
+    );
+  } else {
+    initializeStaffLogin();
+  }
+})();

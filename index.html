@@ -1,28 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>JCN Apparel Printing Services</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="admin/css/style.css" />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+
+  <link rel="stylesheet" href="./admin/css/style.css">
 </head>
+
 <body>
 
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="nav-container">
+
       <div class="brand-left">
-        <img src="logo.png" alt="JCN Logo" class="logo-img">
+        <img
+          src="./logo.png"
+          alt="JCN Logo"
+          class="logo-img"
+        >
+
         <h1>JCN Apparel Printing Services</h1>
       </div>
 
-      <nav class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="../../customer/html/user-login.html">Shop</a>
-      
-        <button id="openLoginBtn" class="login-btn">Sign in</button>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="./index.html">Home</a>
+
+        <a href="./customer/html/user-login.html">
+          Shop
+        </a>
+
+        <a
+          href="./customer/html/user-login.html"
+          id="openLoginBtn"
+          class="login-btn"
+        >
+          Sign in
+        </a>
       </nav>
+
     </div>
   </header>
 
@@ -31,7 +55,12 @@
     <div class="hero-content">
 
       <div class="hero-brand">
-        <img src="logo.png" alt="JCN Logo" class="hero-logo">
+        <img
+          src="./logo.png"
+          alt="JCN Logo"
+          class="hero-logo"
+        >
+
         <h2>JCN Apparel Printing Services</h2>
       </div>
 
@@ -44,11 +73,18 @@
       <h3 class="welcome-text">WELCOME</h3>
 
       <div class="hero-description">
-        Create custom apparel designs, preview products, upload artwork, and
-        manage your orders through one complete printing platform.
+        Create custom apparel designs, preview products, upload artwork,
+        and manage your orders through one complete printing platform.
       </div>
 
-      <button id="openPortalBtn" class="portal-btn">Get Started</button>
+      <a
+        href="./user-register.html"
+        id="openPortalBtn"
+        class="portal-btn"
+      >
+        Get Started
+      </a>
+
     </div>
   </section>
 
@@ -62,17 +98,6 @@
     </div>
   </section>
 
-  <script>
-  const openLoginBtn = document.getElementById("openLoginBtn");
-  const openPortalBtn = document.getElementById("openPortalBtn");
-
-  openLoginBtn.addEventListener("click", function () {
-    window.location.href = "customer/html/user-login.html";
-  });
-
-  openPortalBtn.addEventListener("click", function () {
-    window.location.href = "user-register.html";
-  });
-</script>
 </body>
+
 </html>

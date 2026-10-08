@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JCN | Cashier</title>
+
+   <link rel="stylesheet" href="./cashier-dashboard.css">
+  <script defer src="./cashier-dashboard.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="cashier-dashboard.html">
+        <span class="logo">JCN</span>
+        <span>
+          <strong>JCN Apparel</strong>
+          <small>Cashier Portal</small>
+        </span>
+      </a>
+
+      <p class="nav-label">WORKSPACE</p>
+
+      <nav aria-label="Cashier navigation">
+        <button class="nav-button active" data-view="orders">
+          Orders & Payments
+        </button>
+
+        <button class="nav-button" data-view="records">
+          Payment Records
+        </button>
+      </nav>
+
+      <div class="account">
+        <small>Signed in as</small>
+        <strong id="staffName">Cashier</strong>
+        <button id="logoutButton" class="secondary">Log out</button>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">JCN APPAREL PRINTING SERVICES</p>
+          <h1 id="pageTitle">Orders & Payments</h1>
+          <p class="muted">Verify orders, review payments, and confirm release.</p>
+        </div>
+
+        <button id="refreshButton" class="secondary">Refresh</button>
+      </header>
+
+      <div id="notice" class="notice" role="status" hidden></div>
+
+      <section class="stats" aria-label="Current page summary">
+        <article class="stat">
+          <small>Orders on this page</small>
+          <strong id="orderCount">—</strong>
+        </article>
+
+        <article class="stat">
+          <small>Paid on this page</small>
+          <strong id="paidCount">—</strong>
+        </article>
+
+        <article class="stat">
+          <small>Outstanding on this page</small>
+          <strong id="dueTotal">—</strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <form id="filterForm" class="filters">
+          <div class="search-field">
+            <label for="searchInput">Search</label>
+            <input
+  id="searchInput"
+  type="search"
+  placeholder="Search customer name"
+  maxlength="120"
+>
+          </div>
+
+          <div id="statusFilter">
+            <label for="paymentFilter">Payment status</label>
+            <select id="paymentFilter">
+              <option value="">All payments</option>
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
+              <option value="Unpaid">Unpaid</option>
+            </select>
+          </div>
+
+          <button type="submit">Search</button>
+        </form>
+
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only" id="tableCaption">Cashier orders</caption>
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <footer class="pagination">
+          <span id="pageInfo">Loading…</span>
+          <div>
+            <button id="previousButton" class="secondary">Previous</button>
+            <button id="nextButton" class="secondary">Next</button>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="orderDialog" aria-labelledby="dialogTitle">
+    <header class="dialog-header">
+      <div>
+        <p class="eyebrow">ORDER DETAILS</p>
+        <h2 id="dialogTitle">Order</h2>
+      </div>
+      <button id="closeDialog" class="secondary" aria-label="Close order details">
+        Close
+      </button>
+    </header>
+
+    <div id="detailContent"></div>
+
+    <form id="paymentForm" class="payment-form" hidden>
+      <h3>Verify payment</h3>
+
+      <p class="muted">
+        Submit the payment reference for server verification.
+        PayPal payments must match a captured transaction.
+      </p>
+
+      <label for="paymentReference">Payment / collection reference</label>
+      <input
+        id="paymentReference"
+        required
+        maxlength="120"
+        autocomplete="off"
+        placeholder="Enter the payment or collection reference"
+      >
+
+      <label for="paymentNote">Notes</label>
+      <textarea
+        id="paymentNote"
+        rows="2"
+        maxlength="500"
+        placeholder="Optional verification notes"
+      ></textarea>
+
+      <button id="paymentButton" type="submit">
+        Verify payment
+      </button>
+    </form>
+
+    <p id="detailNotice" class="notice" role="status" hidden></p>
+
+    <footer class="dialog-actions">
+      <button id="verifyOrderButton" class="secondary">Verify order</button>
+      <button id="releaseButton">Confirm order release</button>
+    </footer>
+  </dialog>
+</body>
+</html>
