@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JCN | Graphic Designer</title>
+
+  <link rel="stylesheet" href="../css/designer-dashboard.css">
+  <script defer src="../js/designer-dashboard.js"></script>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="mark">JCN</span>
+      <div>
+        <strong>JCN Apparel</strong>
+        <small>Graphic Designer Portal</small>
+      </div>
+    </div>
+
+    <p class="nav-heading">WORKSPACE</p>
+
+    <nav>
+      <a class="active" href="designer-dashboard.html">
+        Design Requests
+      </a>
+    </nav>
+
+    <div class="account">
+      <small>Signed in as</small>
+      <strong id="staffName">Graphic Designer</strong>
+      <button type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <span class="eyebrow">JCN APPAREL PRINTING SERVICES</span>
+        <h1>Design Requests</h1>
+        <p>
+          Review customer customization, adjust layouts,
+          and finalize designs.
+        </p>
+      </div>
+
+      <button type="button" id="refreshBtn">Refresh</button>
+    </header>
+
+    <section class="stats">
+      <article>
+        <small>Total requests</small>
+        <strong id="totalCount">—</strong>
+      </article>
+
+      <article>
+        <small>In review (page)</small>
+        <strong id="reviewCount">—</strong>
+      </article>
+
+      <article>
+        <small>Finalized (page)</small>
+        <strong id="finalCount">—</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="filters">
+        <label>
+          Status
+          <select id="statusFilter">
+            <option value="">All requests</option>
+            <option>Submitted</option>
+            <option>In Review</option>
+            <option>Revision Requested</option>
+            <option>Finalized</option>
+          </select>
+        </label>
+
+        <label>
+          Search this page
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Customer, apparel or ID"
+          >
+        </label>
+      </div>
+
+      <p id="message" role="status"></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Request</th>
+              <th>Customer</th>
+              <th>Apparel</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="requestsBody">
+            <tr>
+              <td colspan="6">Loading requests...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <button id="prevBtn" type="button">Previous</button>
+        <span id="pageLabel">Page 1</span>
+        <button id="nextBtn" type="button">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- DESIGN REVIEW MODAL -->
+  <dialog id="editorDialog">
+    <div class="dialog-shell">
+
+      <div class="dialog-top">
+        <div>
+          <small class="eyebrow">DESIGN REVIEW</small>
+          <h2 id="requestTitle">Request</h2>
+        </div>
+
+        <button id="closeDialog" type="button">Close</button>
+      </div>
+
+      <p id="editorMessage" role="status"></p>
+
+      <div class="edit-grid">
+
+        <!-- CUSTOMER DESIGN INFORMATION -->
+        <section>
+          <h3>Customer Request</h3>
+
+          <dl id="requestInfo"></dl>
+
+          <div class="source-images">
+            <a
+              id="customerPreview"
+              target="_blank"
+              rel="noopener noreferrer"
+              hidden
+            >
+              Customer 3D Preview
+            </a>
+
+            <a
+              id="logoLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              hidden
+            >
+              Uploaded Logo / Image
+            </a>
+          </div>
+
+          <label>
+            Customer Design Notes
+            <textarea
+              id="customerNotes"
+              rows="3"
+              readonly
+            ></textarea>
+          </label>
+
+          <label>
+            Designer Notes / Suggestions
+            <textarea
+              id="designerNotes"
+              rows="4"
+              maxlength="2000"
+              placeholder="Enter feedback, corrections or suggestions..."
+            ></textarea>
+          </label>
+
+          <label>
+            Design Status
+            <select id="editorStatus">
+              <option>Submitted</option>
+              <option>In Review</option>
+              <option>Revision Requested</option>
+              <option>Finalized</option>
+            </select>
+          </label>
+        </section>
+
+        <!-- DESIGN EDITOR -->
+        <section>
+          <h3>Layout Adjustment & Design Preview</h3>
+
+          <p class="hint">
+            This is a 2D layout review.
+            Open the customer's original 3D preview separately.
+          </p>
+
+          <div class="canvas-wrap">
+            <canvas
+              id="designCanvas"
+              width="520"
+              height="540"
+              aria-label="Apparel design preview"
+            ></canvas>
+          </div>
+
+          <div class="controls">
+            <label>
+              Printed Text
+              <input
+                id="designText"
+                maxlength="100"
+                placeholder="Enter design text"
+              >
+            </label>
+
+            <label>
+              Text Size
+              <input
+                id="fontSize"
+                type="number"
+                min="12"
+                max="70"
+                value="28"
+              >
+            </label>
+
+            <label>
+              Horizontal Position
+              <input
+                id="posX"
+                type="range"
+                min="10"
+                max="90"
+                value="50"
+              >
+            </label>
+
+            <label>
+              Vertical Position
+              <input
+                id="posY"
+                type="range"
+                min="10"
+                max="90"
+                value="48"
+              >
+            </label>
+
+            <label>
+              Text Color
+              <input
+                id="textColor"
+                type="color"
+                value="#ffffff"
+              >
+            </label>
+
+            <label>
+              Apparel Color
+              <input
+                id="apparelColor"
+                type="color"
+                value="#303030"
+              >
+            </label>
+          </div>
+
+          <p class="hint">
+            Layout positions and text properties are saved for
+            integration with the customer's customization design.
+          </p>
+        </section>
+      </div>
+
+      <div class="dialog-actions">
+        <a
+          id="savedPreview"
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+        >
+          Open Saved Preview
+        </a>
+
+        <button id="savePreviewBtn" type="button">
+          Upload Preview
+        </button>
+
+        <button
+          id="saveRequestBtn"
+          type="button"
+          class="primary"
+        >
+          Save Review / Finalize
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+</body>
+</html>

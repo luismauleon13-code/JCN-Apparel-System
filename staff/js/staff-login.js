@@ -1,414 +1,171 @@
-// =========================================================
-// JCN APPAREL - STAFF LOGIN
-// File: staff/js/staff-login.js
-// =========================================================
-
-"use strict";
 
 (() => {
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = 'http://localhost:5000';
 
-  const STAFF_PAGES = {
-  inventory_staff: "../../Inventory/html/inventory-product.html",
-  cashier: "../../Cashier/cashier-dashboard.html"
-};
+  // Paths are resolved relative to staff/html/staff-login.html.
+  const STAFF_PAGES = Object.freeze({
+    inventory_staff: '../../Inventory/html/inventory-product.html',
+    cashier: '../../Cashier/html/cashier-dashboard.html',
+    graphic_designer: '../../graphic-designer/html/designer-dashboard.html'
+  });
 
   function initializeStaffLogin() {
-    // =====================================================
-    // HTML ELEMENTS
-    // =====================================================
+    const form = document.getElementById('staffLoginForm');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    const loginButton = document.getElementById('loginButton') || form?.querySelector('[type="submit"]');
+    const loginMessage = document.getElementById('loginMessage');
 
-    const loginForm = document.getElementById("staffLoginForm");
-    const usernameInput = document.getElementById("username");
-    const passwordInput = document.getElementById("password");
-    const togglePassword = document.getElementById("togglePassword");
-
-    const loginButton =
-      document.getElementById("loginButton") ||
-      loginForm?.querySelector('[type="submit"]');
-
-    const loginMessage = document.getElementById("loginMessage");
-
-    if (!loginForm || !usernameInput || !passwordInput) {
-      console.error(
-        "Staff login requires #staffLoginForm, #username, and #password."
-      );
+    if (!form || !usernameInput || !passwordInput) {
+      console.error('Missing staff login elements: #staffLoginForm, #username, #password');
       return;
     }
 
     let isSubmitting = false;
+    const originalButtonHTML = loginButton?.innerHTML ?? '';
 
-    const originalButtonHTML = loginButton
-      ? loginButton.innerHTML
-      : "";
-
-    // =====================================================
-    // EXISTING SESSION BEHAVIOR
-    // =====================================================
-
-    // Intentionally no automatic redirect.
-    // Opening Staff Login will show the login page first.
-    // Dashboard redirect only happens after successful login.
-
-    // =====================================================
-    // SHOW / HIDE PASSWORD
-    // =====================================================
-
-    if (togglePassword) {
-      // Prevent an eye button inside the form from submitting it.
-      if (togglePassword.tagName === "BUTTON") {
-        togglePassword.type = "button";
-      }
-
-      function updatePasswordToggle() {
-        const isVisible = passwordInput.type === "text";
-        const icon = togglePassword.querySelector("i");
-
-        if (icon) {
-          icon.classList.toggle("fa-eye", !isVisible);
-          icon.classList.toggle("fa-eye-slash", isVisible);
-        }
-
-        togglePassword.setAttribute(
-          "aria-label",
-          isVisible ? "Hide password" : "Show password"
-        );
-
-        togglePassword.setAttribute(
-          "aria-pressed",
-          String(isVisible)
-        );
-      }
-
-      updatePasswordToggle();
-
-      togglePassword.addEventListener("click", (event) => {
-        event.preventDefault();
-
-        passwordInput.type =
-          passwordInput.type === "password" ? "text" : "password";
-
-        updatePasswordToggle();
-      });
-    }
-
-    // =====================================================
-    // LOGIN FORM
-    // =====================================================
-
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      // Prevent duplicate requests.
-      if (isSubmitting) return;
-
-      clearMessage();
-
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!username) {
-        showError("Please enter your username.");
-        usernameInput.focus();
-        return;
-      }
-
-      if (!password) {
-        showError("Please enter your password.");
-        passwordInput.focus();
-        return;
-      }
-
-      setLoading(true);
-
-      const controller = new AbortController();
-
-      const timeoutId = window.setTimeout(() => {
-        controller.abort();
-      }, 20000);
-
-      try {
-        // Clear the old staff identity before a new login attempt.
-        clearStaffSession();
-
-        // =================================================
-        // EXISTING STAFF LOGIN ENDPOINT
-        // =================================================
-
-        const response = await fetch(
-          `${API_BASE_URL}/api/staff/login`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json"
-            },
-            body: JSON.stringify({
-              username,
-              password
-            }),
-            signal: controller.signal
-          }
-        );
-
-        let data;
-
-        try {
-          data = await response.json();
-        } catch (error) {
-          if (error.name === "AbortError") throw error;
-
-          throw new Error(
-            "Invalid response from the server. Check the staff login API."
-          );
-        }
-
-        if (!response.ok || data?.success !== true) {
-          throw new Error(
-            typeof data?.message === "string"
-              ? data.message
-              : "Login failed. Please check your username and password."
-          );
-        }
-
-        // =================================================
-        // VALIDATE LOGIN RESPONSE
-        // =================================================
-
-        if (
-          typeof data.token !== "string" ||
-          !data.token.trim()
-        ) {
-          throw new Error(
-            "Login successful, but authentication token is missing."
-          );
-        }
-
-        if (
-          !data.user ||
-          typeof data.user !== "object" ||
-          Array.isArray(data.user)
-        ) {
-          throw new Error(
-            "Login successful, but staff information is missing."
-          );
-        }
-
-        const role = String(data.user.role || "")
-          .trim()
-          .toLowerCase();
-
-        const status = String(data.user.status || "")
-          .trim()
-          .toLowerCase();
-
-        if (status !== "active") {
-          throw new Error(
-            "Your staff account is inactive or restricted. Please contact the administrator."
-          );
-        }
-
-        // =================================================
-        // ROLE VALIDATION
-        // =================================================
-
-        if (role === "admin") {
-          throw new Error(
-            "Admin accounts must use the Admin Login."
-          );
-        }
-
-        if (role === "graphic_designer") {
-          throw new Error(
-            "Graphic Designer Dashboard is not available yet."
-          );
-        }
-
-        if (
-          !Object.prototype.hasOwnProperty.call(STAFF_PAGES, role)
-        ) {
-          throw new Error(
-            "Your account does not have an authorized staff role. Please contact the administrator."
-          );
-        }
-
-        // =================================================
-        // SAVE STAFF SESSION
-        // =================================================
-
-        const staffUser = {
-          ...data.user,
-          role,
-          status
-        };
-
-        saveStaffSession(data.token, staffUser);
-
-        passwordInput.value = "";
-
-        // =================================================
-        // ROLE-BASED REDIRECT
-        // =================================================
-
-        if (role === "cashier") {
-          showSuccess(
-            "Welcome Cashier!",
-            "Login successful. Opening Cashier Dashboard..."
-          );
-        } else {
-          showSuccess(
-            "Welcome Inventory Staff!",
-            "Login successful. Opening Inventory Management..."
-          );
-        }
-
-        const dashboardURL = new URL(
-  STAFF_PAGES[role],
-  window.location.href
-);
-
-console.log("Staff role:", role);
-console.log("Dashboard URL:", dashboardURL.href);
-
-window.location.replace(dashboardURL.href);
-
-        // Keep the button disabled while redirecting.
-      } catch (error) {
-        let message =
-          error.message || "Unable to login. Please try again.";
-
-        if (error.name === "AbortError") {
-          message =
-            "The login request timed out. Please check your connection and try again.";
-        } else if (error instanceof TypeError) {
-          message =
-            "Cannot connect to the server. Make sure the backend is running at http://localhost:5000.";
-        }
-
-        showError(message);
-        setLoading(false);
-      } finally {
-        window.clearTimeout(timeoutId);
-      }
-    });
-
-    // =====================================================
-    // SESSION HELPERS
-    // =====================================================
-
-    function saveStaffSession(token, user) {
-      try {
-        localStorage.setItem("staffUser", JSON.stringify(user));
-        localStorage.setItem("staffToken", token);
-      } catch {
-        // Remove any partially saved session.
-        try {
-          clearStaffSession();
-        } catch {
-          // Browser storage may be unavailable.
-        }
-
-        throw new Error(
-          "Cannot save your login session. Please allow browser storage and try again."
-        );
-      }
-    }
-
-    function clearStaffSession() {
-      localStorage.removeItem("staffToken");
-      localStorage.removeItem("staffUser");
-    }
-
-    // =====================================================
-    // MESSAGE HELPERS
-    // =====================================================
-
-    function clearMessage() {
-      if (!loginMessage) return;
-
-      loginMessage.textContent = "";
-      loginMessage.className = "login-message";
-    }
-
-    function showError(message) {
+    function message(text, kind = 'error') {
       if (loginMessage) {
-        loginMessage.textContent = message;
-        loginMessage.className = "login-message error";
-        loginMessage.setAttribute("role", "alert");
+        loginMessage.textContent = text;
+        loginMessage.className = `login-message ${kind}`;
+        loginMessage.setAttribute('role', kind === 'error' ? 'alert' : 'status');
       }
-
-      if (
-        window.Swal &&
-        typeof window.Swal.fire === "function"
-      ) {
+      if (kind === 'error' && window.Swal?.fire) {
         window.Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text: message,
-          background: "#111111",
-          color: "#ffffff",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#d4af37"
+          icon: 'error', title: 'Login Failed', text,
+          background: '#111111', color: '#ffffff',
+          confirmButtonColor: '#d4af37'
         });
-      } else if (!loginMessage) {
-        window.alert(message);
+      } else if (kind === 'error' && !loginMessage) {
+        window.alert(text);
       }
     }
-
-    function showSuccess(title, message) {
-      if (loginMessage) {
-        loginMessage.textContent = message;
-        loginMessage.className = "login-message success";
-        loginMessage.setAttribute("role", "status");
-      }
-
-      if (
-        window.Swal &&
-        typeof window.Swal.fire === "function"
-      ) {
-        window.Swal.fire({
-          icon: "success",
-          title,
-          text: message,
-          background: "#111111",
-          color: "#ffffff",
-          showConfirmButton: false,
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          timer: 700,
-          timerProgressBar: true
-        });
-      }
-    }
-
-    // =====================================================
-    // LOADING STATE
-    // =====================================================
 
     function setLoading(loading) {
       isSubmitting = loading;
-
-      loginForm.setAttribute("aria-busy", String(loading));
-
+      form.setAttribute('aria-busy', String(loading));
       if (!loginButton) return;
-
       loginButton.disabled = loading;
-
       loginButton.innerHTML = loading
-        ? `
-          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
-          <span>Signing In...</span>
-        `
+        ? '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> <span>Signing In...</span>'
         : originalButtonHTML;
     }
+
+    function clearStaffSession() {
+      localStorage.removeItem('staffToken');
+      localStorage.removeItem('staffUser');
+    }
+
+    function saveStaffSession(token, user) {
+      try {
+        localStorage.setItem('staffUser', JSON.stringify(user));
+        localStorage.setItem('staffToken', token);
+      } catch (error) {
+        clearStaffSession();
+        throw new Error('Cannot save login session. Enable browser storage and try again.');
+      }
+    }
+
+    if (togglePassword) {
+      if (togglePassword.tagName === 'BUTTON') togglePassword.type = 'button';
+      const syncToggle = () => {
+        const visible = passwordInput.type === 'text';
+        const icon = togglePassword.querySelector('i');
+        icon?.classList.toggle('fa-eye', !visible);
+        icon?.classList.toggle('fa-eye-slash', visible);
+        togglePassword.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+        togglePassword.setAttribute('aria-pressed', String(visible));
+      };
+      syncToggle();
+      togglePassword.addEventListener('click', event => {
+        event.preventDefault();
+        passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        syncToggle();
+      });
+    }
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (isSubmitting) return;
+      if (loginMessage) {
+        loginMessage.textContent = '';
+        loginMessage.className = 'login-message';
+      }
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+      if (!username) { message('Please enter your username.'); usernameInput.focus(); return; }
+      if (!password) { message('Please enter your password.'); passwordInput.focus(); return; }
+
+      setLoading(true);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+      try {
+        clearStaffSession();
+        const response = await fetch(`${API_BASE_URL}/api/staff/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ username, password }),
+          signal: controller.signal
+        });
+
+        const data = await response.json().catch(() => {
+          throw new Error('Invalid server response. Check /api/staff/login.');
+        });
+        if (!response.ok || data?.success !== true) {
+          throw new Error(data?.message || 'Incorrect username or password.');
+        }
+        if (typeof data.token !== 'string' || !data.token.trim()) {
+          throw new Error('Login succeeded but staff token is missing.');
+        }
+        if (!data.user || typeof data.user !== 'object' || Array.isArray(data.user)) {
+          throw new Error('Login succeeded but staff user data is missing.');
+        }
+
+        const role = String(data.user.role || '').trim().toLowerCase();
+        const status = String(data.user.status || '').trim().toLowerCase();
+
+        if (status !== 'active') {
+          throw new Error('Your staff account is inactive or restricted. Contact the administrator.');
+        }
+        if (role === 'admin') {
+          throw new Error('Admin accounts must use the Admin Login.');
+        }
+        if (!Object.prototype.hasOwnProperty.call(STAFF_PAGES, role)) {
+          throw new Error('Unauthorized staff role. Contact the administrator.');
+        }
+
+        const user = { ...data.user, role, status };
+        saveStaffSession(data.token, user);
+        passwordInput.value = '';
+
+        const welcome = {
+          inventory_staff: 'Opening Inventory Management...',
+          cashier: 'Opening Cashier Dashboard...',
+          graphic_designer: 'Opening Graphic Designer Dashboard...'
+        };
+        message(welcome[role], 'success');
+
+        const destination = new URL(STAFF_PAGES[role], window.location.href);
+        window.location.replace(destination.href);
+      } catch (error) {
+        const text = error.name === 'AbortError'
+          ? 'Login request timed out. Check your connection and try again.'
+          : error instanceof TypeError
+            ? `Cannot connect to backend at ${API_BASE_URL}.`
+            : error.message || 'Unable to login.';
+        message(text);
+        setLoading(false);
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializeStaffLogin,
-      { once: true }
-    );
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeStaffLogin, { once: true });
   } else {
     initializeStaffLogin();
   }

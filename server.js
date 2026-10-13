@@ -17,8 +17,7 @@ const supabase = require("./backend/config/supabaseClient");
 const app = express();
 
 app.use(cors());
-app.use(express.json());
-
+app.use(express.json({ limit: "8mb" }));
 const otpStore = {};
 const resetOtps = {};
 
@@ -169,6 +168,44 @@ function allowRoles(...roles) {
 
     return next();
   };
+}
+
+// =========================================================
+// CUSTOMER JWT AUTH - GRAPHIC DESIGN SUBMISSION
+// Matches /api/auth/customer-login: HS256, JWT_SECRET, id, role=customer.
+// =========================================================
+async function verifyCustomerToken(req, res, next) {
+  const match = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || "");
+  if (!match) {
+    return res.status(401).json({ success: false, message: "Please log in as a customer." });
+  }
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ success: false, message: "Server authentication is not configured." });
+  }
+  let decoded;
+  try {
+    decoded = jwt.verify(match[1], process.env.JWT_SECRET, { algorithms: ["HS256"] });
+  } catch {
+    return res.status(401).json({ success: false, message: "Invalid or expired customer session." });
+  }
+  if (!decoded?.id || String(decoded.role || "").toLowerCase() !== "customer") {
+    return res.status(403).json({ success: false, message: "Customer access only." });
+  }
+  try {
+    const { data: customer, error } = await supabase.from("customer_users")
+      .select("id, full_name, username, email, status")
+      .eq("id", decoded.id).maybeSingle();
+    if (error) throw error;
+    if (!customer) return res.status(401).json({ success: false, message: "Customer account not found." });
+    if (String(customer.status || "").toLowerCase() !== "active") {
+      return res.status(403).json({ success: false, message: "Customer account is not active." });
+    }
+    req.customer = { ...customer, role: "customer" };
+    return next();
+  } catch (error) {
+    console.error("CUSTOMER TOKEN ACCOUNT CHECK ERROR:", error.message);
+    return res.status(503).json({ success: false, message: "Unable to verify customer account." });
+  }
 }
 
 // Public login aliases must be registered before the admin token guard.
@@ -900,13 +937,17 @@ app.post("/api/auth/customer-login", async (req, res) => {
       });
     }
 
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ success: false, message: "Server authentication is not configured." });
+    }
+
     const token = jwt.sign(
       {
         id: customer.id,
         username: customer.username,
         role: "customer"
       },
-      process.env.JWT_SECRET || "jcn_secret_12345",
+      process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
@@ -4785,6 +4826,24 @@ app.use(
   })
 );
 
+
+
+
+/* =========================================================
+   GRAPHIC DESIGNER ROUTES
+========================================================= */
+
+const registerGraphicDesignerRoutes =
+  require("./backend/routes/graphic-designer-routes.js");
+
+registerGraphicDesignerRoutes({
+  app,
+  supabase,
+  verifyStaffToken,
+  allowRoles,
+  verifyCustomerToken
+});
+
 // =========================================================
 // UNKNOWN API ROUTES
 // Must remain after all API routes.
@@ -4797,6 +4856,7 @@ app.use("/api", (req, res) => {
       `API route not found: ${req.method} ${req.originalUrl}`
   });
 });
+
 
 // =========================================================
 // START SERVER
