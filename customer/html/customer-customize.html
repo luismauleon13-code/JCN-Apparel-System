@@ -1,153 +1,816 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JCN | 3D Customization</title>
-  <link rel="stylesheet" href="../css/customer-customize.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>JCN | 3D Apparel Customization</title>
+
+  <!-- CUSTOMIZATION CSS -->
+  <link
+    rel="stylesheet"
+    href="../css/customer-customize.css"
+  />
+
+  <!-- FONT AWESOME -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+
+  <!-- THREE.JS IMPORT MAP -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <!-- BODY FIT JAVASCRIPT -->
+  <script
+    type="module"
+    src="../js/bodyfit.js"
+  ></script>
+
 </head>
+
 <body>
 
-<aside class="sidebar">
-  <div class="brand">
-    <div class="logo">J</div>
-    <div>
-      <h2>JCN</h2>
-      <p>Apparel Printing</p>
-    </div>
-  </div>
+  <!-- =====================================
+       CUSTOMER SIDEBAR
+  ====================================== -->
 
-  <nav class="menu">
-    <a href="dashboard.html"><i class="fa-solid fa-house"></i> Home</a>
-    <a href="customer-shop.html"><i class="fa-solid fa-shirt"></i> Shop Products</a>
-    <a href="customer-customize.html" class="active"><i class="fa-solid fa-palette"></i> Customization</a>
-    <a href="customer-notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
-    <a href="customer-cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
-    <a href="customer-orders.html"><i class="fa-solid fa-box"></i> Orders</a>
-    <a href="customer-profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-  </nav>
+  <aside class="sidebar">
 
-  <button id="customerLogoutBtn" class="logout-btn">
-  <i class="fas fa-sign-out-alt"></i>
-  Logout
-</button>
-</aside>
+    <div class="brand">
 
-<main class="main">
-  <header class="topbar">
-    <div>
-      <p>JCN CUSTOMIZATION</p>
-      <h1>3D Apparel Customization</h1>
-    </div>
-  </header>
-
-  <section class="custom-layout">
-
-    <div class="control-panel">
-      <h2>Customize Design</h2>
-
-      <label>Choose Apparel Type</label>
-      <select id="apparelType">
-  <option value="tshirt">T-Shirt</option>
-  <option value="hoodie">Hoodie</option>
-  <option value="sweatshirt">Sweatshirt</option>
-  <option value="polo">Polo Shirt</option>
-</select>
-
-      <label>Change Color</label>
-      <div class="color-row">
-        <button class="color-btn black" data-color="#111111"></button>
-        <button class="color-btn white" data-color="#f5f5f5"></button>
-        <button class="color-btn yellow" data-color="#ffcc36"></button>
-        <button class="color-btn blue" data-color="#1d4ed8"></button>
-        <button class="color-btn red" data-color="#b91c1c"></button>
+      <div class="logo">
+        J
       </div>
 
-      <label>Add Text</label>
-      <input type="text" id="customText" placeholder="Enter your design text" />
-
-      <label>Upload Logo</label>
-      <input type="file" id="logoUpload" accept="image/*" />
-
-      <label>Quantity</label>
-      <input type="number" id="quantityInput" min="1" value="1" />
-
-      <div class="btn-grid">
-        <button id="frontBtn">Front View</button>
-        <button id="backBtn">Back View</button>
+      <div>
+        <h2>JCN</h2>
+        <p>Apparel Printing</p>
       </div>
 
-      <button id="saveDesignBtn" class="save-btn">Save Design</button>
-      <button id="addCartBtn" class="cart-btn">Add to Cart</button>
     </div>
 
-    <div class="preview-panel">
-      <div class="preview-header">
-        <h2 id="viewLabel">Front Preview</h2>
-        <span>Drag text/logo to adjust position</span>
+    <!-- NAVIGATION -->
+
+    <nav class="menu">
+
+      <a href="dashboard.html">
+        <i class="fa-solid fa-house"></i>
+        Home
+      </a>
+
+      <a href="customer-shop.html">
+        <i class="fa-solid fa-shirt"></i>
+        Shop Products
+      </a>
+
+      <a
+        href="customer-customize.html"
+        class="active"
+      >
+        <i class="fa-solid fa-palette"></i>
+        Customization
+      </a>
+
+      <a href="customer-notifications.html">
+        <i class="fa-solid fa-bell"></i>
+        Notifications
+      </a>
+
+      <a href="customer-cart.html">
+        <i class="fa-solid fa-cart-shopping"></i>
+        Cart
+      </a>
+
+      <a href="customer-orders.html">
+        <i class="fa-solid fa-box"></i>
+        Orders
+      </a>
+
+      <a href="customer-profile.html">
+        <i class="fa-solid fa-user"></i>
+        Profile
+      </a>
+
+    </nav>
+
+    <!-- LOGOUT -->
+
+    <button
+      id="customerLogoutBtn"
+      class="logout-btn"
+      type="button"
+    >
+      <i class="fa-solid fa-sign-out-alt"></i>
+      Logout
+    </button>
+
+  </aside>
+
+
+  <!-- =====================================
+       MAIN CONTENT
+  ====================================== -->
+
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+
+    <header class="topbar jcn-page-header">
+
+      <div>
+
+        <p>
+          JCN CUSTOMIZATION
+        </p>
+
+        <h1>
+          3D Apparel Customization
+        </h1>
+
       </div>
 
-      <div id="designArea" class="design-area">
-        <div id="shirtModel" class="shirt-model">
-          <div class="sleeve left"></div>
-          <div class="sleeve right"></div>
-          <div class="neck"></div>
-          <div id="textLayer" class="design-text"></div>
-          <img id="logoLayer" class="design-logo" />
+    </header>
+
+
+    <!-- =====================================
+         AI BODY FIT STUDIO
+    ====================================== -->
+
+    <section class="bodyfit-container">
+
+
+      <!-- =====================================
+           BODY SCAN AND SIZING PANEL
+      ====================================== -->
+
+      <section class="panel body-scan-panel">
+
+        <h1>
+          <i class="fa-solid fa-person"></i>
+          Body Scan &amp; Sizing
+        </h1>
+
+        <p class="muted">
+          Camera captures stay on your device.
+          Only sizing and design data are saved
+          when you choose Save.
+        </p>
+
+
+        <!-- HEIGHT AND FIT PREFERENCE -->
+
+        <div class="inputs">
+
+          <label for="heightCm">
+
+            Height (cm)
+
+            <input
+              id="heightCm"
+              type="number"
+              min="110"
+              max="230"
+              value="165"
+            />
+
+          </label>
+
+          <label for="fit">
+
+            Fit Preference
+
+            <select id="fit">
+
+              <option value="regular">
+                Regular
+              </option>
+
+              <option value="loose">
+                Loose
+              </option>
+
+              <option value="slim">
+                Slim
+              </option>
+
+            </select>
+
+          </label>
+
         </div>
+
+
+        <!-- =====================================
+             CAMERA PREVIEW
+        ====================================== -->
+
+        <div class="camera">
+
+          <video
+            id="camera"
+            autoplay
+            playsinline
+            muted
+          ></video>
+
+          <canvas id="overlay"></canvas>
+
+          <span
+            id="cameraState"
+            class="camera-label"
+          >
+            Camera off
+          </span>
+
+        </div>
+
+
+        <!-- CAMERA ACTION BUTTONS -->
+
+        <div class="actions">
+
+          <button
+            id="startCamera"
+            type="button"
+          >
+            <i class="fa-solid fa-camera"></i>
+            Start Camera
+          </button>
+
+          <button
+            id="front"
+            type="button"
+            disabled
+          >
+            <i class="fa-solid fa-user"></i>
+            Capture Front
+          </button>
+
+          <button
+            id="side"
+            type="button"
+            disabled
+          >
+            <i class="fa-solid fa-person"></i>
+            Capture Side
+          </button>
+
+          <button
+            id="stopCamera"
+            type="button"
+            class="secondary"
+          >
+            <i class="fa-solid fa-stop"></i>
+            Stop Camera
+          </button>
+
+        </div>
+
+
+        <!-- =====================================
+             UPLOAD BODY PHOTO
+        ====================================== -->
+
+        <label
+          for="photo"
+          class="upload"
+        >
+
+          Upload Front-Facing Whole-Body Photo
+
+          <input
+            id="photo"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+          />
+
+        </label>
+
+        <img
+          id="photoPreview"
+          alt="Uploaded body reference"
+          hidden
+        />
+
+
+        <!-- =====================================
+             SIZE RECOMMENDATION
+        ====================================== -->
+
+        <div class="result">
+
+          <h2>
+            <i class="fa-solid fa-ruler-combined"></i>
+            Size Recommendation
+          </h2>
+
+          <p
+            id="status"
+            role="status"
+          >
+            Start the camera or upload a photo.
+          </p>
+
+          <div class="size">
+
+            <span id="sizeValue">
+              —
+            </span>
+
+            <span id="confidence">
+              Awaiting scan
+            </span>
+
+          </div>
+
+          <p
+            id="measurements"
+            class="muted"
+          ></p>
+
+          <p class="tiny">
+            Shoulder-based estimates are not
+            accurate chest or waist measurements.
+            Compare with an actual shirt or
+            provide manual dimensions
+            before purchasing.
+          </p>
+
+
+          <!-- MANUAL BODY MEASUREMENTS -->
+
+          <div class="inputs">
+
+            <label for="manualChest">
+
+              Manual Chest Circumference (cm)
+
+              <input
+                id="manualChest"
+                type="number"
+                min="50"
+                max="180"
+                placeholder="e.g. 96"
+              />
+
+            </label>
+
+            <label for="manualWidth">
+
+              Manual Preferred Shirt Width (cm)
+
+              <input
+                id="manualWidth"
+                type="number"
+                min="30"
+                max="100"
+                placeholder="e.g. 52"
+              />
+
+            </label>
+
+          </div>
+
+
+          <!-- UPDATE SIZE RECOMMENDATION -->
+
+          <button
+            id="estimate"
+            type="button"
+          >
+            <i class="fa-solid fa-ruler"></i>
+            Update Recommendation
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================
+           THREE.JS 3D CUSTOMIZATION
+      ====================================== -->
+
+      <section class="panel studio">
+
+        <!-- STUDIO HEADER -->
+
+        <div class="studio-head">
+
+          <div>
+
+            <h1>
+              <i class="fa-solid fa-shirt"></i>
+              360° T-Shirt Preview
+            </h1>
+
+            <p class="muted">
+              Rotate or zoom the model to view
+              your customized apparel.
+              Preview is illustrative and
+              is not a cloth simulation.
+            </p>
+
+          </div>
+
+          <span class="chip">
+            <i class="fa-solid fa-cube"></i>
+            3D
+          </span>
+
+        </div>
+
+
+        <!-- =====================================
+             3D VIEWER
+        ====================================== -->
+
+        <div
+          id="viewer"
+          aria-label="3D apparel viewer"
+        ></div>
+
+
+        <!-- =====================================
+             BLENDER 3D AVATAR
+        ====================================== -->
+
+        <div class="blender-avatar-panel">
+
+          <h3>
+            <i class="fa-solid fa-cube"></i>
+            Blender 3D Avatar
+          </h3>
+
+          <p>
+            Upload your Blender GLB model
+            to preview it in 360 degrees.
+          </p>
+
+          <label for="avatarUpload">
+
+            Upload 3D Avatar (.glb)
+
+            <input
+              type="file"
+              id="avatarUpload"
+              accept=".glb,model/gltf-binary"
+            />
+
+          </label>
+
+          <button
+            type="button"
+            id="reloadAvatar"
+          >
+            <i class="fa-solid fa-rotate"></i>
+            Reload Model
+          </button>
+
+          <p
+            id="avatarStatus"
+            aria-live="polite"
+          >
+            No Blender model loaded.
+          </p>
+
+        </div>
+
+
+        <!-- =====================================
+             APPAREL DESIGN CONTROLS
+        ====================================== -->
+
+        <div class="controls">
+
+
+          <!-- SHIRT COLOR -->
+
+          <label for="shirtColor">
+
+            Shirt Color
+
+            <input
+              id="shirtColor"
+              type="color"
+              value="#e1c078"
+            />
+
+          </label>
+
+
+          <!-- CUSTOM TEXT -->
+
+          <label for="printText">
+
+            Print Text
+
+            <input
+              id="printText"
+              type="text"
+              maxlength="40"
+              placeholder="Your design"
+            />
+
+          </label>
+
+
+          <!-- UPLOAD LOGO -->
+
+          <label for="logo">
+
+            Logo / Artwork
+
+            <input
+              id="logo"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+            />
+
+          </label>
+
+
+          <!-- APPAREL SIZE -->
+
+          <label for="selectedSize">
+
+            Chosen Size
+
+            <select id="selectedSize">
+
+              <option value="XS">
+                XS
+              </option>
+
+              <option value="S">
+                S
+              </option>
+
+              <option value="M" selected>
+                M
+              </option>
+
+              <option value="L">
+                L
+              </option>
+
+              <option value="XL">
+                XL
+              </option>
+
+              <option value="2XL">
+                2XL
+              </option>
+
+              <option value="3XL">
+                3XL
+              </option>
+
+            </select>
+
+          </label>
+
+        </div>
+
+
+        <!-- =====================================
+             DESIGN ACTION BUTTONS
+        ====================================== -->
+
+        <div class="actions">
+
+          <!-- RESET 3D VIEW -->
+
+          <button
+            id="resetView"
+            type="button"
+            class="secondary"
+          >
+            <i class="fa-solid fa-arrows-rotate"></i>
+            Reset View
+          </button>
+
+
+          <!-- SAVE DESIGN -->
+
+          <button
+            id="save"
+            type="button"
+          >
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save Design to Supabase
+          </button>
+
+        </div>
+
+
+        <!-- SAVE STATUS -->
+
+        <p
+          id="saveStatus"
+          role="status"
+          class="muted"
+        ></p>
+
+
+        <!-- UPLOADED ARTWORK PREVIEW -->
+
+        <img
+          id="artPreview"
+          hidden
+          alt="Uploaded artwork preview"
+        />
+
+      </section>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================
+       CUSTOMER LOGOUT MODAL
+  ====================================== -->
+
+  <div
+    id="customerLogoutModal"
+    class="customer-logout-modal hidden"
+  >
+
+    <div class="modal-overlay"></div>
+
+    <div class="modal-box">
+
+      <h4>
+        Confirm Logout
+      </h4>
+
+      <p>
+        Are you sure you want to log out?
+      </p>
+
+      <div class="logout-modal-actions">
+
+        <button
+          id="customerConfirmLogout"
+          class="modal-confirm-btn"
+          type="button"
+        >
+          Yes, Logout
+        </button>
+
+        <button
+          id="customerCancelLogout"
+          class="modal-cancel-btn"
+          type="button"
+        >
+          Cancel
+        </button>
+
       </div>
+
     </div>
-  </section>
-</main>
 
-<div id="customerLogoutModal" class="customer-logout-modal hidden">
-  <div class="modal-overlay"></div>
-
-  <div class="modal-box">
-    <h4>Confirm Logout</h4>
-    <p>Are you sure you want to log out?</p>
-
-    <div class="logout-modal-actions">
-      <button id="customerConfirmLogout" class="modal-confirm-btn">
-        Yes, Logout
-      </button>
-
-      <button id="customerCancelLogout" class="modal-cancel-btn">
-        Cancel
-      </button>
-    </div>
   </div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const logoutBtn = document.getElementById("customerLogoutBtn");
-  const logoutModal = document.getElementById("customerLogoutModal");
-  const confirmBtn = document.getElementById("customerConfirmLogout");
-  const cancelBtn = document.getElementById("customerCancelLogout");
-
-  logoutBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    logoutModal.classList.remove("hidden");
-  });
-
-  cancelBtn.addEventListener("click", function () {
-    logoutModal.classList.add("hidden");
-  });
-
-  confirmBtn.addEventListener("click", function () {
-    localStorage.removeItem("customerToken");
-    localStorage.removeItem("customerUser");
-    localStorage.removeItem("customerCart");
-
-    window.location.href = "../../index.html";
-  });
-});
-</script>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="../js/customer-customize.js"></script>
+  <!-- =====================================
+       LOGOUT JAVASCRIPT
+  ====================================== -->
+
+  <script>
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+        const logoutBtn =
+          document.getElementById(
+            "customerLogoutBtn"
+          );
+
+        const logoutModal =
+          document.getElementById(
+            "customerLogoutModal"
+          );
+
+        const confirmBtn =
+          document.getElementById(
+            "customerConfirmLogout"
+          );
+
+        const cancelBtn =
+          document.getElementById(
+            "customerCancelLogout"
+          );
+
+        const modalOverlay =
+          logoutModal.querySelector(
+            ".modal-overlay"
+          );
+
+
+        // OPEN MODAL
+
+        function openLogoutModal() {
+
+          logoutModal.classList.remove(
+            "hidden"
+          );
+
+        }
+
+
+        // CLOSE MODAL
+
+        function closeLogoutModal() {
+
+          logoutModal.classList.add(
+            "hidden"
+          );
+
+        }
+
+
+        logoutBtn.addEventListener(
+          "click",
+          (event) => {
+
+            event.preventDefault();
+
+            openLogoutModal();
+
+          }
+        );
+
+
+        cancelBtn.addEventListener(
+          "click",
+          closeLogoutModal
+        );
+
+
+        modalOverlay.addEventListener(
+          "click",
+          closeLogoutModal
+        );
+
+
+        // CONFIRM LOGOUT
+
+        confirmBtn.addEventListener(
+          "click",
+          () => {
+
+            localStorage.removeItem(
+              "customerToken"
+            );
+
+            localStorage.removeItem(
+              "customerUser"
+            );
+
+            window.location.href =
+              "../../index.html";
+
+          }
+        );
+
+
+        // ESCAPE KEY CLOSES MODAL
+
+        document.addEventListener(
+          "keydown",
+          (event) => {
+
+            if (event.key === "Escape") {
+
+              closeLogoutModal();
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+  </script>
+
+<script src="../js/bodyfit.js"></script>
+
 </body>
 </html>

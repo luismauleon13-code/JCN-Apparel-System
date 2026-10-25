@@ -1,394 +1,663 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
+
+/* =========================================
+   JCN 3D APPAREL CUSTOMIZATION
+   CUSTOMER + AI BODY FIT STUDIO
+========================================= */
 
 :root {
-  --bg: #0b0b0b;
-  --panel: #151515;
-  --gold: #ffcc36;
-  --text: #fff;
-  --muted: #bdbdbd;
-  --border: rgba(255, 204, 54, 0.35);
+  --jcn-bg: #0b0b0b;
+  --jcn-panel: #151515;
+  --jcn-dark: #101010;
+  --jcn-gold: #f2c14e;
+  --jcn-gold-dark: #705915;
+  --jcn-text: #ffffff;
+  --jcn-muted: #aaaaaa;
+  --sidebar-width: 255px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
+  margin: 0;
+  min-height: 100vh;
+  background: var(--jcn-bg);
+  color: var(--jcn-text);
+  font-family: Arial, sans-serif;
 }
 
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
 .sidebar {
-  width: 250px;
-  min-height: 100vh;
-  background: #070707;
-  border-right: 1px solid rgba(255, 204, 54, 0.25);
-  padding: 25px 15px;
   position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  padding: 28px 18px;
+  background: #111111;
+  border-right: 1px solid #443713;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
 }
 
 .brand {
   display: flex;
-  gap: 12px;
   align-items: center;
-  margin-bottom: 38px;
+  gap: 12px;
+  margin-bottom: 35px;
 }
 
-.logo {
-  width: 45px;
-  height: 45px;
+.brand .logo {
+  width: 49px;
+  height: 49px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  background: var(--gold);
-  color: #000;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
+  border: 2px solid var(--jcn-gold);
+  color: var(--jcn-gold);
+  font-size: 26px;
+  font-weight: 800;
+  box-shadow: 0 0 14px #f2c14e22;
 }
 
 .brand h2 {
-  color: var(--gold);
+  margin: 0;
+  font-size: 23px;
+  color: var(--jcn-gold);
 }
 
 .brand p {
-  font-size: 12px;
+  margin: 4px 0 0;
+  color: #999;
+  font-size: 11px;
 }
 
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .menu a {
-  color: #fff;
-  text-decoration: none;
-  padding: 15px 14px;
-  border-radius: 12px;
   display: flex;
-  gap: 13px;
   align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  border-radius: 10px;
+  color: #cccccc;
+  text-decoration: none;
   font-size: 14px;
+  transition: 0.2s;
 }
 
 .menu a i {
-  color: var(--gold);
-  width: 18px;
+  width: 20px;
+  text-align: center;
 }
 
-.menu a.active,
-.menu a:hover {
-  background: rgba(255, 204, 54, 0.16);
-  color: var(--gold);
+.menu a:hover,
+.menu a.active {
+  background: #2a2310;
+  color: var(--jcn-gold);
+}
+
+.menu a.active {
+  border-left: 3px solid var(--jcn-gold);
 }
 
 .logout-btn {
-  position: absolute;
-  bottom: 22px;
-  left: 15px;
-  right: 15px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 204, 54, 0.55);
-  background: transparent;
-  color: var(--gold);
-  font-weight: 900;
-  cursor: pointer;
+  margin-top: auto;
+  padding: 14px;
+  border: 1px solid #7d3030;
+  border-radius: 10px;
+  background: #241111;
+  color: #ff7777;
+  font-weight: bold;
 }
 
+.logout-btn i {
+  margin-right: 8px;
+}
+
+.logout-btn:hover {
+  background: #421b1b;
+}
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
 .main {
-  margin-left: 250px;
-  width: calc(100% - 250px);
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
   padding: 30px;
 }
 
 .topbar {
-  margin-bottom: 25px;
+  margin-bottom: 26px;
 }
 
-.topbar p {
-  color: var(--gold);
-  font-weight: 900;
-  letter-spacing: 2px;
+.jcn-page-header p {
+  margin: 0 0 8px;
+  color: var(--jcn-gold);
   font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: bold;
 }
 
-.topbar h1 {
-  font-size: 35px;
+.jcn-page-header h1 {
+  margin: 0;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 800;
 }
 
-.custom-layout {
+/* =========================================
+   BODY FIT GRID
+========================================= */
+
+.bodyfit-container {
   display: grid;
-  grid-template-columns: 370px 1fr;
-  gap: 22px;
+  grid-template-columns:
+    minmax(320px, 420px)
+    minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+  padding-bottom: 35px;
 }
 
-.control-panel,
-.preview-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
+.bodyfit-container .panel {
+  min-width: 0;
+  background: var(--jcn-panel);
+  border: 1px solid var(--jcn-gold-dark);
   border-radius: 18px;
   padding: 24px;
 }
 
-.control-panel h2 {
-  margin-bottom: 20px;
+.bodyfit-container .panel h1 {
+  margin: 0 0 15px;
+  font-size: 24px;
 }
 
-label {
-  display: block;
-  margin: 15px 0 7px;
-  font-weight: 800;
+.bodyfit-container .panel h2 {
+  margin: 0 0 12px;
+  font-size: 19px;
 }
 
-input,
-select {
+.bodyfit-container .muted {
+  color: var(--jcn-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.bodyfit-container .tiny {
+  color: #999;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   INPUTS AND CONTROLS
+========================================= */
+
+.bodyfit-container .inputs,
+.bodyfit-container .controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  margin: 18px 0;
+}
+
+.bodyfit-container label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--jcn-gold);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.bodyfit-container input,
+.bodyfit-container select {
   width: 100%;
-  padding: 13px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: #090909;
+  min-width: 0;
+  padding: 12px;
+  background: var(--jcn-bg);
   color: #fff;
+  border: 1px solid var(--jcn-gold-dark);
+  border-radius: 9px;
+  font-size: 14px;
+}
+
+.bodyfit-container input:focus,
+.bodyfit-container select:focus {
   outline: none;
+  border-color: var(--jcn-gold);
+  box-shadow: 0 0 0 2px #f2c14e18;
 }
 
-.color-row {
-  display: flex;
-  gap: 10px;
+.bodyfit-container input[type="file"] {
+  padding: 10px;
+  font-size: 12px;
 }
 
-.color-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border: 2px solid var(--border);
+.bodyfit-container input[type="color"] {
+  height: 48px;
+  padding: 4px;
   cursor: pointer;
 }
 
-.black { background: #111; }
-.white { background: #f5f5f5; }
-.yellow { background: #ffcc36; }
-.blue { background: #1d4ed8; }
-.red { background: #b91c1c; }
-
-.btn-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 18px;
+.bodyfit-container input::placeholder {
+  color: #777;
 }
 
-.btn-grid button,
-.save-btn,
-.cart-btn {
-  padding: 13px;
-  border-radius: 12px;
-  font-weight: 900;
-  cursor: pointer;
-}
+/* =========================================
+   BUTTONS
+========================================= */
 
-.btn-grid button {
-  background: transparent;
-  color: var(--gold);
-  border: 1px solid var(--border);
-}
-
-.save-btn {
-  width: 100%;
-  margin-top: 14px;
-  background: var(--gold);
-  color: #000;
+.bodyfit-container button {
+  padding: 13px 18px;
+  background: var(--jcn-gold);
+  color: #111;
   border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.2s, transform 0.2s;
 }
 
-.cart-btn {
-  width: 100%;
-  margin-top: 12px;
-  background: transparent;
-  color: var(--gold);
-  border: 1px solid var(--border);
+.bodyfit-container button:hover:not(:disabled) {
+  background: #ffd76d;
+  transform: translateY(-1px);
 }
 
-.preview-header {
+.bodyfit-container button.secondary {
+  background: #222;
+  color: var(--jcn-gold);
+  border: 1px solid var(--jcn-gold-dark);
+}
+
+.bodyfit-container button.secondary:hover {
+  background: #302917;
+}
+
+.bodyfit-container button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bodyfit-container .actions {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
 }
 
-.preview-header span {
-  color: var(--muted);
-  font-size: 13px;
-}
+/* =========================================
+   BODY SCAN CAMERA
+========================================= */
 
-.design-area {
-  height: 620px;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle, #1d1d1d, #0a0a0a);
-  border-radius: 18px;
-  border: 1px dashed var(--border);
+.bodyfit-container .camera {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  aspect-ratio: 4 / 3;
+  background: #080808;
+  border: 1px dashed var(--jcn-gold-dark);
+  border-radius: 14px;
   overflow: hidden;
 }
 
-.shirt-model {
-  width: 310px;
-  height: 410px;
-  background: #111;
-  border-radius: 45px 45px 25px 25px;
-  position: relative;
-  filter: drop-shadow(0 25px 35px rgba(0,0,0,0.7));
-}
-
-.sleeve {
-  width: 95px;
-  height: 150px;
-  background: inherit;
+#camera,
+#overlay {
   position: absolute;
-  top: 35px;
-  border-radius: 25px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.sleeve.left {
-  left: -70px;
-  transform: rotate(22deg);
+#camera {
+  z-index: 1;
 }
 
-.sleeve.right {
-  right: -70px;
-  transform: rotate(-22deg);
+#overlay {
+  z-index: 2;
+  pointer-events: none;
 }
 
-.neck {
-  width: 90px;
-  height: 55px;
-  background: #0b0b0b;
-  border-radius: 0 0 50px 50px;
+#cameraState {
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 12px;
+  left: 12px;
+  z-index: 3;
+  padding: 8px 13px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #514114;
+  border-radius: 20px;
+  color: var(--jcn-gold);
+  font-size: 12px;
 }
 
-.design-text {
-  position: absolute;
-  top: 150px;
-  left: 80px;
-  color: var(--gold);
-  font-size: 24px;
-  font-weight: 900;
-  cursor: move;
-  user-select: none;
-  z-index: 5;
+.bodyfit-container .upload {
+  margin-top: 22px;
 }
 
-.design-logo {
-  position: absolute;
-  top: 210px;
-  left: 110px;
-  width: 90px;
-  display: none;
-  cursor: move;
-  z-index: 4;
+/* =========================================
+   IMAGE PREVIEWS
+========================================= */
+
+#photoPreview,
+#artPreview {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  margin-top: 12px;
+  border: 1px solid #514114;
+  border-radius: 10px;
+  object-fit: contain;
 }
 
-@media(max-width: 1000px) {
-  .custom-layout {
-    grid-template-columns: 1fr;
-  }
-
-  #viewer3d{
-  width:100%;
-  height:650px;
-  border-radius:18px;
-  overflow:hidden;
-  background:radial-gradient(circle,#1b1b1b,#070707);
-}
-}
-
-/* LOGOUT MODAL */
-.hidden {
+#photoPreview[hidden],
+#artPreview[hidden] {
   display: none !important;
 }
+
+/* =========================================
+   SIZE RECOMMENDATION
+========================================= */
+
+.bodyfit-container .result {
+  margin-top: 24px;
+  padding: 18px;
+  background: var(--jcn-dark);
+  border: 1px solid var(--jcn-gold-dark);
+  border-radius: 14px;
+}
+
+.bodyfit-container .size {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+#sizeValue {
+  font-size: 40px;
+  color: var(--jcn-gold);
+  font-weight: 800;
+}
+
+#confidence {
+  font-size: 13px;
+  color: #ccc;
+}
+
+#measurements {
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   3D STUDIO HEADER
+========================================= */
+
+.studio-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.studio-head h1 {
+  margin: 0 0 8px !important;
+}
+
+.bodyfit-container .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--jcn-gold);
+  color: #111;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* =========================================
+   THREE.JS 360° VIEWER
+========================================= */
+
+#viewer {
+  position: relative;
+  width: 100%;
+  height: 510px;
+  min-height: 350px;
+  background: radial-gradient(
+    circle at center,
+    #292929 0%,
+    #151515 55%,
+    #080808 100%
+  );
+  border: 1px dashed var(--jcn-gold-dark);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+#viewer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* =========================================
+   BLENDER AVATAR PANEL
+========================================= */
+
+.blender-avatar-panel {
+  margin-top: 22px;
+  padding: 20px;
+  background: var(--jcn-dark);
+  border: 1px solid #d4af37;
+  border-radius: 14px;
+}
+
+.blender-avatar-panel h3 {
+  margin: 0 0 12px;
+  color: var(--jcn-gold);
+  font-size: 19px;
+}
+
+.blender-avatar-panel h3 i {
+  margin-right: 8px;
+}
+
+.blender-avatar-panel p {
+  color: #aaa;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.blender-avatar-panel button {
+  margin-top: 12px;
+}
+
+#avatarStatus,
+#saveStatus {
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+#saveStatus {
+  margin-top: 15px;
+}
+
+/* =========================================
+   LOGOUT MODAL
+========================================= */
 
 .customer-logout-modal {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: 9999;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .customer-logout-modal .modal-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 1;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
 }
 
 .customer-logout-modal .modal-box {
   position: relative;
-  z-index: 2;
-  width: 390px;
-  max-width: 90%;
-  background: #171717;
-  border: 1px solid rgba(255, 204, 54, 0.35);
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: #181818;
+  border: 1px solid var(--jcn-gold-dark);
   border-radius: 18px;
-  padding: 22px 18px 18px;
+  padding: 28px;
   text-align: center;
-  box-shadow: none;
+  box-shadow: 0 15px 50px #0008;
 }
 
 .customer-logout-modal .modal-box h4 {
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 16px;
+  margin: 0 0 12px;
+  font-size: 23px;
+  color: var(--jcn-gold);
 }
 
 .customer-logout-modal .modal-box p {
-  color: #cfcfcf;
-  font-size: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  color: #ccc;
+  font-size: 14px;
 }
 
 .logout-modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  justify-content: center;
   gap: 12px;
 }
 
 .logout-modal-actions button {
-  position: relative;
-  z-index: 3;
-  height: 30px;
-  border-radius: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.25s ease;
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  border: none;
 }
 
 .modal-confirm-btn {
-  border: none;
-  background: linear-gradient(135deg, #d8a21f, #ffcc36);
-  color: #000;
+  background: var(--jcn-gold);
+  color: #111;
 }
 
 .modal-cancel-btn {
-  background: transparent;
-  border: 1px solid #ffcc36;
-  color: #ffcc36;
+  background: #292929;
+  color: #fff;
+  border: 1px solid #555 !important;
 }
 
-.modal-confirm-btn:hover {
-  background: #ffcc36;
-  color: #000;
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1150px) {
+  .bodyfit-container {
+    grid-template-columns: 1fr;
+  }
 }
 
-.modal-cancel-btn:hover {
-  background: #ffcc36;
-  color: #000;
+@media (max-width: 800px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 18px;
+  }
+
+  .brand {
+    margin-bottom: 15px;
+  }
+
+  .menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .menu a {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .logout-btn {
+    margin-top: 15px;
+  }
+
+  .main {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .bodyfit-container .inputs,
+  .bodyfit-container .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .bodyfit-container .panel {
+    padding: 16px;
+  }
+
+  .jcn-page-header h1 {
+    font-size: 24px;
+  }
+
+  #viewer {
+    height: 380px;
+    min-height: 300px;
+  }
+
+  .bodyfit-container .actions button {
+    flex: 1;
+  }
+
+  .studio-head h1 {
+    font-size: 21px !important;
+  }
+
+  .logout-modal-actions {
+    flex-direction: column;
+  }
 }

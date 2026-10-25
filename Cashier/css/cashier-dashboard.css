@@ -391,6 +391,133 @@ dialog::backdrop {
   clip-path: inset(50%);
 }
 
+
+/* =========================================
+   JCN CASHIER - LOGOUT BUTTON
+========================================= */
+
+.account #logoutButton {
+  width: 100%;
+  margin-top: 16px;
+  padding: 13px 18px;
+  border: 1px solid #d4af37;
+  border-radius: 10px;
+  background: #181818;
+  color: #f2c14e;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.account #logoutButton:hover {
+  background: #f2c14e;
+  color: #111;
+  box-shadow: 0 0 16px rgba(242, 193, 78, 0.25);
+}
+
+.account #logoutButton:focus-visible {
+  outline: 2px solid #ffd86e;
+  outline-offset: 3px;
+}
+
+/* =========================================
+   LOGOUT CONFIRMATION MODAL
+========================================= */
+
+.cashier-logout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.cashier-logout-modal[hidden] {
+  display: none !important;
+}
+
+.cashier-logout-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 30px;
+  border: 1px solid #b79537;
+  border-radius: 18px;
+  background: #171717;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.cashier-logout-icon {
+  font-size: 32px;
+  color: #f2c14e;
+  margin-bottom: 15px;
+}
+
+.cashier-logout-box h2 {
+  margin: 0 0 12px;
+  color: #f2c14e;
+  font-size: 23px;
+}
+
+.cashier-logout-box p {
+  margin: 0 0 26px;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.cashier-logout-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.cashier-logout-actions button {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#cancelCashierLogout {
+  background: #292929;
+  border: 1px solid #555;
+  color: #fff;
+}
+
+#cancelCashierLogout:hover {
+  background: #383838;
+}
+
+#confirmCashierLogout {
+  background: #f2c14e;
+  border: 1px solid #f2c14e;
+  color: #111;
+}
+
+#confirmCashierLogout:hover {
+  background: #ffda77;
+}
+
+@media (max-width: 480px) {
+  .cashier-logout-box {
+    padding: 22px;
+  }
+
+  .cashier-logout-actions {
+    flex-direction: column;
+  }
+}
+
+
 @media (max-width: 1000px) {
   .app {
     grid-template-columns: 195px minmax(0, 1fr);

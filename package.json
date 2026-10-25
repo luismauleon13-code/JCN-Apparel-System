@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@mediapipe/tasks-vision": "^1.1.1",
     "@supabase/supabase-js": "^2.105.4",
     "axios": "^1.17.0",
     "bcrypt": "^6.0.0",

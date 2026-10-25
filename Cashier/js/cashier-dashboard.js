@@ -1,10 +1,8 @@
-"use strict";
 
 (() => {
-  // Itugma ito sa Express backend ninyo.
   const API_BASE = "http://localhost:5000/api/cashier";
 
-  const STAFF_LOGIN = "../staff/html/staff-login.html";
+  const STAFF_LOGIN = "../../staff/html/staff-login.html";
   const PAGE_SIZE = 10;
 
   const $ = (id) => document.getElementById(id);
@@ -32,7 +30,7 @@
   function signOut() {
     localStorage.removeItem("staffToken");
     localStorage.removeItem("staffUser");
-    location.replace(STAFF_LOGIN);
+    window.location.replace(STAFF_LOGIN);
   }
 
   function readSession() {
@@ -714,13 +712,20 @@
       }
     });
 
-    $("logoutButton").addEventListener("click", () => {
-      if (state.busy) return;
+    // Same one-click logout behavior as the Graphic Designer portal.
+   $("logoutButton").addEventListener("click", () => {
 
-      if (confirm("Log out of your staff account?")) {
-        signOut();
-      }
-    });
+  if (state.busy) return;
+
+  const confirmLogout = window.confirm(
+    "Are you sure you want to log out?"
+  );
+
+  if (confirmLogout) {
+    signOut();
+  }
+
+});
 
     window.addEventListener("storage", (event) => {
       if (
@@ -732,6 +737,8 @@
       }
     });
   }
+
+  
 
   function init() {
     const user = readSession();

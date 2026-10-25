@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JCN | Cashier</title>
 
-   <link rel="stylesheet" href="./cashier-dashboard.css">
-  <script defer src="./cashier-dashboard.js"></script>
+   <link rel="stylesheet" href="../css/cashier-dashboard.css">
+  <script defer src="../js/cashier-dashboard.js"></script>
 </head>
 
 <body>
@@ -33,10 +33,18 @@
       </nav>
 
       <div class="account">
-        <small>Signed in as</small>
-        <strong id="staffName">Cashier</strong>
-        <button id="logoutButton" class="secondary">Log out</button>
-      </div>
+  <small>Signed in as</small>
+
+  <strong id="staffName">Cashier</strong>
+
+  <button
+    type="button"
+    id="logoutButton"
+    class="secondary"
+  >
+    Log out
+  </button>
+</div>
     </aside>
 
     <main>
@@ -163,5 +171,44 @@
       <button id="releaseButton">Confirm order release</button>
     </footer>
   </dialog>
+
+  
+<div
+  id="cashierLogoutModal"
+  class="cashier-logout-modal"
+  hidden
+>
+  <div
+    class="cashier-logout-box"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="cashierLogoutTitle"
+    aria-describedby="cashierLogoutDescription"
+  >
+    <div class="cashier-logout-icon">
+      &#x21AA;
+    </div>
+
+    <h2 id="cashierLogoutTitle">
+      Confirm Logout
+    </h2>
+
+    <p id="cashierLogoutDescription">
+      Are you sure you want to log out
+      of your Cashier account?
+    </p>
+
+    <div class="cashier-logout-actions">
+      <button id="cancelCashierLogout" type="button">
+        Cancel
+      </button>
+
+      <button id="confirmCashierLogout" type="button">
+        Yes, Logout
+      </button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

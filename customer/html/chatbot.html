@@ -1,126 +1,129 @@
 
-<!-- FLOATING CHAT BUTTON -->
+<!-- JCN CHATBOT FLOATING BUTTON -->
 <button
-  class="jcn-chat-toggle"
   id="jcnChatToggle"
+  class="jcn-chat-toggle"
+  type="button"
   aria-label="Open JCN AI Assistant"
+  aria-controls="jcnChatWindow"
+  aria-expanded="false"
 >
   <i class="fa-solid fa-comments"></i>
-
-  <span class="jcn-chat-online"></span>
+  <span class="jcn-chat-dot"></span>
 </button>
 
-
-<!-- CHATBOT WINDOW -->
-<div
-  class="jcn-chat-window"
+<!-- JCN CHATBOT WINDOW -->
+<section
   id="jcnChatWindow"
+  class="jcn-chat-window"
+  aria-label="JCN AI Assistant"
+  hidden
 >
 
   <!-- HEADER -->
-  <div class="jcn-chat-header">
+  <header class="jcn-chat-header">
 
-    <div class="jcn-ai-avatar">
-      <img
-        src="../../logo.png"
-        alt="JCN Logo"
-      >
+    <div class="jcn-chat-avatar">
+      <i class="fa-solid fa-shirt"></i>
     </div>
 
-    <div class="jcn-chat-title">
-
+    <div class="jcn-chat-heading">
       <h4>JCN AI Assistant</h4>
-
-      <p>
-        <span>●</span>
-        Online • Ready to assist
-      </p>
-
+      <small>
+        <span class="jcn-online-indicator">●</span>
+        Ready to assist
+      </small>
     </div>
 
     <button
-      class="jcn-chat-close"
       id="jcnChatClose"
+      class="jcn-chat-close"
       type="button"
+      aria-label="Minimize chat"
+      title="Minimize chat"
     >
-      <i class="fa-solid fa-xmark"></i>
+      <i class="fa-solid fa-minus"></i>
     </button>
 
-  </div>
+  </header>
 
-
-  <!-- CHAT MESSAGES -->
+  <!-- MESSAGES -->
   <div
-    class="jcn-chat-messages"
     id="jcnChatMessages"
+    class="jcn-chat-messages"
+    role="log"
+    aria-live="polite"
+    aria-relevant="additions"
   >
-  </div>
-
-
-  <!-- QUICK QUESTIONS -->
-  <div class="jcn-quick-actions">
-
-    <button
-      class="jcn-quick-btn"
-      type="button"
-      data-message="What products do you offer?"
-    >
-      👕 Products
-    </button>
-
-
-    <button
-      class="jcn-quick-btn"
-      type="button"
-      data-message="How can I customize a shirt?"
-    >
-      ✨ Customize
-    </button>
-
-
-    <button
-      class="jcn-quick-btn"
-      type="button"
-      data-message="What sizes are available?"
-    >
-      📏 Sizes
-    </button>
-
-
-    <button
-      class="jcn-quick-btn"
-      type="button"
-      data-message="How can I track my order?"
-    >
-      📦 Track Order
-    </button>
-
-  </div>
-
-
-  <!-- INPUT AREA -->
-  <div class="jcn-chat-input-wrapper">
-
-    <div class="jcn-chat-input-box">
-
-      <input
-        type="text"
-        id="jcnChatInput"
-        placeholder="Ask JCN AI..."
-        autocomplete="off"
-      >
-
-
-      <button
-        class="jcn-send-btn"
-        id="jcnSendButton"
-        type="button"
-      >
-        <i class="fa-solid fa-paper-plane"></i>
-      </button>
-
+    <div class="jcn-msg jcn-msg-bot">
+      Hello! Welcome to JCN Apparel Printing Services.
+      How can I help you today?
     </div>
+  </div>
+
+  <!-- QUICK REPLIES -->
+  <div class="jcn-chat-quick-actions">
+
+    <button
+      type="button"
+      data-jcn-question="What products are available?"
+    >👕 Products</button>
+
+    <button
+      type="button"
+      data-jcn-question="How can I customize a shirt?"
+    >✨ Customize</button>
+
+    <button
+      type="button"
+      data-jcn-question="How do I choose a size?"
+    >📏 Sizes</button>
+
+    <button
+      type="button"
+      data-jcn-question="How can I track my order?"
+    >📦 Track Order</button>
+
+    <button
+      type="button"
+      data-jcn-question="What payment methods are available?"
+    >💳 Payment</button>
+
+    <button
+      type="button"
+      data-jcn-question="How much is delivery?"
+    >🚚 Delivery</button>
 
   </div>
 
-</div>
+  <!-- MESSAGE FORM -->
+  <form id="jcnChatForm" class="jcn-chat-form">
+
+    <input
+      id="jcnChatInput"
+      type="text"
+      maxlength="600"
+      placeholder="Ask JCN AI..."
+      autocomplete="off"
+      aria-label="Message"
+      required
+    />
+
+    <button
+      id="jcnChatSend"
+      type="submit"
+      aria-label="Send message"
+    >
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+
+  </form>
+
+  <p
+    id="jcnChatStatus"
+    class="jcn-chat-status"
+    role="status"
+    aria-live="polite"
+  ></p>
+
+</section>
