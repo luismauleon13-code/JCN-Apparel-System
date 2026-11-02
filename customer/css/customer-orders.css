@@ -606,3 +606,288 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   JCN ORDER DETAILS ONLY — ORIGINAL PAGE DESIGN RETAINED
+========================================================= */
+.details-panel {
+  min-width: 0;
+}
+
+.jcn-order-detail {
+  color: var(--text);
+}
+
+.jcn-detail-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  background: linear-gradient(125deg, #282112, #191919 75%);
+  border: 1px solid rgba(255, 204, 54, .28);
+  border-radius: 13px;
+  padding: 18px;
+}
+
+.jcn-overline,
+.jcn-section-heading {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .4px;
+}
+
+.jcn-overline i,
+.jcn-section-heading i {
+  margin-right: 7px;
+}
+
+.jcn-detail-order-number {
+  font-size: 14px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  margin: 9px 0;
+}
+
+.jcn-detail-banner p,
+.jcn-courier-heading p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.jcn-detail-status {
+  border: 1px solid rgba(255,204,54,.45);
+  background: rgba(255,204,54,.14);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.jcn-detail-section {
+  margin-top: 23px;
+}
+
+.jcn-section-heading {
+  margin-bottom: 12px;
+}
+
+.jcn-detail-info,
+.jcn-progress-box {
+  background: #101010;
+  border: 1px solid rgba(255,204,54,.18);
+  border-radius: 12px;
+  padding: 6px 16px;
+}
+
+.jcn-detail-info .detail-row:last-child {
+  border-bottom: 0;
+}
+
+.jcn-total-row strong {
+  color: var(--gold);
+  font-size: 17px;
+}
+
+.jcn-courier-box {
+  padding: 16px;
+  background: #101010;
+  border: 1px solid rgba(255,204,54,.24);
+  border-radius: 12px;
+}
+
+.jcn-courier-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jcn-courier-heading strong {
+  font-size: 13px;
+}
+
+.jcn-courier-heading p {
+  margin-top: 5px;
+}
+
+.jcn-courier-icon {
+  color: #111;
+  background: var(--gold);
+  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.jcn-tracking-number {
+  border-top: 1px solid rgba(255,255,255,.09);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 13px;
+  font-size: 12px;
+}
+
+.jcn-tracking-number span {
+  color: var(--muted);
+}
+
+.jcn-tracking-number strong {
+  overflow-wrap: anywhere;
+}
+
+.jnt-latest-update {
+  margin-top: 15px;
+}
+
+.jcn-tracking-placeholder {
+  display: flex;
+  gap: 12px;
+  background: #201b12;
+  border: 1px dashed rgba(255,204,54,.3);
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 12px;
+}
+
+.jcn-tracking-placeholder > i {
+  color: var(--gold);
+  margin-top: 2px;
+}
+
+.jcn-tracking-placeholder p {
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.jcn-progress-box {
+  padding: 17px 17px 0;
+}
+
+.jcn-progress-box .tracker {
+  margin: 0;
+}
+
+.jcn-progress-box .step {
+  position: relative;
+  padding-bottom: 18px;
+  margin-bottom: 0;
+}
+
+.jcn-progress-box .step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 20px;
+  bottom: 0;
+  border-left: 1px solid rgba(255,204,54,.23);
+}
+
+.jcn-progress-box .step p {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.jcn-progress-box .step.active .dot {
+  border-color: var(--gold);
+}
+
+.jcn-progress-box .step.cancelled .dot {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.jcn-tracking-footnote {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 9px;
+  line-height: 1.5;
+}
+
+.jcn-order-detail .order-actions {
+  margin-top: 22px;
+}
+
+.jcn-order-detail .jnt-update-card {
+  border-radius: 10px;
+  padding: 12px;
+  background: #1a1916;
+  border: 1px solid rgba(255,204,54,.2);
+}
+
+.jcn-order-detail .jnt-update-header,
+.jcn-order-detail .jnt-current-status,
+.jcn-order-detail .jnt-update-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.jcn-order-detail .jnt-title,
+.jcn-order-detail .jnt-location {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.jcn-order-detail .jnt-location,
+.jcn-order-detail .jnt-current-status,
+.jcn-order-detail .jnt-update-footer {
+  margin-top: 12px;
+}
+
+.jcn-order-detail .jnt-location-info,
+.jcn-order-detail .jnt-update-footer {
+  overflow-wrap: anywhere;
+}
+
+.jcn-order-detail .jnt-live-badge {
+  color: var(--gold);
+  font-size: 10px;
+}
+
+.jcn-order-detail .jnt-history-btn {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #292414;
+  color: var(--gold);
+  cursor: pointer;
+}
+
+.jcn-order-detail .jnt-tracking-history {
+  margin-top: 12px;
+}
+
+.jcn-order-detail .jnt-history-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.jcn-order-detail .jnt-history-content p,
+.jcn-order-detail .jnt-history-content small {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+@media (max-width: 700px) {
+  .jcn-detail-banner {
+    flex-direction: column;
+  }
+  .jcn-detail-info .detail-row {
+    flex-wrap: wrap;
+  }
+}

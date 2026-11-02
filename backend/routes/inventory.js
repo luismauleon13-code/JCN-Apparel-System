@@ -1,18 +1,29 @@
-"use strict";
 
 const express = require("express");
+
+/* ==========================================
+   JCN APPAREL - INVENTORY ROUTES
+========================================== */
 
 module.exports = function createInventoryRouter({
   supabase,
   verifyStaffToken
 }) {
-  if (!supabase || typeof verifyStaffToken !== "function") {
+
+  if (
+    !supabase ||
+    typeof verifyStaffToken !== "function"
+  ) {
     throw new Error(
-      "Inventory routes require supabase and verifyStaffToken."
+      "Inventory routes require Supabase and authentication middleware."
     );
   }
 
   const router = express.Router();
+
+  /* ==========================================
+     CONSTANTS
+  ========================================== */
 
   const allowedRoles = new Set([
     "inventory_staff",
@@ -22,14 +33,25 @@ module.exports = function createInventoryRouter({
   const uuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-  const normalize = value =>
-    String(value ?? "").trim().toLowerCase();
+  const normalize = value => {
+    return String(value ?? "")
+      .trim()
+      .toLowerCase();
+  };
 
-  const invalid = message =>
-    Object.assign(new Error(message), { status: 400 });
+  const invalid = message => {
+    return Object.assign(
+      new Error(message),
+      { status: 400 }
+    );
+  };
 
-  // Error responses
+  /* ==========================================
+     ERROR HANDLER
+  ========================================== */
+
   function failure(res, error) {
+
     if (error.status) {
       return res.status(error.status).json({
         success: false,
@@ -38,26 +60,36 @@ module.exports = function createInventoryRouter({
     }
 
     if (error.code === "P0001") {
-      const conflict = /changed|transition/i.test(error.message);
 
-      return res.status(conflict ? 409 : 400).json({
+      const conflict = /changed|transition/i.test(
+        error.message
+      );
+
+      return res.status(
+        conflict ? 409 : 400
+      ).json({
         success: false,
         message: error.message
       });
+
     }
 
     console.error(
-      "Inventory API error:",
+      "INVENTORY API ERROR:",
       error.code || "",
       error.message
     );
 
     let message =
-      "Inventory request failed. Check the server terminal for details.";
+      "Inventory request failed. Check the server terminal.";
 
-    if (["42501", "PGRST301"].includes(error.code)) {
+    if (
+      ["42501", "PGRST301"].includes(error.code)
+    ) {
+
       message =
-        "Inventory database access denied. Check the backend Supabase privileged key and SQL grants.";
+        "Inventory database access denied. Check Supabase permissions.";
+
     } else if (
       [
         "42P01",
@@ -68,27 +100,43 @@ module.exports = function createInventoryRouter({
         "PGRST205"
       ].includes(error.code)
     ) {
+
       message =
-        "Inventory database setup is missing or outdated. Check the SQL migration and Supabase project.";
+        "Inventory database setup is missing or outdated.";
+
     }
 
     return res.status(500).json({
       success: false,
       message
     });
+
   }
 
-  // Async route wrapper
-  const handle = fn => async (req, res) => {
-    try {
-      await fn(req, res);
-    } catch (error) {
-      failure(res, error);
-    }
+  /* ==========================================
+     ASYNC ROUTE HANDLER
+  ========================================== */
+
+  const handle = fn => {
+
+    return async (req, res) => {
+
+      try {
+        await fn(req, res);
+      } catch (error) {
+        failure(res, error);
+      }
+
+    };
+
   };
 
-  // Pagination
+  /* ==========================================
+     PAGINATION
+  ========================================== */
+
   function pagination(req) {
+
     const raw = req.query.page ?? "1";
 
     if (
@@ -115,9 +163,15 @@ module.exports = function createInventoryRouter({
       from: (page - 1) * limit,
       to: page * limit - 1
     };
+
   }
 
+  /* ==========================================
+     VALIDATE RECORD ID
+  ========================================== */
+
   function recordId(value) {
+
     if (
       typeof value !== "string" ||
       !uuid.test(value)
@@ -126,9 +180,15 @@ module.exports = function createInventoryRouter({
     }
 
     return value;
+
   }
 
+  /* ==========================================
+     VALIDATE JSON BODY
+  ========================================== */
+
   function objectBody(req) {
+
     if (
       !req.body ||
       typeof req.body !== "object" ||
@@ -138,29 +198,51 @@ module.exports = function createInventoryRouter({
     }
 
     return req.body;
+
   }
 
-  // Disable caching
+  /* ==========================================
+     DISABLE API CACHING
+  ========================================== */
+
   router.use((req, res, next) => {
+
     res.set("Cache-Control", "no-store");
+
     next();
+
   });
 
-  // Verify JWT using middleware from server.js
+  /* ==========================================
+     VERIFY STAFF TOKEN
+  ========================================== */
+
   router.use(verifyStaffToken);
 
-  // Verify current account permissions in the database
+  /* ==========================================
+     VERIFY INVENTORY ROLE
+  ========================================== */
+
   router.use(async (req, res, next) => {
+
     try {
+
       if (
         !req.staff ||
-        !allowedRoles.has(normalize(req.staff.role)) ||
-        !uuid.test(String(req.staff.id || ""))
+        !allowedRoles.has(
+          normalize(req.staff.role)
+        ) ||
+        !uuid.test(
+          String(req.staff.id || "")
+        )
       ) {
+
         return res.status(403).json({
           success: false,
-          message: "Inventory staff or admin access is required."
+          message:
+            "Inventory Staff or Admin access is required."
         });
+
       }
 
       const {
@@ -168,44 +250,65 @@ module.exports = function createInventoryRouter({
         error
       } = await supabase
         .from("admin_users")
-        .select("id,username,full_name,role,status")
+        .select(
+          "id,username,full_name,role,status"
+        )
         .eq("id", req.staff.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       if (!account) {
+
         return res.status(401).json({
           success: false,
-          message: "Account no longer exists. Please log in again."
+          message:
+            "Account no longer exists. Please log in again."
         });
+
       }
 
       if (
-        !allowedRoles.has(normalize(account.role)) ||
+        !allowedRoles.has(
+          normalize(account.role)
+        ) ||
         normalize(account.status) !== "active"
       ) {
+
         return res.status(403).json({
           success: false,
           message:
-            "Your account must be active and authorized for inventory."
+            "Your account is inactive or unauthorized."
         });
+
       }
 
-      // Actor comes from the verified database account.
       req.inventoryActor =
         `${account.full_name || account.username || "Staff"} (${account.id})`;
 
+      req.inventoryStaff = account;
+
       next();
+
     } catch (error) {
+
       failure(res, error);
+
     }
+
   });
 
-  // GET /api/inventory/products
+  /* ==========================================
+     GET INVENTORY PRODUCTS
+  ========================================== */
+
   router.get(
     "/products",
+
     handle(async (req, res) => {
+
       const p = pagination(req);
 
       const {
@@ -218,26 +321,38 @@ module.exports = function createInventoryRouter({
           "id,title,category,sizes,quantity",
           { count: "exact" }
         )
-        .order("title", { ascending: true })
-        .order("id", { ascending: true })
+        .order("title", {
+          ascending: true
+        })
+        .order("id", {
+          ascending: true
+        })
         .range(p.from, p.to);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      res.json({
+      return res.json({
         success: true,
         products: data || [],
         total: count ?? 0,
         page: p.page,
         limit: p.limit
       });
+
     })
   );
 
-  // POST /api/inventory/products/:id/adjust
+  /* ==========================================
+     ADJUST PRODUCT STOCK
+  ========================================== */
+
   router.post(
     "/products/:id/adjust",
+
     handle(async (req, res) => {
+
       const id = recordId(req.params.id);
 
       const {
@@ -256,7 +371,9 @@ module.exports = function createInventoryRouter({
         throw invalid("Select a valid size.");
       }
 
-      if (!["add", "remove", "set"].includes(mode)) {
+      if (
+        !["add", "remove", "set"].includes(mode)
+      ) {
         throw invalid("Invalid stock movement.");
       }
 
@@ -264,11 +381,16 @@ module.exports = function createInventoryRouter({
         !Number.isInteger(amount) ||
         amount < 0 ||
         amount > 1000000 ||
-        (mode !== "set" && amount === 0)
+        (
+          mode !== "set" &&
+          amount === 0
+        )
       ) {
+
         throw invalid(
-          "Quantity must be a whole number from 1 to 1000000 (zero is allowed for physical count)."
+          "Quantity must be a valid whole number."
         );
+
       }
 
       if (
@@ -276,9 +398,11 @@ module.exports = function createInventoryRouter({
         expected < 0 ||
         expected > 2147483647
       ) {
+
         throw invalid(
-          "Invalid current stock. Refresh this page."
+          "Invalid current stock. Refresh the page."
         );
+
       }
 
       if (
@@ -286,12 +410,17 @@ module.exports = function createInventoryRouter({
         !reason.trim() ||
         reason.trim().length > 300
       ) {
+
         throw invalid(
           "Enter a reason of 1 to 300 characters."
         );
+
       }
 
-      const { data, error } = await supabase.rpc(
+      const {
+        data,
+        error
+      } = await supabase.rpc(
         "jcn_inventory_adjust",
         {
           p_product_id: id,
@@ -304,20 +433,28 @@ module.exports = function createInventoryRouter({
         }
       );
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      res.json({
+      return res.json({
         success: true,
         message: "Stock and history saved.",
         adjustment: data
       });
+
     })
   );
 
-  // GET /api/inventory/history
+  /* ==========================================
+     GET STOCK HISTORY
+  ========================================== */
+
   router.get(
     "/history",
+
     handle(async (req, res) => {
+
       const p = pagination(req);
 
       const {
@@ -330,26 +467,45 @@ module.exports = function createInventoryRouter({
           "id,product_id,product,size,before_qty,change_qty,after_qty,reason,actor,created_at",
           { count: "exact" }
         )
-        .order("created_at", { ascending: false })
-        .order("id", { ascending: false })
+        .order("created_at", {
+          ascending: false
+        })
+        .order("id", {
+          ascending: false
+        })
         .range(p.from, p.to);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      res.json({
+      return res.json({
         success: true,
         history: data || [],
         total: count ?? 0,
         page: p.page,
         limit: p.limit
       });
+
     })
   );
 
-  // GET /api/inventory/orders
+  /* ==========================================
+     GET INVENTORY ORDERS
+
+     Includes:
+     - Preparing
+     - Processing
+     - To Ship
+
+     Also retrieves J&T tracking information.
+  ========================================== */
+
   router.get(
     "/orders",
+
     handle(async (req, res) => {
+
       const p = pagination(req);
 
       const {
@@ -359,30 +515,98 @@ module.exports = function createInventoryRouter({
       } = await supabase
         .from("orders")
         .select(
-          "id,customer_name,payment_method,payment_status,status,inventory_items,inventory_preparation,inventory_revision,inventory_prepared_by,inventory_prepared_at,created_at",
-          { count: "exact" }
+          [
+            "id",
+            "order_number",
+            "customer_name",
+            "payment_method",
+            "payment_status",
+            "status",
+            "tracking_number",
+            "courier",
+            "inventory_items",
+            "inventory_preparation",
+            "inventory_revision",
+            "inventory_prepared_by",
+            "inventory_prepared_at",
+            "created_at"
+          ].join(","),
+          {
+            count: "exact"
+          }
         )
-        .in("status", ["Preparing", "Processing"])
-        .order("created_at", { ascending: true })
-        .order("id", { ascending: true })
-        .range(p.from, p.to);
+        .in(
+          "status",
+          [
+            "Preparing",
+            "Processing",
+            "To Ship"
+          ]
+        )
+        .order("created_at", {
+          ascending: true
+        })
+        .order("id", {
+          ascending: true
+        })
+        .range(
+          p.from,
+          p.to
+        );
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      res.json({
+      const orders = (data || []).map(order => {
+
+        const preparationStatus =
+          String(
+            order.inventory_preparation || "Queued"
+          ).trim();
+
+        const isReady = [
+          "ready",
+          "ready to ship",
+          "prepared"
+        ].includes(
+          preparationStatus.toLowerCase()
+        );
+
+        return {
+          ...order,
+
+          inventory_preparation: preparationStatus,
+
+          is_ready_for_tracking: isReady,
+
+          has_tracking: Boolean(
+            order.tracking_number
+          )
+        };
+
+      });
+
+      return res.json({
         success: true,
-        orders: data || [],
+        orders,
         total: count ?? 0,
         page: p.page,
         limit: p.limit
       });
+
     })
   );
 
-  // PATCH /api/inventory/orders/:id/preparation
+  /* ==========================================
+     START / COMPLETE ORDER PREPARATION
+  ========================================== */
+
   router.patch(
     "/orders/:id/preparation",
+
     handle(async (req, res) => {
+
       const id = recordId(req.params.id);
 
       const {
@@ -391,9 +615,21 @@ module.exports = function createInventoryRouter({
         checked
       } = objectBody(req);
 
-      if (!["start", "ready"].includes(action)) {
-        throw invalid("Invalid preparation action.");
+      /* ----------------------------------
+         VALIDATE ACTION
+      ---------------------------------- */
+
+      if (
+        !["start", "ready"].includes(action)
+      ) {
+        throw invalid(
+          "Invalid preparation action."
+        );
       }
+
+      /* ----------------------------------
+         VALIDATE REVISION
+      ---------------------------------- */
 
       if (
         !Number.isInteger(revision) ||
@@ -405,18 +641,36 @@ module.exports = function createInventoryRouter({
         );
       }
 
+      /* ----------------------------------
+         VALIDATE CHECKLIST
+      ---------------------------------- */
+
       if (
         !Array.isArray(checked) ||
         checked.length > 200 ||
         checked.some(
-          i => !Number.isInteger(i) || i < 0 || i >= 200
+          index =>
+            !Number.isInteger(index) ||
+            index < 0 ||
+            index >= 200
         ) ||
         new Set(checked).size !== checked.length
       ) {
-        throw invalid("Send a valid item checklist.");
+
+        throw invalid(
+          "Send a valid item checklist."
+        );
+
       }
 
-      const { data, error } = await supabase.rpc(
+      /* ----------------------------------
+         SAVE PREPARATION USING SUPABASE RPC
+      ---------------------------------- */
+
+      const {
+        data,
+        error
+      } = await supabase.rpc(
         "jcn_inventory_prepare",
         {
           p_order_id: id,
@@ -427,23 +681,39 @@ module.exports = function createInventoryRouter({
         }
       );
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      res.json({
+      return res.json({
         success: true,
-        message: "Preparation saved.",
+        message:
+          action === "ready"
+            ? "Order is ready for shipment."
+            : "Order preparation started.",
         preparation: data?.preparation
       });
+
     })
   );
 
-  // Unknown inventory endpoint
+  /* ==========================================
+     UNKNOWN INVENTORY ENDPOINT
+  ========================================== */
+
   router.use((req, res) => {
-    res.status(404).json({
+
+    return res.status(404).json({
       success: false,
       message: "Inventory endpoint not found."
     });
+
   });
 
+  /* ==========================================
+     EXPORT INVENTORY ROUTER
+  ========================================== */
+
   return router;
+
 };

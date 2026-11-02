@@ -1,7 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -9,27 +12,63 @@
 
   <title>JCN | Order Preparation</title>
 
+  <!-- =====================================
+       ORDER PREPARATION CSS
+  ====================================== -->
+
   <link
     rel="stylesheet"
     href="../css/order-preparation.css"
   >
 
+  <!-- =====================================
+       FONT AWESOME ICONS
+  ====================================== -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+
+  <!-- =====================================
+       ORDER PREPARATION JAVASCRIPT
+  ====================================== -->
+
   <script
     defer
     src="../js/order-preparation.js"
   ></script>
+
 </head>
 
 <body data-page="order-preparation">
+
   <div class="container">
 
+    <!-- =====================================
+         TOP NAVIGATION
+    ====================================== -->
+
     <header class="topbar">
-      <a href="inventory-product.html" class="brand">
-        <span aria-hidden="true">▣</span>
+
+      <!-- BRAND -->
+      <a
+        href="inventory-product.html"
+        class="brand"
+      >
+
+        <span aria-hidden="true">
+          <i class="fa-solid fa-boxes-stacked"></i>
+        </span>
+
         JCN Inventory
+
       </a>
 
+
+      <!-- TOP NAVIGATION LINKS -->
       <nav aria-label="Main navigation">
+
         <a href="inventory-product.html">
           Products
         </a>
@@ -49,28 +88,59 @@
         <a href="stock-history.html">
           History
         </a>
+
       </nav>
 
+
+      <!-- STAFF BADGE -->
       <span class="staff staff-badge">
         Inventory Staff
       </span>
+
     </header>
 
-    <section class="page-heading">
-      <small>INVENTORY MANAGEMENT</small>
 
-      <h1>Order Preparation</h1>
+    <!-- =====================================
+         PAGE HEADING
+    ====================================== -->
+
+    <section class="page-heading">
+
+      <small>
+        INVENTORY MANAGEMENT
+      </small>
+
+      <h1>
+        Order Preparation
+      </h1>
 
       <p>
-        Verify items and prepare customer orders for dispatch.
+        Verify ordered items, prepare customer
+        orders, and register J&T Express
+        tracking numbers for dispatch.
       </p>
+
     </section>
 
+
+    <!-- =====================================
+         MAIN INVENTORY LAYOUT
+    ====================================== -->
+
     <div class="layout">
+
+      <!-- =====================================
+           INVENTORY SIDEBAR
+      ====================================== -->
+
       <aside class="panel sidebar">
-        <h2>Inventory Menu</h2>
+
+        <h2>
+          Inventory Menu
+        </h2>
 
         <nav aria-label="Inventory menu">
+
           <a href="inventory-product.html">
             Manage Products
           </a>
@@ -90,17 +160,245 @@
           <a href="stock-history.html">
             Stock History
           </a>
+
         </nav>
+
       </aside>
 
-      <!-- Orders and checklists are loaded by JavaScript -->
-      <main id="main" aria-label="Order preparation">
+
+      <!-- =====================================
+           ORDER PREPARATION CONTENT
+      ====================================== -->
+
+      <main
+        id="main"
+        aria-label="Order preparation"
+      >
+
         <section class="panel">
-          <p role="status">Loading customer orders…</p>
+
+          <div class="section-head">
+
+            <h2>
+              <i class="fa-solid fa-clipboard-check"></i>
+              Customer Orders
+            </h2>
+
+          </div>
+
+          <!--
+            Orders are loaded dynamically
+            by order-preparation.js.
+
+            The JavaScript handles:
+
+            1. Load customer orders
+            2. Start Preparation
+            3. Product checklist
+            4. Mark Ready to Ship
+            5. Add J&T Tracking Number
+            6. Update Tracking Number
+          -->
+
+          <p role="status">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            Loading customer orders...
+          </p>
+
         </section>
+
       </main>
+
     </div>
+
   </div>
+
+
+  <!-- =====================================
+       J&T EXPRESS TRACKING MODAL
+  ====================================== -->
+
+  <div
+    id="jntTrackingModal"
+    class="jnt-modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="jntModalTitle"
+    aria-hidden="true"
+  >
+
+    <!-- MODAL OVERLAY -->
+    <div class="jnt-modal-overlay"></div>
+
+
+    <!-- MODAL CONTENT -->
+    <div class="jnt-modal-content">
+
+      <!-- MODAL HEADER -->
+      <div class="jnt-modal-header">
+
+        <div>
+
+          <small>
+            COURIER REGISTRATION
+          </small>
+
+          <h2 id="jntModalTitle">
+
+            <i class="fa-solid fa-truck-fast"></i>
+            J&T Express Tracking
+
+          </h2>
+
+        </div>
+
+
+        <!-- CLOSE MODAL -->
+        <button
+          type="button"
+          id="closeJntModal"
+          class="jnt-close-btn"
+          aria-label="Close tracking modal"
+        >
+          &times;
+        </button>
+
+      </div>
+
+
+      <!-- MODAL DESCRIPTION -->
+      <p class="jnt-modal-description">
+        Enter the actual J&T Express waybill
+        number assigned to this prepared order.
+        The tracking number will be registered
+        through the connected AfterShip API.
+      </p>
+
+
+      <!-- =====================================
+           SELECTED ORDER INFORMATION
+      ====================================== -->
+
+      <div class="jnt-order-info">
+
+        <span>
+          <i class="fa-solid fa-receipt"></i>
+          Order Number
+        </span>
+
+        <strong id="jntOrderNumber">
+          —
+        </strong>
+
+      </div>
+
+
+      <!-- =====================================
+           TRACKING REGISTRATION FORM
+      ====================================== -->
+
+      <form id="jntTrackingForm">
+
+        <!-- HIDDEN ORDER ID -->
+        <input
+          type="hidden"
+          id="jntOrderId"
+          name="orderId"
+        >
+
+
+        <!-- TRACKING NUMBER LABEL -->
+        <label for="jntTrackingNumber">
+
+          <i class="fa-solid fa-barcode"></i>
+          J&T Tracking Number
+
+        </label>
+
+
+        <!-- TRACKING NUMBER INPUT -->
+        <input
+          type="text"
+          id="jntTrackingNumber"
+          name="trackingNumber"
+          placeholder="Enter actual J&T waybill number"
+          autocomplete="off"
+          autocapitalize="characters"
+          maxlength="50"
+          required
+        >
+
+
+        <!-- INPUT INSTRUCTIONS -->
+        <p class="jnt-input-hint">
+          <i class="fa-solid fa-circle-info"></i>
+
+          Enter the tracking number printed
+          on the official J&T Express shipping
+          label. Do not enter the JCN order
+          number here.
+        </p>
+
+
+        <!-- =====================================
+             COURIER INFORMATION
+        ====================================== -->
+
+        <div class="jnt-order-info">
+
+          <span>
+            <i class="fa-solid fa-truck"></i>
+            Courier
+          </span>
+
+          <strong>
+            J&T Express Philippines
+          </strong>
+
+        </div>
+
+
+        <!-- =====================================
+             TRACKING ACTION BUTTONS
+        ====================================== -->
+
+        <div class="jnt-modal-actions">
+
+          <button
+            type="button"
+            id="cancelJntTracking"
+            class="jnt-cancel-btn"
+          >
+
+            <i class="fa-solid fa-xmark"></i>
+            Cancel
+
+          </button>
+
+
+          <button
+            type="submit"
+            id="saveJntTracking"
+            class="jnt-save-btn"
+          >
+
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save & Register Tracking
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================
+       SYSTEM NOTIFICATIONS
+  ====================================== -->
 
   <div
     id="notification"
@@ -109,8 +407,20 @@
     aria-atomic="true"
   ></div>
 
+
+  <!-- =====================================
+       NOSCRIPT WARNING
+  ====================================== -->
+
   <noscript>
-    <p>Please enable JavaScript to use Order Preparation.</p>
+
+    <p>
+      Please enable JavaScript to use
+      the JCN Order Preparation system.
+    </p>
+
   </noscript>
+
 </body>
+
 </html>

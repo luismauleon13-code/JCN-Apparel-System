@@ -1,4 +1,3 @@
-"use strict";
 
 
 
@@ -1075,6 +1074,159 @@
 
 
   // =====================================================
+  // CUSTOMER FORGOT PASSWORD
+  // Shared script is stored in admin/js but also powers customer login.
+  // =====================================================
+
+  function setupCustomerForgotPassword() {
+    const trigger = document.querySelector(
+      '#userForgotPasswordBtn, #customerForgotPasswordBtn, #forgotPasswordBtn, ' +
+      '#forgotPasswordLink, #forgotPassword, [data-action="forgot-password"], ' +
+      'a[href="#forgot-password"], a[href="#forgotPassword"]'
+    );
+
+    if (!trigger) {
+      console.warn('CUSTOMER RESET: Forgot Password trigger not found. Add id="forgotPasswordBtn" to the link/button.');
+      return;
+    }
+
+    // Reuse a dedicated customer overlay, never the admin reset modal.
+    const overlay = document.createElement('div');
+    overlay.id = 'customerPasswordResetOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.8)';
+    overlay.innerHTML = `
+      <div role="dialog" aria-modal="true" aria-labelledby="customerResetTitle"
+           style="position:relative;width:min(100%,440px);padding:28px;border-radius:16px;border:1px solid #bc963c;background:#161616;color:#fff;font-family:Arial,sans-serif;box-shadow:0 16px 50px #0009">
+        <button type="button" id="customerResetClose" aria-label="Close" style="position:absolute;right:16px;top:10px;border:0;background:none;color:#fff;font-size:28px;cursor:pointer">&times;</button>
+        <h2 id="customerResetTitle" style="color:#e4b94f;margin:0 0 12px;font-size:22px">Forgot Password</h2>
+        <p id="customerResetInfo" style="font-size:14px;color:#ccc">Enter the email registered to your customer account.</p>
+        <form id="customerResetForm" novalidate>
+          <label for="customerResetEmail" style="display:block;margin:14px 0 6px">Email</label>
+          <input id="customerResetEmail" type="email" autocomplete="email" style="width:100%;padding:11px;border-radius:7px;border:1px solid #aaa;color:#111">
+          <div id="customerResetOtpBox" hidden><label for="customerResetOtp" style="display:block;margin:14px 0 6px">6-digit OTP</label>
+          <input id="customerResetOtp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="width:100%;padding:11px;border-radius:7px;border:1px solid #aaa;color:#111"></div>
+          <div id="customerResetPasswordBox" hidden><label for="customerResetNewPassword" style="display:block;margin:14px 0 6px">New password</label>
+          <input id="customerResetNewPassword" type="password" autocomplete="new-password" style="width:100%;padding:11px;border-radius:7px;border:1px solid #aaa;color:#111">
+          <label for="customerResetConfirmPassword" style="display:block;margin:14px 0 6px">Confirm password</label>
+          <input id="customerResetConfirmPassword" type="password" autocomplete="new-password" style="width:100%;padding:11px;border-radius:7px;border:1px solid #aaa;color:#111"></div>
+          <p id="customerResetMessage" role="status" aria-live="polite" style="min-height:20px;font-size:13px;margin:14px 0"></p>
+          <button id="customerResetSubmit" type="submit" style="width:100%;padding:12px;border:0;border-radius:8px;background:#e4b94f;color:#111;font-weight:bold;cursor:pointer">Send OTP</button>
+        </form>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const get = id => overlay.querySelector('#' + id);
+    const form = get('customerResetForm');
+    const submit = get('customerResetSubmit');
+    const email = get('customerResetEmail');
+    const otp = get('customerResetOtp');
+    const password = get('customerResetNewPassword');
+    const confirmation = get('customerResetConfirmPassword');
+    const message = get('customerResetMessage');
+    let step = 1;
+    let busy = false;
+    let savedEmail = '';
+    let savedOtp = '';
+
+    // Check the actual route names and request fields in server.js.
+    const ENDPOINTS = {
+      send: 'forgot-password',
+      verify: 'verify-reset-otp',
+      finish: 'reset-password'
+    };
+
+    function showStep() {
+      email.parentElement.querySelector('label[for="customerResetEmail"]').hidden = step !== 1;
+      email.hidden = step !== 1;
+      get('customerResetOtpBox').hidden = step !== 2;
+      get('customerResetPasswordBox').hidden = step !== 3;
+      get('customerResetInfo').textContent = step === 1
+        ? 'Enter the email registered to your customer account.'
+        : step === 2 ? 'Enter the six-digit code sent to your email.' : 'Create a new strong password.';
+      submit.textContent = step === 1 ? 'Send OTP' : step === 2 ? 'Verify OTP' : 'Reset Password';
+      (step === 1 ? email : step === 2 ? otp : password).focus();
+    }
+
+    function close(force = false) {
+      if (busy && !force) return;
+      overlay.style.display = 'none';
+      form.reset();
+      message.textContent = '';
+      savedEmail = '';
+      savedOtp = '';
+      step = 1;
+    }
+
+    trigger.addEventListener('click', event => {
+      event.preventDefault();
+      if (busy) return;
+      overlay.style.display = 'flex';
+      showStep();
+    });
+    get('customerResetClose').addEventListener('click', close);
+    overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && overlay.style.display !== 'none') close();
+    });
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (busy) return;
+      busy = true;
+      submit.disabled = true;
+      message.style.color = '#ff9999';
+      message.textContent = '';
+      try {
+        if (step === 1) {
+          const value = email.value.trim().toLowerCase();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) throw new Error('Please enter a valid email address.');
+          await postAuth(ENDPOINTS.send, { email: value, accountType: 'customer' });
+          savedEmail = value;
+          step = 2;
+          showStep();
+          message.style.color = '#8ce3a1';
+          message.textContent = 'If this customer account exists, check your email for the OTP.';
+        } else if (step === 2) {
+          const code = otp.value.trim();
+          if (!/^\d{6}$/.test(code)) throw new Error('Enter the 6-digit OTP.');
+          await postAuth(ENDPOINTS.verify, { email: savedEmail, otp: code, accountType: 'customer' });
+          savedOtp = code;
+          step = 3;
+          showStep();
+          message.style.color = '#8ce3a1';
+          message.textContent = 'OTP verified. Enter a new password.';
+        } else {
+          const newPassword = password.value;
+          if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$/.test(newPassword)) {
+            throw new Error('Use 8+ characters with uppercase, lowercase, number and special character.');
+          }
+          if (confirmation.value !== newPassword) throw new Error('Passwords do not match.');
+          await postAuth(ENDPOINTS.finish, {
+            email: savedEmail, otp: savedOtp, newPassword, accountType: 'customer'
+          });
+          busy = false;
+          close(true);
+          alert('Password successfully updated. Please log in with your new password.');
+          window.location.assign(pages.customerLogin);
+        }
+      } catch (error) {
+        console.error('CUSTOMER RESET ERROR:', error);
+        message.textContent = error.message || 'Password reset failed.';
+        if (/No OTP request found|OTP expired/i.test(error.message || '')) {
+          savedOtp = '';
+          savedEmail = '';
+          step = 1;
+          showStep();
+          message.textContent = 'The OTP is no longer available on the server. Please request a new code.';
+        }
+      } finally {
+        busy = false;
+        submit.disabled = false;
+      }
+    });
+  }
+
+  // =====================================================
 
   // ADMIN RESET MODAL
 
@@ -1087,97 +1239,139 @@
 
 
   function setupAdminResetModal() {
-
     const modal = $("resetModal");
+    const nextButton = $("resetNextBtn");
+    const message = $("resetMessage");
+    const email = $("resetEmail");
+    const otp = $("resetOtp");
+    const password = $("resetNewPassword");
+    const confirmPassword = $("resetConfirmPassword");
 
-
-
-    function close() {
-
-      setVisible(modal, false);
-
-      setText("resetMessage", "");
-
-
-
-      [
-
-        "resetEmail",
-
-        "resetOtp",
-
-        "resetNewPassword",
-
-        "resetConfirmPassword"
-
-      ].forEach(id => {
-
-        if ($(id)) $(id).value = "";
-
-      });
-
+    if (!modal || !nextButton || !email || !otp || !password || !confirmPassword) {
+      console.warn("ADMIN RESET: Missing one or more required modal elements.");
+      return;
     }
 
+    // IMPORTANT: Match these three route names to your real server.js.
+    // All routes use POST /api/auth/<route-name>.
+    const RESET_ENDPOINTS = {
+      send: "send-reset-otp",
+      verify: "verify-reset-otp",
+      finish: "reset-password"
+    };
 
+    let step = 1;
+    let busy = false;
+    let verifiedEmail = "";
+    let verifiedOtp = "";
+
+    function fieldGroup(input) {
+      return input.closest(".form-group, .mb-3, .input-group, .field-group") || input.parentElement;
+    }
+
+    function updateStep() {
+      // Only the fields for the current step are displayed.
+      fieldGroup(email).hidden = step !== 1;
+      fieldGroup(otp).hidden = step !== 2;
+      fieldGroup(password).hidden = step !== 3;
+      fieldGroup(confirmPassword).hidden = step !== 3;
+      setButtonLabel(nextButton, step === 1 ? "Send OTP" : step === 2 ? "Verify OTP" : "Reset Password");
+      [email, otp, password][step - 1].focus();
+    }
+
+    function close() {
+      if (busy) return;
+      setVisible(modal, false);
+      [email, otp, password, confirmPassword].forEach(el => { el.value = ""; });
+      showMessage(message, "");
+      verifiedEmail = "";
+      verifiedOtp = "";
+      step = 1;
+      updateStep();
+    }
 
     $("adminForgotPasswordBtn")?.addEventListener("click", event => {
-
       event.preventDefault();
-
+      step = 1;
+      updateStep();
       setVisible(modal, true);
-
-      $("resetEmail")?.focus();
-
+      email.focus();
     });
 
-
-
-    $("cancelResetBtn")?.addEventListener("click", close);
-
-
-
-    $("resetNextBtn")?.addEventListener("click", event => {
-
+    $("cancelResetBtn")?.addEventListener("click", event => {
       event.preventDefault();
-
-
-
-      showMessage(
-
-        $("resetMessage"),
-
-        "Password reset is not configured on this page yet."
-
-      );
-
+      close();
     });
 
+    nextButton.addEventListener("click", async event => {
+      event.preventDefault();
+      if (busy) return;
 
+      try {
+        busy = true;
+        nextButton.disabled = true;
+        showMessage(message, "");
 
-    modal?.addEventListener("click", event => {
+        if (step === 1) {
+          const value = email.value.trim().toLowerCase();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            throw new Error("Please enter a valid email address.");
+          }
+          await postAuth(RESET_ENDPOINTS.send, { email: value, accountType: "admin" });
+          verifiedEmail = value;
+          step = 2;
+          updateStep();
+          showMessage(message, "If the account exists, a reset code has been sent. Check your email.", true);
+        } else if (step === 2) {
+          const code = otp.value.trim();
+          if (!/^\d{6}$/.test(code)) throw new Error("Enter the 6-digit OTP.");
+          await postAuth(RESET_ENDPOINTS.verify, { email: verifiedEmail, otp: code, accountType: "admin" });
+          verifiedOtp = code;
+          step = 3;
+          updateStep();
+          showMessage(message, "Code verified. Enter your new password.", true);
+        } else {
+          const newPassword = password.value;
+          if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$/.test(newPassword)) {
+            throw new Error("Password needs 8+ characters, uppercase, lowercase, number and symbol.");
+          }
+          if (newPassword !== confirmPassword.value) {
+            throw new Error("Passwords do not match.");
+          }
+          await postAuth(RESET_ENDPOINTS.finish, {
+            email: verifiedEmail,
+            otp: verifiedOtp,
+            newPassword,
+            accountType: "admin"
+          });
+          busy = false;
+          close();
+          setVisible($("successModal"), true);
+          showMessage(message, "Password updated. You may now log in.", true);
+        }
+      } catch (error) {
+        console.error("ADMIN PASSWORD RESET ERROR:", error);
+        showMessage(message, error.message || "Unable to reset password.");
+      } finally {
+        busy = false;
+        nextButton.disabled = false;
+      }
+    });
 
+    modal.addEventListener("click", event => {
       if (event.target === modal) close();
-
     });
-
-
 
     $("successOkBtn")?.addEventListener("click", () => {
-
       setVisible($("successModal"), false);
-
     });
-
-
 
     document.addEventListener("keydown", event => {
-
-      if (event.key === "Escape") close();
-
+      if (event.key === "Escape" && !busy) close();
     });
 
+    updateStep();
   }
-
 
 
   // =====================================================
@@ -1583,6 +1777,8 @@
 
 
       if (form) setupLogin(form, "customer");
+
+      setupCustomerForgotPassword();
 
       return;
 

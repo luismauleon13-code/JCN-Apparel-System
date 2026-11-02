@@ -1,800 +1,586 @@
+
 const API_URL = "http://localhost:5000";
 
 let allOrders = [];
 let myOrders = [];
 let currentFilter = "All";
+let selectedOrderId = null;
+let trackingRequestId = 0;
 
-
-/* =========================================================
-   PAGE LOAD
-========================================================= */
+/* ============================================
+   PAGE INITIALIZATION
+============================================ */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const loggedIn = checkLogin();
-
-  if (!loggedIn) return;
+  if (!checkLogin()) return;
 
   setupTabs();
+  setupOrderEvents();
 
   await loadOrders();
-
-  const logoutBtn =
-    document.getElementById("logoutBtn");
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener(
-      "click",
-      logoutCustomer
-    );
-  }
 });
 
-
-/* =========================================================
-   LOGIN CHECK
-========================================================= */
+/* ============================================
+   CHECK CUSTOMER LOGIN
+============================================ */
 
 function checkLogin() {
-  const token =
-    localStorage.getItem("customerToken");
-
-  const user =
-    localStorage.getItem("customerUser");
+  const token = localStorage.getItem("customerToken");
+  const user = localStorage.getItem("customerUser");
 
   if (!token || !user) {
     Swal.fire({
       icon: "warning",
       title: "Login Required",
-      text: "Please login first.",
-      confirmButtonText: "OK",
+      text: "Please login to view your orders.",
+      confirmButtonText: "Login",
       customClass: {
         popup: "jcn-popup",
         confirmButton: "jcn-confirm-btn"
       },
       buttonsStyling: false
     }).then(() => {
-      window.location.href =
-        "user-login.html";
+      window.location.href = "user-login.html";
     });
 
     return false;
   }
 
-  return true;
+  try {
+    const customer = JSON.parse(user);
+
+    if (!customer.id) {
+      throw new Error("Customer ID missing");
+    }
+
+    return true;
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Session",
+      text: "Please login again."
+    }).then(() => {
+      window.location.href = "user-login.html";
+    });
+
+    return false;
+  }
 }
 
-
-/* =========================================================
-   TABS
-========================================================= */
+/* ============================================
+   SETUP STATUS TABS
+============================================ */
 
 function setupTabs() {
-  document
-    .querySelectorAll(".tab-btn")
-    .forEach(btn => {
-      btn.addEventListener(
-        "click",
-        () => {
+  document.querySelectorAll(".tab-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(tab => {
+        tab.classList.remove("active");
+      });
 
-          document
-            .querySelectorAll(".tab-btn")
-            .forEach(b => {
-              b.classList.remove("active");
-            });
+      button.classList.add("active");
 
-          btn.classList.add("active");
+      currentFilter = button.dataset.filter || "All";
 
-          currentFilter =
-            btn.dataset.filter ||
-            btn.dataset.status ||
-            "All";
+      selectedOrderId = null;
+      trackingRequestId++;
 
-          displayOrders();
-
-          const details =
-            document.getElementById(
-              "orderDetails"
-            );
-
-          if (details) {
-            details.innerHTML = `
-              <p class="empty">
-                Select an order to view details.
-              </p>
-            `;
-          }
-        }
-      );
+      displayOrders();
+      showEmptyDetails();
     });
+  });
 }
 
+/* ============================================
+   SETUP ORDER EVENTS
+============================================ */
 
-/* =========================================================
+function setupOrderEvents() {
+  const ordersList = document.getElementById("ordersList");
+  const details = document.getElementById("orderDetails");
+
+  if (ordersList) {
+    ordersList.addEventListener("click", event => {
+      const card = event.target.closest(".order-card");
+
+      if (!card) return;
+
+      const orderId = card.dataset.orderId;
+
+      if (orderId) {
+        selectOrder(orderId);
+      }
+    });
+  }
+
+  if (details) {
+    details.addEventListener("click", event => {
+      const button = event.target.closest("button");
+
+      if (!button) return;
+
+      const action = button.dataset.action;
+      const orderId = selectedOrderId;
+
+      if (action === "refresh-tracking") {
+        const order = getSelectedOrder();
+
+        if (order) {
+          loadLatestJntUpdate(order);
+        }
+      }
+
+      if (action === "toggle-history") {
+        toggleJntHistory();
+      }
+
+      if (!orderId) return;
+
+      if (action === "cancel") {
+        cancelOrder(orderId);
+      }
+
+      if (action === "complete") {
+        completeOrder(orderId);
+      }
+
+      if (action === "pay") {
+        continueToPay(orderId);
+      }
+    });
+  }
+}
+
+/* ============================================
+   GET CURRENT CUSTOMER
+============================================ */
+
+function getCurrentCustomer() {
+  try {
+    return JSON.parse(
+      localStorage.getItem("customerUser") || "{}"
+    );
+  } catch {
+    return {};
+  }
+}
+
+/* ============================================
    LOAD CUSTOMER ORDERS
-========================================================= */
+============================================ */
 
 async function loadOrders() {
-  const ordersList =
-    document.getElementById("ordersList");
-
-  const user =
-    JSON.parse(
-      localStorage.getItem("customerUser")
-    ) || {};
+  const ordersList = document.getElementById("ordersList");
+  const customer = getCurrentCustomer();
 
   if (!ordersList) return;
 
-  if (!user.id) {
+  if (!customer.id) {
     ordersList.innerHTML = `
       <p class="empty">
         Customer information is missing.
       </p>
     `;
-
     return;
   }
 
   ordersList.innerHTML = `
     <p class="empty">
+      <i class="fa-solid fa-spinner fa-spin"></i>
       Loading orders...
     </p>
   `;
 
   try {
     const response = await fetch(
-      `${API_URL}/api/customer/orders/${user.id}`
+      `${API_URL}/api/customer/orders/${encodeURIComponent(customer.id)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("customerToken")}`
+        }
+      }
     );
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-      ordersList.innerHTML = `
-        <p class="empty">
-          ${escapeHtml(
-            data.message ||
-            "Unable to load orders."
-          )}
-        </p>
-      `;
-
-      return;
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Unable to load customer orders."
+      );
     }
 
-    allOrders =
-      (data.orders || []).filter(
-        order =>
-          String(order.user_id) ===
-          String(user.id)
-      );
+    allOrders = (data.orders || [])
+      .filter(order => {
+        return String(order.user_id) === String(customer.id);
+      })
+      .sort((a, b) => {
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
 
     displayOrders();
 
+    if (selectedOrderId) {
+      const selected = getSelectedOrder();
+
+      if (selected && myOrders.some(order =>
+        String(order.id) === String(selected.id)
+      )) {
+        selectOrder(selected.id);
+      } else {
+        selectedOrderId = null;
+        showEmptyDetails();
+      }
+    }
   } catch (error) {
-    console.error(
-      "LOAD ORDERS ERROR:",
-      error
-    );
+    console.error("LOAD ORDERS ERROR:", error);
 
     ordersList.innerHTML = `
       <p class="empty">
-        Cannot connect to server.
+        ${escapeHtml(error.message)}
       </p>
     `;
   }
 }
 
+/* ============================================
+   NORMALIZE ORDER STATUS
+============================================ */
 
-/* =========================================================
-   DISPLAY ORDERS
-========================================================= */
+function normalizeStatus(status) {
+  const value = String(status || "Pending")
+    .trim()
+    .toLowerCase();
+
+  const statuses = {
+    "pending": "Pending",
+    "pending payment": "Pending",
+    "to pay": "Pending",
+    "preparing": "Processing",
+    "processing": "Processing",
+    "to ship": "To Ship",
+    "ready to ship": "To Ship",
+    "to deliver": "To Receive",
+    "shipped": "To Receive",
+    "to receive": "To Receive",
+    "in transit": "To Receive",
+    "out for delivery": "To Receive",
+    "completed": "Completed",
+    "delivered": "Completed",
+    "cancelled": "Cancelled",
+    "canceled": "Cancelled"
+  };
+
+  return statuses[value] || status || "Pending";
+}
+
+/* ============================================
+   ORDER STATUS HELPERS
+============================================ */
+
+function isCancelledOrder(order) {
+  return (
+    normalizeStatus(order.status) === "Cancelled" ||
+    String(order.payment_status).toLowerCase() === "cancelled"
+  );
+}
+
+function isWaitingPayment(order) {
+  if (isCancelledOrder(order)) return false;
+
+  const method = String(order.payment_method || "").toLowerCase();
+  const payment = String(order.payment_status || "").toLowerCase();
+  const status = normalizeStatus(order.status);
+
+  return (
+    method === "paypal" &&
+    payment !== "paid" &&
+    (
+      payment === "unpaid" ||
+      payment === "pending" ||
+      status === "Pending"
+    )
+  );
+}
+
+function getDisplayStatus(order) {
+  if (isCancelledOrder(order)) return "Cancelled";
+
+  if (isWaitingPayment(order)) return "Waiting Payment";
+
+  return normalizeStatus(order.status);
+}
+
+function matchesFilter(order) {
+  const status = normalizeStatus(order.status);
+  const cancelled = isCancelledOrder(order);
+  const waitingPayment = isWaitingPayment(order);
+
+  switch (currentFilter) {
+    case "Pending":
+      return waitingPayment;
+
+    case "Processing":
+      return !cancelled && !waitingPayment && status === "Processing";
+
+    case "ToShip":
+      return !cancelled && !waitingPayment && status === "To Ship";
+
+    case "ToReceive":
+      return !cancelled && !waitingPayment && status === "To Receive";
+
+    case "Completed":
+      return !cancelled && !waitingPayment && status === "Completed";
+
+    case "Cancelled":
+      return cancelled;
+
+    default:
+      return true;
+  }
+}
+
+/* ============================================
+   DISPLAY ORDER LIST
+============================================ */
 
 function displayOrders() {
-  const ordersList =
-    document.getElementById("ordersList");
+  const ordersList = document.getElementById("ordersList");
 
   if (!ordersList) return;
 
-  myOrders =
-    allOrders.filter(order => {
-
-      const status =
-        normalizeStatus(
-          order.status
-        );
-
-      const paymentStatus =
-        order.payment_status || "";
-
-      const isCancelled =
-        status === "Cancelled" ||
-        paymentStatus === "Cancelled";
-
-      const isToPay =
-        !isCancelled &&
-        (
-          order.status ===
-            "Pending Payment" ||
-
-          paymentStatus ===
-            "Unpaid"
-        );
-
-
-      if (
-        currentFilter === "All"
-      ) {
-        return true;
-      }
-
-
-      if (
-        currentFilter === "Pending"
-      ) {
-        return isToPay;
-      }
-
-
-      if (
-        currentFilter ===
-        "Processing"
-      ) {
-        return (
-          !isCancelled &&
-          status === "Processing"
-        );
-      }
-
-
-      if (
-        currentFilter ===
-        "ToShip"
-      ) {
-        return (
-          !isCancelled &&
-          status === "To Ship"
-        );
-      }
-
-
-      if (
-        currentFilter ===
-        "ToReceive"
-      ) {
-        return (
-          !isCancelled &&
-          status === "To Receive"
-        );
-      }
-
-
-      if (
-        currentFilter ===
-        "Completed"
-      ) {
-        return (
-          !isCancelled &&
-          status === "Completed"
-        );
-      }
-
-
-      if (
-        currentFilter ===
-        "Cancelled"
-      ) {
-        return isCancelled;
-      }
-
-
-      return true;
-    });
-
+  myOrders = allOrders.filter(matchesFilter);
 
   if (!myOrders.length) {
     ordersList.innerHTML = `
       <p class="empty">
-        No orders found.
+        <i class="fa-solid fa-box-open"></i>
+        <span>No orders found.</span>
       </p>
     `;
-
     return;
   }
 
+  ordersList.innerHTML = myOrders.map(order => {
+    const status = getDisplayStatus(order);
+    const orderNumber = order.order_number || `Order #${order.id}`;
+    const isSelected = String(order.id) === String(selectedOrderId);
 
-  ordersList.innerHTML = "";
+    const statusClass = status
+      .toLowerCase()
+      .replaceAll(" ", "-");
 
+    return `
+      <div
+        class="order-card ${isSelected ? "selected" : ""}"
+        data-order-id="${escapeHtml(order.id)}"
+        role="button"
+        tabindex="0"
+      >
 
-  myOrders.forEach(
-    (order, index) => {
+        <div class="order-card-header">
+          <h3>${escapeHtml(orderNumber)}</h3>
 
-      let status =
-        normalizeStatus(
-          order.status
-        );
-
-
-      const isCancelled =
-        status === "Cancelled";
-
-
-      const isWaitingPayment =
-        !isCancelled &&
-        order.payment_method ===
-          "PayPal" &&
-        (
-          order.status ===
-            "Pending Payment" ||
-          order.payment_status ===
-            "Unpaid"
-        );
-
-
-      if (isCancelled) {
-        status = "Cancelled";
-      }
-
-      else if (
-        isWaitingPayment
-      ) {
-        status =
-          "Waiting Payment";
-      }
-
-
-      ordersList.innerHTML += `
-        <div
-          class="order-card"
-          onclick="window.selectOrder(${index})"
-        >
-
-          <h3>
-            ${
-              escapeHtml(
-                order.order_number ||
-                `Order #${order.id}`
-              )
-            }
-          </h3>
-
-          <p>
-            Total:
-            ₱${Number(
-              order.total_amount || 0
-            ).toFixed(2)}
-          </p>
-
-          <p>
-            Payment:
-            ${escapeHtml(
-              order.payment_method ||
-              "N/A"
-            )}
-            -
-            ${escapeHtml(
-              order.payment_status ||
-              "Pending"
-            )}
-          </p>
-
-          <p>
-            Date:
-            ${formatDate(
-              order.created_at
-            )}
-          </p>
-
-          ${
-            order.tracking_number
-              ? `
-                <p class="order-tracking-number">
-                  <i class="fa-solid fa-truck"></i>
-                  J&T:
-                  ${escapeHtml(
-                    order.tracking_number
-                  )}
-                </p>
-              `
-              : ""
-          }
-
-          <span
-            class="status ${
-              status
-                .toLowerCase()
-                .replaceAll(
-                  " ",
-                  "-"
-                )
-            }"
-          >
+          <span class="status ${statusClass}">
             ${escapeHtml(status)}
           </span>
-
         </div>
-      `;
-    }
+
+        <p>
+          <i class="fa-regular fa-calendar"></i>
+          ${escapeHtml(formatDate(order.created_at))}
+        </p>
+
+        <p>
+          <i class="fa-solid fa-credit-card"></i>
+          ${escapeHtml(order.payment_method || "N/A")}
+          •
+          ${escapeHtml(order.payment_status || "Pending")}
+        </p>
+
+        ${
+          order.tracking_number
+            ? `
+              <p class="order-tracking-number">
+                <i class="fa-solid fa-truck-fast"></i>
+                J&T: ${escapeHtml(order.tracking_number)}
+              </p>
+            `
+            : ""
+        }
+
+        <div class="order-card-footer">
+          <span>Order Total</span>
+          <strong>${formatCurrency(order.total_amount)}</strong>
+        </div>
+
+      </div>
+    `;
+  }).join("");
+
+  ordersList.querySelectorAll(".order-card").forEach(card => {
+    card.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectOrder(card.dataset.orderId);
+      }
+    });
+  });
+}
+
+/* ============================================
+   GET SELECTED ORDER
+============================================ */
+
+function getSelectedOrder() {
+  return allOrders.find(order =>
+    String(order.id) === String(selectedOrderId)
   );
 }
 
+/* ============================================
+   EMPTY ORDER DETAILS
+============================================ */
 
-/* =========================================================
+function showEmptyDetails() {
+  const details = document.getElementById("orderDetails");
+
+  if (!details) return;
+
+  details.innerHTML = `
+    <div class="order-details-empty">
+
+      <div class="empty-order-icon">
+        <i class="fa-solid fa-box-open"></i>
+      </div>
+
+      <h3>Select an Order</h3>
+
+      <p>
+        Choose an order from the list to view
+        payment details, delivery status,
+        and J&T tracking information.
+      </p>
+
+    </div>
+  `;
+}
+
+/* ============================================
    SELECT ORDER
-========================================================= */
+============================================ */
 
-async function selectOrder(index) {
-  const order =
-    myOrders[index];
+function selectOrder(orderId) {
+  const order = allOrders.find(item =>
+    String(item.id) === String(orderId)
+  );
 
-  if (!order) {
-    return;
-  }
+  if (!order) return;
 
+  selectedOrderId = String(order.id);
+  trackingRequestId++;
 
-  const details =
-    document.getElementById(
-      "orderDetails"
+  document.querySelectorAll(".order-card").forEach(card => {
+    card.classList.toggle(
+      "selected",
+      card.dataset.orderId === selectedOrderId
     );
+  });
 
+  const details = document.getElementById("orderDetails");
 
-  if (!details) {
-    return;
-  }
+  if (!details) return;
 
-
-  const status =
-    normalizeStatus(
-      order.status
-    );
-
-
-  const isCancelled =
-    status === "Cancelled";
-
-
-  const isPayPalUnpaid =
-    !isCancelled &&
-    order.payment_method ===
-      "PayPal" &&
-    order.payment_status ===
-      "Unpaid";
-
+  const status = normalizeStatus(order.status);
+  const displayStatus = getDisplayStatus(order);
+  const cancelled = isCancelledOrder(order);
+  const waitingPayment = isWaitingPayment(order);
 
   details.innerHTML = `
 
-    <div class="detail-row">
+    <!-- ORDER SUMMARY -->
+    <div class="jcn-order-summary">
 
-      <span>
-        Order Number
-      </span>
+      <div class="jcn-section-title">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>ORDER INFORMATION</span>
+      </div>
 
-      <strong>
+      ${detailRow(
+        "Order Number",
+        order.order_number || `Order #${order.id}`
+      )}
+
+      ${detailRow(
+        "Customer",
+        order.customer_name || "Customer"
+      )}
+
+      ${detailRow(
+        "Order Date",
+        formatDate(order.created_at)
+      )}
+
+      ${detailRow(
+        "Payment Method",
+        order.payment_method || "N/A"
+      )}
+
+      ${detailRow(
+        "Payment Status",
+        order.payment_status || "Pending"
+      )}
+
+      ${detailRow(
+        "Total Amount",
+        formatCurrency(order.total_amount),
+        true
+      )}
+
+      ${detailRow(
+        "Order Status",
+        displayStatus
+      )}
+
+    </div>
+
+    <!-- J&T TRACKING -->
+    <div class="jcn-tracking-section">
+
+      <div class="jcn-section-title">
+        <i class="fa-solid fa-truck-fast"></i>
+        <span>J&T DELIVERY TRACKING</span>
+      </div>
+
+      <div
+        id="jntLatestUpdate"
+        class="jnt-latest-update"
+      >
         ${
-          escapeHtml(
-            order.order_number ||
-            `Order #${order.id}`
-          )
+          order.tracking_number && !cancelled
+            ? trackingLoadingHtml()
+            : noTrackingHtml(cancelled)
         }
-      </strong>
+      </div>
 
     </div>
 
-
-    <div class="detail-row">
-
-      <span>
-        Customer
-      </span>
-
-      <strong>
-        ${
-          escapeHtml(
-            order.customer_name ||
-            "Customer"
-          )
-        }
-      </strong>
-
-    </div>
-
-
-    <div class="detail-row">
-
-      <span>
-        Payment Method
-      </span>
-
-      <strong>
-        ${
-          escapeHtml(
-            order.payment_method ||
-            "N/A"
-          )
-        }
-      </strong>
-
-    </div>
-
-
-    <div class="detail-row">
-
-      <span>
-        Payment Status
-      </span>
-
-      <strong>
-        ${
-          escapeHtml(
-            order.payment_status ||
-            "Pending"
-          )
-        }
-      </strong>
-
-    </div>
-
-
-    <div class="detail-row">
-
-      <span>
-        Total
-      </span>
-
-      <strong>
-        ₱${Number(
-          order.total_amount || 0
-        ).toFixed(2)}
-      </strong>
-
-    </div>
-
-
-    <div class="detail-row">
-
-      <span>
-        Status
-      </span>
-
-      <strong>
-        ${
-          isPayPalUnpaid
-            ? "Waiting Payment"
-            : escapeHtml(status)
-        }
-      </strong>
-
-    </div>
-
-
-    <!-- =====================================
-         J&T TRACKING
-    ====================================== -->
-
-    <div
-      id="jntLatestUpdate"
-      class="jnt-latest-update"
-    >
-      ${
-        order.tracking_number
-          ? `
-            <div class="jnt-loading">
-              <i class="fa-solid fa-spinner fa-spin"></i>
-              Getting latest J&T update...
-            </div>
-          `
-          : `
-            <div class="jnt-no-tracking">
-
-              <i class="fa-solid fa-truck"></i>
-
-              <div>
-
-                <strong>
-                  No J&T tracking yet
-                </strong>
-
-                <p>
-                  Tracking information will
-                  appear here after the admin
-                  adds a J&T tracking number.
-                </p>
-
-              </div>
-
-            </div>
-          `
-      }
-    </div>
-
-
-    <!-- =====================================
-         ORDER PROGRESS
-    ====================================== -->
-
-    <div class="tracker">
-
-      ${
-        isCancelled
-
-          ? `
-
-            <div
-              class="step cancelled active"
-            >
-
-              <span class="dot"></span>
-
-              <div>
-
-                <strong>
-                  Cancelled
-                </strong>
-
-                <p>
-                  This order has been cancelled.
-                </p>
-
-              </div>
-
-            </div>
-
-          `
-
-          : isPayPalUnpaid
-
-          ? `
-
-            <div class="step active">
-
-              <span class="dot"></span>
-
-              <div>
-
-                <strong>
-                  Waiting Payment
-                </strong>
-
-                <p>
-                  Waiting for PayPal payment.
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div class="step">
-
-              <span class="dot"></span>
-
-              <div>
-
-                <strong>
-                  Processing
-                </strong>
-
-                <p>
-                  Your order is being prepared.
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div class="step">
-
-              <span class="dot"></span>
-
-              <div>
-
-                <strong>
-                  To Ship
-                </strong>
-
-                <p>
-                  Your order is ready to ship.
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div class="step">
-
-              <span class="dot"></span>
-
-              <div>
-
-                <strong>
-                  To Receive
-                </strong>
-
-                <p>
-                  Your order is on the way.
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div class="step">
-
-              <span class="dot"></span>
-
-              <div>
-
-                <strong>
-                  Completed
-                </strong>
-
-                <p>
-                  Your order has been completed.
-                </p>
-
-              </div>
-
-            </div>
-
-          `
-
-          : `
-
-            ${statusStep(
-              "Processing",
-              status
-            )}
-
-            ${statusStep(
-              "To Ship",
-              status
-            )}
-
-            ${statusStep(
-              "To Receive",
-              status
-            )}
-
-            ${statusStep(
-              "Completed",
-              status
-            )}
-
-          `
-      }
-
-    </div>
-
-
-    <!-- =====================================
-         ACTION BUTTONS
-    ====================================== -->
-
+    <!-- ORDER ACTIONS -->
     <div class="order-actions">
 
       ${
-        isPayPalUnpaid
+        waitingPayment
           ? `
             <button
               type="button"
               class="pay-btn"
-              onclick="
-                window.continueToPay(
-                  '${order.id}'
-                )
-              "
+              data-action="pay"
             >
+              <i class="fa-brands fa-paypal"></i>
               Continue to Pay
             </button>
           `
           : ""
       }
-
 
       ${
         canCancelOrder(order)
@@ -802,463 +588,233 @@ async function selectOrder(index) {
             <button
               type="button"
               class="cancel-btn"
-              onclick="
-                window.cancelOrder(
-                  '${order.id}'
-                )
-              "
+              data-action="cancel"
             >
+              <i class="fa-solid fa-xmark"></i>
               Cancel Order
             </button>
           `
           : ""
       }
 
-
-      <button
-        type="button"
-        class="complete-btn"
-
-        onclick="
-          window.completeOrder(
-            '${order.id}'
-          )
-        "
-
-        ${
-          status !== "To Receive"
-            ? "disabled"
-            : ""
-        }
-      >
-
-        Order Received /
-        Complete Order
-
-      </button>
+      ${
+        !cancelled && !waitingPayment && status === "To Receive"
+          ? `
+            <button
+              type="button"
+              class="complete-btn"
+              data-action="complete"
+            >
+              <i class="fa-solid fa-circle-check"></i>
+              Order Received / Complete Order
+            </button>
+          `
+          : ""
+      }
 
     </div>
   `;
 
-
-  /*
-    Fetch latest J&T info after
-    rendering the order panel.
-  */
-
-  if (
-    order.tracking_number &&
-    !isCancelled
-  ) {
-    await loadLatestJntUpdate(
-      order
-    );
+  if (order.tracking_number && !cancelled) {
+    loadLatestJntUpdate(order);
   }
 }
 
+/* ============================================
+   ORDER DETAIL ROW
+============================================ */
 
-/* =========================================================
-   LATEST J&T UPDATE
-========================================================= */
+function detailRow(label, value, highlight = false) {
+  return `
+    <div class="detail-row">
 
-async function loadLatestJntUpdate(
-  order
-) {
+      <span>${escapeHtml(label)}</span>
 
-  const container =
-    document.getElementById(
-      "jntLatestUpdate"
-    );
+      <strong class="${highlight ? "detail-highlight" : ""}">
+        ${escapeHtml(value)}
+      </strong>
 
+    </div>
+  `;
+}
 
-  if (!container) {
-    return;
-  }
+/* ============================================
+   ORDER PROGRESS
+============================================ */
 
+function buildOrderProgress(order) {
+  const status = normalizeStatus(order.status);
 
-  if (!order.tracking_number) {
-
-    container.innerHTML = `
-
-      <div class="jnt-no-tracking">
-
-        <i class="fa-solid fa-truck"></i>
+  if (isCancelledOrder(order)) {
+    return `
+      <div class="step cancelled active">
+        <span class="dot"></span>
 
         <div>
+          <strong>Cancelled</strong>
+          <p>This order has been cancelled.</p>
+        </div>
+      </div>
+    `;
+  }
 
-          <strong>
-            No J&T tracking yet
-          </strong>
+  const steps = isWaitingPayment(order)
+    ? ["Waiting Payment", "Processing", "To Ship", "To Receive", "Completed"]
+    : ["Processing", "To Ship", "To Receive", "Completed"];
 
-          <p>
-            Waiting for the administrator
-            to add a tracking number.
-          </p>
+  const currentStatus = isWaitingPayment(order)
+    ? "Waiting Payment"
+    : status;
 
+  const currentIndex = steps.indexOf(currentStatus);
+
+  return steps.map((step, index) => {
+    const completed = currentIndex >= 0 && index < currentIndex;
+    const current = index === currentIndex;
+    const active = completed || current;
+
+    return `
+      <div class="step ${active ? "active" : ""} ${current ? "current" : ""}">
+
+        <span class="dot"></span>
+
+        <div>
+          <strong>${escapeHtml(step)}</strong>
+
+          <p>${escapeHtml(getStatusText(step))}</p>
         </div>
 
       </div>
     `;
+  }).join("");
+}
 
-    return;
-  }
+/* ============================================
+   STATUS DESCRIPTION
+============================================ */
 
+function getStatusText(status) {
+  const descriptions = {
+    "Waiting Payment": "Waiting for PayPal payment.",
+    "Processing": "Your order is being prepared.",
+    "To Ship": "Your order is ready for shipment.",
+    "To Receive": "Your order is on the way.",
+    "Completed": "Your order has been completed."
+  };
 
-  container.innerHTML = `
+  return descriptions[status] || "";
+}
 
+/* ============================================
+   J&T TRACKING PLACEHOLDERS
+============================================ */
+
+function trackingLoadingHtml() {
+  return `
     <div class="jnt-loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <span>Checking J&T shipment updates...</span>
+    </div>
+  `;
+}
 
-      <i
-        class="fa-solid
-        fa-spinner
-        fa-spin"
-      ></i>
+function noTrackingHtml(cancelled = false) {
+  return `
+    <div class="jnt-no-tracking">
 
-      Getting latest J&T update...
+      <div class="jnt-truck-icon">
+        <i class="fa-solid fa-truck"></i>
+      </div>
+
+      <div>
+        <strong>
+          ${cancelled ? "Order Cancelled" : "No J&T Tracking Yet"}
+        </strong>
+
+        <p>
+          ${
+            cancelled
+              ? "Tracking is not available for this cancelled order."
+              : "Tracking information will appear here after the admin adds a J&T tracking number."
+          }
+        </p>
+      </div>
 
     </div>
   `;
+}
 
+/* ============================================
+   LOAD LATEST J&T TRACKING
+============================================ */
+
+async function loadLatestJntUpdate(order) {
+  const container = document.getElementById("jntLatestUpdate");
+
+  if (!container || !order.tracking_number) return;
+
+  const requestId = ++trackingRequestId;
+  const orderId = String(order.id);
+
+  container.innerHTML = trackingLoadingHtml();
 
   try {
-
-    const response =
-      await fetch(
-        `${API_URL}/api/orders/${order.id}/tracking`
-      );
-
-
-    let data;
-
-
-    try {
-      data =
-        await response.json();
-    } catch {
-      throw new Error(
-        "Invalid tracking server response."
-      );
-    }
-
-
-    console.log(
-      "J&T TRACKING RESPONSE:",
-      data
+    const response = await fetch(
+      `${API_URL}/api/orders/${encodeURIComponent(order.id)}/tracking`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("customerToken")}`
+        }
+      }
     );
 
+    const data = await response.json();
 
+    // Prevent an old response from replacing another order's tracking.
     if (
-      !response.ok ||
-      !data.success
+      requestId !== trackingRequestId ||
+      selectedOrderId !== orderId
     ) {
-
-      container.innerHTML = `
-
-        <div class="jnt-error">
-
-          <i
-            class="fa-solid
-            fa-triangle-exclamation"
-          ></i>
-
-          <div>
-
-            <strong>
-              Tracking unavailable
-            </strong>
-
-            <p>
-              ${
-                escapeHtml(
-                  data.message ||
-                  "Unable to retrieve J&T tracking."
-                )
-              }
-            </p>
-
-          </div>
-
-        </div>
-      `;
-
       return;
     }
 
-
-    const tracking =
-      data.tracking || {};
-
-
-    const latestLocation =
-      tracking.latest_location ||
-      "Location not yet available";
-
-
-    const latestMessage =
-      tracking.latest_message ||
-      "Waiting for J&T update.";
-
-
-    const latestDate =
-      tracking.latest_date
-        ? formatTrackingDate(
-            tracking.latest_date
-          )
-        : "Waiting for update";
-
-
-    const trackingNumber =
-      tracking.tracking_number ||
-      order.tracking_number;
-
-
-    const trackingStatus =
-      tracking.status ||
-      "In Transit";
-
-
-    container.innerHTML = `
-
-      <div class="jnt-update-card">
-
-
-        <!-- HEADER -->
-
-        <div class="jnt-update-header">
-
-          <div class="jnt-title">
-
-            <i
-              class="fa-solid
-              fa-truck-fast"
-            ></i>
-
-            <span>
-              Latest J&T Update
-            </span>
-
-          </div>
-
-
-          <span class="jnt-live-badge">
-            LIVE
-          </span>
-
-        </div>
-
-
-        <!-- STATUS -->
-
-        <div class="jnt-current-status">
-
-          <span>
-            Shipment Status
-          </span>
-
-          <strong>
-            ${
-              escapeHtml(
-                trackingStatus
-              )
-            }
-          </strong>
-
-        </div>
-
-
-        <!-- LOCATION -->
-
-        <div class="jnt-location">
-
-          <div class="jnt-location-icon">
-
-            <i
-              class="fa-solid
-              fa-location-dot"
-            ></i>
-
-          </div>
-
-
-          <div class="jnt-location-info">
-
-            <small>
-              Latest Location
-            </small>
-
-            <strong>
-              ${
-                escapeHtml(
-                  latestLocation
-                )
-              }
-            </strong>
-
-            <p>
-              ${
-                escapeHtml(
-                  latestMessage
-                )
-              }
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <!-- DATE -->
-
-        <div class="jnt-update-footer">
-
-          <div>
-
-            <i
-              class="fa-regular
-              fa-clock"
-            ></i>
-
-            ${
-              escapeHtml(
-                latestDate
-              )
-            }
-
-          </div>
-
-
-          <div>
-
-            Tracking:
-
-            <strong>
-              ${
-                escapeHtml(
-                  trackingNumber
-                )
-              }
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        ${
-          tracking.estimated_delivery
-            ? `
-
-              <div class="jnt-estimated">
-
-                <i
-                  class="fa-solid
-                  fa-calendar-check"
-                ></i>
-
-                Estimated Delivery:
-
-                <strong>
-
-                  ${
-                    escapeHtml(
-                      formatTrackingDate(
-                        tracking
-                          .estimated_delivery
-                      )
-                    )
-                  }
-
-                </strong>
-
-              </div>
-
-            `
-            : ""
-        }
-
-
-        ${
-          Array.isArray(
-            tracking.history
-          ) &&
-          tracking.history.length
-
-            ? `
-
-              <button
-                type="button"
-                class="jnt-history-btn"
-                onclick="
-                  window.toggleJntHistory()
-                "
-              >
-
-                <i
-                  class="fa-solid
-                  fa-clock-rotate-left"
-                ></i>
-
-                View Tracking History
-
-              </button>
-
-
-              <div
-                id="jntTrackingHistory"
-                class="jnt-tracking-history"
-                style="display:none;"
-              >
-
-                ${
-                  buildTrackingHistory(
-                    tracking.history
-                  )
-                }
-
-              </div>
-
-            `
-
-            : ""
-        }
-
-
-      </div>
-    `;
-
-
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Tracking information is unavailable."
+      );
+    }
+
+    const tracking = data.tracking || {};
+
+    displayJntTracking(tracking, order);
   } catch (error) {
+    if (
+      requestId !== trackingRequestId ||
+      selectedOrderId !== orderId
+    ) {
+      return;
+    }
 
-    console.error(
-      "J&T TRACKING ERROR:",
-      error
-    );
-
+    console.error("J&T TRACKING ERROR:", error);
 
     container.innerHTML = `
-
       <div class="jnt-error">
 
-        <i
-          class="fa-solid
-          fa-circle-exclamation"
-        ></i>
+        <i class="fa-solid fa-triangle-exclamation"></i>
 
         <div>
+          <strong>Tracking Unavailable</strong>
 
-          <strong>
-            Cannot load tracking
-          </strong>
+          <p>${escapeHtml(error.message)}</p>
 
-          <p>
-            ${
-              escapeHtml(
-                error.message ||
-                "Unable to connect to J&T tracking server."
-              )
-            }
-          </p>
-
+          <button
+            type="button"
+            class="jnt-history-btn"
+            data-action="refresh-tracking"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
+            Try Again
+          </button>
         </div>
 
       </div>
@@ -1266,280 +822,272 @@ async function loadLatestJntUpdate(
   }
 }
 
+/* ============================================
+   DISPLAY J&T TRACKING
+============================================ */
 
-/* =========================================================
-   BUILD J&T HISTORY
-========================================================= */
+function displayJntTracking(tracking, order) {
+  const container = document.getElementById("jntLatestUpdate");
 
-function buildTrackingHistory(
-  history
-) {
+  if (!container) return;
 
-  if (
-    !Array.isArray(history) ||
-    !history.length
-  ) {
+  const trackingNumber =
+    tracking.tracking_number || order.tracking_number;
 
+  const trackingStatus =
+    tracking.status || "Status not yet available";
+
+  const latestLocation =
+    tracking.latest_location || "Location not yet available";
+
+  const latestMessage =
+    tracking.latest_message || "Waiting for courier scan.";
+
+  const latestDate = tracking.latest_date
+    ? formatTrackingDate(tracking.latest_date)
+    : "No courier update yet";
+
+  const history = Array.isArray(tracking.history)
+    ? tracking.history
+    : [];
+
+  container.innerHTML = `
+
+    <div class="jnt-update-card">
+
+      <!-- COURIER HEADER -->
+      <div class="jnt-update-header">
+
+        <div class="jnt-title">
+          <i class="fa-solid fa-truck-fast"></i>
+
+          <div>
+            <strong>J&T Express</strong>
+            <p>Philippines Delivery Tracking</p>
+          </div>
+        </div>
+
+        <span class="jnt-live-badge">
+          Courier Updates
+        </span>
+
+      </div>
+
+      <!-- TRACKING NUMBER -->
+      <div class="jnt-tracking-number">
+
+        <span>Tracking Number</span>
+
+        <strong>
+          ${escapeHtml(trackingNumber)}
+        </strong>
+
+      </div>
+
+      <!-- SHIPMENT STATUS -->
+      <div class="jnt-current-status">
+
+        <span>Shipment Status</span>
+
+        <strong>
+          ${escapeHtml(trackingStatus)}
+        </strong>
+
+      </div>
+
+      <!-- LATEST LOCATION -->
+      <div class="jnt-location">
+
+        <div class="jnt-location-icon">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+
+        <div class="jnt-location-info">
+
+          <small>LATEST COURIER LOCATION</small>
+
+          <strong>
+            ${escapeHtml(latestLocation)}
+          </strong>
+
+          <p>
+            ${escapeHtml(latestMessage)}
+          </p>
+
+        </div>
+
+      </div>
+
+      <!-- COURIER UPDATE DATE -->
+      <div class="jnt-update-footer">
+
+        <div>
+          <i class="fa-regular fa-clock"></i>
+          ${escapeHtml(latestDate)}
+        </div>
+
+      </div>
+
+      ${
+        tracking.estimated_delivery
+          ? `
+            <div class="jnt-estimated">
+
+              <i class="fa-solid fa-calendar-check"></i>
+
+              <span>Estimated Delivery:</span>
+
+              <strong>
+                ${escapeHtml(
+                  formatTrackingDate(tracking.estimated_delivery)
+                )}
+              </strong>
+
+            </div>
+          `
+          : ""
+      }
+
+      <!-- TRACKING ACTIONS -->
+      <div class="jnt-tracking-actions">
+
+        <button
+          type="button"
+          class="jnt-history-btn"
+          data-action="refresh-tracking"
+        >
+          <i class="fa-solid fa-rotate-right"></i>
+          Refresh Tracking
+        </button>
+
+        ${
+          history.length
+            ? `
+              <button
+                type="button"
+                class="jnt-history-btn"
+                data-action="toggle-history"
+              >
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                View Tracking History
+              </button>
+            `
+            : ""
+        }
+
+      </div>
+
+      ${
+        history.length
+          ? `
+            <div
+  id="jntTrackingHistory"
+  class="jnt-tracking-history"
+>
+  <div class="jcn-section-title">
+    <i class="fa-solid fa-route"></i>
+    <span>J&T SHIPMENT JOURNEY</span>
+  </div>
+
+  ${buildTrackingHistory(history)}
+</div>
+          `
+          : `
+            <p class="jnt-no-history">
+              No courier checkpoint history available yet.
+            </p>
+          `
+      }
+
+    </div>
+  `;
+}
+
+/* ============================================
+   BUILD SHIPMENT HISTORY
+============================================ */
+
+function buildTrackingHistory(history) {
+  if (!Array.isArray(history) || !history.length) {
     return `
       <p class="jnt-no-history">
-        No tracking history available yet.
+        No tracking events available.
       </p>
     `;
   }
 
+  const sortedHistory = [...history].sort((a, b) => {
+    const aTime = new Date(a.date).getTime() || 0;
+    const bTime = new Date(b.date).getTime() || 0;
 
-  return history
-    .map(
-      (checkpoint, index) => `
+    return bTime - aTime;
+  });
 
-        <div
-          class="
-            jnt-history-item
-            ${
-              index === 0
-                ? "latest"
-                : ""
-            }
-          "
-        >
+  return sortedHistory.map((checkpoint, index) => {
+    return `
+      <div class="jnt-history-item ${index === 0 ? "latest" : ""}">
 
-          <div
-            class="jnt-history-marker"
-          >
+        <div class="jnt-history-marker">
+          <span class="jnt-history-dot"></span>
+        </div>
 
-            <span
-              class="jnt-history-dot"
-            ></span>
+        <div class="jnt-history-content">
 
-            ${
-              index <
-              history.length - 1
+          <strong>
+            ${escapeHtml(
+              checkpoint.location || "Location not provided"
+            )}
+          </strong>
 
-                ? `
-                  <span
-                    class="jnt-history-line"
-                  ></span>
-                `
+          <p>
+            ${escapeHtml(
+              checkpoint.message || "Shipment updated"
+            )}
+          </p>
 
-                : ""
-            }
-
-          </div>
-
-
-          <div
-            class="jnt-history-content"
-          >
-
-            <strong>
-
-              ${
-                escapeHtml(
-                  checkpoint.location ||
-                  "Location not provided"
-                )
-              }
-
-            </strong>
-
-
-            <p>
-
-              ${
-                escapeHtml(
-                  checkpoint.message ||
-                  "Shipment updated"
-                )
-              }
-
-            </p>
-
-
-            <small>
-
-              ${
-                escapeHtml(
-                  formatTrackingDate(
-                    checkpoint.date
-                  )
-                )
-              }
-
-            </small>
-
-          </div>
+          <small>
+            ${escapeHtml(formatTrackingDate(checkpoint.date))}
+          </small>
 
         </div>
-      `
-    )
-    .join("");
+
+      </div>
+    `;
+  }).join("");
 }
 
-
-/* =========================================================
-   TOGGLE J&T HISTORY
-========================================================= */
+/* ============================================
+   TOGGLE TRACKING HISTORY
+============================================ */
 
 function toggleJntHistory() {
+  const history = document.getElementById("jntTrackingHistory");
 
-  const history =
-    document.getElementById(
-      "jntTrackingHistory"
-    );
+  if (!history) return;
 
+  history.hidden = !history.hidden;
 
-  if (!history) {
-    return;
-  }
+  const button = document.querySelector(
+    '[data-action="toggle-history"]'
+  );
 
-
-  if (
-    history.style.display ===
-    "none"
-  ) {
-
-    history.style.display =
-      "block";
-
-  } else {
-
-    history.style.display =
-      "none";
-
+  if (button) {
+    button.innerHTML = history.hidden
+      ? '<i class="fa-solid fa-clock-rotate-left"></i> View Tracking History'
+      : '<i class="fa-solid fa-chevron-up"></i> Hide Tracking History';
   }
 }
 
-
-/* =========================================================
-   CONTINUE PAYPAL PAYMENT
-========================================================= */
-
-async function continueToPay(
-  orderId
-) {
-
-  try {
-
-    Swal.fire({
-
-      title:
-        "Connecting to PayPal",
-
-      text:
-        "Please wait...",
-
-      allowOutsideClick:
-        false,
-
-      allowEscapeKey:
-        false,
-
-      didOpen() {
-        Swal.showLoading();
-      }
-
-    });
-
-
-    const response =
-      await fetch(
-        `${API_URL}/api/paypal/create-redirect-order`,
-        {
-
-          method:
-            "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify({
-              system_order_id:
-                orderId
-            })
-
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    Swal.close();
-
-
-    if (
-      !response.ok ||
-      !data.success ||
-      !data.approve_url
-    ) {
-
-      await showError(
-        data.message ||
-        "Cannot continue PayPal payment."
-      );
-
-      return;
-    }
-
-
-    localStorage.setItem(
-      "lastOrderId",
-      orderId
-    );
-
-
-    if (
-      data.paypal_order_id
-    ) {
-
-      localStorage.setItem(
-        "paypalOrderId",
-        data.paypal_order_id
-      );
-
-    }
-
-
-    window.location.href =
-      data.approve_url;
-
-
-  } catch (error) {
-
-    Swal.close();
-
-    console.error(
-      "PAYPAL ERROR:",
-      error
-    );
-
-
-    await showError(
-      "Cannot connect to PayPal server."
-    );
-
-  }
-}
-
-
-/* =========================================================
-   CAN CANCEL?
-========================================================= */
+/* ============================================
+   CAN CANCEL ORDER?
+============================================ */
 
 function canCancelOrder(order) {
+  const status = normalizeStatus(order.status);
 
-  const status =
-    normalizeStatus(
-      order.status
-    );
-
+  if (isCancelledOrder(order)) return false;
 
   if (
-    status === "Cancelled" ||
     status === "To Ship" ||
     status === "To Receive" ||
     status === "Completed"
@@ -1547,884 +1095,342 @@ function canCancelOrder(order) {
     return false;
   }
 
-
   return (
-
     status === "Pending" ||
-
-    status === "Processing" ||
-
-    order.status ===
-      "Pending Payment" ||
-
-    order.payment_status ===
-      "Unpaid"
-
+    status === "Processing"
   );
 }
 
-
-/* =========================================================
-   STATUS STEP
-========================================================= */
-
-function statusStep(
-  step,
-  currentStatus
-) {
-
-  if (
-    currentStatus ===
-    "Cancelled"
-  ) {
-
-    return `
-
-      <div class="step">
-
-        <span class="dot"></span>
-
-        <div>
-
-          <strong>
-            ${step}
-          </strong>
-
-          <p>
-            ${getStatusText(step)}
-          </p>
-
-        </div>
-
-      </div>
-    `;
-  }
-
-
-  const orderSteps = [
-
-    "Pending",
-
-    "Processing",
-
-    "To Ship",
-
-    "To Receive",
-
-    "Completed"
-
-  ];
-
-
-  const currentIndex =
-    orderSteps.indexOf(
-      currentStatus
-    );
-
-
-  const stepIndex =
-    orderSteps.indexOf(
-      step
-    );
-
-
-  const active =
-    currentIndex >= 0 &&
-    stepIndex >= 0 &&
-    stepIndex <= currentIndex;
-
-
-  return `
-
-    <div
-      class="
-        step
-        ${active ? "active" : ""}
-      "
-    >
-
-      <span class="dot"></span>
-
-      <div>
-
-        <strong>
-          ${step}
-        </strong>
-
-        <p>
-          ${getStatusText(step)}
-        </p>
-
-      </div>
-
-    </div>
-  `;
-}
-
-
-/* =========================================================
-   STATUS TEXT
-========================================================= */
-
-function getStatusText(
-  status
-) {
-
-  if (
-    status === "Pending"
-  ) {
-    return "Waiting for payment.";
-  }
-
-
-  if (
-    status === "Processing"
-  ) {
-    return "Your order is being prepared.";
-  }
-
-
-  if (
-    status === "To Ship"
-  ) {
-    return "Your order is ready to ship.";
-  }
-
-
-  if (
-    status === "To Receive"
-  ) {
-    return "Your order is on the way.";
-  }
-
-
-  if (
-    status === "Completed"
-  ) {
-    return "Your order has been completed.";
-  }
-
-
-  return "";
-}
-
-
-/* =========================================================
-   NORMALIZE STATUS
-========================================================= */
-
-function normalizeStatus(
-  status
-) {
-
-  if (!status) {
-    return "Pending";
-  }
-
-
-  if (
-    status === "Preparing"
-  ) {
-    return "Processing";
-  }
-
-
-  if (
-    status === "Processing"
-  ) {
-    return "Processing";
-  }
-
-
-  if (
-    status === "To Pay"
-  ) {
-    return "Pending";
-  }
-
-
-  if (
-    status === "Pending"
-  ) {
-    return "Pending";
-  }
-
-
-  if (
-    status ===
-    "Pending Payment"
-  ) {
-    return "Pending";
-  }
-
-
-  if (
-    status === "To Ship"
-  ) {
-    return "To Ship";
-  }
-
-
-  if (
-    status ===
-    "To Deliver"
-  ) {
-    return "To Receive";
-  }
-
-
-  if (
-    status === "Shipped"
-  ) {
-    return "To Receive";
-  }
-
-
-  if (
-    status ===
-    "To Receive"
-  ) {
-    return "To Receive";
-  }
-
-
-  if (
-    status === "Completed"
-  ) {
-    return "Completed";
-  }
-
-
-  if (
-    status === "Delivered"
-  ) {
-    return "Completed";
-  }
-
-
-  if (
-    status === "Cancelled" ||
-    status === "Canceled"
-  ) {
-    return "Cancelled";
-  }
-
-
-  return status;
-}
-
-
-/* =========================================================
-   CANCEL ORDER
-========================================================= */
-
-async function cancelOrder(
-  orderId
-) {
-
-  const result =
-    await Swal.fire({
-
-      title:
-        "Cancel Order",
-
-      text:
-        "Are you sure you want to cancel this order?",
-
-      icon:
-        "warning",
-
-      showCancelButton:
-        true,
-
-      confirmButtonText:
-        "Yes, Cancel Order",
-
-      cancelButtonText:
-        "Keep Order",
-
-      customClass: {
-
-        popup:
-          "jcn-popup",
-
-        title:
-          "jcn-warning-title",
-
-        confirmButton:
-          "jcn-danger-btn",
-
-        cancelButton:
-          "jcn-cancel-btn"
-
-      },
-
-      buttonsStyling:
-        false
-
-    });
-
-
-  if (!result.isConfirmed) {
+/* ============================================
+   CANCEL CUSTOMER ORDER
+============================================ */
+
+async function cancelOrder(orderId) {
+  const order = allOrders.find(item =>
+    String(item.id) === String(orderId)
+  );
+
+  if (!order || !canCancelOrder(order)) {
+    await showError("This order can no longer be cancelled.");
     return;
   }
 
+  const result = await Swal.fire({
+    icon: "warning",
+    title: "Cancel Order?",
+    text: "Are you sure you want to cancel this order?",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Cancel Order",
+    cancelButtonText: "Keep Order",
+    customClass: {
+      popup: "jcn-popup",
+      title: "jcn-warning-title",
+      confirmButton: "jcn-danger-btn",
+      cancelButton: "jcn-cancel-btn"
+    },
+    buttonsStyling: false
+  });
+
+  if (!result.isConfirmed) return;
 
   try {
-
-    const response =
-      await fetch(
-        `${API_URL}/api/customer/orders/${orderId}/cancel`,
-        {
-          method:
-            "PATCH"
+    const response = await fetch(
+      `${API_URL}/api/customer/orders/${encodeURIComponent(orderId)}/cancel`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("customerToken")}`
         }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-
-      await showError(
-        data.message ||
-        "Failed to cancel order."
-      );
-
-      return;
-    }
-
-
-    showSuccess(
-      "Order cancelled successfully."
+      }
     );
 
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Failed to cancel order."
+      );
+    }
+
+    showSuccess("Order cancelled successfully.");
 
     await loadOrders();
-
-
-    const details =
-      document.getElementById(
-        "orderDetails"
-      );
-
-
-    if (details) {
-
-      details.innerHTML = `
-
-        <p class="empty">
-          Select an order to view details.
-        </p>
-      `;
-
-    }
-
-
   } catch (error) {
-
-    console.error(
-      "CANCEL ERROR:",
-      error
-    );
-
-
-    await showError(
-      "Cannot connect to server."
-    );
-
+    console.error("CANCEL ORDER ERROR:", error);
+    await showError(error.message);
   }
 }
 
+/* ============================================
+   COMPLETE CUSTOMER ORDER
+============================================ */
 
-/* =========================================================
-   COMPLETE ORDER
-========================================================= */
+async function completeOrder(orderId) {
+  const order = allOrders.find(item =>
+    String(item.id) === String(orderId)
+  );
 
-async function completeOrder(
-  orderId
-) {
-
-  const result =
-    await Swal.fire({
-
-      title:
-        "Complete Order",
-
-      text:
-        "Confirm that you already received this order?",
-
-      icon:
-        "question",
-
-      showCancelButton:
-        true,
-
-      confirmButtonText:
-        "Yes, I Received It",
-
-      cancelButtonText:
-        "Cancel",
-
-      customClass: {
-
-        popup:
-          "jcn-popup",
-
-        title:
-          "jcn-title",
-
-        confirmButton:
-          "jcn-confirm-btn",
-
-        cancelButton:
-          "jcn-cancel-btn"
-
-      },
-
-      buttonsStyling:
-        false
-
-    });
-
-
-  if (!result.isConfirmed) {
+  if (
+    !order ||
+    isCancelledOrder(order) ||
+    normalizeStatus(order.status) !== "To Receive"
+  ) {
+    await showError("This order is not ready for receipt confirmation.");
     return;
   }
 
+  const result = await Swal.fire({
+    icon: "question",
+    title: "Order Received?",
+    text: "Confirm that you have already received this order.",
+    showCancelButton: true,
+    confirmButtonText: "Yes, I Received It",
+    cancelButtonText: "Cancel",
+    customClass: {
+      popup: "jcn-popup",
+      confirmButton: "jcn-confirm-btn",
+      cancelButton: "jcn-cancel-btn"
+    },
+    buttonsStyling: false
+  });
+
+  if (!result.isConfirmed) return;
 
   try {
-
-    const response =
-      await fetch(
-        `${API_URL}/api/customer/orders/${orderId}/complete`,
-        {
-          method:
-            "PATCH"
+    const response = await fetch(
+      `${API_URL}/api/customer/orders/${encodeURIComponent(orderId)}/complete`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("customerToken")}`
         }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-
-      await showError(
-        data.message ||
-        "Failed to complete order."
-      );
-
-      return;
-    }
-
-
-    showSuccess(
-      "Order received successfully."
+      }
     );
 
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Failed to complete order."
+      );
+    }
+
+    showSuccess("Order received successfully!");
 
     await loadOrders();
-
-
-    const details =
-      document.getElementById(
-        "orderDetails"
-      );
-
-
-    if (details) {
-
-      details.innerHTML = `
-
-        <p class="empty">
-          Select an order to view details.
-        </p>
-      `;
-
-    }
-
-
   } catch (error) {
-
-    console.error(
-      "COMPLETE ORDER ERROR:",
-      error
-    );
-
-
-    await showError(
-      "Cannot connect to server."
-    );
-
+    console.error("COMPLETE ORDER ERROR:", error);
+    await showError(error.message);
   }
 }
 
+/* ============================================
+   CONTINUE PAYPAL PAYMENT
+============================================ */
 
-/* =========================================================
-   LOGOUT
-========================================================= */
+async function continueToPay(orderId) {
+  const order = allOrders.find(item =>
+    String(item.id) === String(orderId)
+  );
 
-async function logoutCustomer(
-  event
-) {
-
-  if (event) {
-    event.preventDefault();
-  }
-
-
-  const result =
-    await Swal.fire({
-
-      icon:
-        "question",
-
-      title:
-        "Logout?",
-
-      text:
-        "Are you sure you want to logout?",
-
-      showCancelButton:
-        true,
-
-      confirmButtonText:
-        "Logout",
-
-      cancelButtonText:
-        "Cancel",
-
-      customClass: {
-
-        popup:
-          "jcn-popup",
-
-        confirmButton:
-          "jcn-confirm-btn",
-
-        cancelButton:
-          "jcn-cancel-btn"
-
-      },
-
-      buttonsStyling:
-        false
-
-    });
-
-
-  if (!result.isConfirmed) {
+  if (!order || !isWaitingPayment(order)) {
+    await showError("This order is not awaiting PayPal payment.");
     return;
   }
 
+  try {
+    Swal.fire({
+      title: "Connecting to PayPal",
+      text: "Preparing your payment...",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
-  localStorage.removeItem(
-    "customerToken"
-  );
+    const response = await fetch(
+      `${API_URL}/api/paypal/create-redirect-order`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("customerToken")}`
+        },
+        body: JSON.stringify({
+          system_order_id: orderId
+        })
+      }
+    );
 
+    const data = await response.json();
 
-  localStorage.removeItem(
-    "customerUser"
-  );
+    Swal.close();
 
+    if (!response.ok || !data.success || !data.approve_url) {
+      throw new Error(
+        data.message || "Unable to continue PayPal payment."
+      );
+    }
 
-  /*
-    Keep customerCart if you want
-    cart contents to remain.
-  */
+    const approveUrl = new URL(data.approve_url);
 
+    if (
+      approveUrl.protocol !== "https:" ||
+      !(
+        approveUrl.hostname === "paypal.com" ||
+        approveUrl.hostname.endsWith(".paypal.com")
+      )
+    ) {
+      throw new Error("Invalid PayPal approval URL.");
+    }
 
-  window.location.href =
-    "../../index.html";
+    localStorage.setItem("lastOrderId", orderId);
+
+    if (data.paypal_order_id) {
+      localStorage.setItem(
+        "paypalOrderId",
+        data.paypal_order_id
+      );
+    }
+
+    window.location.href = approveUrl.href;
+  } catch (error) {
+    Swal.close();
+
+    console.error("PAYPAL PAYMENT ERROR:", error);
+    await showError(error.message);
+  }
 }
 
-
-/* =========================================================
+/* ============================================
    SUCCESS TOAST
-========================================================= */
+============================================ */
 
-function showSuccess(
-  message
-) {
+function showSuccess(message) {
+  const existing = document.querySelector(".jcn-success-toast");
 
-  const oldToast =
-    document.querySelector(
-      ".jcn-success-toast"
-    );
+  if (existing) existing.remove();
 
+  const toast = document.createElement("div");
 
-  if (oldToast) {
-    oldToast.remove();
-  }
-
-
-  const toast =
-    document.createElement(
-      "div"
-    );
-
-
-  toast.className =
-    "jcn-success-toast";
-
+  toast.className = "jcn-success-toast";
 
   toast.innerHTML = `
-
-    <i
-      class="fa-solid
-      fa-circle-check"
-    ></i>
-
-    <span>
-      ${escapeHtml(message)}
-    </span>
+    <i class="fa-solid fa-circle-check"></i>
+    <span>${escapeHtml(message)}</span>
   `;
 
+  document.body.appendChild(toast);
 
-  document.body.appendChild(
-    toast
-  );
+  requestAnimationFrame(() => {
+    toast.classList.add("show");
+  });
 
+  setTimeout(() => {
+    toast.classList.remove("show");
 
-  setTimeout(
-    () => {
-      toast.classList.add(
-        "show"
-      );
-    },
-    50
-  );
-
-
-  setTimeout(
-    () => {
-
-      toast.classList.remove(
-        "show"
-      );
-
-
-      setTimeout(
-        () => {
-          toast.remove();
-        },
-        300
-      );
-
-    },
-    2500
-  );
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 2500);
 }
 
-
-/* =========================================================
+/* ============================================
    ERROR ALERT
-========================================================= */
+============================================ */
 
-async function showError(
-  message
-) {
-
+async function showError(message) {
   await Swal.fire({
-
-    icon:
-      "error",
-
-    title:
-      "Error",
-
-    text:
-      message,
-
-    confirmButtonText:
-      "OK",
-
+    icon: "error",
+    title: "Error",
+    text: String(message || "An error occurred."),
+    confirmButtonText: "OK",
     customClass: {
-
-      popup:
-        "jcn-popup",
-
-      title:
-        "jcn-error-title",
-
-      confirmButton:
-        "jcn-confirm-btn"
-
+      popup: "jcn-popup",
+      confirmButton: "jcn-confirm-btn"
     },
-
-    buttonsStyling:
-      false
-
+    buttonsStyling: false
   });
 }
 
+/* ============================================
+   FORMAT CURRENCY
+============================================ */
 
-/* =========================================================
-   DATE FORMAT
-========================================================= */
-
-function formatDate(
-  dateValue
-) {
-
-  if (!dateValue) {
-    return "N/A";
-  }
-
-
-  const date =
-    new Date(
-      dateValue
-    );
-
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return dateValue;
-  }
-
-
-  return date.toLocaleDateString(
-    "en-PH",
-    {
-      month:
-        "short",
-
-      day:
-        "numeric",
-
-      year:
-        "numeric"
-    }
-  );
+function formatCurrency(amount) {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+    minimumFractionDigits: 2
+  }).format(Number(amount) || 0);
 }
 
+/* ============================================
+   FORMAT ORDER DATE
+============================================ */
 
-/* =========================================================
-   J&T DATE/TIME FORMAT
-========================================================= */
+function formatDate(value) {
+  if (!value) return "N/A";
 
-function formatTrackingDate(
-  dateValue
-) {
+  const date = new Date(value);
 
-  if (!dateValue) {
-    return "Waiting for update";
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
   }
 
-
-  const date =
-    new Date(
-      dateValue
-    );
-
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return dateValue;
-  }
-
-
-  return date.toLocaleString(
-    "en-PH",
-    {
-
-      timeZone:
-        "Asia/Manila",
-
-      month:
-        "short",
-
-      day:
-        "numeric",
-
-      year:
-        "numeric",
-
-      hour:
-        "numeric",
-
-      minute:
-        "2-digit",
-
-      hour12:
-        true
-
-    }
-  );
+  return date.toLocaleDateString("en-PH", {
+    timeZone: "Asia/Manila",
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
 }
 
+/* ============================================
+   FORMAT TRACKING DATE
+============================================ */
 
-/* =========================================================
+function formatTrackingDate(value) {
+  if (!value) return "Waiting for update";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleString("en-PH", {
+    timeZone: "Asia/Manila",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  });
+}
+
+/* ============================================
    HTML SECURITY
-========================================================= */
+============================================ */
 
-function escapeHtml(
-  value
-) {
-
-  return String(
-    value ?? ""
-  )
-
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-
-/* =========================================================
+/* ============================================
    GLOBAL FUNCTIONS
-========================================================= */
+============================================ */
 
-window.selectOrder =
-  selectOrder;
-
-window.continueToPay =
-  continueToPay;
-
-window.cancelOrder =
-  cancelOrder;
-
-window.completeOrder =
-  completeOrder;
-
-window.toggleJntHistory =
-  toggleJntHistory;
+window.selectOrder = selectOrder;
+window.cancelOrder = cancelOrder;
+window.completeOrder = completeOrder;
+window.continueToPay = continueToPay;
+window.toggleJntHistory = toggleJntHistory;
+window.loadOrders = loadOrders;

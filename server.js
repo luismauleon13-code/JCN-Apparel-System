@@ -366,22 +366,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-async function sendSMS(number, message) {
-  await axios.post(
-    "https://api.semaphore.co/api/v4/messages",
-    new URLSearchParams({
-      apikey: process.env.SEMAPHORE_API_KEY,
-      number,
-      message
-    }),
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    }
-  );
-}
-
 // =========================================================
 // CUSTOMER — REGISTRATION OTP
 // =========================================================
@@ -1052,6 +1036,69 @@ app.post("/api/auth/reset-password", async (req, res) => {
     });
   }
 });
+
+
+/* ==========================================
+   CUSTOMER VERIFY RESET OTP
+========================================== */
+
+app.post("/api/auth/verify-reset-otp", async (req, res) => {
+  try {
+    const email = String(req.body?.email || "")
+      .trim()
+      .toLowerCase();
+
+    const otp = String(req.body?.otp || "").trim();
+
+    if (!email || !/^\d{6}$/.test(otp)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid email and 6-digit OTP are required."
+      });
+    }
+
+    const savedOtp = resetOtps[email];
+
+    if (!savedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "No OTP request found. Please request a new code."
+      });
+    }
+
+    if (Date.now() > savedOtp.expires) {
+      delete resetOtps[email];
+
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired. Please request a new code."
+      });
+    }
+
+    if (savedOtp.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP. Please try again."
+      });
+    }
+
+    // Keep OTP temporarily for final password reset.
+    // The reset-password route must validate it again.
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully."
+    });
+
+  } catch (error) {
+    console.error("VERIFY RESET OTP ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to verify OTP."
+    });
+  }
+});
+
 
 app.post("/api/auth/forgot-password", async (req, res) => {
   try {
@@ -4175,235 +4222,301 @@ app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
 });
 
 // =========================================================
-// ADD J&T TRACKING NUMBER
+// LIVE J&T EXPRESS PHILIPPINES / AFTERSHIP TRACKING
+// Requires AFTERSHIP_API_KEY and orders tracking columns.
+// AfterShip 2026-07 responses place tracking directly in data.
 // =========================================================
 
-app.post("/api/orders/:id/tracking", async (req, res) => {
+const AFTERSHIP_TRACKING_BASE = "https://api.aftership.com/tracking/2026-07";
+const JNT_COURIER_SLUG = "jtexpress-ph";
+
+async function aftershipTrackingRequest(method, endpoint, payload) {
+  if (!process.env.AFTERSHIP_API_KEY) {
+    const error = new Error("AFTERSHIP_API_KEY is not configured in .env.");
+    error.status = 503;
+    throw error;
+  }
+
   try {
-    const { id } = req.params;
-    const { tracking_number } = req.body || {};
+    const response = await axios({
+      method,
+      url: `${AFTERSHIP_TRACKING_BASE}${endpoint}`,
+      headers: {
+        "as-api-key": process.env.AFTERSHIP_API_KEY,
+        "Content-Type": "application/json"
+      },
+      data: payload,
+      timeout: 15000
+    });
 
-    if (
-      !tracking_number ||
-      String(tracking_number).trim() === ""
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Tracking number is required."
+    return response.data?.data || {};
+  } catch (error) {
+    const message = error.response?.data?.meta?.message || error.message;
+    const wrapped = new Error(`AfterShip: ${message}`);
+    wrapped.status = error.response?.status || 502;
+    throw wrapped;
+  }
+}
+
+function normalizeAftershipTracking(raw, fallbackNumber) {
+  const tracking = raw?.tracking || raw || {};
+  const checkpoints = Array.isArray(tracking.checkpoints)
+    ? [...tracking.checkpoints]
+    : [];
+
+  checkpoints.sort((a, b) => {
+    const left = Date.parse(a.checkpoint_time || a.created_at || "") || 0;
+    const right = Date.parse(b.checkpoint_time || b.created_at || "") || 0;
+    return right - left;
+  });
+
+  const history = checkpoints.map(point => ({
+    location: point.location || [
+      point.city,
+      point.state,
+      point.country_region_name || point.country_name
+    ].filter(Boolean).join(", ") || null,
+    message: point.message || point.subtag_message || "Shipment scanned",
+    date: point.checkpoint_time || point.created_at || null
+  }));
+
+  const latest = history[0] || {};
+  return {
+    tracking_number: tracking.tracking_number || fallbackNumber,
+    courier: "J&T Express",
+    aftership_tracking_id: tracking.id || null,
+    status: tracking.tag || "Pending",
+    latest_location: latest.location || null,
+    latest_message: latest.message || null,
+    latest_date: latest.date || null,
+    estimated_delivery:
+      tracking.courier_estimated_delivery_date?.estimated_delivery_date ||
+      tracking.aftership_estimated_delivery_date?.estimated_delivery_date ||
+      null,
+    history
+  };
+}
+
+function courierToJcnOrderStatus(courierStatus, existingStatus) {
+  // Delivered remains 'To Receive' until customer confirms receipt.
+  // Never override completed or cancelled local orders.
+  if (["Completed", "Cancelled", "Canceled"].includes(existingStatus)) {
+    return existingStatus;
+  }
+
+  const status = String(courierStatus || "").toLowerCase();
+  if (["intransit", "outfordelivery", "attemptfail", "availableforpickup", "exception", "delivered"].includes(status)) {
+    return "To Receive";
+  }
+  if (["pending", "inforeceived"].includes(status)) {
+    return "To Ship";
+  }
+  return existingStatus;
+}
+
+async function findAftershipTrackingByNumber(trackingNumber) {
+  const query = new URLSearchParams({
+    tracking_numbers: String(trackingNumber),
+    slug: JNT_COURIER_SLUG,
+    limit: "20"
+  });
+  const data = await aftershipTrackingRequest("GET", `/trackings?${query}`);
+  const trackings = Array.isArray(data.trackings) ? data.trackings : [];
+  return trackings.find(item =>
+    String(item.tracking_number || "") === String(trackingNumber) &&
+    (!item.slug || item.slug === JNT_COURIER_SLUG)
+  ) || null;
+}
+
+async function loadAftershipTrackingForOrder(order) {
+  let trackingId = order.aftership_tracking_id;
+  if (!trackingId) {
+    const found = await findAftershipTrackingByNumber(order.tracking_number);
+    if (!found) return null;
+    trackingId = found.id;
+    if (!trackingId) return null;
+  }
+
+  const result = await aftershipTrackingRequest(
+    "GET",
+    `/trackings/${encodeURIComponent(trackingId)}`
+  );
+  const tracking = normalizeAftershipTracking(result, order.tracking_number);
+  if (String(tracking.tracking_number) !== String(order.tracking_number)) {
+    throw new Error("AfterShip tracking number does not match the saved order.");
+  }
+
+  const updatePayload = {
+    aftership_tracking_id: trackingId,
+    tracking_status: tracking.status,
+    tracking_location: tracking.latest_location,
+    tracking_message: tracking.latest_message,
+    tracking_updated_at: tracking.latest_date || null,
+    status: courierToJcnOrderStatus(tracking.status, order.status)
+  };
+
+  const { error } = await supabase.from("orders")
+    .update(updatePayload)
+    .eq("id", order.id)
+    .eq("tracking_number", order.tracking_number);
+  if (error) throw error;
+  return tracking;
+}
+
+// Admin only: create/register tracking when a real J&T airway bill exists.
+app.post(
+  "/api/orders/:id/tracking",
+  verifyStaffToken,
+  allowRoles("admin", "inventory_staff"),
+  async (req, res) => {
+    try {
+      const trackingNumber = String(req.body?.tracking_number || "").trim();
+      if (!/^[A-Za-z0-9-]{4,100}$/.test(trackingNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: "Enter a valid J&T tracking number (4-100 letters/numbers)."
+        });
+      }
+
+      const { data: order, error } = await supabase.from("orders")
+        .select("*")
+        .eq("id", req.params.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+            
+const preparationStatus = String(
+  order.inventory_preparation || ""
+).trim().toLowerCase();
+
+const readyStatuses = [
+  "ready",
+  "ready to ship",
+  "prepared"
+];
+
+if (!readyStatuses.includes(preparationStatus)) {
+  return res.status(400).json({
+    success: false,
+    message:
+      "The order must be marked Ready to Ship before registering J&T tracking."
+  });
+}
+
+const paymentMethod = String(
+  order.payment_method || ""
+).trim().toLowerCase();
+
+const paymentStatus = String(
+  order.payment_status || ""
+).trim().toLowerCase();
+
+if (
+  paymentMethod === "paypal" &&
+  paymentStatus !== "paid"
+) {
+  return res.status(400).json({
+    success: false,
+    message:
+      "PayPal payment must be verified before registering tracking."
+  });
+}
+
+if (!["cod", "paypal"].includes(paymentMethod)) {
+  return res.status(400).json({
+    success: false,
+    message: "Unsupported payment method."
+  });
+}
+
+      
+      if (["Cancelled", "Canceled", "Completed", "Delivered"].includes(order.status)) {
+        return res.status(400).json({ success: false, message: "Cannot add tracking to a closed order." });
+      }
+
+      let registered;
+      if (String(order.tracking_number || "") === trackingNumber && order.aftership_tracking_id) {
+        registered = await aftershipTrackingRequest("GET", `/trackings/${encodeURIComponent(order.aftership_tracking_id)}`);
+      } else {
+        // Reuse an already-registered tracking number rather than duplicate it.
+        registered = await findAftershipTrackingByNumber(trackingNumber);
+        if (!registered) {
+          registered = await aftershipTrackingRequest("POST", "/trackings", {
+            tracking_number: trackingNumber,
+            slug: JNT_COURIER_SLUG,
+            title: String(order.order_number || order.id),
+            order_id: String(order.id)
+          });
+        }
+      }
+
+      if (registered.order_id && String(registered.order_id) !== String(order.id)) {
+        return res.status(409).json({
+          success: false,
+          message: "This tracking number is already registered to a different order in AfterShip."
+        });
+      }
+
+      const tracking = normalizeAftershipTracking(registered, trackingNumber);
+      if (!tracking.aftership_tracking_id) {
+        throw new Error("AfterShip did not return a tracking ID.");
+      }
+      if (tracking.tracking_number !== trackingNumber) {
+        throw new Error("AfterShip returned a different tracking number.");
+      }
+
+      const { data: updatedOrder, error: saveError } = await supabase.from("orders")
+        .update({
+          tracking_number: trackingNumber,
+          courier: "J&T Express",
+          aftership_tracking_id: tracking.aftership_tracking_id,
+          tracking_status: tracking.status,
+          tracking_message: tracking.latest_message,
+          tracking_location: tracking.latest_location,
+          tracking_updated_at: tracking.latest_date,
+          status: courierToJcnOrderStatus(tracking.status, "To Ship")
+        })
+        .eq("id", order.id)
+        .select()
+        .single();
+      if (saveError) throw saveError;
+
+      return res.json({
+        success: true,
+        message: "J&T tracking registered with AfterShip successfully.",
+        order: updatedOrder,
+        tracking
       });
+    } catch (error) {
+      console.error("REGISTER J&T ERROR:", error.message);
+      return res.status(error.status || 500).json({ success: false, message: error.message });
     }
+  }
+);
 
-    const trackingNumber = String(tracking_number).trim();
-
-    const {
-      data: order,
-      error: orderFetchError
-    } = await supabase
-      .from("orders")
+// Customer only: get actual courier checkpoints for their own order.
+app.get("/api/orders/:id/tracking", verifyCustomerToken, async (req, res) => {
+  try {
+    const { data: order, error } = await supabase.from("orders")
       .select("*")
-      .eq("id", id)
-      .single();
+      .eq("id", req.params.id)
+      .eq("user_id", req.customer.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+    if (!order.tracking_number) return res.status(404).json({ success: false, message: "No J&T tracking number yet." });
 
-    if (orderFetchError || !order) {
-      console.error("ORDER FETCH ERROR:", orderFetchError);
-
+    const tracking = await loadAftershipTrackingForOrder(order);
+    if (!tracking) {
       return res.status(404).json({
         success: false,
-        message: "Order not found."
+        message: "Tracking number is not registered in AfterShip yet. Ask the administrator to register it."
       });
     }
-
-    if (
-      order.status === "Cancelled" ||
-      order.status === "Canceled"
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot add tracking to a cancelled order."
-      });
-    }
-
-    if (
-      order.status === "Completed" ||
-      order.status === "Delivered"
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot add tracking to a completed order."
-      });
-    }
-
-    let aftershipTracking = null;
-
-    try {
-      const aftershipResponse = await axios.post(
-        "https://api.aftership.com/tracking/2024-04/trackings",
-        {
-          tracking: {
-            tracking_number: trackingNumber,
-            slug: "jtexpress-ph",
-            title: order.order_number || `Order ${order.id}`,
-            order_id: String(order.order_number || order.id)
-          }
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "as-api-key": process.env.AFTERSHIP_API_KEY
-          }
-        }
-      );
-
-      aftershipTracking =
-        aftershipResponse.data?.data?.tracking || null;
-    } catch (aftershipError) {
-      console.error(
-        "AFTERSHIP CREATE ERROR:",
-        aftershipError.response?.data || aftershipError.message
-      );
-    }
-
-    let aftershipTrackingId = null;
-    let latestLocation = null;
-    let latestCheckpointDate = null;
-    let latestMessage = null;
-
-    if (aftershipTracking) {
-      aftershipTrackingId = aftershipTracking.id || null;
-
-      const checkpoints = Array.isArray(aftershipTracking.checkpoints)
-        ? aftershipTracking.checkpoints
-        : [];
-
-      if (checkpoints.length > 0) {
-        const sortedCheckpoints = [...checkpoints].sort((a, b) => {
-          const dateA = new Date(
-            a.checkpoint_time || 0
-          ).getTime();
-
-          const dateB = new Date(
-            b.checkpoint_time || 0
-          ).getTime();
-
-          return dateB - dateA;
-        });
-
-        const latest = sortedCheckpoints[0];
-
-        latestLocation =
-          latest.location ||
-          [
-            latest.city,
-            latest.state,
-            latest.country_name
-          ].filter(Boolean).join(", ") ||
-          null;
-
-        latestCheckpointDate = latest.checkpoint_time || null;
-
-        latestMessage =
-          latest.message ||
-          latest.subtag_message ||
-          null;
-      }
-    }
-
-    let newOrderStatus = "To Ship";
-
-    const aftershipStatus = String(aftershipTracking?.tag || "")
-      .trim()
-      .toLowerCase();
-
-    if (
-      aftershipStatus === "" ||
-      aftershipStatus === "pending" ||
-      aftershipStatus === "inforeceived" ||
-      aftershipStatus === "info_received"
-    ) {
-      newOrderStatus = "To Ship";
-    } else if (
-      aftershipStatus === "intransit" ||
-      aftershipStatus === "in_transit" ||
-      aftershipStatus === "outfordelivery" ||
-      aftershipStatus === "out_for_delivery" ||
-      aftershipStatus === "attemptfail" ||
-      aftershipStatus === "attempt_fail" ||
-      aftershipStatus === "exception"
-    ) {
-      newOrderStatus = "To Receive";
-    } else if (aftershipStatus === "delivered") {
-      newOrderStatus = "To Receive";
-    }
-
-    if (newOrderStatus === "To Ship" && !latestMessage) {
-      latestMessage = "Waiting for J&T courier pickup.";
-    }
-
-    const updatePayload = {
-      tracking_number: trackingNumber,
-      courier: "J&T Express",
-      status: newOrderStatus,
-      tracking_message: latestMessage
-    };
-
-    if (aftershipTrackingId) {
-      updatePayload.aftership_tracking_id = aftershipTrackingId;
-    }
-
-    if (latestLocation) {
-      updatePayload.tracking_location = latestLocation;
-    }
-
-    if (latestCheckpointDate) {
-      updatePayload.tracking_updated_at = latestCheckpointDate;
-    }
-
-    const {
-      data: updatedOrder,
-      error: updateError
-    } = await supabase
-      .from("orders")
-      .update(updatePayload)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error("TRACKING DATABASE UPDATE ERROR:", updateError);
-
-      return res.status(400).json({
-        success: false,
-        message: updateError.message
-      });
-    }
-
-    return res.json({
-      success: true,
-      message:
-        newOrderStatus === "To Ship"
-          ? "Tracking number added. Waiting for J&T courier pickup."
-          : "Tracking number added and shipment is already in transit.",
-      order: updatedOrder,
-      tracking: {
-        tracking_number: trackingNumber,
-        courier: "J&T Express",
-        aftership_tracking_id: aftershipTrackingId,
-        status:
-          newOrderStatus === "To Ship"
-            ? "Waiting for Courier"
-            : "In Transit",
-        latest_location: latestLocation,
-        latest_date: latestCheckpointDate,
-        latest_message: latestMessage
-      }
-    });
+    return res.json({ success: true, tracking });
   } catch (error) {
-    console.error("ADD J&T TRACKING ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Unable to add J&T tracking number."
-    });
+    console.error("CUSTOMER J&T TRACKING ERROR:", error.message);
+    return res.status(error.status || 502).json({ success: false, message: error.message });
   }
 });
 
@@ -4438,66 +4551,26 @@ app.get("/api/orders", async (req, res) => {
 });
 
 // =========================================================
-// EXISTING TRACKING SYNC
+// ADMIN J&T SYNC (same current API used by customer tracking)
 // =========================================================
-
-app.get("/api/orders/:id/sync-tracking", async (req, res) => {
+app.get("/api/orders/:id/sync-tracking", verifyStaffToken, allowRoles("admin"), async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const { data: order, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("id", id)
-      .single();
-
+    const { data: order, error } = await supabase.from("orders")
+      .select("*").eq("id", req.params.id).maybeSingle();
     if (error) throw error;
-
-    if (!order.tracking_number) {
-      return res.json({
-        success: false,
-        message: "No tracking number found."
-      });
-    }
-
-    const response = await axios.get(
-      `https://api.aftership.com/tracking/2024-04/trackings/jtexpress-ph/${order.tracking_number}`,
-      {
-        headers: {
-          "as-api-key": process.env.AFTERSHIP_API_KEY
-        }
-      }
-    );
-
-    const tag = response.data?.tracking?.tag;
-    let newStatus = order.status;
-
-    if (tag === "InfoReceived") newStatus = "Preparing";
-    if (tag === "InTransit") newStatus = "To Deliver";
-    if (tag === "OutForDelivery") newStatus = "To Deliver";
-    if (tag === "Delivered") newStatus = "Completed";
-    if (tag === "Exception") newStatus = "To Deliver";
-
-    await supabase
-      .from("orders")
-      .update({
-        status: newStatus,
-        tracking_status: tag
-      })
-      .eq("id", id);
-
-    res.json({
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+    if (!order.tracking_number) return res.status(400).json({ success: false, message: "No tracking number found." });
+    const tracking = await loadAftershipTrackingForOrder(order);
+    if (!tracking) return res.status(404).json({ success: false, message: "Tracking not registered in AfterShip." });
+    return res.json({
       success: true,
-      status: newStatus,
-      tracking_status: tag
+      status: courierToJcnOrderStatus(tracking.status, order.status),
+      tracking_status: tracking.status,
+      tracking
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message:
-        error.response?.data?.meta?.message ||
-        error.message
-    });
+    console.error("ADMIN J&T SYNC ERROR:", error.message);
+    return res.status(error.status || 502).json({ success: false, message: error.message });
   }
 });
 
