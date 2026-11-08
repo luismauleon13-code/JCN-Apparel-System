@@ -6,18 +6,14 @@ const SIZES = [{ size: 'XS', width: 53.34, length: 68.58 }, { size: 'S', width: 
 const state = { pose: null, poseResult: null, stream: null, front: null, side: null, photo: null, photoUrl: null, logoUrl: null, estimate: null, rotation: 0 };
 const video = $('camera'), overlay = $('overlay'), status = $('status');
 function say(msg) { status.textContent = msg; }
-
 async function poseEngine() {
   if (state.pose) return state.pose;
-
   const { PoseLandmarker, FilesetResolver } =
     await import("../assets/mediapipe/vision_bundle.mjs");
-
   const files = await FilesetResolver.forVisionTasks(
     new URL("../assets/mediapipe/wasm", import.meta.url)
       .href
   );
-
   state.pose = await PoseLandmarker.createFromOptions(
     files,
     {
@@ -30,7 +26,6 @@ async function poseEngine() {
       numPoses: 1
     }
   );
-
   return state.pose;
 }
 function detected(frame) {
@@ -285,13 +280,12 @@ for (const x of [-1, 1]) {
 const artMat = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide, depthWrite: false });
 const art = new THREE.Mesh(new THREE.PlaneGeometry(.68, .55), artMat);
 art.position.set(0, 1.57, .57); person.add(art);
-
 // .glb model loader: normalized to a predictable viewing space, never overwrites camera/sizing logic.
 const AVATAR_URL = new URL('../assets/models/avatar/jcn-avatar.glb', import.meta.url).href;
 const gltfLoader = new GLTFLoader();
 let avatarRoot = null;
 let avatarIsLoading = false;
-// These controls already exist in customer/html/bodyfit-customization.html.
+// These controls must exist in customer/html/customer-customize.html.
 const avatarStatus = $('avatarStatus');
 const avatarUpload = $('avatarUpload');
 const reloadAvatar = $('reloadAvatar');
@@ -325,20 +319,56 @@ function showDemo(message = 'Demo mannequin active. Export a Blender .glb to rep
   avatarStatus.textContent = message;
 }
 function fitAvatar(rawScene) {
-  // Preserve geometry/materials and fit any Blender coordinate scale into the viewer.
+  // Keep the previously working Blender model normalization.
   const bbox = new THREE.Box3().setFromObject(rawScene);
   const size = bbox.getSize(new THREE.Vector3());
   const center = bbox.getCenter(new THREE.Vector3());
   const longest = Math.max(size.x, size.y, size.z);
-  if (!Number.isFinite(longest) || longest <= .0001) throw Error('The .glb has no visible geometry.');
+  if (!Number.isFinite(longest) || longest <= 0.0001) {
+    throw new Error('The .glb has no visible geometry.');
+  }
   const fitted = new THREE.Group();
   rawScene.position.sub(center);
-  const scale = 3.5 / longest;
-  rawScene.scale.setScalar(scale);
+  rawScene.scale.setScalar(3.5 / longest);
   fitted.add(rawScene);
   fitted.position.y = 0.6;
   return fitted;
 }
+
+// Frame the imported model using its actual world bounds, without changing it.
+function frameAvatar() {
+  if (!avatarRoot) return;
+  const el = $('viewer');
+  const w = el.clientWidth;
+  const h = el.clientHeight;
+  if (!w || !h) return;
+
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  avatarRoot.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(avatarRoot);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  if (![size.x, size.y, size.z, center.x, center.y, center.z].every(Number.isFinite)) {
+    throw new Error('Invalid avatar bounding box.');
+  }
+
+  const vfov = THREE.MathUtils.degToRad(camera.fov);
+  const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
+  const yDist = (size.y / 2) / Math.tan(vfov / 2);
+  const xDist = (size.x / 2) / Math.tan(hfov / 2);
+  const distance = Math.max(yDist, xDist, 2) * 1.25 + size.z / 2;
+
+  controls.target.copy(center);
+  camera.position.set(center.x, center.y, center.z + distance);
+  camera.near = Math.max(0.01, distance / 100);
+  camera.far = Math.max(100, distance * 20);
+  camera.updateProjectionMatrix();
+  controls.minDistance = 0.8;
+  controls.maxDistance = Math.max(12, distance * 4);
+  controls.update();
+}
+
 async function loadAvatar(url, label) {
   if (avatarIsLoading) return;
   avatarIsLoading = true;
@@ -350,12 +380,18 @@ async function loadAvatar(url, label) {
     avatarRoot = root;
     scene.add(root);
     person.visible = false;
-    camera.position.set(0, 1.0, 6.6);
-    controls.target.set(0, .6, 0); controls.update();
-    avatarStatus.textContent = label + ' loaded! Drag the model to rotate 360°.';
     syncAvatarSize();
+    try {
+      frameAvatar();
+    } catch (framingError) {
+      console.warn('Avatar camera framing fallback:', framingError);
+      camera.position.set(0, 1.5, 7.5);
+      controls.target.set(0, 0.6, 0);
+      controls.update();
+    }
+    avatarStatus.textContent = label + ' loaded! Drag the model to rotate 360°.';
   } catch (e) {
-    // Missing jcn-avatar.glb is expected until a Blender export is provided.
+    console.error('JCN avatar load failed:', e);
     if (!avatarRoot) showDemo('Blender avatar not found or unreadable. Demo mannequin is ready. (' + e.message + ')');
     else avatarStatus.textContent = 'Could not replace avatar: ' + e.message;
   } finally { avatarIsLoading = false; }
@@ -416,14 +452,32 @@ $('logo').onchange = e => {
   $('artPreview').src = state.logoUrl; $('artPreview').hidden = false; drawArt();
 };
 $('resetView').onclick = () => {
-  if (avatarRoot) { camera.position.set(0, 1, 6.6); controls.target.set(0, .6, 0); }
-  else { camera.position.set(0, 1.5, 6.8); controls.target.set(0, 1, 0); }
-  controls.update();
+  if (avatarRoot) {
+    try { frameAvatar(); }
+    catch (error) { console.warn('Reset view fallback:', error); }
+  } else {
+    camera.position.set(0, 1.5, 6.8);
+    controls.target.set(0, 1, 0);
+    controls.update();
+  }
 };
+let previousViewerAspect = 0;
 const resizeObserver = new ResizeObserver(() => {
-  const el = $('viewer'); const w = el.clientWidth, h = el.clientHeight;
+  const el = $('viewer');
+  const w = el.clientWidth;
+  const h = el.clientHeight;
   if (!w || !h) return;
-  camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
+  const nextAspect = w / h;
+  camera.aspect = nextAspect;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+
+  // Keep the whole avatar visible after responsive layout / DevTools resize.
+  if (avatarRoot && Math.abs(previousViewerAspect - nextAspect) > 0.025) {
+    try { frameAvatar(); }
+    catch (error) { console.warn('Resize framing fallback:', error); }
+  }
+  previousViewerAspect = nextAspect;
 });
 resizeObserver.observe($('viewer'));
 function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
