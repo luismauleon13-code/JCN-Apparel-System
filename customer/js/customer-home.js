@@ -1,8 +1,48 @@
 const API_URL = "http://localhost:5000";
 
 let allProducts = [];
-let cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+let cart = [];
 let selectedBuyProduct = null;
+
+
+/* ============================================
+   CUSTOMER-SPECIFIC CART STORAGE
+============================================ */
+
+function getHomeCartKey() {
+  try {
+    const customer = JSON.parse(
+      localStorage.getItem("customerUser") || "{}"
+    );
+
+    if (!customer.id) return null;
+
+    return `customerCart_${customer.id}`;
+
+  } catch (error) {
+    console.error("CUSTOMER CART KEY ERROR:", error);
+    return null;
+  }
+}
+
+function getHomeCart() {
+  const cartKey = getHomeCartKey();
+
+  if (!cartKey) return [];
+
+  try {
+    const stored = JSON.parse(
+      localStorage.getItem(cartKey) || "[]"
+    );
+
+    return Array.isArray(stored) ? stored : [];
+
+  } catch (error) {
+    console.error("LOAD CART ERROR:", error);
+    return [];
+  }
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
   checkCustomerLogin();
@@ -313,6 +353,11 @@ function closeBuyModal() {
   selectedBuyProduct = null;
 }
 
+
+/* ============================================
+   ADD TO CART / BUY NOW
+============================================ */
+
 function confirmBuyNow() {
   if (!selectedBuyProduct) return;
 
@@ -320,24 +365,33 @@ function confirmBuyNow() {
   const colorSelect = document.getElementById("buyModalColor");
   const qtyInput = document.getElementById("buyModalQty");
 
+  if (!sizeSelect || !colorSelect || !qtyInput) {
+    showToast("Product selection is unavailable.");
+    return;
+  }
+
   const size = sizeSelect.value;
   const color = colorSelect.value;
-  const quantity = Number(qtyInput.value || 1);
-  const maxStock =
-    Number(sizeSelect.options[sizeSelect.selectedIndex]?.dataset.stock || 1);
+  const quantity = Number(qtyInput.value);
 
-  if (quantity <= 0) {
+  const maxStock = Number(
+    sizeSelect.options[sizeSelect.selectedIndex]?.dataset.stock || 0
+  );
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
     showToast("Quantity must be at least 1.");
     return;
   }
 
-  if (quantity > maxStock) {
+  if (maxStock < 1 || quantity > maxStock) {
     showToast(`Only ${maxStock} stock available for size ${size}.`);
-    qtyInput.value = maxStock;
+    qtyInput.value = Math.max(1, maxStock);
     return;
   }
 
-  const finalPrice = Number(getFinalPrice(selectedBuyProduct).toFixed(2));
+  const finalPrice = Number(
+    getFinalPrice(selectedBuyProduct).toFixed(2)
+  );
 
   const item = {
     cartKey: `${selectedBuyProduct.id}-${size}-${color}`,
@@ -352,39 +406,80 @@ function confirmBuyNow() {
     quantity
   };
 
-  cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+  // ========================================
+  // GET CURRENT CUSTOMER CART
+  // ========================================
+
+  const cartKey = getHomeCartKey();
+
+  if (!cartKey) {
+    showToast("Please login first.");
+    return;
+  }
+
+  cart = getHomeCart();
+
+  // ========================================
+  // ADD TO CART
+  // ========================================
 
   if (selectedBuyProduct.mode === "cart") {
-    const existing = cart.find(cartItem => cartItem.cartKey === item.cartKey);
+
+    const existing = cart.find(
+      cartItem => cartItem.cartKey === item.cartKey
+    );
 
     if (existing) {
-      const newQty = Number(existing.quantity || 0) + quantity;
+      const newQty =
+        Number(existing.quantity || 0) + quantity;
 
       if (newQty > maxStock) {
-        showToast(`Only ${maxStock} stock available for size ${size}.`);
+        showToast(
+          `Only ${maxStock} stock available for size ${size}.`
+        );
         return;
       }
 
       existing.quantity = newQty;
       existing.price = finalPrice;
-      existing.original_price = Number(selectedBuyProduct.price || 0);
-      existing.sale_percent = Number(selectedBuyProduct.sale_percent || 0);
+      existing.original_price = Number(
+        selectedBuyProduct.price || 0
+      );
+      existing.sale_percent = Number(
+        selectedBuyProduct.sale_percent || 0
+      );
       existing.size = size;
       existing.color = color;
+
     } else {
       cart.push(item);
     }
 
-    localStorage.setItem("customerCart", JSON.stringify(cart));
+    // Save only the logged-in customer's cart
+    localStorage.setItem(
+      cartKey,
+      JSON.stringify(cart)
+    );
+
     updateCartCount();
     closeBuyModal();
     showToast("Product added to cart.");
+
     return;
   }
 
-  localStorage.setItem("checkoutItems", JSON.stringify([item]));
+  // ========================================
+  // BUY NOW
+  // ========================================
+
+  localStorage.setItem(
+    "checkoutItems",
+    JSON.stringify([item])
+  );
+
   window.location.href = "customer-checkout.html";
 }
+
 
 async function loadNotifications() {
   const notificationList = document.getElementById("notificationList");
@@ -485,16 +580,27 @@ function showToast(message) {
   }, 2200);
 }
 
-function updateCartCount() {
-  cart = JSON.parse(localStorage.getItem("customerCart")) || [];
 
-  const total = cart.reduce((sum, item) => {
-    return sum + Number(item.quantity || 0);
-  }, 0);
+/* ============================================
+   DASHBOARD CART ITEMS COUNTER
+============================================ */
+
+function updateCartCount() {
+  cart = getHomeCart();
+
+  // Count cart entries, not total quantities.
+  const total = cart.length;
 
   const cartCount = document.getElementById("cartCount");
-  if (cartCount) cartCount.textContent = total;
+
+  if (cartCount) {
+    cartCount.textContent = String(total);
+  }
+
+  console.log("CUSTOMER CART COUNT:", total);
 }
+
+
 
 async function loadOrderCount() {
   const user = JSON.parse(localStorage.getItem("customerUser")) || {};
@@ -517,4 +623,12 @@ async function loadOrderCount() {
   } catch (error) {
     console.error("Cannot load orders:", error);
   }
+
+  window.addEventListener("pageshow", () => {
+  updateCartCount();
+});
+
+window.addEventListener("focus", () => {
+  updateCartCount();
+});
 }

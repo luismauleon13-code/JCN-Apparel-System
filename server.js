@@ -17,6 +17,7 @@ const supabase = require("./backend/config/supabaseClient");
 const app = express();
 
 app.use(cors());
+app.use(express.json());
 app.use(express.json({ limit: "8mb" }));
 const otpStore = {};
 const resetOtps = {};
@@ -844,6 +845,7 @@ app.post("/api/auth/register", async (req, res) => {
 // CUSTOMER LOGIN
 // =========================================================
 
+
 app.post("/api/auth/customer-login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -922,7 +924,10 @@ app.post("/api/auth/customer-login", async (req, res) => {
     }
 
     if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ success: false, message: "Server authentication is not configured." });
+      return res.status(500).json({
+        success: false,
+        message: "Server authentication is not configured."
+      });
     }
 
     const token = jwt.sign(
@@ -935,29 +940,41 @@ app.post("/api/auth/customer-login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: "Customer login successful",
       token,
       user: {
         id: customer.id,
+
         fullname: customer.full_name,
+        full_name: customer.full_name,
+
         email: customer.email,
         username: customer.username,
+        phone: customer.phone || "",
+
+        // Customer Address
+        house_street: customer.house_street || "",
+        barangay: customer.barangay || "",
+        city: customer.city || "",
+        province: customer.province || "",
+        address: customer.address || "",
+
         status: "active",
         role: "customer"
       }
     });
+
   } catch (error) {
     console.error("CUSTOMER LOGIN SERVER ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message
     });
   }
 });
-
 
 // =========================================================
 // CUSTOMER PASSWORD RESET
@@ -3926,6 +3943,92 @@ app.put("/api/admin/settings", async (req, res) => {
 // CUSTOMER PROFILE
 // =========================================================
 
+app.get("/api/customer/profile/:id", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || "";
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : "";
+
+    if (!token || !process.env.JWT_SECRET) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required."
+      });
+    }
+
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired session."
+      });
+    }
+
+    if (
+      decoded.role !== "customer" ||
+      String(decoded.id) !== String(req.params.id)
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied."
+      });
+    }
+
+    const { data: customer, error } = await supabase
+      .from("customer_users")
+      .select(`
+        id,
+        full_name,
+        email,
+        username,
+        phone,
+        house_street,
+        barangay,
+        city,
+        province,
+        address
+      `)
+      .eq("id", decoded.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("GET PROFILE DATABASE ERROR:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to retrieve customer profile."
+      });
+    }
+
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer account not found."
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: customer
+    });
+
+  } catch (error) {
+    console.error("GET PROFILE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load customer profile."
+    });
+  }
+});
+
+// app.put//
+
 app.put("/api/customer/profile/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -4885,6 +4988,120 @@ app.get("/api/paypal/cancel", async (req, res) => {
     );
   }
 });
+
+
+/* ============================================
+   JCN APPAREL - CUSTOMER AI CHATBOT
+   AUTOMATIC CUSTOMER SUPPORT
+============================================ */
+
+app.post("/api/chatbot", async (req, res) => {
+  try {
+    const message = String(req.body?.message || "")
+      .trim()
+      .toLowerCase();
+
+    if (!message) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter your question."
+      });
+    }
+
+    if (message.length > 600) {
+      return res.status(400).json({
+        success: false,
+        message: "Maximum 600 characters per message."
+      });
+    }
+
+    let category = "general";
+    let reply = "";
+
+    // =====================================
+    // 1. PAYMENT CONCERNS
+    // =====================================
+
+    if (
+      /\b(pay|payment|payments|paid|paying|paypal|cod|checkout|bayad|magbayad|nagbayad|binayaran|cash on delivery)\b/i.test(message)
+    ) {
+      category = "payment";
+
+      reply =
+        "Hello po! 💳 Sa JCN Apparel, maaari kayong " +
+        "magbayad gamit ang Cash on Delivery (COD) " +
+        "o PayPal. Piliin lamang ang available payment " +
+        "method sa Checkout page bago i-confirm ang order.";
+    }
+
+    // =====================================
+    // 2. ORDER TRACKING AND DELIVERY
+    // =====================================
+
+    else if (
+      /\b(order|orders|track|tracking|parcel|delivery|deliver|shipping|shipment|shipped|status|courier|nasaan|dumating|darating|j&t)\b/i.test(message)
+    ) {
+      category = "order";
+
+      reply =
+        "Hello po! 📦 Para makita ang inyong order " +
+        "status, pumunta sa My Orders page. " +
+        "Doon makikita kung Processing, To Ship, " +
+        "To Receive, o Completed na ang order. " +
+        "Kung mayroon nang tracking number, maaari " +
+        "rin ninyong tingnan ang shipment tracking.";
+    }
+
+    // =====================================
+    // 3. CLOTHING CUSTOMIZATION
+    // =====================================
+
+    else if (
+      /\b(customize|customization|custom|design|tshirt|t-shirt|shirt|hoodie|polo|sweatshirt|size|sizes|sukat|kulay|color|colors|printing|print|logo|fabric|bodyfit)\b/i.test(message)
+    ) {
+      category = "customization";
+
+      reply =
+        "Hello po! 👕 Puwede kayong mag-customize " +
+        "ng available na damit sa JCN Apparel. " +
+        "Buksan ang Customization page, pumili ng " +
+        "product, size, kulay, at mag-upload ng design. " +
+        "Maaari rin ninyong gamitin ang available " +
+        "size guide para sa tamang sukat.";
+    }
+
+    // =====================================
+    // DEFAULT RESPONSE
+    // =====================================
+
+    else {
+      category = "general";
+
+      reply =
+        "Hello po! 😊 Welcome to JCN Apparel " +
+        "Printing Services! Maaari ko kayong tulungan " +
+        "tungkol sa payment methods, order tracking, " +
+        "at clothing customization. Ano po ang " +
+        "gusto ninyong malaman?";
+    }
+
+    return res.status(200).json({
+      success: true,
+      mode: "faq",
+      category,
+      reply
+    });
+
+  } catch (error) {
+    console.error("JCN CHATBOT ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Chatbot service error."
+    });
+  }
+});
+
 
 // =========================================================
 // LIVE INVENTORY ROUTES

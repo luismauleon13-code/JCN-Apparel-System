@@ -260,8 +260,6 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmBtn.addEventListener("click", function () {
       localStorage.removeItem("customerToken");
       localStorage.removeItem("customerUser");
-      localStorage.removeItem("customerCart");
-      localStorage.removeItem("checkoutItems");
       window.location.href = "../../index.html";
     });
   }

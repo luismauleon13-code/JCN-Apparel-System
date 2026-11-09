@@ -331,7 +331,20 @@ function confirmBuyNow() {
     quantity: quantity
   };
 
-  cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+  const customer = JSON.parse(
+  localStorage.getItem("customerUser") || "{}"
+);
+
+if (!customer.id) {
+  console.error("Customer is not logged in.");
+  return;
+}
+
+const cartKey = `customerCart_${customer.id}`;
+
+cart = JSON.parse(
+  localStorage.getItem(cartKey) || "[]"
+);
 
   if (selectedBuyProduct.mode === "cart") {
     const existing = cart.find(cartItem => cartItem.cartKey === item.cartKey);
@@ -354,7 +367,10 @@ function confirmBuyNow() {
       cart.push(item);
     }
 
-    localStorage.setItem("customerCart", JSON.stringify(cart));
+    localStorage.setItem(
+  cartKey,
+  JSON.stringify(cart)
+);
     updateCartCount();
     closeBuyModal();
     showToast("Product added to cart.");

@@ -1,28 +1,18 @@
 
-// ============================================
-// JCN AI ASSISTANT - COMPLETE CHATBOT JS
-// ============================================
+/* ============================================
+   JCN AI ASSISTANT - CUSTOMER CHATBOT
+============================================ */
 
-const JCN_CHAT_API =
-  "http://localhost:5000/api/chatbot";
-
-// ============================================
-// INITIALIZE CHATBOT
-// ============================================
+const JCN_CHAT_API = "http://localhost:5000/api/chatbot";
+const JCN_CHAT_STORAGE = "jcnChatHistory";
 
 async function initializeJCNChatbot() {
-
-  if (
-    document.getElementById(
-      "jcnChatbotContainer"
-    )
-  ) {
+  if (document.getElementById("jcnChatbotContainer")) {
     return;
   }
 
   try {
-
-    // Load chatbot HTML
+    // LOAD CHATBOT HTML
     const fragmentURL = new URL(
       "chatbot.html",
       document.baseURI
@@ -32,50 +22,29 @@ async function initializeJCNChatbot() {
 
     if (!response.ok) {
       throw new Error(
-        `chatbot.html not found (HTTP ${response.status})`
+        `Chatbot HTML not found: HTTP ${response.status}`
       );
     }
 
-    // Create chatbot container
-    const container =
-      document.createElement("div");
-
+    const container = document.createElement("div");
     container.id = "jcnChatbotContainer";
-
-    container.innerHTML =
-      await response.text();
+    container.innerHTML = await response.text();
 
     document.body.appendChild(container);
 
-    // Get HTML elements
-    const toggle =
-      container.querySelector("#jcnChatToggle");
+    // CHATBOT ELEMENTS
+    const toggle = container.querySelector("#jcnChatToggle");
+    const chatWindow = container.querySelector("#jcnChatWindow");
+    const close = container.querySelector("#jcnChatClose");
+    const messages = container.querySelector("#jcnChatMessages");
+    const form = container.querySelector("#jcnChatForm");
+    const input = container.querySelector("#jcnChatInput");
+    const send = container.querySelector("#jcnChatSend");
+    const status = container.querySelector("#jcnChatStatus");
 
-    const chatWindow =
-      container.querySelector("#jcnChatWindow");
-
-    const close =
-      container.querySelector("#jcnChatClose");
-
-    const messages =
-      container.querySelector("#jcnChatMessages");
-
-    const form =
-      container.querySelector("#jcnChatForm");
-
-    const input =
-      container.querySelector("#jcnChatInput");
-
-    const send =
-      container.querySelector("#jcnChatSend");
-
-    const status =
-      container.querySelector("#jcnChatStatus");
-
-    const shortcuts =
-      container.querySelectorAll(
-        "[data-jcn-question]"
-      );
+    const shortcuts = container.querySelectorAll(
+      "[data-jcn-question]"
+    );
 
     if (
       [
@@ -87,23 +56,51 @@ async function initializeJCNChatbot() {
         input,
         send,
         status
-      ].some(el => !el)
+      ].some(element => !element)
     ) {
-      throw new Error(
-        "Required chatbot HTML IDs are missing."
-      );
+      throw new Error("Missing required chatbot HTML elements.");
     }
 
     let busy = false;
-
-    const history = [];
+    let history = [];
 
     // ========================================
-    // OPEN / MINIMIZE
+    // LOAD CHAT HISTORY
+    // ========================================
+
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(JCN_CHAT_STORAGE) || "[]"
+      );
+
+      if (Array.isArray(saved)) {
+        history = saved.filter(item =>
+          item &&
+          ["user", "assistant"].includes(item.role) &&
+          typeof item.content === "string"
+        ).slice(-20);
+      }
+    } catch (error) {
+      console.warn("Unable to load chat history:", error);
+      history = [];
+    }
+
+    function saveHistory() {
+      try {
+        localStorage.setItem(
+          JCN_CHAT_STORAGE,
+          JSON.stringify(history.slice(-20))
+        );
+      } catch (error) {
+        console.warn("Unable to save chat history:", error);
+      }
+    }
+
+    // ========================================
+    // OPEN / MINIMIZE CHATBOT
     // ========================================
 
     function setOpen(open) {
-
       chatWindow.hidden = !open;
 
       toggle.setAttribute(
@@ -120,60 +117,58 @@ async function initializeJCNChatbot() {
 
       if (open) {
         input.focus();
+        messages.scrollTop = messages.scrollHeight;
       } else {
         toggle.focus();
       }
     }
 
-    // Floating icon click
-    toggle.addEventListener(
-      "click",
-      () => {
-        setOpen(chatWindow.hidden);
-      }
-    );
+    toggle.addEventListener("click", () => {
+      setOpen(chatWindow.hidden);
+    });
 
-    // Minimize click
-    close.addEventListener(
-      "click",
-      () => {
+    close.addEventListener("click", () => {
+      setOpen(false);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (
+        event.key === "Escape" &&
+        !chatWindow.hidden
+      ) {
         setOpen(false);
       }
-    );
-
-    // Escape key
-    document.addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key === "Escape" &&
-          !chatWindow.hidden
-        ) {
-          setOpen(false);
-        }
-
-      }
-    );
+    });
 
     // ========================================
-    // DISPLAY MESSAGE
+    // DISPLAY CHAT MESSAGES
     // ========================================
 
     function addMessage(text, role) {
+      const item = document.createElement("div");
 
-      const item =
-        document.createElement("div");
-
-      item.className =
-        `jcn-msg jcn-msg-${role}`;
-
-      item.textContent = text;
+      item.className = `jcn-msg jcn-msg-${role}`;
+      item.textContent = String(text);
 
       messages.appendChild(item);
+      messages.scrollTop = messages.scrollHeight;
+    }
 
-      messages.scrollTop =
-        messages.scrollHeight;
+    // RESTORE PREVIOUS MESSAGES
+    if (history.length) {
+      history.forEach(item => {
+        addMessage(
+          item.content,
+          item.role === "assistant" ? "bot" : "user"
+        );
+      });
+    } else {
+      addMessage(
+        "Hello po! 👋 Welcome to JCN Apparel Printing Services. " +
+        "I can help you with order tracking, clothing customization, " +
+        "and payment methods. Ano po ang concern ninyo?",
+        "bot"
+      );
     }
 
     // ========================================
@@ -181,7 +176,6 @@ async function initializeJCNChatbot() {
     // ========================================
 
     function setBusy(value) {
-
       busy = value;
 
       send.disabled = value;
@@ -197,68 +191,66 @@ async function initializeJCNChatbot() {
     // ========================================
 
     async function sendMessage(rawText) {
-
-      const message =
-        String(rawText || "").trim();
+      const message = String(rawText || "").trim();
 
       if (!message || busy) return;
 
       if (message.length > 600) {
-
         status.textContent =
           "Maximum 600 characters per message.";
-
         return;
       }
 
       input.value = "";
+      status.textContent = "";
 
       addMessage(message, "user");
 
+      const previousHistory = history.slice(-10);
+
+      history.push({
+        role: "user",
+        content: message
+      });
+
+      if (history.length > 20) {
+        history = history.slice(-20);
+      }
+
+      saveHistory();
       setBusy(true);
 
-      status.textContent =
-        "JCN Assistant is typing...";
+      status.textContent = "JCN Assistant is typing...";
+
+      let timeoutId;
 
       try {
+        const controller = new AbortController();
 
-        const controller =
-          new AbortController();
+        timeoutId = setTimeout(() => {
+          controller.abort();
+        }, 20000);
 
-        const timer = setTimeout(
-          () => controller.abort(),
-          20000
-        );
+        const apiResponse = await fetch(JCN_CHAT_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message,
+            history: previousHistory
+          }),
+          signal: controller.signal
+        });
 
-        let apiResponse;
+        const data = await apiResponse.json().catch(() => null);
 
-        try {
-
-          apiResponse = await fetch(
-            JCN_CHAT_API,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body: JSON.stringify({
-                message,
-                history: history.slice(-10)
-              }),
-
-              signal: controller.signal
-            }
+        if (!apiResponse.ok || !data || data.success === false) {
+          throw new Error(
+            data?.message ||
+            `Chatbot HTTP ${apiResponse.status}`
           );
-
-        } finally {
-          clearTimeout(timer);
         }
-
-        const data =
-          await apiResponse.json();
 
         const reply =
           data.reply ||
@@ -266,65 +258,48 @@ async function initializeJCNChatbot() {
           data.message;
 
         if (
-          !apiResponse.ok ||
-          data.success === false ||
           typeof reply !== "string" ||
           !reply.trim()
         ) {
-          throw new Error(
-            data.message ||
-            `Chatbot HTTP ${apiResponse.status}`
-          );
+          throw new Error("The chatbot returned an empty reply.");
         }
 
-        // Show chatbot response
         addMessage(reply, "bot");
 
-        // Save conversation in memory
-        history.push(
-          {
-            role: "user",
-            content: message
-          },
-          {
-            role: "assistant",
-            content: reply
-          }
-        );
+        history.push({
+          role: "assistant",
+          content: reply
+        });
 
-        if (history.length > 20) {
-          history.splice(
-            0,
-            history.length - 20
-          );
-        }
+        history = history.slice(-20);
+        saveHistory();
 
         status.textContent =
-          data.mode === "faq"
-            ? "Automated FAQ response"
+          data.mode === "faq" || data.category
+            ? "Automated customer support"
             : "";
 
       } catch (error) {
+        console.error("JCN CHATBOT ERROR:", error);
 
-        console.error(
-          "JCN chatbot error:",
-          error
-        );
+        let errorMessage =
+          "Sorry po! Hindi makakonekta sa chatbot service. " +
+          "Please try again.";
 
-        const detail =
-          error.name === "AbortError"
-            ? "The server took too long to reply."
-            : "Cannot connect to the chatbot service.";
+        if (error.name === "AbortError") {
+          errorMessage =
+            "Sorry po! The chatbot took too long to respond. " +
+            "Please try again.";
+        }
 
-        addMessage(
-          `${detail} Please check that server.js is running and /api/chatbot is available.`,
-          "bot"
-        );
+        addMessage(errorMessage, "bot");
 
-        status.textContent =
-          "Connection problem";
+        status.textContent = "Connection problem";
 
       } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
 
         setBusy(false);
 
@@ -338,61 +313,46 @@ async function initializeJCNChatbot() {
     // SEND BUTTON / ENTER KEY
     // ========================================
 
-    form.addEventListener(
-      "submit",
-      event => {
-
-        event.preventDefault();
-
-        sendMessage(input.value);
-
-      }
-    );
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      sendMessage(input.value);
+    });
 
     // ========================================
     // QUICK REPLY BUTTONS
     // ========================================
 
     shortcuts.forEach(button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const question =
-            button.dataset.jcnQuestion;
-
-          sendMessage(question);
-
-        }
-      );
-
+      button.addEventListener("click", () => {
+        sendMessage(button.dataset.jcnQuestion);
+      });
     });
 
-  } catch (error) {
+    // START MINIMIZED
+    setOpen(false);
 
+    console.log("JCN AI Assistant initialized.");
+
+  } catch (error) {
     console.error(
-      "JCN chatbot could not initialize:",
+      "JCN CHATBOT INITIALIZATION ERROR:",
       error
     );
 
+    document.getElementById("jcnChatbotContainer")?.remove();
   }
 }
 
 // ============================================
-// LOAD WHEN PAGE IS READY
+// INITIALIZE WHEN PAGE IS READY
 // ============================================
 
 if (document.readyState === "loading") {
-
   document.addEventListener(
     "DOMContentLoaded",
     initializeJCNChatbot,
     { once: true }
   );
-
 } else {
-
   initializeJCNChatbot();
-
 }

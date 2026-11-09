@@ -1,211 +1,463 @@
+
 const API_URL = "http://localhost:5000";
 
 document.addEventListener("DOMContentLoaded", () => {
-  checkLogin();
+  if (!checkLogin()) return;
+
   loadProfile();
 
-  document.getElementById("profileForm").addEventListener("submit", updateProfile);
-  document.getElementById("passwordForm").addEventListener("submit", changePassword);
-  document.getElementById("logoutBtn").addEventListener("click", logoutCustomer);
+  document
+    .getElementById("profileForm")
+    ?.addEventListener("submit", updateProfile);
+
+  document
+    .getElementById("passwordForm")
+    ?.addEventListener("submit", changePassword);
 
   document.querySelectorAll(".toggle-password").forEach(icon => {
     icon.addEventListener("click", togglePassword);
   });
 });
 
-function checkLogin() {
-  const token = localStorage.getItem("customerToken");
-  const user = localStorage.getItem("customerUser");
+// =============================================
+// HELPERS
+// =============================================
 
-  if (!token || !user) {
-    alert("Please login first.");
-    window.location.href = "user-login.html";
+function getCustomer() {
+  try {
+    return JSON.parse(
+      localStorage.getItem("customerUser") || "{}"
+    );
+  } catch (error) {
+    console.error("Invalid customer data:", error);
+    return {};
   }
 }
 
-function loadProfile() {
-  const user = JSON.parse(localStorage.getItem("customerUser")) || {};
-
-  document.getElementById("profileName").textContent =
-    user.fullname || user.full_name || user.username || "Customer";
-
-  document.getElementById("profileEmail").textContent =
-    user.email || "No email";
-
-  document.getElementById("fullName").value =
-    user.fullname || user.full_name || "";
-
-  document.getElementById("email").value =
-    user.email || "";
-
-  document.getElementById("houseStreet").value =
-    user.house_street || "";
-
-  document.getElementById("barangay").value =
-    user.barangay || "";
-
-  document.getElementById("city").value =
-    user.city || "";
-
-  document.getElementById("province").value =
-    user.province || "";
-
-  document.getElementById("phone").value =
-    user.phone || "";
-
-  document.getElementById("username").value =
-    user.username || "";
+function getToken() {
+  return localStorage.getItem("customerToken") || "";
 }
 
-async function updateProfile(e) {
-  e.preventDefault();
+function setField(id, value) {
+  const element = document.getElementById(id);
 
-  const user = JSON.parse(localStorage.getItem("customerUser")) || {};
+  if (element) {
+    element.value = value ?? "";
+  }
+}
 
-  const houseStreet = document.getElementById("houseStreet").value.trim();
-  const barangay = document.getElementById("barangay").value.trim();
-  const city = document.getElementById("city").value.trim();
-  const province = document.getElementById("province").value.trim();
+function getField(id) {
+  return document.getElementById(id)?.value.trim() || "";
+}
+
+function notify(icon, title, message) {
+  return Swal.fire({
+    icon,
+    title,
+    text: message,
+    confirmButtonText: "OK",
+    background: "#111",
+    color: "#fff",
+    confirmButtonColor: "#d4af37"
+  });
+}
+
+async function readResponse(response) {
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok || !data?.success) {
+    throw new Error(
+      data?.message ||
+      `Request failed (${response.status})`
+    );
+  }
+
+  return data;
+}
+
+// =============================================
+// CUSTOMER AUTHENTICATION
+// =============================================
+
+function checkLogin() {
+  const token = getToken();
+  const user = getCustomer();
+
+  if (!token || !user.id) {
+    notify(
+      "warning",
+      "Login Required",
+      "Please login first."
+    ).then(() => {
+      window.location.href = "user-login.html";
+    });
+
+    return false;
+  }
+
+  return true;
+}
+
+// =============================================
+// DISPLAY CUSTOMER PROFILE
+// =============================================
+
+function displayProfile(user) {
+  const name =
+    user.full_name ||
+    user.fullname ||
+    user.username ||
+    "Customer";
+
+  const profileName = document.getElementById("profileName");
+  const profileEmail = document.getElementById("profileEmail");
+
+  if (profileName) {
+    profileName.textContent = name;
+  }
+
+  if (profileEmail) {
+    profileEmail.textContent = user.email || "No email";
+  }
+
+  setField("fullName", name);
+  setField("email", user.email);
+  setField("phone", user.phone);
+  setField("username", user.username);
+
+  setField("houseStreet", user.house_street);
+  setField("barangay", user.barangay);
+  setField("city", user.city);
+  setField("province", user.province);
+}
+
+// =============================================
+// LOAD PROFILE FROM SUPABASE THROUGH BACKEND
+// =============================================
+
+async function loadProfile() {
+  const savedUser = getCustomer();
+
+  // Display cached data immediately.
+  displayProfile(savedUser);
+
+  if (!savedUser.id) return;
+
+  try {
+    const response = await fetch(
+      `${API_URL}/api/customer/profile/${encodeURIComponent(savedUser.id)}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${getToken()}`
+        },
+        cache: "no-store"
+      }
+    );
+
+    const data = await readResponse(response);
+
+    if (!data.user) {
+      throw new Error("Customer profile was not returned.");
+    }
+
+    const updatedUser = {
+      ...savedUser,
+      ...data.user,
+      full_name:
+        data.user.full_name ||
+        data.user.fullname ||
+        savedUser.full_name ||
+        "",
+      fullname:
+        data.user.full_name ||
+        data.user.fullname ||
+        savedUser.fullname ||
+        ""
+    };
+
+    localStorage.setItem(
+      "customerUser",
+      JSON.stringify(updatedUser)
+    );
+
+    displayProfile(updatedUser);
+
+    console.log("Customer profile loaded successfully.");
+
+  } catch (error) {
+    console.error("LOAD PROFILE ERROR:", error);
+
+    // Cached profile stays visible if the server fails.
+    // Do not overwrite saved values with blank fields.
+    notify(
+      "warning",
+      "Profile Loading Issue",
+      error.message
+    );
+  }
+}
+
+// =============================================
+// UPDATE CUSTOMER PROFILE
+// =============================================
+
+async function updateProfile(event) {
+  event.preventDefault();
+
+  const user = getCustomer();
+
+  if (!user.id) {
+    await notify(
+      "error",
+      "Session Error",
+      "Please login again."
+    );
+    return;
+  }
+
+  const houseStreet = getField("houseStreet");
+  const barangay = getField("barangay");
+  const city = getField("city");
+  const province = getField("province");
 
   const updatedUser = {
-    full_name: document.getElementById("fullName").value.trim(),
-    email: document.getElementById("email").value.trim(),
-    phone: document.getElementById("phone").value.trim(),
-    username: document.getElementById("username").value.trim(),
+    full_name: getField("fullName"),
+    email: getField("email").toLowerCase(),
+    username: getField("username"),
+    phone: getField("phone"),
 
     house_street: houseStreet,
     barangay: barangay,
     city: city,
     province: province,
-    address: `${houseStreet}, ${barangay}, ${city}, ${province}`
+
+    address: [
+      houseStreet,
+      barangay,
+      city,
+      province
+    ].filter(Boolean).join(", ")
   };
 
-  if (!updatedUser.full_name || !updatedUser.email || !updatedUser.username) {
-    alert("Full name, email, and username are required.");
+  if (
+    !updatedUser.full_name ||
+    !updatedUser.email ||
+    !updatedUser.username
+  ) {
+    await notify(
+      "warning",
+      "Missing Information",
+      "Full name, email, and username are required."
+    );
     return;
   }
 
+  if (
+    updatedUser.phone &&
+    !/^09\d{9}$/.test(updatedUser.phone)
+  ) {
+    await notify(
+      "warning",
+      "Invalid Phone Number",
+      "Enter a valid 11-digit Philippine mobile number starting with 09."
+    );
+    return;
+  }
+
+  const saveButton =
+    document.querySelector('#profileForm [type="submit"]');
+
+  if (saveButton) {
+    saveButton.disabled = true;
+  }
+
   try {
-    const res = await fetch(`${API_URL}/api/customer/profile/${user.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(updatedUser)
-    });
+    const response = await fetch(
+      `${API_URL}/api/customer/profile/${encodeURIComponent(user.id)}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${getToken()}`
+        },
+        body: JSON.stringify(updatedUser)
+      }
+    );
 
-    const data = await res.json();
+    const data = await readResponse(response);
 
-    if (!data.success) {
-      alert(data.message || "Failed to update profile.");
-      return;
+    if (!data.user) {
+      throw new Error("Updated profile was not returned.");
     }
 
     const newLocalUser = {
       ...user,
-      fullname: data.user.full_name,
-      full_name: data.user.full_name,
-      email: data.user.email,
-      phone: data.user.phone,
-      username: data.user.username,
+      ...data.user,
 
-      house_street: data.user.house_street,
-      barangay: data.user.barangay,
-      city: data.user.city,
-      province: data.user.province,
-      address: data.user.address
+      full_name:
+        data.user.full_name || updatedUser.full_name,
+
+      fullname:
+        data.user.full_name || updatedUser.full_name,
+
+      email: data.user.email ?? updatedUser.email,
+      username: data.user.username ?? updatedUser.username,
+      phone: data.user.phone ?? updatedUser.phone,
+
+      house_street:
+        data.user.house_street ?? updatedUser.house_street,
+
+      barangay:
+        data.user.barangay ?? updatedUser.barangay,
+
+      city:
+        data.user.city ?? updatedUser.city,
+
+      province:
+        data.user.province ?? updatedUser.province,
+
+      address:
+        data.user.address ?? updatedUser.address
     };
 
-    localStorage.setItem("customerUser", JSON.stringify(newLocalUser));
+    localStorage.setItem(
+      "customerUser",
+      JSON.stringify(newLocalUser)
+    );
 
-    Swal.fire({
-  icon: "success",
-  title: "Profile Updated",
-  text: "Profile updated successfully.",
-  confirmButtonText: "OK",
-  background: "#111",
-  color: "#fff",
-  confirmButtonColor: "#d4af37"
-});
-    loadProfile();
+    displayProfile(newLocalUser);
+
+    await notify(
+      "success",
+      "Profile Updated",
+      "Your profile has been updated successfully."
+    );
 
   } catch (error) {
-    console.error(error);
-    Swal.fire({
-  icon: "error",
-  title: "Update Failed",
-  text: "Cannot connect to server.",
-  confirmButtonText: "OK",
-  background: "#111",
-  color: "#fff",
-  confirmButtonColor: "#d4af37"
-});
+    console.error("UPDATE PROFILE ERROR:", error);
+
+    await notify(
+      "error",
+      "Update Failed",
+      error.message
+    );
+
+  } finally {
+    if (saveButton) {
+      saveButton.disabled = false;
+    }
   }
 }
 
-async function changePassword(e) {
-  e.preventDefault();
+// =============================================
+// CHANGE CUSTOMER PASSWORD
+// =============================================
 
-  const user = JSON.parse(localStorage.getItem("customerUser")) || {};
+async function changePassword(event) {
+  event.preventDefault();
 
-  const currentPassword = document.getElementById("currentPassword").value;
-  const newPassword = document.getElementById("newPassword").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
+  const user = getCustomer();
 
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    alert("Please fill all password fields.");
+  const currentPassword =
+    document.getElementById("currentPassword")?.value || "";
+
+  const newPassword =
+    document.getElementById("newPassword")?.value || "";
+
+  const confirmPassword =
+    document.getElementById("confirmPassword")?.value || "";
+
+  if (
+    !currentPassword ||
+    !newPassword ||
+    !confirmPassword
+  ) {
+    await notify(
+      "warning",
+      "Missing Fields",
+      "Please fill in all password fields."
+    );
     return;
   }
 
   if (newPassword.length < 6) {
-    alert("New password must be at least 6 characters.");
+    await notify(
+      "warning",
+      "Weak Password",
+      "New password must be at least 6 characters."
+    );
     return;
   }
 
   if (newPassword !== confirmPassword) {
-    alert("New password and confirm password do not match.");
+    await notify(
+      "warning",
+      "Password Mismatch",
+      "New password and confirmation do not match."
+    );
     return;
   }
 
   try {
-    const res = await fetch(`${API_URL}/api/customer/change-password/${user.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        currentPassword,
-        newPassword
-      })
-    });
+    const response = await fetch(
+      `${API_URL}/api/customer/change-password/${encodeURIComponent(user.id)}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword
+        })
+      }
+    );
 
-    const data = await res.json();
+    await readResponse(response);
 
-    if (!data.success) {
-      alert(data.message || "Failed to change password.");
-      return;
-    }
+    await notify(
+      "success",
+      "Password Updated",
+      "Your password has been changed successfully."
+    );
 
-    alert("Password changed successfully.");
-    document.getElementById("passwordForm").reset();
+    document.getElementById("passwordForm")?.reset();
 
   } catch (error) {
-    console.error(error);
-    alert("Cannot connect to server.");
+    console.error("CHANGE PASSWORD ERROR:", error);
+
+    await notify(
+      "error",
+      "Password Update Failed",
+      error.message
+    );
   }
 }
 
-function togglePassword(e) {
-  const targetId = e.target.dataset.target;
+// =============================================
+// SHOW / HIDE PASSWORD
+// =============================================
+
+function togglePassword(event) {
+  const icon = event.currentTarget;
+  const targetId = icon.dataset.target;
   const input = document.getElementById(targetId);
 
-  if (input.type === "password") {
-    input.type = "text";
-    e.target.classList.remove("fa-eye");
-    e.target.classList.add("fa-eye-slash");
-  } else {
-    input.type = "password";
-    e.target.classList.remove("fa-eye-slash");
-    e.target.classList.add("fa-eye");
-  }
+  if (!input) return;
+
+  const visible = input.type === "password";
+
+  input.type = visible ? "text" : "password";
+
+  icon.classList.toggle("fa-eye", !visible);
+  icon.classList.toggle("fa-eye-slash", visible);
 }
+
+// =============================================
+// LOGOUT
+// =============================================
+
+// Existing customer logout modal remains unchanged.
+// Do not clear customerCart here.

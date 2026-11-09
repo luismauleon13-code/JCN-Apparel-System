@@ -1,19 +1,111 @@
+
+/* ============================================
+   JCN APPAREL - CUSTOMER CART
+   CUSTOMER-SPECIFIC LOCAL STORAGE
+============================================ */
+
 const DELIVERY_FEE = 80;
 
-let cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+let cart = [];
+let selectedCartIndexes = new Set();
+
+/* ============================================
+   GET LOGGED-IN CUSTOMER
+============================================ */
+
+function getCartCustomer() {
+  try {
+    return JSON.parse(
+      localStorage.getItem("customerUser") || "{}"
+    );
+  } catch (error) {
+    console.error("CUSTOMER DATA ERROR:", error);
+    return {};
+  }
+}
+
+/* ============================================
+   GET UNIQUE CUSTOMER CART KEY
+============================================ */
+
+function getCustomerCartKey() {
+  const customer = getCartCustomer();
+
+  if (!customer.id) {
+    return null;
+  }
+
+  return `customerCart_${customer.id}`;
+}
+
+/* ============================================
+   LOAD SAVED CUSTOMER CART
+============================================ */
+
+function getSavedCart() {
+  const cartKey = getCustomerCartKey();
+
+  if (!cartKey) {
+    return [];
+  }
+
+  try {
+    const storedCart = JSON.parse(
+      localStorage.getItem(cartKey) || "[]"
+    );
+
+    return Array.isArray(storedCart)
+      ? storedCart
+      : [];
+
+  } catch (error) {
+    console.error("CART STORAGE ERROR:", error);
+    return [];
+  }
+}
+
+/* ============================================
+   INITIALIZE
+============================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-  checkLogin();
+  if (!checkLogin()) return;
+
   loadCart();
   setupButtons();
-  setupLogoutModal?.();
+
+  if (typeof setupLogoutModal === "function") {
+    setupLogoutModal();
+  }
 });
+
+/* ============================================
+   SETUP BUTTONS
+============================================ */
 
 function setupButtons() {
   document
     .getElementById("checkoutBtn")
     ?.addEventListener("click", checkout);
+
+  document
+    .getElementById("selectAllCart")
+    ?.addEventListener("change", event => {
+      if (event.target.checked) {
+        selectedCartIndexes = new Set(
+          cart.map((item, index) => index)
+        );
+      } else {
+        selectedCartIndexes.clear();
+      }
+
+      renderCart();
+    });
 }
+
+/* ============================================
+   SWEETALERT
+============================================ */
 
 async function showAlert(icon, title, text) {
   await Swal.fire({
@@ -35,11 +127,15 @@ async function showAlert(icon, title, text) {
   });
 }
 
+/* ============================================
+   CHECK CUSTOMER LOGIN
+============================================ */
+
 function checkLogin() {
   const token = localStorage.getItem("customerToken");
-  const user = localStorage.getItem("customerUser");
+  const customer = getCartCustomer();
 
-  if (!token || !user) {
+  if (!token || !customer.id) {
     Swal.fire({
       icon: "warning",
       title: "Login Required",
@@ -54,24 +150,58 @@ function checkLogin() {
     }).then(() => {
       window.location.href = "user-login.html";
     });
+
+    return false;
   }
+
+  return true;
 }
 
+/* ============================================
+   LOAD CART
+============================================ */
+
 function loadCart() {
+  cart = getSavedCart();
+
+  selectedCartIndexes = new Set(
+    cart.map((item, index) => index)
+  );
+
+  renderCart();
+}
+
+/* ============================================
+   ESCAPE HTML
+============================================ */
+
+function escapeCartHTML(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/* ============================================
+   RENDER CART
+============================================ */
+
+function renderCart() {
   const cartItems = document.getElementById("cartItems");
   const cartCount = document.getElementById("cartCount");
   const selectAll = document.getElementById("selectAllCart");
 
   if (!cartItems) return;
 
-  cart = JSON.parse(localStorage.getItem("customerCart")) || [];
-
   if (cartCount) {
     cartCount.textContent = `${cart.length} item(s)`;
   }
 
   if (!cart.length) {
-    cartItems.innerHTML = `<p class="empty">Your cart is empty.</p>`;
+    cartItems.innerHTML =
+      '<p class="empty">Your cart is empty.</p>';
 
     if (selectAll) {
       selectAll.checked = false;
@@ -83,137 +213,227 @@ function loadCart() {
     return;
   }
 
-  if (selectAll) {
-    selectAll.checked = true;
-    selectAll.disabled = false;
-    selectAll.indeterminate = false;
-  }
-
   cartItems.innerHTML = "";
 
   cart.forEach((item, index) => {
-    const key =
-      item.cartKey ||
-      `${item.product_id}-${item.size}-${item.color}`;
+    const image =
+      item.image ||
+      item.product_image ||
+      "https://placehold.co/120x120?text=JCN";
 
-    cartItems.innerHTML += `
-      <div class="cart-item">
-        <input
-          type="checkbox"
-          class="cart-select"
-          data-key="${key}"
-          checked
-        >
+    const quantity = Math.max(
+      1,
+      Math.floor(Number(item.quantity) || 1)
+    );
 
-        <img
-          src="${item.image || item.product_image || "https://via.placeholder.com/120?text=JCN"}"
-          alt="${item.title || "Product"}"
-        >
+    const itemElement = document.createElement("div");
+    itemElement.className = "cart-item";
 
-        <div class="item-info">
-          <h3>${item.title || "Untitled Product"}</h3>
-          <p>Size: ${item.size || "N/A"}</p>
-          <p>Color: ${item.color || "N/A"}</p>
-          <p class="item-price">₱${Number(item.price || 0).toFixed(2)}</p>
+    itemElement.innerHTML = `
+      <input
+        type="checkbox"
+        class="cart-select"
+        data-index="${index}"
+        ${selectedCartIndexes.has(index) ? "checked" : ""}
+      >
+
+      <img
+        alt="Product"
+        class="cart-product-image"
+      >
+
+      <div class="item-info">
+        <h3>${escapeCartHTML(item.title || "Untitled Product")}</h3>
+
+        <p>
+          Size: ${escapeCartHTML(item.size || "N/A")}
+        </p>
+
+        <p>
+          Color: ${escapeCartHTML(item.color || "N/A")}
+        </p>
+
+        <p class="item-price">
+          ₱${Number(item.price || 0).toFixed(2)}
+        </p>
+      </div>
+
+      <div class="item-actions">
+        <div class="qty-box">
+          <button
+            type="button"
+            class="qty-minus"
+          >−</button>
+
+          <input
+            type="number"
+            class="qty-input"
+            value="${quantity}"
+            min="1"
+            step="1"
+          >
+
+          <button
+            type="button"
+            class="qty-plus"
+          >+</button>
         </div>
 
-        <div class="item-actions">
-          <div class="qty-box">
-            <button type="button" onclick="changeQty(${index}, -1)">−</button>
-
-            <input
-              type="number"
-              value="${item.quantity || 1}"
-              min="1"
-              onchange="setQty(${index}, this.value)"
-            >
-
-            <button type="button" onclick="changeQty(${index}, 1)">+</button>
-          </div>
-
-          <button type="button" class="remove-btn" onclick="removeItem(${index})">
-            <i class="fa-solid fa-trash"></i>
-            Remove
-          </button>
-        </div>
+        <button
+          type="button"
+          class="remove-btn"
+        >
+          <i class="fa-solid fa-trash"></i>
+          Remove
+        </button>
       </div>
     `;
+
+    const imageElement =
+      itemElement.querySelector(".cart-product-image");
+
+    imageElement.src = image;
+    imageElement.onerror = () => {
+      imageElement.onerror = null;
+      imageElement.src =
+        "https://placehold.co/120x120?text=JCN";
+    };
+
+    itemElement
+      .querySelector(".cart-select")
+      .addEventListener("change", event => {
+        if (event.target.checked) {
+          selectedCartIndexes.add(index);
+        } else {
+          selectedCartIndexes.delete(index);
+        }
+
+        updateSelectAll();
+        updateSummary();
+      });
+
+    itemElement
+      .querySelector(".qty-minus")
+      .addEventListener("click", () => {
+        changeQty(index, -1);
+      });
+
+    itemElement
+      .querySelector(".qty-plus")
+      .addEventListener("click", () => {
+        changeQty(index, 1);
+      });
+
+    itemElement
+      .querySelector(".qty-input")
+      .addEventListener("change", event => {
+        setQty(index, event.target.value);
+      });
+
+    itemElement
+      .querySelector(".remove-btn")
+      .addEventListener("click", () => {
+        removeItem(index);
+      });
+
+    cartItems.appendChild(itemElement);
   });
 
-  setupCartSelection();
+  updateSelectAll();
   updateSummary();
 }
 
-function setupCartSelection() {
+/* ============================================
+   SELECT ALL CART ITEMS
+============================================ */
+
+function updateSelectAll() {
   const selectAll = document.getElementById("selectAllCart");
-  const checkboxes = document.querySelectorAll(".cart-select");
 
-  selectAll?.addEventListener("change", () => {
-    checkboxes.forEach(box => {
-      box.checked = selectAll.checked;
-    });
+  if (!selectAll) return;
 
-    selectAll.indeterminate = false;
-    updateSummary();
-  });
+  const selectedCount = selectedCartIndexes.size;
 
-  checkboxes.forEach(box => {
-    box.addEventListener("change", () => {
-      const allChecked = [...checkboxes].every(cb => cb.checked);
-      const anyChecked = [...checkboxes].some(cb => cb.checked);
+  selectAll.disabled = cart.length === 0;
 
-      if (selectAll) {
-        selectAll.checked = allChecked;
-        selectAll.indeterminate = !allChecked && anyChecked;
-      }
+  selectAll.checked =
+    cart.length > 0 &&
+    selectedCount === cart.length;
 
-      updateSummary();
-    });
-  });
+  selectAll.indeterminate =
+    selectedCount > 0 &&
+    selectedCount < cart.length;
 }
+
+/* ============================================
+   GET SELECTED ITEMS
+============================================ */
 
 function getSelectedItems() {
-  const selectedKeys = [...document.querySelectorAll(".cart-select:checked")]
-    .map(box => box.dataset.key);
-
-  return cart.filter(item => {
-    const key =
-      item.cartKey ||
-      `${item.product_id}-${item.size}-${item.color}`;
-
-    return selectedKeys.includes(key);
+  return cart.filter((item, index) => {
+    return selectedCartIndexes.has(index);
   });
 }
+
+/* ============================================
+   UPDATE SUMMARY
+============================================ */
 
 function updateSummary() {
   const selectedItems = getSelectedItems();
 
   const subtotal = selectedItems.reduce((sum, item) => {
-    return sum + Number(item.price || 0) * Number(item.quantity || 1);
+    return sum +
+      Number(item.price || 0) *
+      Number(item.quantity || 1);
   }, 0);
 
-  const deliveryFee = selectedItems.length > 0 ? DELIVERY_FEE : 0;
+  const deliveryFee =
+    selectedItems.length > 0 ? DELIVERY_FEE : 0;
+
   const total = subtotal + deliveryFee;
 
-  document.getElementById("subtotal").textContent =
-    `₱${subtotal.toFixed(2)}`;
+  const subtotalElement =
+    document.getElementById("subtotal");
 
-  document.getElementById("deliveryFee").textContent =
-    `₱${deliveryFee.toFixed(2)}`;
+  const deliveryElement =
+    document.getElementById("deliveryFee");
 
-  document.getElementById("grandTotal").textContent =
-    `₱${total.toFixed(2)}`;
+  const totalElement =
+    document.getElementById("grandTotal");
+
+  if (subtotalElement) {
+    subtotalElement.textContent =
+      `₱${subtotal.toFixed(2)}`;
+  }
+
+  if (deliveryElement) {
+    deliveryElement.textContent =
+      `₱${deliveryFee.toFixed(2)}`;
+  }
+
+  if (totalElement) {
+    totalElement.textContent =
+      `₱${total.toFixed(2)}`;
+  }
 }
+
+/* ============================================
+   CHANGE QUANTITY
+============================================ */
 
 function changeQty(index, amount) {
   if (!cart[index]) return;
 
-  cart[index].quantity =
-    Number(cart[index].quantity || 1) + amount;
+  const currentQty = Math.max(
+    1,
+    Math.floor(Number(cart[index].quantity) || 1)
+  );
 
-  if (cart[index].quantity < 1) {
-    cart[index].quantity = 1;
-  }
+  cart[index].quantity = Math.max(
+    1,
+    currentQty + amount
+  );
 
   saveCart();
 }
@@ -222,25 +442,78 @@ function setQty(index, value) {
   if (!cart[index]) return;
 
   const qty = Number(value);
-  cart[index].quantity = !qty || qty < 1 ? 1 : qty;
+
+  cart[index].quantity =
+    Number.isFinite(qty) && qty >= 1
+      ? Math.floor(qty)
+      : 1;
 
   saveCart();
 }
+
+/* ============================================
+   REMOVE PRODUCT
+============================================ */
 
 function removeItem(index) {
   if (!cart[index]) return;
 
   cart.splice(index, 1);
+
+  const newSelection = new Set();
+
+  selectedCartIndexes.forEach(selectedIndex => {
+    if (selectedIndex < index) {
+      newSelection.add(selectedIndex);
+    } else if (selectedIndex > index) {
+      newSelection.add(selectedIndex - 1);
+    }
+  });
+
+  selectedCartIndexes = newSelection;
+
   saveCart();
 }
 
+/* ============================================
+   SAVE CUSTOMER-SPECIFIC CART
+============================================ */
+
 function saveCart() {
-  localStorage.setItem("customerCart", JSON.stringify(cart));
-  loadCart();
+  const cartKey = getCustomerCartKey();
+
+  if (!cartKey) {
+    console.error(
+      "Unable to save cart: No logged-in customer."
+    );
+    return;
+  }
+
+  localStorage.setItem(
+    cartKey,
+    JSON.stringify(cart)
+  );
+
+  renderCart();
 }
 
+/* ============================================
+   CHECKOUT
+============================================ */
+
 async function checkout() {
-  cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+  const cartKey = getCustomerCartKey();
+
+  if (!cartKey || !localStorage.getItem("customerToken")) {
+    await showAlert(
+      "warning",
+      "Login Required",
+      "Please login first."
+    );
+    return;
+  }
+
+  cart = getSavedCart();
 
   if (!cart.length) {
     await showAlert(
