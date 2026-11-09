@@ -4918,6 +4918,16 @@ registerGraphicDesignerRoutes({
 });
 
 // =========================================================
+ // JCN CUSTOM ORDER ROUTES
+ // =========================================================
+
+ require("./backend/routes/jcn-custom-order.js")({
+   app,
+   supabase,
+   verifyCustomerToken
+ });
+
+// =========================================================
 // UNKNOWN API ROUTES
 // Must remain after all API routes.
 // =========================================================
