@@ -891,3 +891,276 @@ body {
     flex-wrap: wrap;
   }
 }
+
+/* =========================================================
+   JCN CUSTOMER — SHOPEE-STYLE TRACKING JOURNEY
+   Applies to the markup rendered by customer-orders-updated.js
+========================================================= */
+
+.jcn-journey-card {
+  background: #151515;
+  color: #f8f3e7;
+  border: 1px solid #564522;
+  border-radius: 14px;
+  padding: 20px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.jcn-journey-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.jcn-journey-heading strong {
+  color: #e5bd55;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.jcn-journey-heading i {
+  margin-right: 7px;
+}
+
+.jcn-journey-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  background: #3c321f;
+  border: 1px solid #907236;
+  color: #efca73;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.jcn-journey-number {
+  margin: 15px 0;
+  color: #c6bda9;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.jcn-journey-number strong {
+  color: #fff;
+}
+
+.jcn-journey-subtitle {
+  margin: 22px 0 14px;
+  color: #e9c36c;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Order progress timeline */
+.jcn-journey-timeline {
+  margin-left: 12px;
+}
+
+.jcn-journey-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 77px;
+  color: #a3a3a3;
+}
+
+.jcn-journey-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 27px;
+  bottom: 0;
+  left: 12px;
+  width: 2px;
+  background: #4b4b4b;
+}
+
+.jcn-journey-step.done:not(:last-child)::before {
+  background: #caa244;
+}
+
+.jcn-journey-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid #666;
+  background: #202020;
+  color: #aaa;
+  font-size: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.jcn-journey-step.done .jcn-journey-dot {
+  background: #caa244;
+  border-color: #caa244;
+  color: #121212;
+}
+
+.jcn-journey-step.current .jcn-journey-dot {
+  border-color: #eac567;
+  color: #eac567;
+  box-shadow: 0 0 0 4px rgba(234, 197, 103, 0.12);
+}
+
+.jcn-journey-step.current.done .jcn-journey-dot {
+  color: #121212;
+}
+
+.jcn-journey-step strong {
+  display: block;
+  padding-top: 3px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.jcn-journey-step.done strong,
+.jcn-journey-step.current strong {
+  color: #eac567;
+}
+
+.jcn-journey-step p {
+  margin: 5px 0 12px;
+  color: #b6b6b6;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Latest carrier update and verified checkpoint list */
+.jcn-journey-latest {
+  color: #e0d4b9;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.jcn-courier-events {
+  border-left: 2px solid #bb963c;
+  margin: 10px 0 17px 11px;
+  padding-left: 19px;
+}
+
+.jcn-courier-event {
+  position: relative;
+  padding: 0 0 18px;
+}
+
+.jcn-courier-event:last-child {
+  padding-bottom: 0;
+}
+
+.jcn-courier-event::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: -27px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #777;
+  border: 2px solid #151515;
+}
+
+.jcn-courier-event.latest::before {
+  background: #f0c65e;
+  box-shadow: 0 0 0 3px rgba(240, 198, 94, 0.17);
+}
+
+.jcn-courier-event strong {
+  display: block;
+  color: #f1db9f;
+  font-size: 13px;
+}
+
+.jcn-courier-event p {
+  margin: 5px 0;
+  color: #c3c3c3;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.jcn-courier-event small {
+  color: #aaa;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Loading, missing tracking and API warning */
+.jnt-inline-note {
+  color: #bcb4a5;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.jnt-inline-note i {
+  margin-right: 6px;
+  color: #e5bd55;
+}
+
+.jcn-journey-warning {
+  margin-top: 13px;
+  border-left: 3px solid #c79b45;
+  border-radius: 0 8px 8px 0;
+  padding: 12px;
+  background: #2b261b;
+  color: #e4c98c;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.jcn-journey-card .jnt-history-btn {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid #907236;
+  border-radius: 9px;
+  background: #2b2417;
+  color: #efca73;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.jcn-journey-card .jnt-history-btn:hover {
+  background: #40321d;
+  border-color: #efca73;
+}
+
+.jcn-journey-card .jnt-history-btn:focus-visible {
+  outline: 2px solid #efca73;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .jcn-journey-card {
+    padding: 14px;
+  }
+
+  .jcn-journey-heading {
+    align-items: flex-start;
+  }
+
+  .jcn-journey-step {
+    gap: 10px;
+    min-height: 82px;
+  }
+
+  .jcn-journey-badge {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jcn-journey-card .jnt-history-btn {
+    transition: none;
+  }
+}

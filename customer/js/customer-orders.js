@@ -557,8 +557,8 @@ function selectOrder(orderId) {
       >
         ${
           order.tracking_number && !cancelled
-            ? trackingLoadingHtml()
-            : noTrackingHtml(cancelled)
+            ? renderShipmentJourney(order)
+            : noTrackingHtml(cancelled, order)
         }
       </div>
 
@@ -706,376 +706,133 @@ function getStatusText(status) {
 }
 
 /* ============================================
-   J&T TRACKING PLACEHOLDERS
+   SHOPEE-STYLE TRACKING - ORDER + COURIER
+   No iframe, no invented courier scans.
 ============================================ */
 
 function trackingLoadingHtml() {
-  return `
-    <div class="jnt-loading">
-      <i class="fa-solid fa-spinner fa-spin"></i>
-      <span>Checking J&T shipment updates...</span>
-    </div>
-  `;
+  return `<p class="jnt-inline-note"><i class="fa-solid fa-spinner fa-spin"></i> Checking live courier updates...</p>`;
 }
 
-function noTrackingHtml(cancelled = false) {
-  return `
-    <div class="jnt-no-tracking">
-
-      <div class="jnt-truck-icon">
-        <i class="fa-solid fa-truck"></i>
-      </div>
-
-      <div>
-        <strong>
-          ${cancelled ? "Order Cancelled" : "No J&T Tracking Yet"}
-        </strong>
-
-        <p>
-          ${
-            cancelled
-              ? "Tracking is not available for this cancelled order."
-              : "Tracking information will appear here after the admin adds a J&T tracking number."
-          }
-        </p>
-      </div>
-
-    </div>
-  `;
+function noTrackingHtml(cancelled = false, order = null) {
+  if (order) return renderShipmentJourney(order, null);
+  return `<p class="jnt-inline-note">${cancelled ? "Order cancelled." : "Awaiting tracking number."}</p>`;
 }
 
-/* ============================================
-   LOAD LATEST J&T TRACKING
-============================================ */
+function getOrderSteps(order) {
+  const status = normalizeStatus(order.status);
+  const waiting = isWaitingPayment(order);
+  const sequence = [
+    { label: "Order Placed", detail: "Your order has been placed." },
+    { label: "Preparing Order", detail: "Order is being processed." },
+    { label: "Ready to Ship", detail: "Order is awaiting courier handoff." },
+    { label: "To Receive", detail: "Shipment stage assigned by JCN." },
+    { label: "Order Completed", detail: "Customer order marked complete." }
+  ];
+  let stage = 0;
+  if (status === "Processing") stage = 1;
+  if (status === "To Ship") stage = 2;
+  if (status === "To Receive") stage = 3;
+  if (status === "Completed") stage = 4;
+  if (waiting) stage = 0;
+  return { sequence, stage };
+}
+
+function renderShipmentJourney(order, tracking = null, note = "") {
+  const cancelled = isCancelledOrder(order);
+  const trackingNumber = String(order.tracking_number || "").trim();
+  const { sequence, stage } = getOrderSteps(order);
+  const status = getDisplayStatus(order);
+  const rawHistory = Array.isArray(tracking?.history) ? tracking.history : [];
+  const history = rawHistory.filter(x => x && (x.date || x.message || x.location))
+    .sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
+  const currentCourier = String(tracking?.status || "").trim();
+  const latest = history[0];
+
+  const timeline = cancelled
+    ? `<div class="jcn-journey-step current"><div class="jcn-journey-dot"><i class="fa-solid fa-xmark"></i></div><div><strong>Order Cancelled</strong><p>This order was cancelled.</p></div></div>`
+    : sequence.map((step, index) => {
+        const done = index < stage;
+        const current = index === stage;
+        return `<div class="jcn-journey-step ${done ? "done" : ""} ${current ? "current" : ""}">
+          <div class="jcn-journey-dot"><i class="fa-solid ${done ? "fa-check" : current ? "fa-box" : "fa-circle"}"></i></div>
+          <div><strong>${escapeHtml(step.label)}</strong><p>${escapeHtml(step.detail)}</p></div>
+        </div>`;
+      }).join("");
+
+  const courierEvents = history.length ? `
+    <h4 class="jcn-journey-subtitle"><i class="fa-solid fa-route"></i> Verified courier updates</h4>
+    <div class="jcn-courier-events">${history.map((item, index) => `
+      <div class="jcn-courier-event ${index === 0 ? "latest" : ""}">
+        <strong>${escapeHtml(item.message || "Courier checkpoint")}</strong>
+        <p>${escapeHtml(item.location || "Location unavailable")}</p>
+        <small>${escapeHtml(item.date ? formatTrackingDate(item.date) : "Date unavailable")}</small>
+      </div>`).join("")}</div>`
+    : `<p class="jnt-inline-note">${trackingNumber ? "No verified J&T courier scans available yet." : "A J&T tracking number has not been assigned yet."}</p>`;
+
+  return `
+    <div class="jcn-journey-card">
+      <div class="jcn-journey-heading">
+        <strong><i class="fa-solid fa-truck-fast"></i> J&T Express Philippines</strong>
+        <span class="jcn-journey-badge">${escapeHtml(cancelled ? "Cancelled" : currentCourier || status)}</span>
+      </div>
+      <p class="jcn-journey-number">Tracking Number: <strong>${escapeHtml(trackingNumber || "Not yet assigned")}</strong></p>
+      <h4 class="jcn-journey-subtitle">Order progress</h4>
+      <div class="jcn-journey-timeline">${timeline}</div>
+      ${trackingNumber && !cancelled ? `
+        <h4 class="jcn-journey-subtitle">J&T shipment journey</h4>
+        ${latest ? `<p class="jcn-journey-latest">Latest: ${escapeHtml(latest.message || "Courier update")} ${latest.location ? "— " + escapeHtml(latest.location) : ""}</p>` : ""}
+        ${courierEvents}
+        <button type="button" class="jnt-history-btn" data-action="refresh-tracking">
+          <i class="fa-solid fa-rotate-right"></i> Refresh tracking
+        </button>` : ""}
+      ${note ? `<p class="jcn-journey-warning">${escapeHtml(note)}</p>` : ""}
+    </div>`;
+}
 
 async function loadLatestJntUpdate(order) {
   const container = document.getElementById("jntLatestUpdate");
-
-  if (!container || !order.tracking_number) return;
-
+  if (!container || !order || !order.tracking_number || isCancelledOrder(order)) return;
   const requestId = ++trackingRequestId;
   const orderId = String(order.id);
-
-  container.innerHTML = trackingLoadingHtml();
+  container.innerHTML = renderShipmentJourney(order, null, "Checking live courier updates...");
 
   try {
+    const token = localStorage.getItem("customerToken");
+    if (!token) throw new Error("Customer login required to retrieve courier updates.");
     const response = await fetch(
       `${API_URL}/api/orders/${encodeURIComponent(order.id)}/tracking`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("customerToken")}`
-        }
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
-
-    const data = await response.json();
-
-    // Prevent an old response from replacing another order's tracking.
-    if (
-      requestId !== trackingRequestId ||
-      selectedOrderId !== orderId
-    ) {
-      return;
-    }
+    let data = {};
+    try { data = await response.json(); } catch { /* non-JSON server reply */ }
+    if (requestId !== trackingRequestId || selectedOrderId !== orderId) return;
 
     if (!response.ok || !data.success) {
-      throw new Error(
-        data.message || "Tracking information is unavailable."
-      );
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Live courier access requires a valid customer session. Sign in again if this persists; the server tracking route must accept customer tokens.");
+      }
+      throw new Error(data.message || `Courier updates unavailable (HTTP ${response.status}).`);
     }
-
-    const tracking = data.tracking || {};
-
-    displayJntTracking(tracking, order);
+    displayJntTracking(data.tracking || {}, order);
   } catch (error) {
-    if (
-      requestId !== trackingRequestId ||
-      selectedOrderId !== orderId
-    ) {
-      return;
-    }
-
+    if (requestId !== trackingRequestId || selectedOrderId !== orderId) return;
     console.error("J&T TRACKING ERROR:", error);
-
-    container.innerHTML = `
-      <div class="jnt-error">
-
-        <i class="fa-solid fa-triangle-exclamation"></i>
-
-        <div>
-          <strong>Tracking Unavailable</strong>
-
-          <p>${escapeHtml(error.message)}</p>
-
-          <button
-            type="button"
-            class="jnt-history-btn"
-            data-action="refresh-tracking"
-          >
-            <i class="fa-solid fa-rotate-right"></i>
-            Try Again
-          </button>
-        </div>
-
-      </div>
-    `;
+    // Preserve order progress even if AfterShip or authentication is unavailable.
+    container.innerHTML = renderShipmentJourney(order, null, error.message);
   }
 }
-
-/* ============================================
-   DISPLAY J&T TRACKING
-============================================ */
 
 function displayJntTracking(tracking, order) {
   const container = document.getElementById("jntLatestUpdate");
-
   if (!container) return;
-
-  const trackingNumber =
-    tracking.tracking_number || order.tracking_number;
-
-  const trackingStatus =
-    tracking.status || "Status not yet available";
-
-  const latestLocation =
-    tracking.latest_location || "Location not yet available";
-
-  const latestMessage =
-    tracking.latest_message || "Waiting for courier scan.";
-
-  const latestDate = tracking.latest_date
-    ? formatTrackingDate(tracking.latest_date)
-    : "No courier update yet";
-
-  const history = Array.isArray(tracking.history)
-    ? tracking.history
-    : [];
-
-  container.innerHTML = `
-
-    <div class="jnt-update-card">
-
-      <!-- COURIER HEADER -->
-      <div class="jnt-update-header">
-
-        <div class="jnt-title">
-          <i class="fa-solid fa-truck-fast"></i>
-
-          <div>
-            <strong>J&T Express</strong>
-            <p>Philippines Delivery Tracking</p>
-          </div>
-        </div>
-
-        <span class="jnt-live-badge">
-          Courier Updates
-        </span>
-
-      </div>
-
-      <!-- TRACKING NUMBER -->
-      <div class="jnt-tracking-number">
-
-        <span>Tracking Number</span>
-
-        <strong>
-          ${escapeHtml(trackingNumber)}
-        </strong>
-
-      </div>
-
-      <!-- SHIPMENT STATUS -->
-      <div class="jnt-current-status">
-
-        <span>Shipment Status</span>
-
-        <strong>
-          ${escapeHtml(trackingStatus)}
-        </strong>
-
-      </div>
-
-      <!-- LATEST LOCATION -->
-      <div class="jnt-location">
-
-        <div class="jnt-location-icon">
-          <i class="fa-solid fa-location-dot"></i>
-        </div>
-
-        <div class="jnt-location-info">
-
-          <small>LATEST COURIER LOCATION</small>
-
-          <strong>
-            ${escapeHtml(latestLocation)}
-          </strong>
-
-          <p>
-            ${escapeHtml(latestMessage)}
-          </p>
-
-        </div>
-
-      </div>
-
-      <!-- COURIER UPDATE DATE -->
-      <div class="jnt-update-footer">
-
-        <div>
-          <i class="fa-regular fa-clock"></i>
-          ${escapeHtml(latestDate)}
-        </div>
-
-      </div>
-
-      ${
-        tracking.estimated_delivery
-          ? `
-            <div class="jnt-estimated">
-
-              <i class="fa-solid fa-calendar-check"></i>
-
-              <span>Estimated Delivery:</span>
-
-              <strong>
-                ${escapeHtml(
-                  formatTrackingDate(tracking.estimated_delivery)
-                )}
-              </strong>
-
-            </div>
-          `
-          : ""
-      }
-
-      <!-- TRACKING ACTIONS -->
-      <div class="jnt-tracking-actions">
-
-        <button
-          type="button"
-          class="jnt-history-btn"
-          data-action="refresh-tracking"
-        >
-          <i class="fa-solid fa-rotate-right"></i>
-          Refresh Tracking
-        </button>
-
-        ${
-          history.length
-            ? `
-              <button
-                type="button"
-                class="jnt-history-btn"
-                data-action="toggle-history"
-              >
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                View Tracking History
-              </button>
-            `
-            : ""
-        }
-
-      </div>
-
-      ${
-        history.length
-          ? `
-            <div
-  id="jntTrackingHistory"
-  class="jnt-tracking-history"
->
-  <div class="jcn-section-title">
-    <i class="fa-solid fa-route"></i>
-    <span>J&T SHIPMENT JOURNEY</span>
-  </div>
-
-  ${buildTrackingHistory(history)}
-</div>
-          `
-          : `
-            <p class="jnt-no-history">
-              No courier checkpoint history available yet.
-            </p>
-          `
-      }
-
-    </div>
-  `;
+  container.innerHTML = renderShipmentJourney(order, tracking);
 }
 
-/* ============================================
-   BUILD SHIPMENT HISTORY
-============================================ */
-
-function buildTrackingHistory(history) {
-  if (!Array.isArray(history) || !history.length) {
-    return `
-      <p class="jnt-no-history">
-        No tracking events available.
-      </p>
-    `;
-  }
-
-  const sortedHistory = [...history].sort((a, b) => {
-    const aTime = new Date(a.date).getTime() || 0;
-    const bTime = new Date(b.date).getTime() || 0;
-
-    return bTime - aTime;
-  });
-
-  return sortedHistory.map((checkpoint, index) => {
-    return `
-      <div class="jnt-history-item ${index === 0 ? "latest" : ""}">
-
-        <div class="jnt-history-marker">
-          <span class="jnt-history-dot"></span>
-        </div>
-
-        <div class="jnt-history-content">
-
-          <strong>
-            ${escapeHtml(
-              checkpoint.location || "Location not provided"
-            )}
-          </strong>
-
-          <p>
-            ${escapeHtml(
-              checkpoint.message || "Shipment updated"
-            )}
-          </p>
-
-          <small>
-            ${escapeHtml(formatTrackingDate(checkpoint.date))}
-          </small>
-
-        </div>
-
-      </div>
-    `;
-  }).join("");
-}
-
-/* ============================================
-   TOGGLE TRACKING HISTORY
-============================================ */
-
+// Kept for compatibility with the existing click handler.
 function toggleJntHistory() {
   const history = document.getElementById("jntTrackingHistory");
-
-  if (!history) return;
-
-  history.hidden = !history.hidden;
-
-  const button = document.querySelector(
-    '[data-action="toggle-history"]'
-  );
-
-  if (button) {
-    button.innerHTML = history.hidden
-      ? '<i class="fa-solid fa-clock-rotate-left"></i> View Tracking History'
-      : '<i class="fa-solid fa-chevron-up"></i> Hide Tracking History';
-  }
+  if (history) history.hidden = !history.hidden;
 }
 
 /* ============================================

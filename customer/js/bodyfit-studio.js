@@ -370,12 +370,64 @@ function frameAvatar() {
   controls.update();
 }
 
-async function loadAvatar(url, label) {
+// Automatic project loading goes through a fresh binary fetch.
+// The manual upload path remains untouched and still uses its File object URL.
+async function getFreshProjectAvatarBlobUrl(sourceUrl) {
+  const freshUrl = new URL(sourceUrl, window.location.href);
+  freshUrl.searchParams.set('jcn_cache_bust', String(Date.now()));
+
+  const response = await fetch(freshUrl.href, { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`GLB download failed: HTTP ${response.status}.`);
+  }
+
+  const data = await response.arrayBuffer();
+  const length = data.byteLength;
+  if (length < 20) {
+    throw new Error(`GLB response is incomplete (${length} bytes).`);
+  }
+
+  const header = new DataView(data);
+  const magic = String.fromCharCode(...new Uint8Array(data, 0, 4));
+  const version = header.getUint32(4, true);
+  const declaredLength = header.getUint32(8, true);
+  const jsonLength = header.getUint32(12, true);
+  const jsonType = header.getUint32(16, true);
+  if (magic !== 'glTF' || version !== 2) {
+    throw new Error(`Server returned an invalid GLB header (magic=${magic}, version=${version}).`);
+  }
+  if (declaredLength !== length) {
+    throw new Error(`GLB length mismatch: downloaded ${length} bytes, header expects ${declaredLength}.`);
+  }
+  if (jsonType !== 0x4e4f534a || jsonLength < 2 || 20 + jsonLength > length) {
+    throw new Error(`Invalid GLB JSON chunk (${jsonLength} bytes).`);
+  }
+  const secondChunk = 20 + jsonLength;
+  if (secondChunk < length) {
+    if (secondChunk + 8 > length) throw new Error('Incomplete GLB binary chunk header.');
+    const nextLength = header.getUint32(secondChunk, true);
+    if (secondChunk + 8 + nextLength > length) {
+      throw new Error(`Incomplete GLB binary chunk (${nextLength} bytes).`);
+    }
+  }
+
+  console.info(`[JCN Avatar] Fresh GLB downloaded: ${length} bytes; header OK.`);
+  avatarStatus.textContent = `Downloaded ${Math.round(length / 1024 / 1024 * 10) / 10} MB; loading 3D avatar…`;
+
+  // GLTFLoader sees the same Blob URL input type used by working Choose File uploads.
+  return URL.createObjectURL(new Blob([data], { type: 'model/gltf-binary' }));
+}
+
+async function loadAvatar(url, label, { projectFile = false } = {}) {
   if (avatarIsLoading) return;
   avatarIsLoading = true;
   avatarStatus.textContent = 'Loading ' + label + '…';
+  let freshObjectUrl = null;
   try {
-    const gltf = await gltfLoader.loadAsync(url);
+    if (projectFile) {
+      freshObjectUrl = await getFreshProjectAvatarBlobUrl(url);
+    }
+    const gltf = await gltfLoader.loadAsync(freshObjectUrl || url);
     const root = fitAvatar(gltf.scene);
     disposeAvatar();
     avatarRoot = root;
@@ -399,14 +451,17 @@ async function loadAvatar(url, label) {
     console.error('JCN avatar load failed:', e);
     if (!avatarRoot) showDemo('Blender avatar not found or unreadable. Demo mannequin is ready. (' + e.message + ')');
     else avatarStatus.textContent = 'Could not replace avatar: ' + e.message;
-  } finally { avatarIsLoading = false; }
+  } finally {
+    if (freshObjectUrl) URL.revokeObjectURL(freshObjectUrl);
+    avatarIsLoading = false;
+  }
 }
 function syncAvatarSize() {
   if (!avatarRoot) return;
-  const idx = SIZES.findIndex(s => s.size === $('selectedSize').value);
-  const factor = idx >= 0 ? 1 + (idx - 2) * .025 : 1;
-  // DEMO ONLY: uniform X/Z scaling is visual approximation, not a body scan or clothing fit simulation.
-  avatarRoot.scale.set(factor, 1, factor);
+  // Keep the customer's body independent of the selected garment size.
+  // The garment mesh is adjusted separately by studioApplyBodyPreview().
+  avatarRoot.scale.x = 1;
+  avatarRoot.scale.z = 1;
 }
 function updateShape() {
   const size = $('selectedSize').value;
@@ -418,7 +473,7 @@ function updateShape() {
   art.position.z = .59 * scale;
   syncAvatarSize();
 }
-reloadAvatar.onclick = () => loadAvatar(AVATAR_URL + '?v=' + Date.now(), 'jcn-avatar.glb');
+reloadAvatar.onclick = () => loadAvatar(AVATAR_URL, 'jcn-avatar.glb', { projectFile: true });
 avatarUpload.onchange = async e => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -487,7 +542,7 @@ const resizeObserver = new ResizeObserver(() => {
 resizeObserver.observe($('viewer'));
 function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
 updateShape(); drawArt(); animate();
-loadAvatar(AVATAR_URL, 'jcn-avatar.glb');
+loadAvatar(AVATAR_URL, 'jcn-avatar.glb', { projectFile: true });
 $('save').onclick = async () => { const target = $('saveStatus'); const token = localStorage.getItem('customerToken'); if (!token) { target.textContent = 'Log in as a customer before saving.'; return; } const body = { size: $('selectedSize').value, shirt_color: $('shirtColor').value, print_text: $('printText').value.trim(), fit: $('fit').value, height_cm: Number($('heightCm').value), recommendation: state.estimate }; try { const res = await fetch('http://localhost:5000/api/customer/bodyfit-designs', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) }); const data = await res.json(); if (!res.ok) throw Error(data.message || 'Save failed'); target.textContent = 'Saved successfully. Design ID: ' + data.id; } catch (e) { target.textContent = 'Unable to save: ' + e.message; } };
 
 
@@ -529,6 +584,7 @@ function studioSetupAvatar(rawScene) {
       const attr = obj.geometry.getAttribute('position');
       if (attr) studioBodyMorphs.push({
         mesh: obj,
+        isClothing,
         original: new Float32Array(attr.array),
         attr
       });
@@ -581,35 +637,97 @@ function studioSetupAvatar(rawScene) {
   studioBackPlane = createPrintPlane('back');
 }
 
+
 function studioApplyBodyPreview() {
   if (!avatarRoot || studioBodyMorphs.length === 0) return;
-  // Manual chest gives a better size cue. Otherwise use bounded pose-only
-  // garment-width recommendation, not a claimed absolute chest measurement.
+
   const chest = Number($('manualChest').value);
-  const recommendedWidth = state.estimate?.targetWidth || 58.42;
-  const chestFactor = chest >= 50 && chest <= 180
+  const estimatedWidth = state.estimate?.targetWidth || 58.42;
+
+  const bodyWidth = chest >= 50 && chest <= 180
     ? THREE.MathUtils.clamp(chest / 96, 0.88, 1.14)
-    : THREE.MathUtils.clamp(recommendedWidth / 58.42, 0.93, 1.08);
-  const depthFactor = 1 + (chestFactor - 1) * 0.65;
-  for (const {mesh, original, attr} of studioBodyMorphs) {
+    : THREE.MathUtils.clamp(estimatedWidth / 58.42, 0.93, 1.08);
+
+  const bodyDepth = 1 + (bodyWidth - 1) * 0.65;
+
+  const selected =
+    SIZES.find(s => s.size === $('selectedSize').value) ||
+    SIZES[2];
+
+  // Limit shirt deformation to protect the sleeve seams.
+  const shirtWidth = THREE.MathUtils.clamp(
+    selected.width / 58.42,
+    0.95,
+    1.075
+  );
+
+  const shirtDepth = 1 + (shirtWidth - 1) * 0.50;
+
+  for (const { mesh, original, attr, isClothing } of studioBodyMorphs) {
     for (let i = 0; i < attr.count; i++) {
-      const y = original[i*3+1];
-      const start = THREE.MathUtils.smoothstep(y, 0.69, 0.96);
-      const end = 1 - THREE.MathUtils.smoothstep(y, 1.36, 1.54);
-      const influence = start * end;
-      attr.array[i*3] = original[i*3] * (1 + (chestFactor - 1) * influence);
-      attr.array[i*3+1] = original[i*3+1];
-      attr.array[i*3+2] = original[i*3+2] * (1 + (depthFactor - 1) * influence);
+      const x = original[i * 3];
+      const y = original[i * 3 + 1];
+      const z = original[i * 3 + 2];
+
+      const torsoStart =
+        THREE.MathUtils.smoothstep(y, 0.70, 0.98);
+
+      const torsoEnd =
+        1 - THREE.MathUtils.smoothstep(y, 1.27, 1.42);
+
+      const torsoWeight = torsoStart * torsoEnd;
+
+      if (isClothing) {
+        // Gradually reduce changes near the upper arms.
+        const sleeveProtection =
+          1 - THREE.MathUtils.smoothstep(
+            Math.abs(x),
+            0.15,
+            0.265
+          );
+
+        const garmentWeight =
+          torsoWeight * sleeveProtection;
+
+        attr.array[i * 3] =
+          x * (1 + (shirtWidth - 1) * garmentWeight);
+
+        attr.array[i * 3 + 1] = y;
+
+        attr.array[i * 3 + 2] =
+          z * (1 + (shirtDepth - 1) * garmentWeight);
+      } else {
+        attr.array[i * 3] =
+          x * (1 + (bodyWidth - 1) * torsoWeight);
+
+        attr.array[i * 3 + 1] = y;
+
+        attr.array[i * 3 + 2] =
+          z * (1 + (bodyDepth - 1) * torsoWeight);
+      }
     }
+
     attr.needsUpdate = true;
     mesh.geometry.computeVertexNormals();
     mesh.geometry.computeBoundingSphere();
+    mesh.geometry.computeBoundingBox();
   }
-  // Height changes the visual avatar height only. It cannot reproduce a
-  // photo-specific human pose, identity or true measurements.
+
   const height = Number($('heightCm').value) || 165;
-  const scaleY = THREE.MathUtils.clamp(height / 165, 0.84, 1.16);
-  avatarRoot.scale.y = scaleY;
+
+  avatarRoot.scale.y = THREE.MathUtils.clamp(
+    height / 165,
+    0.84,
+    1.16
+  );
+
+  if (studioFrontPlane) {
+    studioFrontPlane.mesh.position.z = 0.195 * shirtDepth;
+  }
+
+  if (studioBackPlane) {
+    studioBackPlane.mesh.position.z = -0.139 * shirtDepth;
+  }
 }
 
 async function studioPaintPlane(side, text, imageUrl, sizeKey) {

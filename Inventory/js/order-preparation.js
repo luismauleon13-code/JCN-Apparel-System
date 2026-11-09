@@ -113,9 +113,15 @@ async function inventoryRequest(
   }
 
   if (!response.ok || data.success === false) {
-    throw new Error(
-      data.message || `Request failed (${response.status}).`
-    );
+    const message = data.message || data.error ||
+      `Request failed (${response.status}).`;
+    console.error("INVENTORY API ERROR", {
+      url: `${baseUrl}${path}`,
+      status: response.status,
+      message,
+      details: data.details || null
+    });
+    throw new Error(message);
   }
 
   return data;
@@ -163,7 +169,11 @@ async function loadPreparationOrders() {
       `/orders?page=${currentPage}`
     );
 
-    currentOrders = data.orders || [];
+    if (!Array.isArray(data.orders)) {
+      throw new Error("The inventory orders API returned an invalid orders list.");
+    }
+
+    currentOrders = data.orders;
 
     main.innerHTML = `
       <section class="panel">
@@ -267,25 +277,31 @@ function renderPreparationOrders() {
   }
 
   container.innerHTML = currentOrders.map((order, index) => {
-    const items = Array.isArray(order.inventory_items)
+    let items = Array.isArray(order.inventory_items)
       ? order.inventory_items
       : [];
 
-    const eligible =
-      order.payment_method === "COD" ||
-      (
-        order.payment_method === "PayPal" &&
-        order.payment_status === "Paid"
-      );
+    // Some existing databases store inventory_items as JSON text.
+    if (typeof order.inventory_items === "string") {
+      try {
+        const parsed = JSON.parse(order.inventory_items);
+        items = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        items = [];
+      }
+    }
 
-    const preparationStatus =
-  String(order.inventory_preparation || "Queued").trim();
+    const method = String(order.payment_method || "").trim().toLowerCase();
+    const payment = String(order.payment_status || "").trim().toLowerCase();
+    const eligible = method === "cod" ||
+      (method === "paypal" && payment === "paid");
 
-const isReady = [
-  "ready",
-  "ready to ship",
-  "prepared"
-].includes(preparationStatus.toLowerCase());
+    const preparationStatus = String(
+      order.inventory_preparation || "Queued"
+    ).trim();
+    const normalizedPreparation = preparationStatus.toLowerCase();
+    const isReady = ["ready", "ready to ship", "prepared"]
+      .includes(normalizedPreparation);
 
     const trackingNumber =
       order.tracking_number || "";
@@ -293,7 +309,7 @@ const isReady = [
     const canPrepare =
       eligible &&
       items.length > 0 &&
-      ["Queued", "Preparing"].includes(preparationStatus);
+      ["queued", "preparing"].includes(normalizedPreparation);
 
     return `
       <article class="order" data-index="${index}">
