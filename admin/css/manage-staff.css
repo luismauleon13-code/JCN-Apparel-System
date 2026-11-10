@@ -1,3 +1,4 @@
+/* Complete JCN Manage Staff CSS - original staff features plus aligned Admin layout */
 /* =========================================
    JCN MANAGE STAFF
 ========================================= */
@@ -9,15 +10,15 @@
 }
 
 :root {
-  --gold: #f2c14e;
-  --gold-dark: #d4af37;
+  --gold: #f4c542;
+  --gold-dark: #c79b1b;
 
-  --black: #050505;
+  --black: #0c0c0d;
   --dark: #0b0b0b;
   --card: #101010;
   --card-light: #151515;
 
-  --border: rgba(242, 193, 78, 0.20);
+  --border: rgba(244, 197, 66, 0.20);
 
   --white: #ffffff;
   --muted: #999999;
@@ -37,7 +38,7 @@ body {
     ),
     linear-gradient(
       135deg,
-      #050505,
+      #0c0c0d,
       #0b0b0b 55%,
       #000
     );
@@ -45,8 +46,8 @@ body {
   color: var(--white);
 
   font-family:
+    "Segoe UI",
     Arial,
-    Helvetica,
     sans-serif;
 }
 
@@ -123,7 +124,7 @@ body {
 
 .navbar-toggler {
   border:
-    1px solid rgba(242, 193, 78, 0.30);
+    1px solid rgba(244, 197, 66, 0.30);
 }
 
 .navbar-toggler:focus {
@@ -226,7 +227,7 @@ body {
       var(--gold)
     );
 
-  color: #050505;
+  color: #0c0c0d;
 
   font-weight: 800;
 
@@ -241,7 +242,7 @@ body {
   transform: translateY(-2px);
 
   box-shadow:
-    0 10px 30px rgba(242, 193, 78, 0.15);
+    0 10px 30px rgba(244, 197, 66, 0.15);
 }
 
 
@@ -282,7 +283,7 @@ body {
   transform: translateY(-3px);
 
   border-color:
-    rgba(242, 193, 78, 0.45);
+    rgba(244, 197, 66, 0.45);
 }
 
 .summary-icon {
@@ -299,10 +300,10 @@ body {
   border-radius: 14px;
 
   background:
-    rgba(242, 193, 78, 0.10);
+    rgba(244, 197, 66, 0.10);
 
   border:
-    1px solid rgba(242, 193, 78, 0.20);
+    1px solid rgba(244, 197, 66, 0.20);
 
   color: var(--gold);
 
@@ -518,7 +519,7 @@ body {
 
 .staff-table tbody tr:hover {
   background:
-    rgba(242, 193, 78, 0.025);
+    rgba(244, 197, 66, 0.025);
 }
 
 
@@ -548,10 +549,10 @@ body {
   border-radius: 50%;
 
   background:
-    rgba(242, 193, 78, 0.10);
+    rgba(244, 197, 66, 0.10);
 
   border:
-    1px solid rgba(242, 193, 78, 0.25);
+    1px solid rgba(244, 197, 66, 0.25);
 
   color: var(--gold);
 
@@ -587,10 +588,10 @@ body {
   border-radius: 20px;
 
   background:
-    rgba(242, 193, 78, 0.08);
+    rgba(244, 197, 66, 0.08);
 
   border:
-    1px solid rgba(242, 193, 78, 0.18);
+    1px solid rgba(244, 197, 66, 0.18);
 
   color: var(--gold);
 
@@ -726,7 +727,7 @@ body {
   border-radius: 50%;
 
   background:
-    rgba(242, 193, 78, 0.08);
+    rgba(244, 197, 66, 0.08);
 
   color: var(--gold);
 
@@ -772,7 +773,7 @@ body {
     );
 
   border:
-    1px solid rgba(242, 193, 78, 0.25);
+    1px solid rgba(244, 197, 66, 0.25);
 
   border-radius: 18px;
 
@@ -849,7 +850,7 @@ body {
   border-color: var(--gold);
 
   box-shadow:
-    0 0 0 3px rgba(242, 193, 78, 0.05);
+    0 0 0 3px rgba(244, 197, 66, 0.05);
 }
 
 .input-group-custom i {
@@ -902,12 +903,12 @@ body {
   gap: 12px;
 
   border:
-    1px solid rgba(242, 193, 78, 0.16);
+    1px solid rgba(244, 197, 66, 0.16);
 
   border-radius: 10px;
 
   background:
-    rgba(242, 193, 78, 0.04);
+    rgba(244, 197, 66, 0.04);
 }
 
 .account-note > i {
@@ -984,7 +985,7 @@ body {
       var(--gold)
     );
 
-  color: #050505;
+  color: #0c0c0d;
 }
 
 .btn-create i {
@@ -1051,7 +1052,7 @@ body {
     );
 
   border:
-    1px solid rgba(242, 193, 78, 0.25);
+    1px solid rgba(244, 197, 66, 0.25);
 
   box-shadow:
     0 25px 80px rgba(0, 0, 0, 0.70);
@@ -1073,7 +1074,7 @@ body {
   border-radius: 50%;
 
   background:
-    rgba(242, 193, 78, 0.10);
+    rgba(244, 197, 66, 0.10);
 
   color: var(--gold);
 
@@ -1224,4 +1225,334 @@ body {
     width: 100%;
   }
 
+}
+
+/* =========================================================
+   ADMIN LAYOUT - SAME AS MANAGE CUSTOMERS
+   Matches the supplied manage-staff.html selectors
+   Preserves original staff cards, tables, filters and modals
+========================================================= */
+
+body {
+  background: radial-gradient(circle at top right, #211c12 0, transparent 48%), #0c0c0d;
+  color: #ffffff;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dashboard-wrapper {
+  width: min(1400px, calc(100% - 40px));
+  margin: 20px auto;
+}
+
+.dashboard-nav,
+.dashboard-card {
+  background: linear-gradient(135deg, #151515, #0c0c0c);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.dashboard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 16px 22px;
+  margin-bottom: 20px;
+}
+
+.dashboard-nav .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 750;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.dashboard-nav .brand i { color: var(--gold); }
+
+.dashboard-nav .top-menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 26px;
+}
+
+.dashboard-nav .top-menu a {
+  padding: 6px 0;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.dashboard-nav .top-menu a:hover,
+.dashboard-nav .top-menu a.active { color: var(--gold); }
+
+.dashboard-nav .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dashboard-nav .btn-gold {
+  background: var(--gold);
+  color: #16120a;
+  transform: none;
+}
+
+.dashboard-nav .btn-gold:hover {
+  background: #f7d76a;
+  color: #16120a;
+  transform: none;
+}
+
+/* Manage Staff heading: fix text hugging top/left and badge below */
+.dashboard-wrapper .page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 24px;
+  margin-bottom: 22px;
+}
+
+.dashboard-wrapper .page-heading > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-wrapper .page-heading .eyebrow {
+  margin: 0 0 4px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-wrapper .page-heading h1 {
+  margin: 0 0 4px;
+  color: #fff;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.dashboard-wrapper .page-heading .muted {
+  margin: 5px 0 0;
+  color: #b8b8b8;
+  font-size: 14px;
+}
+
+.dashboard-wrapper .admin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  background: rgba(244, 197, 66, 0.08);
+  border: 1px solid rgba(244, 197, 66, 0.4);
+  border-radius: 20px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* In-page Admin Menu: NOT the fixed Customer sidebar */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 265px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.dashboard-layout .sidebar {
+  position: static;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 24px;
+}
+
+.dashboard-layout .sidebar h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.dashboard-layout .sidebar h2 i { color: var(--gold); }
+
+.dashboard-menu {
+  display: grid;
+  gap: 6px;
+}
+
+.dashboard-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dashboard-menu a i {
+  width: 18px;
+  text-align: center;
+}
+
+.dashboard-menu a:hover {
+  background: rgba(244, 197, 66, 0.08);
+  color: var(--gold);
+}
+
+.dashboard-menu a.active {
+  background: rgba(244, 197, 66, 0.17);
+  color: var(--gold);
+}
+
+/* Staff Directory + Add Staff alignment */
+.staff-main {
+  width: 100%;
+  min-width: 0;
+}
+
+.staff-main .page-header {
+  display: block;
+  padding: 24px;
+  margin-bottom: 24px !important;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #151515, #0c0c0c);
+  box-shadow: none;
+}
+
+.staff-main .page-header .row {
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.staff-main .page-header .col-lg-8,
+.staff-main .page-header .col-lg-4 {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.staff-main .page-eyebrow {
+  margin-bottom: 6px !important;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.staff-main .page-title {
+  margin: 0 0 6px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.staff-main .page-description {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.staff-main .page-header .col-lg-4 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.staff-main .btn-add-staff {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-height: 42px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gold);
+  color: #000;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.staff-main .btn-add-staff i { margin-right: 0; }
+
+.staff-main .btn-add-staff:hover {
+  background: #f7d76a;
+  box-shadow: 0 5px 18px rgba(244, 197, 66, 0.18);
+}
+
+.staff-main .summary-card { min-height: 100px; padding: 16px; }
+.staff-main .summary-icon { width: 44px; height: 44px; }
+.staff-main .summary-card h3 { font-size: 23px; }
+.staff-main .staff-panel { border-radius: 16px; }
+.staff-main .staff-panel-header { padding: 22px; }
+.staff-main .staff-table th,
+.staff-main .staff-table td { padding: 15px 12px; }
+
+/* Responsive: keep the Admin Menu + content aligned */
+@media (max-width: 1000px) {
+  .dashboard-layout { grid-template-columns: 220px minmax(0, 1fr); }
+  .dashboard-layout .sidebar { padding: 18px; }
+}
+
+@media (max-width: 991px) {
+  .staff-main .page-header .col-lg-4 { justify-content: flex-start; }
+}
+
+@media (max-width: 760px) {
+  .dashboard-wrapper { width: calc(100% - 24px); margin: 12px auto; }
+  .dashboard-nav { padding: 16px; }
+  .dashboard-nav .top-menu {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 18px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .dashboard-wrapper .page-heading { padding: 20px; }
+  .dashboard-layout { grid-template-columns: 1fr; }
+  .dashboard-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .staff-main .page-header { padding: 20px; }
+}
+
+@media (max-width: 420px) {
+  .dashboard-nav .brand { font-size: 14px; }
+  .dashboard-menu { grid-template-columns: 1fr; }
+  .staff-main .btn-add-staff { width: 100%; }
 }

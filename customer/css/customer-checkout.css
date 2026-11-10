@@ -1,3 +1,9 @@
+/* =========================================
+   JCN CUSTOMER CHECKOUT
+   DASHBOARD-ALIGNED DESIGN
+   Existing HTML selectors preserved
+========================================= */
+
 * {
   margin: 0;
   padding: 0;
@@ -6,154 +12,194 @@
 }
 
 :root {
-  --bg: #0b0b0b;
-  --panel: #151515;
-  --gold: #ffcc36;
-  --text: #fff;
-  --muted: #bdbdbd;
-  --border: rgba(255, 204, 54, 0.35);
+  --bg: #0c0c0d;
+  --panel: #141414;
+  --panel-light: #1b1b1b;
+  --gold: #f4c542;
+  --gold-dark: #c79b1b;
+  --text: #ffffff;
+  --muted: #b8b8b8;
+  --border: rgba(244, 197, 66, 0.28);
 }
 
 body {
+  min-height: 100vh;
   background: var(--bg);
   color: var(--text);
   display: flex;
+  overflow-x: hidden;
 }
 
+/* =========================================
+   SIDEBAR - MATCH CUSTOMER DASHBOARD
+========================================= */
 .sidebar {
   width: 250px;
+  height: 100vh;
   min-height: 100vh;
-  background: #070707;
-  border-right: 1px solid rgba(255, 204, 54, 0.25);
-  padding: 25px 15px;
+  background: #090909;
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
   position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
 }
 
 .brand {
   display: flex;
-  gap: 12px;
   align-items: center;
-  margin-bottom: 38px;
+  gap: 12px;
+  margin-bottom: 35px;
+  flex-shrink: 0;
 }
 
 .logo {
-  width: 45px;
-  height: 45px;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--gold);
   color: #000;
   display: grid;
   place-items: center;
   font-weight: 900;
-  box-shadow: 0 0 20px rgba(255, 204, 54, 0.45);
+  box-shadow: 0 0 20px rgba(244, 197, 66, 0.45);
 }
 
 .brand h2 {
   color: var(--gold);
+  font-size: 22px;
 }
 
 .brand p {
   font-size: 12px;
+  color: var(--muted);
 }
 
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .menu a {
-  color: #fff;
+  color: var(--text);
   text-decoration: none;
-  padding: 15px 14px;
+  padding: 13px 14px;
   border-radius: 12px;
   display: flex;
-  gap: 13px;
   align-items: center;
+  gap: 12px;
   font-size: 14px;
+  transition: 0.3s;
 }
 
 .menu a i {
   color: var(--gold);
-  width: 18px;
 }
 
+.menu a.active,
 .menu a:hover {
-  background: rgba(255, 204, 54, 0.16);
+  background: rgba(244, 197, 66, 0.15);
   color: var(--gold);
 }
 
+.logout-btn {
+  position: static;
+  margin-top: auto;
+  flex-shrink: 0;
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.logout-btn i {
+  color: inherit;
+  font-size: 13px;
+}
+
+.logout-btn:hover {
+  background: var(--gold);
+  color: #000;
+}
+
+/* =========================================
+   MAIN / HEADER
+========================================= */
 .main {
   margin-left: 250px;
   width: calc(100% - 250px);
-  padding: 30px;
+  min-width: 0;
+  padding: 28px;
 }
 
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  gap: 16px;
+  margin-bottom: 26px;
 }
 
 .topbar p {
   color: var(--gold);
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 2px;
-  font-size: 12px;
 }
 
 .topbar h1 {
-  font-size: 35px;
-}
-
-.jcn-popup {
-  background: #111 !important;
-  border: 1px solid #ffcc36 !important;
-  border-radius: 20px !important;
-  color: #fff !important;
-}
-
-.jcn-title {
-  color: #ffcc36 !important;
-  font-weight: 900 !important;
-}
-
-.jcn-confirm-btn,
-.jcn-cancel-btn {
-  border-radius: 12px !important;
-  padding: 12px 28px !important;
-  font-weight: 800 !important;
-  border: none !important;
-}
-
-.jcn-confirm-btn {
-  background: #ffcc36 !important;
-  color: #111 !important;
-}
-
-.jcn-cancel-btn {
-  background: #2b2b2b !important;
-  color: #fff !important;
+  font-size: 28px;
+  margin-top: 6px;
 }
 
 .back-btn {
-  background: var(--gold);
+  background: linear-gradient(135deg, var(--gold), #f7d76a);
   color: #000;
   padding: 13px 22px;
   border-radius: 999px;
   text-decoration: none;
-  font-weight: 900;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.2s ease;
 }
 
+.back-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   CHECKOUT PANELS
+========================================= */
 .checkout-layout {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: 22px;
+  align-items: start;
 }
 
 .checkout-panel,
 .summary-panel {
+  min-width: 0;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -162,6 +208,7 @@ body {
 
 .checkout-panel h2,
 .summary-panel h2 {
+  font-size: 20px;
   margin-bottom: 20px;
 }
 
@@ -179,8 +226,23 @@ select {
   border-radius: 12px;
   border: 1px solid var(--border);
   background: #090909;
-  color: #fff;
+  color: var(--text);
   outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--gold);
+}
+
+textarea {
+  resize: vertical;
+}
+
+select option {
+  background: #141414;
+  color: #fff;
 }
 
 .confirm-btn {
@@ -193,8 +255,22 @@ select {
   color: #000;
   font-weight: 900;
   cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.confirm-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(244, 197, 66, 0.25);
+}
+
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   ORDER SUMMARY
+========================================= */
 .order-items {
   display: flex;
   flex-direction: column;
@@ -205,10 +281,13 @@ select {
 .order-item {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
   background: #101010;
-  border: 1px solid rgba(255, 204, 54, 0.2);
+  border: 1px solid rgba(244, 197, 66, 0.2);
   border-radius: 12px;
   padding: 12px;
+  overflow-wrap: anywhere;
 }
 
 .order-item p {
@@ -219,13 +298,18 @@ select {
 .summary-row {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--muted);
 }
 
+.summary-row strong {
+  color: var(--text);
+}
+
 .summary-row.total {
-  color: #fff;
+  color: var(--text);
   font-size: 20px;
   font-weight: 900;
   border-bottom: none;
@@ -235,13 +319,91 @@ select {
   color: var(--gold);
 }
 
+/* =========================================
+   PAYMENT OPTIONS AND PAYPAL
+========================================= */
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.payment-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #2d2d2d;
+  border-radius: 12px;
+  background: #111;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, transform 0.3s;
+  text-align: left;
+  appearance: none;
+  outline: none;
+  font-family: inherit;
+}
+
+.payment-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.payment-card.active {
+  border-color: var(--gold);
+  background: rgba(244, 197, 66, 0.08);
+  box-shadow: 0 0 15px rgba(244, 197, 66, 0.2);
+}
+
+.payment-card i {
+  min-width: 40px;
+  font-size: 32px;
+  color: var(--gold);
+}
+
+.payment-card h4 {
+  margin: 0;
+  color: var(--text);
+}
+
+.payment-card p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.paypal-section {
+  margin-top: 15px;
+  padding: 15px;
+  border: 1px solid rgba(244, 197, 66, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.paypal-note {
+  color: #ccc;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+#paypal-button-container {
+  width: 100%;
+}
+
+/* =========================================
+   SUCCESS MODAL
+========================================= */
 .success-modal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.75);
   place-items: center;
-  z-index: 100;
+  z-index: 1000;
+  padding: 16px;
 }
 
 .success-modal.active {
@@ -280,101 +442,42 @@ select {
   cursor: pointer;
 }
 
-.payment-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 10px;
+/* =========================================
+   SWEETALERT POPUPS
+========================================= */
+.jcn-popup {
+  background: #111 !important;
+  border: 1px solid var(--gold) !important;
+  border-radius: 20px !important;
+  color: #fff !important;
 }
 
-.payment-card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 16px;
-  border: 2px solid #2d2d2d;
-  border-radius: 12px;
-  background: #111;
-  cursor: pointer;
-  transition: 0.3s;
-  text-align: left;
-  appearance: none;
-  outline: none;
-  font-family: inherit;
+.jcn-title {
+  color: var(--gold) !important;
+  font-weight: 900 !important;
 }
 
-.payment-card.active {
-  border-color: #f4c542;
-  background: rgba(244, 197, 66, 0.08);
-  box-shadow: 0 0 15px rgba(244, 197, 66, 0.2);
+.jcn-confirm-btn,
+.jcn-cancel-btn {
+  border-radius: 12px !important;
+  padding: 12px 28px !important;
+  font-weight: 800 !important;
+  border: none !important;
 }
 
-.paypal-section {
-  margin-top: 15px;
-  padding: 15px;
-  border: 1px solid rgba(244, 197, 66, 0.2);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.02);
+.jcn-confirm-btn {
+  background: var(--gold) !important;
+  color: #111 !important;
 }
 
-.paypal-note {
-  color: #ccc;
-  font-size: 13px;
-  margin-bottom: 10px;
+.jcn-cancel-btn {
+  background: #2b2b2b !important;
+  color: #fff !important;
 }
 
-#paypal-button-container {
-  width: 100%;
-}
-
-
-.payment-card:hover {
-  border-color: #f4c542;
-  transform: translateY(-2px);
-}
-
-.payment-card.active {
-  border-color: #f4c542;
-  background: rgba(244, 197, 66, 0.08);
-}
-
-.payment-card i {
-  min-width: 40px;
-  font-size: 32px;
-  color: #f4c542;
-}
-
-.payment-card h4 {
-  margin: 0;
-  color: white;
-}
-
-.payment-card p {
-  margin: 3px 0 0;
-  color: #aaa;
-  font-size: 13px;
-}
-
-.logout-btn {
-  position: absolute;
-  bottom: 22px;
-  left: 15px;
-  right: 15px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 204, 54, 0.55);
-  background: transparent;
-  color: var(--gold);
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  background: var(--gold);
-  color: #000;
-}
-
-
+/* =========================================
+   LOGOUT MODAL
+========================================= */
 .hidden {
   display: none !important;
 }
@@ -386,6 +489,7 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
 }
 
 .customer-logout-modal .modal-overlay {
@@ -402,7 +506,7 @@ select {
   width: 390px;
   max-width: 90%;
   background: #171717;
-  border: 1px solid rgba(255, 204, 54, 0.35);
+  border: 1px solid var(--border);
   border-radius: 18px;
   padding: 22px 18px 18px;
   text-align: center;
@@ -410,7 +514,7 @@ select {
 }
 
 .customer-logout-modal .modal-box h4 {
-  color: #ffffff;
+  color: #fff;
   font-size: 18px;
   font-weight: 800;
   margin-bottom: 16px;
@@ -441,29 +545,77 @@ select {
 
 .modal-confirm-btn {
   border: none;
-  background: linear-gradient(135deg, #d8a21f, #ffcc36);
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
   color: #000;
 }
 
 .modal-cancel-btn {
   background: transparent;
-  border: 1px solid #ffcc36;
-  color: #ffcc36;
+  border: 1px solid var(--gold);
+  color: var(--gold);
 }
 
-.modal-confirm-btn:hover {
-  background: #ffcc36;
-  color: #000;
-}
-
+.modal-confirm-btn:hover,
 .modal-cancel-btn:hover {
-  background: #ffcc36;
+  background: var(--gold);
   color: #000;
 }
 
-
+/* =========================================
+   RESPONSIVE
+========================================= */
 @media (max-width: 900px) {
   .checkout-layout {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  body {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    position: relative;
+  }
+
+  .logout-btn {
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  .main {
+    margin-left: 0;
+    width: 100%;
+    padding: 18px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-panel,
+  .summary-panel {
+    padding: 18px;
+  }
+
+  .topbar h1 {
+    font-size: 26px;
+  }
+
+  .payment-card {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .logout-modal-actions {
+    gap: 8px;
   }
 }
