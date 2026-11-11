@@ -712,20 +712,81 @@
       }
     });
 
-    // Same one-click logout behavior as the Graphic Designer portal.
-   $("logoutButton").addEventListener("click", () => {
+    
+/* =========================================
+   CASHIER LOGOUT CONFIRMATION
+   SAME DESIGN AS ADMIN
+========================================= */
+
+const cashierLogoutModal =
+  document.getElementById("cashierLogoutModal");
+
+const confirmCashierLogout =
+  document.getElementById("confirmCashierLogout");
+
+const cancelCashierLogout =
+  document.getElementById("cancelCashierLogout");
+
+
+// OPEN LOGOUT MODAL
+
+$("logoutButton").addEventListener("click", () => {
 
   if (state.busy) return;
 
-  const confirmLogout = window.confirm(
-    "Are you sure you want to log out?"
-  );
+  cashierLogoutModal.hidden = false;
 
-  if (confirmLogout) {
-    signOut();
+  cancelCashierLogout.focus();
+
+});
+
+
+// CANCEL LOGOUT
+
+cancelCashierLogout.addEventListener("click", () => {
+
+  cashierLogoutModal.hidden = true;
+
+});
+
+
+// CONFIRM LOGOUT
+
+confirmCashierLogout.addEventListener("click", () => {
+
+  if (state.busy) return;
+
+  cashierLogoutModal.hidden = true;
+
+  signOut();
+
+});
+
+
+// CLOSE WHEN CLICKING OUTSIDE
+
+cashierLogoutModal.addEventListener("click", (event) => {
+
+  if (event.target === cashierLogoutModal) {
+    cashierLogoutModal.hidden = true;
   }
 
 });
+
+
+// CLOSE USING ESC KEY
+
+document.addEventListener("keydown", (event) => {
+
+  if (
+    event.key === "Escape" &&
+    !cashierLogoutModal.hidden
+  ) {
+    cashierLogoutModal.hidden = true;
+  }
+
+});
+
 
     window.addEventListener("storage", (event) => {
       if (

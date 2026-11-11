@@ -173,6 +173,9 @@
   </dialog>
 
   
+
+<!-- CASHIER LOGOUT CONFIRMATION -->
+
 <div
   id="cashierLogoutModal"
   class="cashier-logout-modal"
@@ -185,30 +188,40 @@
     aria-labelledby="cashierLogoutTitle"
     aria-describedby="cashierLogoutDescription"
   >
+
     <div class="cashier-logout-icon">
-      &#x21AA;
+      <i class="fa-solid fa-right-from-bracket"></i>
     </div>
 
     <h2 id="cashierLogoutTitle">
-      Confirm Logout
+      Logout Confirmation
     </h2>
 
     <p id="cashierLogoutDescription">
-      Are you sure you want to log out
-      of your Cashier account?
+      Are you sure you want to end your current session?
     </p>
 
     <div class="cashier-logout-actions">
-      <button id="cancelCashierLogout" type="button">
+
+      <button
+        id="confirmCashierLogout"
+        type="button"
+      >
+        Yes, Logout
+      </button>
+
+      <button
+        id="cancelCashierLogout"
+        type="button"
+      >
         Cancel
       </button>
 
-      <button id="confirmCashierLogout" type="button">
-        Yes, Logout
-      </button>
     </div>
+
   </div>
 </div>
+
 
 </body>
 </html>

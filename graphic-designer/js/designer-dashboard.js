@@ -1,5 +1,4 @@
 
-"use strict";
 
 const API = "http://localhost:5000/api/graphic-designer";
 
@@ -620,6 +619,79 @@ function logout() {
 }
 
 /* ==========================================
+   ADMIN-STYLE DESIGNER LOGOUT MODAL
+   Uses the IDs in designer-dashboard.html
+========================================== */
+
+function setupDesignerLogout() {
+  const openButton = $("logoutBtn");
+  const modal = $("designerLogoutModal");
+  const confirmButton = $("confirmDesignerLogout");
+  const cancelButton = $("cancelDesignerLogout");
+
+  if (!openButton || !modal || !confirmButton || !cancelButton) {
+    console.error("Designer logout modal elements are missing from HTML.");
+    return;
+  }
+
+  let previousFocus = null;
+  let previousOverflow = "";
+
+  function closeLogoutModal() {
+    modal.hidden = true;
+    document.body.style.overflow = previousOverflow;
+
+    if (previousFocus && previousFocus.isConnected) {
+      previousFocus.focus();
+    }
+  }
+
+  openButton.addEventListener("click", () => {
+    previousFocus = document.activeElement;
+    previousOverflow = document.body.style.overflow;
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    cancelButton.focus();
+  });
+
+  cancelButton.addEventListener("click", closeLogoutModal);
+
+  confirmButton.addEventListener("click", () => {
+    logout();
+  });
+
+  modal.addEventListener("click", event => {
+    if (event.target === modal) {
+      closeLogoutModal();
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (modal.hidden) return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeLogoutModal();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+
+    const focusable = [confirmButton, cancelButton];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+}
+
+/* ==========================================
    PAGE INITIALIZATION
 ========================================== */
 
@@ -707,10 +779,7 @@ document.addEventListener(
       saveReview
     );
 
-    $("logoutBtn").addEventListener(
-      "click",
-      logout
-    );
+    setupDesignerLogout();
 
     load();
   }

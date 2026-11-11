@@ -1,23 +1,77 @@
 
+/* =========================================================
+   JCN APPAREL PRINTING SERVICES
+   GRAPHIC DESIGNER DASHBOARD
+   COMPLETE CSS - BLACK & GOLD THEME
+========================================================= */
+
+
+/* =========================================================
+   01. ROOT VARIABLES
+========================================================= */
+
 :root {
   color-scheme: dark;
+
   --gold: #f2c14e;
+  --gold-hover: #ffda77;
+  --gold-dark: #a98720;
+
   --bg: #090a0d;
+  --sidebar-bg: #0d0f14;
+
   --panel: #11141a;
+  --panel-light: #191e27;
+
   --border: #29303b;
+
   --text: #f5f7fb;
   --muted: #aab5c6;
+
+  --success: #70e2af;
+  --danger: #ffaaaa;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --transition: 0.2s ease;
 }
+
+
+/* =========================================================
+   02. GLOBAL RESET
+========================================================= */
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  background: var(--bg);
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(242, 193, 78, 0.045),
+      transparent 35%
+    ),
+    var(--bg);
+
   color: var(--text);
-  font: 14px system-ui, Arial, sans-serif;
+
+  font-family:
+    system-ui,
+    Arial,
+    sans-serif;
+
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 button,
@@ -28,16 +82,25 @@ textarea {
 }
 
 button {
-  cursor: pointer;
-  background: #1b202a;
-  color: var(--text);
+  min-height: 42px;
+  padding: 10px 16px;
+
   border: 1px solid var(--border);
   border-radius: 9px;
-  padding: 11px 16px;
+
+  background: #1b202a;
+  color: var(--text);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: var(--transition);
 }
 
-button:hover {
+button:hover:not(:disabled) {
   border-color: var(--gold);
+  filter: brightness(1.08);
 }
 
 button:disabled {
@@ -45,259 +108,598 @@ button:disabled {
   cursor: not-allowed;
 }
 
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
 a {
   color: var(--gold);
-}
-
-/* SIDEBAR */
-
-.sidebar {
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: 225px;
-  background: #0d0f14;
-  border-right: 1px solid var(--border);
-  padding: 20px 16px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand small,
-.account small {
-  display: block;
-  color: var(--muted);
-  margin-top: 5px;
-}
-
-.mark {
-  height: 44px;
-  width: 44px;
-  border: 1px solid var(--gold);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--gold);
-  font-weight: 800;
-}
-
-.nav-heading {
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--muted);
-  margin: 42px 8px 16px;
-}
-
-.sidebar a.active {
-  display: block;
-  padding: 14px;
-  border: 1px solid #5c4b23;
-  border-radius: 9px;
-  text-decoration: none;
-  background: #242015;
-  font-weight: 700;
-}
-
-.account {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 18px;
-}
-
-.account strong {
-  display: block;
-  margin: 8px 0;
-}
-
-.account button {
-  width: 100%;
-}
-
-/* MAIN CONTENT */
-
-main {
-  margin-left: 225px;
-  padding: 36px;
-  max-width: 1800px;
-}
-
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 34px;
-}
-
-h1 {
-  font-size: 30px;
-  margin: 6px 0 8px;
-}
-
-h2 {
-  margin: 4px 0;
-}
-
-h3 {
-  margin: 0 0 14px;
 }
 
 p {
   color: var(--muted);
 }
 
-.eyebrow {
-  color: var(--gold);
-  letter-spacing: 2px;
+
+/* =========================================================
+   03. SIDEBAR
+========================================================= */
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 225px;
+  height: 100vh;
+
+  padding: 22px 16px;
+
+  background: var(--sidebar-bg);
+
+  border-right: 1px solid var(--border);
+
+  overflow-y: auto;
+}
+
+
+/* =========================================================
+   04. BRAND
+========================================================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: var(--text);
+  text-decoration: none;
+}
+
+.brand strong {
+  display: block;
+
+  color: var(--text);
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.brand small,
+.account small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--muted);
   font-size: 11px;
 }
 
-/* DASHBOARD STATS */
+.mark {
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  width: 44px;
+  height: 44px;
+
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+
+  color: var(--gold);
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   05. SIDEBAR NAVIGATION
+========================================================= */
+
+.nav-heading {
+  margin: 40px 8px 15px;
+
+  color: #9299a6;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 2px;
+}
+
+.sidebar a.active {
+  display: block;
+
+  padding: 12px 14px;
+
+  border: 1px solid #5c4b23;
+  border-radius: 9px;
+
+  background: #242015;
+
+  color: var(--gold);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition: var(--transition);
+}
+
+.sidebar a.active:hover {
+  background: #302817;
+  border-color: var(--gold-dark);
+}
+
+
+/* =========================================================
+   06. ACCOUNT INFORMATION
+========================================================= */
+
+.account {
+  margin-top: auto;
+
+  padding-top: 22px;
+
+  border-top: 1px solid var(--border);
+}
+
+.account strong {
+  display: block;
+
+  margin: 8px 0;
+
+  color: var(--text);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   07. SIDEBAR LOGOUT BUTTON
+========================================================= */
+
+.account button,
+.account #logoutButton,
+.account #designerLogoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  width: 100%;
+  min-height: 43px;
+
+  margin-top: 13px;
+
+  padding: 11px 16px;
+
+  border: 1px solid var(--gold-dark);
+  border-radius: 9px;
+
+  background: #181818;
+
+  color: var(--gold);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.account button:hover,
+.account #logoutButton:hover,
+.account #designerLogoutBtn:hover {
+  background: var(--gold);
+
+  color: #111111;
+
+  box-shadow:
+    0 0 16px rgba(242, 193, 78, 0.18);
+}
+
+.account button i {
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   08. MAIN CONTENT
+========================================================= */
+
+main {
+  margin-left: 225px;
+
+  padding: 30px 34px;
+
+  min-width: 0;
+
+  max-width: 1800px;
+}
+
+
+/* =========================================================
+   09. PAGE HEADER
+========================================================= */
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 28px;
+}
+
+h1 {
+  margin: 6px 0 8px;
+
+  color: var(--text);
+
+  font-size: clamp(24px, 2.5vw, 30px);
+  font-weight: 800;
+}
+
+h2 {
+  margin: 4px 0;
+
+  color: var(--text);
+}
+
+h3 {
+  margin: 0 0 14px;
+
+  color: var(--text);
+
+  font-size: 17px;
+}
+
+.eyebrow {
+  color: var(--gold);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 1.8px;
+}
+
+
+/* =========================================================
+   10. DASHBOARD STATISTICS
+========================================================= */
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
   gap: 16px;
+
   margin-bottom: 22px;
 }
 
 .stats article,
 .panel {
   background: var(--panel);
+
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
 }
 
 .stats article {
-  padding: 23px;
+  min-width: 0;
+
+  padding: 21px;
+
+  transition: var(--transition);
+}
+
+.stats article:hover {
+  border-color:
+    rgba(242, 193, 78, 0.3);
 }
 
 .stats small {
-  color: var(--muted);
   display: block;
+
+  color: var(--muted);
+
+  font-size: 12px;
 }
 
 .stats strong {
   display: block;
-  font-size: 26px;
-  margin-top: 11px;
+
+  margin-top: 12px;
+
+  color: var(--gold);
+
+  font-size: 27px;
+  font-weight: 800;
+
+  overflow-wrap: anywhere;
 }
 
-/* REQUEST TABLE */
+
+/* =========================================================
+   11. REQUEST PANEL
+========================================================= */
 
 .panel {
+  min-width: 0;
+
   overflow: hidden;
 }
 
+
+/* =========================================================
+   12. FILTERS
+========================================================= */
+
 .filters {
   display: flex;
-  gap: 15px;
+  align-items: flex-end;
+
+  flex-wrap: wrap;
+
+  gap: 14px;
+
   padding: 18px;
-  align-items: end;
+
+  border-bottom: 1px solid var(--border);
 }
 
-label {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-input,
-select,
-textarea {
-  display: block;
-  margin-top: 7px;
-  width: 100%;
-  background: #0b0e13;
-  border: 1px solid #354053;
-  border-radius: 8px;
-  padding: 11px;
-  color: white;
-}
-
-input[type="color"] {
-  height: 42px;
-  padding: 3px;
-}
-
-input[type="range"] {
-  padding: 0;
-}
-
-textarea {
-  resize: vertical;
+.filters label {
+  min-width: 130px;
 }
 
 .filters label:last-child {
   flex: 1;
 }
 
+label {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   13. INPUTS AND FORM CONTROLS
+========================================================= */
+
+input,
+select,
+textarea {
+  display: block;
+
+  width: 100%;
+  min-height: 42px;
+
+  margin-top: 7px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #354053;
+  border-radius: 8px;
+
+  background: #0b0e13;
+
+  color: var(--text);
+
+  font-size: 13px;
+
+  transition: var(--transition);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+
+  border-color: var(--gold-dark);
+
+  box-shadow:
+    0 0 0 3px rgba(242, 193, 78, 0.08);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #788293;
+}
+
+input[type="color"] {
+  height: 42px;
+
+  padding: 3px;
+
+  cursor: pointer;
+}
+
+input[type="range"] {
+  padding: 0;
+
+  accent-color: var(--gold);
+}
+
+textarea {
+  resize: vertical;
+}
+
+select {
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   14. REQUEST TABLE
+========================================================= */
+
 .table-wrap {
-  overflow: auto;
+  width: 100%;
+  overflow-x: auto;
 }
 
 table {
-  border-collapse: collapse;
   width: 100%;
-  white-space: nowrap;
-}
 
-th {
+  border-collapse: collapse;
+
   text-align: left;
-  background: #191e27;
-  color: #b6c4d9;
-  font-weight: 500;
+  white-space: nowrap;
 }
 
 th,
 td {
-  padding: 15px;
+  padding: 14px 15px;
+
   border-bottom: 1px solid var(--border);
+
+  font-size: 12px;
+
+  vertical-align: middle;
 }
+
+th {
+  background: var(--panel-light);
+
+  color: #b6c4d9;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+td {
+  color: var(--text);
+}
+
+tbody tr {
+  transition: background var(--transition);
+}
+
+tbody tr:hover {
+  background: rgba(242, 193, 78, 0.03);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+td button {
+  min-height: 35px;
+
+  padding: 8px 12px;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   15. STATUS PILLS
+========================================================= */
 
 .pill {
   display: inline-block;
-  color: var(--gold);
-  background: #342b16;
+
   padding: 6px 9px;
+
   border-radius: 7px;
-  font-size: 12px;
+
+  background: #342b16;
+
+  color: var(--gold);
+
+  font-size: 11px;
+  font-weight: 700;
 }
+
+
+/* =========================================================
+   16. PAGINATION
+========================================================= */
 
 .pager {
   display: flex;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
+
+  flex-wrap: wrap;
+
   gap: 14px;
-  padding: 14px;
+
+  padding: 15px 18px;
+
+  border-top: 1px solid var(--border);
 }
+
+
+/* =========================================================
+   17. MESSAGES
+========================================================= */
 
 #message,
 #editorMessage {
   padding: 0 18px;
+
   color: var(--gold);
+
+  font-size: 13px;
 }
 
-/* DESIGN REVIEW MODAL */
+
+/* =========================================================
+   18. DESIGN REVIEW DIALOG
+========================================================= */
 
 dialog {
   width: min(1150px, 96vw);
+
   max-height: 94vh;
-  overflow: auto;
-  background: var(--panel);
-  color: var(--text);
+
+  padding: 0;
+
+  overflow-y: auto;
+
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 0;
+
+  background: var(--panel);
+
+  color: var(--text);
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.65);
 }
 
 dialog::backdrop {
-  background: #000c;
+  background: rgba(0, 0, 0, 0.8);
+
+  backdrop-filter: blur(4px);
 }
+
+
+/* =========================================================
+   19. DIALOG CONTENT
+========================================================= */
 
 .dialog-shell {
   padding: 22px;
@@ -307,13 +709,27 @@ dialog::backdrop {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   gap: 10px;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid var(--border);
 }
+
+
+/* =========================================================
+   20. DESIGN EDITOR GRID
+========================================================= */
 
 .edit-grid {
   display: grid;
-  grid-template-columns: 1fr 1.1fr;
+
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1.1fr);
+
   gap: 24px;
+
   margin-top: 24px;
 }
 
@@ -327,85 +743,392 @@ dialog::backdrop {
 
 .edit-grid dl {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 10px;
 }
 
 dt {
-  font-size: 11px;
   color: var(--muted);
+
+  font-size: 11px;
 }
 
 dd {
   margin: 4px 0 0;
+
+  color: var(--text);
+
+  font-size: 13px;
+
   overflow-wrap: anywhere;
 }
+
+
+/* =========================================================
+   21. SOURCE IMAGES
+========================================================= */
 
 .source-images {
   display: flex;
   flex-wrap: wrap;
+
   gap: 20px;
+
   margin: 16px 0;
 }
 
-/* APPAREL PREVIEW */
+.source-images img {
+  max-width: 100%;
+  height: auto;
+
+  border-radius: 9px;
+}
+
+
+/* =========================================================
+   22. APPAREL PREVIEW
+========================================================= */
 
 .canvas-wrap {
-  background: #17191f;
-  border: 1px solid var(--border);
   padding: 8px;
+
+  border: 1px solid var(--border);
   border-radius: 10px;
+
+  background: #17191f;
+
   text-align: center;
 }
 
 canvas {
+  display: block;
+
   max-width: 100%;
   height: auto;
+
+  margin: 0 auto;
 }
+
+
+/* =========================================================
+   23. DESIGN CONTROLS
+========================================================= */
 
 .controls {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 10px;
 }
 
-.hint {
-  font-size: 12px;
+.controls > * {
+  min-width: 0;
 }
+
+.hint {
+  color: var(--muted);
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   24. DIALOG ACTIONS
+========================================================= */
 
 .dialog-actions {
   display: flex;
   align-items: center;
-  justify-content: end;
-  gap: 12px;
+  justify-content: flex-end;
+
   flex-wrap: wrap;
+
+  gap: 12px;
+
   margin-top: 20px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid var(--border);
 }
 
 .primary {
   background: var(--gold);
+
   border-color: var(--gold);
-  color: black;
+
+  color: #080808;
+
   font-weight: 800;
 }
 
-/* RESPONSIVE */
+.primary:hover:not(:disabled) {
+  background: var(--gold-hover);
+
+  border-color: var(--gold-hover);
+
+  color: #080808;
+}
+
+
+/* =========================================================
+   25. LOGOUT MODAL OVERLAY
+   ADMIN DASHBOARD MATCHING DESIGN
+========================================================= */
+
+.designer-logout-modal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.83);
+
+  backdrop-filter: blur(3px);
+}
+
+.designer-logout-modal[hidden] {
+  display: none !important;
+}
+
+
+/* =========================================================
+   26. LOGOUT CONFIRMATION BOX
+========================================================= */
+
+.designer-logout-box {
+  position: relative;
+
+  width: 100%;
+  max-width: 450px;
+
+  padding: 26px 25px 27px;
+
+  border: 1px solid #a98720;
+  border-radius: 17px;
+
+  background: #151515;
+
+  color: #ffffff;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  text-align: center;
+
+  box-shadow:
+    0 20px 65px rgba(0, 0, 0, 0.55);
+
+  animation:
+    designerLogoutShow 0.2s ease-out;
+}
+
+
+/* =========================================================
+   27. LOGOUT ICON
+========================================================= */
+
+.designer-logout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 17px;
+
+  color: #e8b93e;
+
+  font-size: 31px;
+}
+
+.designer-logout-icon i {
+  font-size: 31px;
+  color: #e8b93e;
+}
+
+
+/* =========================================================
+   28. LOGOUT TITLE
+========================================================= */
+
+.designer-logout-box h2 {
+  margin: 0 0 13px;
+
+  color: #ffffff;
+
+  font-size: 23px;
+  font-weight: 800;
+
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   29. LOGOUT DESCRIPTION
+========================================================= */
+
+.designer-logout-box p {
+  margin: 0 0 23px;
+
+  color: #a0a5af;
+
+  font-size: 13px;
+  font-weight: 400;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   30. LOGOUT ACTION BUTTONS
+========================================================= */
+
+.designer-logout-actions {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 17px;
+
+  width: 100%;
+}
+
+.designer-logout-actions button {
+  width: 100%;
+  min-height: 43px;
+
+  padding: 10px 12px;
+
+  border: none;
+  border-radius: 9px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+
+/* =========================================================
+   31. YES LOGOUT BUTTON
+========================================================= */
+
+#confirmDesignerLogout {
+  grid-column: 1;
+  grid-row: 1;
+
+  background: #dfb52f;
+
+  border: none;
+
+  color: #080808;
+}
+
+#confirmDesignerLogout:hover {
+  background: #f1c84f;
+
+  color: #080808;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   32. CANCEL BUTTON
+========================================================= */
+
+#cancelDesignerLogout {
+  grid-column: 2;
+  grid-row: 1;
+
+  background: transparent;
+
+  border: none;
+
+  color: #ffffff;
+}
+
+#cancelDesignerLogout:hover {
+  background: #252525;
+}
+
+.designer-logout-actions button:focus-visible {
+  outline: 2px solid #f1c84f;
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   33. LOGOUT ANIMATION
+========================================================= */
+
+@keyframes designerLogoutShow {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0) scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   34. TABLET RESPONSIVE
+========================================================= */
 
 @media (max-width: 900px) {
+
   .sidebar {
     position: static;
-    width: auto;
+
+    width: 100%;
     height: auto;
+
+    padding: 19px 16px;
+
+    border-right: none;
+
+    border-bottom:
+      1px solid var(--border);
   }
 
   .account {
-    position: static;
     margin-top: 20px;
+
+    padding-top: 15px;
   }
 
   main {
-    margin: 0;
-    padding: 20px;
+    margin-left: 0;
+
+    padding: 22px;
   }
 
   .stats {
@@ -418,16 +1141,95 @@ canvas {
 
   .filters {
     flex-direction: column;
+
     align-items: stretch;
   }
+
+  .filters label {
+    width: 100%;
+  }
+
 }
 
+
+/* =========================================================
+   35. MOBILE RESPONSIVE
+========================================================= */
+
 @media (max-width: 500px) {
-  .controls {
-    grid-template-columns: 1fr;
-  }
 
   h1 {
     font-size: 24px;
   }
+
+  header {
+    flex-wrap: wrap;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .dialog-shell {
+    padding: 16px;
+  }
+
+  .edit-grid dl {
+    grid-template-columns: 1fr;
+  }
+
+  .dialog-actions button {
+    flex: 1 1 100%;
+  }
+
+  /* LOGOUT MODAL */
+
+  .designer-logout-box {
+    padding: 25px 20px;
+  }
+
+  .designer-logout-box h2 {
+    font-size: 21px;
+  }
+
+  .designer-logout-actions {
+    gap: 10px;
+  }
+
+  .designer-logout-actions button {
+    min-width: 0;
+
+    padding: 10px 6px;
+
+    font-size: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   36. PRINT STYLES
+========================================================= */
+
+@media print {
+
+  .sidebar,
+  .filters,
+  .pager,
+  .dialog-actions,
+  .designer-logout-modal {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff;
+
+    color: #000000;
+  }
+
+  main {
+    margin: 0;
+    padding: 0;
+  }
+
 }

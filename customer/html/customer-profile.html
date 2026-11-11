@@ -7,6 +7,9 @@
 
   <link rel="stylesheet" href="../css/customer-profile.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet"href="../css/customer-theme.css">
+  <script src="../js/customer-theme.js"></script>
+
 </head>
 <body>
 
@@ -36,11 +39,47 @@
 </aside>
 
 <main class="main">
-  <header class="topbar">
-    <div>
-      <p>JCN PROFILE SETTINGS</p>
-      <h1>Profile Settings</h1>
-    </div>
+  
+<!-- PROFILE SETTINGS HEADER -->
+
+<div class="jcn-settings-header">
+
+  <div class="jcn-settings-heading">
+
+    <p class="jcn-settings-eyebrow">
+      JCN PROFILE SETTINGS
+    </p>
+
+    <h1>Profile Settings</h1>
+
+  </div>
+
+  <!-- DARK / LIGHT MODE TOGGLE -->
+
+  <div class="jcn-theme-switch-wrap">
+
+    <i class="fa-regular fa-sun"></i>
+
+    <button
+      type="button"
+      id="jcnThemeSwitch"
+      class="jcn-theme-switch"
+      data-jcn-theme-toggle
+      role="switch"
+      aria-checked="false"
+      aria-label="Switch color theme"
+    >
+      <span class="jcn-theme-thumb"></span>
+    </button>
+
+    <i class="fa-regular fa-moon"></i>
+
+  </div>
+
+</div>
+
+
+    
   </header>
 
   <section class="profile-layout">
@@ -122,6 +161,7 @@
       </button>
     </form>
   </section>
+
 </main>
 
 <div id="customerLogoutModal" class="customer-logout-modal hidden">

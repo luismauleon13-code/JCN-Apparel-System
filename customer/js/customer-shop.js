@@ -1,8 +1,33 @@
 const API_URL = "http://localhost:5000";
 
 let allProducts = [];
-let cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+let cart = [];
 let selectedBuyProduct = null;
+
+/* Use one cart key for the currently logged-in customer. */
+function getCustomerCartKey() {
+  try {
+    const customer = JSON.parse(localStorage.getItem("customerUser") || "{}");
+    if (!customer || !customer.id) return null;
+    return `customerCart_${customer.id}`;
+  } catch (error) {
+    console.error("Unable to read customer account:", error);
+    return null;
+  }
+}
+
+function readCustomerCart() {
+  const key = getCustomerCartKey();
+  if (!key) return [];
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(saved) ? saved : [];
+  } catch (error) {
+    console.error("Unable to read customer cart:", error);
+    return [];
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   checkLogin();
@@ -331,20 +356,13 @@ function confirmBuyNow() {
     quantity: quantity
   };
 
-  const customer = JSON.parse(
-  localStorage.getItem("customerUser") || "{}"
-);
+  const cartKey = getCustomerCartKey();
+  if (!cartKey) {
+    showToast("Please log in to use the cart.");
+    return;
+  }
 
-if (!customer.id) {
-  console.error("Customer is not logged in.");
-  return;
-}
-
-const cartKey = `customerCart_${customer.id}`;
-
-cart = JSON.parse(
-  localStorage.getItem(cartKey) || "[]"
-);
+  cart = readCustomerCart();
 
   if (selectedBuyProduct.mode === "cart") {
     const existing = cart.find(cartItem => cartItem.cartKey === item.cartKey);
@@ -367,10 +385,7 @@ cart = JSON.parse(
       cart.push(item);
     }
 
-    localStorage.setItem(
-  cartKey,
-  JSON.stringify(cart)
-);
+    localStorage.setItem(cartKey, JSON.stringify(cart));
     updateCartCount();
     closeBuyModal();
     showToast("Product added to cart.");
@@ -405,12 +420,27 @@ function showToast(message) {
 }
 
 function updateCartCount() {
-  cart = JSON.parse(localStorage.getItem("customerCart")) || [];
+  // Always read the same customer-specific key used by Add to Cart.
+  cart = readCustomerCart();
 
   const total = cart.reduce((sum, item) => {
-    return sum + Number(item.quantity || 0);
+    const quantity = Number(item.quantity);
+    return sum + (Number.isFinite(quantity) && quantity > 0
+      ? Math.floor(quantity)
+      : 0);
   }, 0);
 
-  const cartCount = document.getElementById("cartCount");
-  if (cartCount) cartCount.textContent = total;
+  const counter = document.getElementById("cartCount");
+  if (counter) counter.textContent = String(total);
 }
+
+// Restore the correct count when returning from Cart/Checkout.
+window.addEventListener("pageshow", updateCartCount);
+window.addEventListener("focus", updateCartCount);
+
+// Sync count if another tab changes this customer's cart.
+window.addEventListener("storage", event => {
+  if (event.key === getCustomerCartKey() || event.key === "customerUser") {
+    updateCartCount();
+  }
+});
