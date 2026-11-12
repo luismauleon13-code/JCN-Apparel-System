@@ -101,11 +101,27 @@
       if(!result.cart_item?.custom_design_request_id)throw new Error('Server did not return a confirmed design reference.');
       result.cart_item.custom_front_text=body.front_text;
       result.cart_item.custom_back_text=body.back_text;
-      const cart=JSON.parse(localStorage.getItem('customerCart')||'[]');
-      if(!Array.isArray(cart))throw new Error('Cart storage contains invalid data.');
-      if(!cart.some(i=>i.cartKey===result.cart_item.cartKey))cart.push(result.cart_item);
-      localStorage.setItem('customerCart',JSON.stringify(cart));
-      if(!JSON.parse(localStorage.getItem('customerCart')||'[]').some(i=>i.cartKey===result.cart_item.cartKey))throw new Error('Cart storage verification failed.');
+      // Use exactly the same customer-specific storage key as customer-cart.js.
+      // Do not mutate ordinary shop items or merge a new design into an old cart row.
+      const customer=JSON.parse(localStorage.getItem('customerUser')||'{}');
+      if(!customer.id)throw new Error('Please sign in again before saving this item.');
+      const cartKey=`customerCart_${customer.id}`;
+      const cart=JSON.parse(localStorage.getItem(cartKey)||'[]');
+      if(!Array.isArray(cart))throw new Error('Cart storage is invalid.');
+      const designId=result.cart_item.custom_design_request_id;
+      const customItem={
+        ...result.cart_item,
+        is_customized:true,
+        custom_design_request_id:designId,
+        cartKey:`custom-${designId}`,
+        custom_front_text:body.front_text,
+        custom_back_text:body.back_text
+      };
+      if(!cart.some(item=>item.custom_design_request_id===designId))cart.push(customItem);
+      localStorage.setItem(cartKey,JSON.stringify(cart));
+      const verified=JSON.parse(localStorage.getItem(cartKey)||'[]');
+      if(!verified.some(item=>item.custom_design_request_id===designId))
+        throw new Error('Could not verify the customized item in your cart.');
       added=true;
       window.dispatchEvent(new CustomEvent('jcn:design-added-to-cart',{detail:{requestId:result.request_id}}));
       $('jcnReviewTitle').textContent='Your design is in the cart!';
