@@ -19,7 +19,13 @@
 
 
 
-  const API_ROOT = "http://localhost:5000/api";
+  
+const API_ROOT =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000/api"
+    : `${window.location.origin}/api`;
+
 
   const PENDING_KEY = "pendingRegistration";
 
@@ -467,17 +473,14 @@
 
 
 
-      if (error instanceof TypeError) {
+      
+if (error instanceof TypeError) {
+  throw new Error(
+    `Cannot connect to ${API_ROOT}. ` +
+    "Please check your internet connection or backend service."
+  );
+}
 
-        throw new Error(
-
-          "Cannot connect to http://localhost:5000. " +
-
-          "Check that the backend is running."
-
-        );
-
-      }
 
 
 
