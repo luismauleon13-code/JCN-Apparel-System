@@ -1,6 +1,6 @@
 "use strict";
 (() => {
-  const API = "http://localhost:5000/api/inventory";
+  const API = "/api/inventory";
   const LOGIN = "../../staff/html/staff-login.html";
   const main = () => document.getElementById("main");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({

@@ -1,6 +1,6 @@
 
 (() => {
-  const API_BASE_URL = 'http://localhost:5000';
+  const API_BASE_URL = '';
 
   // Paths are resolved relative to staff/html/staff-login.html.
   const STAFF_PAGES = Object.freeze({

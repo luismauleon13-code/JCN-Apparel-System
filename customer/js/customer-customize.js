@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "";
 const CUSTOM_PRICE = 499;
 
 let currentColor = "#111111";

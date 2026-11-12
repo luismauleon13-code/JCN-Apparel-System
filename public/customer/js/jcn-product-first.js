@@ -4,7 +4,7 @@
   if (window.__jcnProductFirstLoaded) return;
   window.__jcnProductFirstLoaded = true;
   const $ = id => document.getElementById(id);
-  const API = 'http://127.0.0.1:5000';
+  const API = '';
   const HEX = {
     black:'#161616',white:'#F5F5F2',cream:'#E5DDC8',navy:'#24374C',
     'navy blue':'#24374C',blue:'#245DA1',red:'#AE2B34',maroon:'#672C3A',

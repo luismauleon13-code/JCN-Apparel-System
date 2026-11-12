@@ -1328,7 +1328,7 @@ $("save").onclick = async () => {
 
   try {
     const response = await fetch(
-      "http://localhost:5000/api/customer/bodyfit-designs",
+      "/api/customer/bodyfit-designs",
       {
         method: "POST",
         headers: {

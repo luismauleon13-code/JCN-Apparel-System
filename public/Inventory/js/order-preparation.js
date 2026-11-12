@@ -1,6 +1,6 @@
 
-const INVENTORY_API = "http://localhost:5000/api/inventory";
-const SERVER_API = "http://localhost:5000";
+const INVENTORY_API = "/api/inventory";
+const SERVER_API = "";
 const STAFF_LOGIN = "../../staff/html/staff-login.html";
 
 let currentPage = 1;

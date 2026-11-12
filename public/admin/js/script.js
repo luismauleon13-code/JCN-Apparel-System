@@ -7,25 +7,8 @@
 
   window.__JCN_SHARED_SCRIPT_READY__ = true;
 
-
-
-  // =====================================================
-
-  // SETTINGS
-
-  // This file belongs in admin/js/script.js.
-
-  // =====================================================
-
-
-
   
-const API_ROOT =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:5000/api"
-    : `${window.location.origin}/api`;
-
+const API_ROOT = "/api";
 
   const PENDING_KEY = "pendingRegistration";
 

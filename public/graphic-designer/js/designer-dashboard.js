@@ -1,6 +1,6 @@
 
 
-const API = "http://localhost:5000/api/graphic-designer";
+const API = "/api/graphic-designer";
 
 const $ = id => document.getElementById(id);
 

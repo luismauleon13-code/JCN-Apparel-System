@@ -3,7 +3,7 @@
 
   const SETTINGS_API =
     window.JCN_SETTINGS_API ||
-    "http://localhost:5000/api/admin/settings";
+    "/api/admin/settings";
 
   const LOGIN_URL = "admin-login.html";
 

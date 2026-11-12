@@ -3,7 +3,7 @@
 // inventory-product.js
 // ======================================================
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "";
 const PRODUCTS_API = `${API_BASE_URL}/api/admin/products`;
 const STAFF_LOGIN_URL = "../../staff/html/staff-login.html";
 const SHOP_TIMEZONE = "Asia/Manila";

@@ -1,6 +1,6 @@
 
 (() => {
-  const API_BASE = "http://localhost:5000/api/cashier";
+  const API_BASE = "/api/cashier";
 
   const STAFF_LOGIN = "../../staff/html/staff-login.html";
   const PAGE_SIZE = 10;

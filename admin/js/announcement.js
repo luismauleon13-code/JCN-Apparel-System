@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const API_BASE = "http://localhost:5000";
+  const API_BASE = "";
   const LOGIN_PAGE = "admin-login.html";
 
   const $ = id => document.getElementById(id);

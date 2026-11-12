@@ -3,7 +3,7 @@
    Each signed-in customer has separate history.
 ============================================ */
 
-const JCN_CHAT_API = "http://localhost:5000/api/chatbot";
+const JCN_CHAT_API = "/api/chatbot";
 const JCN_CHAT_STORAGE_PREFIX = "jcnChatHistory_customer_";
 const JCN_CHAT_HISTORY_LIMIT = 20;
 const JCN_CHAT_TIMEOUT_MS = 20000;

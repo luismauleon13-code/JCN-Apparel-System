@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const REPORTS_API = "http://localhost:5000/api/admin/reports";
+  const REPORTS_API = "/api/admin/reports";
 
   let reportOrders = [];
   let reportLoaded = false;

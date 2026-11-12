@@ -18,6 +18,8 @@ const supabase = require("./backend/config/supabaseClient");
 
 const app = express();
 
+const JCN_SITE_URL = "https://jcn-apparel-system.vercel.app";
+
 const publicPath = path.join(__dirname, "public");
 
 // Serve frontend files locally
@@ -4845,10 +4847,12 @@ app.post("/api/paypal/create-redirect-order", async (req, res) => {
             brand_name: "JCN Clothing",
             landing_page: "LOGIN",
             user_action: "PAY_NOW",
-            return_url:
-              `http://localhost:5000/api/paypal/success?system_order_id=${system_order_id}`,
-            cancel_url:
-              `http://localhost:5000/api/paypal/cancel?system_order_id=${system_order_id}`
+            
+return_url:
+  `${JCN_SITE_URL}/api/paypal/success?system_order_id=${encodeURIComponent(system_order_id)}`,
+cancel_url:
+  `${JCN_SITE_URL}/api/paypal/cancel?system_order_id=${encodeURIComponent(system_order_id)}`
+
           }
         })
       }
@@ -4912,7 +4916,7 @@ app.get("/api/paypal/success", async (req, res) => {
     const { token, system_order_id } = req.query;
 
     const CHECKOUT_PAGE =
-      "http://localhost:5500/customer/html/customer-checkout.html";
+  `${JCN_SITE_URL}/customer/html/customer-checkout.html`;
 
     if (!token || !system_order_id) {
       return res.redirect(`${CHECKOUT_PAGE}?payment=missing`);
@@ -4970,7 +4974,7 @@ app.get("/api/paypal/success", async (req, res) => {
     console.error("PAYPAL SUCCESS ERROR:", error);
 
     return res.redirect(
-      "http://localhost:5500/customer/html/customer-checkout.html?payment=error"
+      `${JCN_SITE_URL}/customer/html/customer-checkout.html?payment=error`
     );
   }
 });
@@ -4979,28 +4983,37 @@ app.get("/api/paypal/success", async (req, res) => {
 // PAYPAL CANCEL RETURN
 // =========================================================
 
+
 app.get("/api/paypal/cancel", async (req, res) => {
+  const checkoutPage =
+    `${JCN_SITE_URL}/customer/html/customer-checkout.html`;
+
   try {
     const { system_order_id } = req.query;
 
     if (system_order_id) {
-      await supabase
+      const { error } = await supabase
         .from("orders")
         .update({
           status: "Pending Payment",
           payment_status: "Unpaid"
         })
         .eq("id", system_order_id);
+
+      if (error) {
+        throw error;
+      }
     }
 
     return res.redirect(
-      `http://localhost:5500/customer/html/customer-checkout.html?paypal=cancelled&order_id=${system_order_id || ""}`
+      `${checkoutPage}?paypal=cancelled&order_id=${encodeURIComponent(system_order_id || "")}`
     );
+
   } catch (error) {
     console.error("PAYPAL CANCEL ERROR:", error);
 
     return res.redirect(
-      "http://localhost:5500/customer/html/customer-checkout.html?paypal=error"
+      `${checkoutPage}?paypal=error`
     );
   }
 });

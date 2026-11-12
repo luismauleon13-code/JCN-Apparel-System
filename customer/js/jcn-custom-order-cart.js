@@ -4,7 +4,7 @@
   if (window.__jcnCustomCartInitialized) return;
   window.__jcnCustomCartInitialized = true;
   const $ = id => document.getElementById(id);
-  const API = 'http://localhost:5000';
+  const API = '';
   const colorNames={'#161616':'Black','#E5DDC8':'Cream','#F5F5F2':'White','#24374C':'Navy Blue'};
   const place = $('saveStatus')?.parentElement || $('downloadPrintSummary')?.parentElement;
   if (!place) return;
