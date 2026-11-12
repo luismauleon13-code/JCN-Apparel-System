@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -14,13 +15,28 @@ const upload = multer({
 
 const supabase = require("./backend/config/supabaseClient");
 
+
 const app = express();
+
+const publicPath = path.join(__dirname, "public");
+
+// Serve frontend files locally
+if (!process.env.VERCEL) {
+  app.use(express.static(publicPath));
+}
+
+// JCN Homepage
+app.get("/", (req, res) => {
+  res.sendFile(path.join(publicPath, "index.html"));
+});
 
 app.use(cors());
 app.use(express.json());
 app.use(express.json({ limit: "8mb" }));
+
 const otpStore = {};
 const resetOtps = {};
+
 
 // =========================================================
 // AUTHENTICATION MIDDLEWARE
