@@ -1,0 +1,1447 @@
+
+/* =========================================================
+   JCN APPAREL PRINTING SERVICES
+   CASHIER DASHBOARD - COMPLETE STYLESHEET
+   Black & Gold Premium Theme
+========================================================= */
+
+
+/* =========================================================
+   01. ROOT VARIABLES
+========================================================= */
+
+:root {
+  color-scheme: dark;
+
+  --background: #08090c;
+  --sidebar: #0d0f13;
+  --panel: #121419;
+  --panel-light: #191c23;
+
+  --gold: #f2c14e;
+  --gold-hover: #ffda77;
+  --gold-dark: #a98720;
+
+  --text: #f4f5f7;
+  --muted: #a1a6b2;
+  --border: #2a2e38;
+
+  --success: #70e2af;
+  --danger: #ffaaaa;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --transition: 0.2s ease;
+}
+
+
+/* =========================================================
+   02. GLOBAL RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(242, 193, 78, 0.045),
+      transparent 35%
+    ),
+    var(--background);
+
+  color: var(--text);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 14px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  min-height: 42px;
+  padding: 10px 16px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: var(--gold);
+  color: #17130a;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: var(--panel-light);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: #262a33;
+  border-color: #51452c;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+
+/* =========================================================
+   03. MAIN APPLICATION LAYOUT
+========================================================= */
+
+.app {
+  display: grid;
+
+  grid-template-columns:
+    230px minmax(0, 1fr);
+
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   04. SIDEBAR
+========================================================= */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 100vh;
+
+  padding: 25px 16px;
+
+  background: var(--sidebar);
+
+  border-right:
+    1px solid var(--border);
+}
+
+
+/* =========================================================
+   05. BRAND
+========================================================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding: 4px 3px;
+
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  width: 46px;
+  height: 46px;
+
+  border:
+    2px solid var(--gold);
+
+  border-radius: 50%;
+
+  color: var(--gold);
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.brand strong {
+  display: block;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.brand small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--muted);
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   06. SIDEBAR NAVIGATION
+========================================================= */
+
+.nav-label {
+  margin: 38px 10px 12px;
+
+  color: #7e8491;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 1.8px;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 7px;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 43px;
+
+  padding: 11px 14px;
+
+  border:
+    1px solid transparent;
+
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background: #1a1d24;
+  color: var(--text);
+}
+
+.nav-button.active {
+  color: var(--gold);
+
+  background:
+    rgba(242, 193, 78, 0.075);
+
+  border-color:
+    rgba(242, 193, 78, 0.2);
+}
+
+
+/* =========================================================
+   07. SIDEBAR ACCOUNT
+========================================================= */
+
+.account {
+  display: grid;
+  gap: 9px;
+
+  margin-top: auto;
+
+  padding-top: 22px;
+
+  border-top:
+    1px solid var(--border);
+}
+
+.account small {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 11px;
+}
+
+.account strong {
+  display: block;
+
+  color: var(--text);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   08. SIDEBAR LOGOUT BUTTON
+========================================================= */
+
+.account #logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  width: 100%;
+  min-height: 43px;
+
+  margin-top: 10px;
+  padding: 11px 16px;
+
+  border:
+    1px solid var(--gold-dark);
+
+  border-radius: 9px;
+
+  background: #181818;
+
+  color: var(--gold);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.account #logoutButton:hover {
+  background: var(--gold);
+
+  color: #111111;
+
+  box-shadow:
+    0 0 16px rgba(242, 193, 78, 0.18);
+}
+
+.account #logoutButton i {
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   09. MAIN CONTENT
+========================================================= */
+
+main {
+  min-width: 0;
+
+  padding: 30px;
+
+  max-width: 1800px;
+  width: 100%;
+
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   10. TOPBAR
+========================================================= */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  margin-bottom: 25px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+
+  color: var(--gold);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 1.7px;
+}
+
+h1 {
+  margin: 6px 0 8px;
+
+  color: var(--text);
+
+  font-size: clamp(23px, 2.5vw, 29px);
+  font-weight: 800;
+}
+
+h2,
+h3 {
+  margin: 8px 0 16px;
+}
+
+.muted {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+#refreshButton {
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   11. DASHBOARD STATISTICS
+========================================================= */
+
+.stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 15px;
+
+  margin-bottom: 22px;
+}
+
+.stat {
+  min-width: 0;
+
+  padding: 20px;
+
+  background: var(--panel);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: var(--radius-lg);
+
+  transition: var(--transition);
+}
+
+.stat:hover {
+  border-color:
+    rgba(242, 193, 78, 0.3);
+}
+
+.stat small {
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.stat strong {
+  display: block;
+
+  margin-top: 15px;
+
+  color: var(--gold);
+
+  font-size: 27px;
+  font-weight: 800;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   12. MAIN CONTENT PANEL
+========================================================= */
+
+.panel {
+  min-width: 0;
+
+  background: var(--panel);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: var(--radius-lg);
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   13. FILTERS
+========================================================= */
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+
+  flex-wrap: wrap;
+
+  gap: 13px;
+
+  padding: 19px;
+
+  border-bottom:
+    1px solid var(--border);
+}
+
+.search-field {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+#statusFilter {
+  flex: 0 1 190px;
+  min-width: 150px;
+}
+
+label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   14. FORM CONTROLS
+========================================================= */
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 10px 12px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 8px;
+
+  background: #0b0d11;
+
+  color: var(--text);
+
+  font-size: 13px;
+
+  transition: var(--transition);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+
+  border-color: var(--gold-dark);
+
+  box-shadow:
+    0 0 0 3px rgba(242, 193, 78, 0.08);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #707582;
+}
+
+textarea {
+  resize: vertical;
+}
+
+select {
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   15. TABLE CONTAINER
+========================================================= */
+
+.table-wrap {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  text-align: left;
+}
+
+th,
+td {
+  padding: 15px 14px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  font-size: 12px;
+
+  vertical-align: middle;
+}
+
+th {
+  background: #171a20;
+
+  color: var(--muted);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+td {
+  color: var(--text);
+
+  line-height: 1.6;
+}
+
+td small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: var(--muted);
+
+  font-size: 11px;
+}
+
+tbody tr {
+  transition: background var(--transition);
+}
+
+tbody tr:hover {
+  background:
+    rgba(242, 193, 78, 0.025);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+td button {
+  min-height: 35px;
+
+  padding: 8px 12px;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   16. EMPTY TABLE MESSAGE
+========================================================= */
+
+.empty {
+  padding: 42px 20px;
+
+  color: var(--muted);
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   17. PAYMENT STATUS BADGES
+========================================================= */
+
+.badge {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  border-radius: 6px;
+
+  background: rgba(161, 166, 178, 0.1);
+
+  color: #c4c8d1;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.badge.paid {
+  background: rgba(56, 205, 141, 0.1);
+
+  color: var(--success);
+}
+
+.badge.pending,
+.badge.unpaid {
+  background:
+    rgba(242, 193, 78, 0.09);
+
+  color: var(--gold);
+}
+
+
+/* =========================================================
+   18. PAGINATION
+========================================================= */
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 16px 19px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+
+  border-top:
+    1px solid var(--border);
+}
+
+.pagination div {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination button {
+  min-height: 37px;
+
+  padding: 8px 13px;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   19. NOTIFICATION MESSAGE
+========================================================= */
+
+.notice {
+  margin: 0 0 18px;
+
+  padding: 13px 16px;
+
+  border:
+    1px solid rgba(242, 193, 78, 0.3);
+
+  border-radius: 9px;
+
+  background:
+    rgba(242, 193, 78, 0.06);
+
+  color: #f6d984;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notice.error {
+  border-color:
+    rgba(255, 128, 128, 0.38);
+
+  color: var(--danger);
+
+  background:
+    rgba(255, 128, 128, 0.07);
+}
+
+
+/* =========================================================
+   20. ORDER DETAILS DIALOG
+========================================================= */
+
+dialog {
+  width: min(880px, calc(100% - 28px));
+
+  max-height: 90vh;
+
+  padding: 24px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 16px;
+
+  background: var(--panel);
+
+  color: var(--text);
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.65);
+
+  overflow-y: auto;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.8);
+
+  backdrop-filter: blur(4px);
+}
+
+
+/* =========================================================
+   21. DIALOG HEADER
+========================================================= */
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding-bottom: 15px;
+
+  border-bottom:
+    1px solid var(--border);
+}
+
+.dialog-header h2 {
+  margin: 5px 0;
+
+  font-size: 21px;
+}
+
+
+/* =========================================================
+   22. ORDER DETAILS GRID
+========================================================= */
+
+.detail-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin: 20px 0;
+}
+
+.detail-grid dt {
+  margin-bottom: 8px;
+
+  color: var(--muted);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.detail-grid dd {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 13px;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   23. PAYMENT VERIFICATION FORM
+========================================================= */
+
+.payment-form {
+  margin: 24px 0;
+
+  padding: 20px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 10px;
+
+  background: #101217;
+}
+
+.payment-form h3 {
+  color: var(--text);
+
+  font-size: 17px;
+}
+
+.payment-form input,
+.payment-form textarea {
+  margin-bottom: 15px;
+}
+
+
+/* =========================================================
+   24. DIALOG ACTION BUTTONS
+========================================================= */
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+
+  margin-top: 24px;
+
+  padding-top: 18px;
+
+  border-top:
+    1px solid var(--border);
+}
+
+
+/* =========================================================
+   25. ACCESSIBILITY
+========================================================= */
+
+.sr-only {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  padding: 0;
+  margin: -1px;
+
+  overflow: hidden;
+
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+
+  white-space: nowrap;
+
+  border: 0;
+}
+
+
+/* =========================================================
+   26. CASHIER LOGOUT CONFIRMATION
+   MATCHING ADMIN DASHBOARD
+========================================================= */
+
+.cashier-logout-modal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.83);
+
+  backdrop-filter: blur(3px);
+}
+
+.cashier-logout-modal[hidden] {
+  display: none !important;
+}
+
+
+/* =========================================================
+   27. LOGOUT MODAL BOX
+========================================================= */
+
+.cashier-logout-box {
+  position: relative;
+
+  width: 100%;
+  max-width: 450px;
+
+  padding: 26px 25px 27px;
+
+  border:
+    1px solid #a98720;
+
+  border-radius: 17px;
+
+  background: #151515;
+
+  color: #ffffff;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  text-align: center;
+
+  box-shadow:
+    0 20px 65px rgba(0, 0, 0, 0.55);
+
+  animation:
+    cashierLogoutShow 0.2s ease-out;
+}
+
+
+/* =========================================================
+   28. LOGOUT ICON
+========================================================= */
+
+.cashier-logout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 17px;
+
+  color: #e8b93e;
+
+  font-size: 31px;
+}
+
+.cashier-logout-icon i {
+  color: #e8b93e;
+
+  font-size: 31px;
+}
+
+
+/* =========================================================
+   29. LOGOUT HEADING
+========================================================= */
+
+.cashier-logout-box h2 {
+  margin: 0 0 13px;
+
+  color: #ffffff;
+
+  font-size: 23px;
+  font-weight: 800;
+
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   30. LOGOUT DESCRIPTION
+========================================================= */
+
+.cashier-logout-box p {
+  margin: 0 0 23px;
+
+  color: #a0a5af;
+
+  font-size: 13px;
+  font-weight: 400;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   31. LOGOUT ACTION BUTTONS
+========================================================= */
+
+.cashier-logout-actions {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 17px;
+
+  width: 100%;
+}
+
+.cashier-logout-actions button {
+  width: 100%;
+  min-height: 43px;
+
+  padding: 10px 12px;
+
+  border: none;
+  border-radius: 9px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+
+/* =========================================================
+   32. YES LOGOUT BUTTON
+========================================================= */
+
+#confirmCashierLogout {
+  grid-column: 1;
+  grid-row: 1;
+
+  background: #dfb52f;
+
+  color: #080808;
+
+  border: none;
+}
+
+#confirmCashierLogout:hover {
+  background: #f1c84f;
+
+  color: #080808;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   33. CANCEL BUTTON
+========================================================= */
+
+#cancelCashierLogout {
+  grid-column: 2;
+  grid-row: 1;
+
+  background: transparent;
+
+  color: #ffffff;
+
+  border: none;
+}
+
+#cancelCashierLogout:hover {
+  background: #252525;
+}
+
+.cashier-logout-actions button:focus-visible {
+  outline: 2px solid #f1c84f;
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   34. LOGOUT ANIMATION
+========================================================= */
+
+@keyframes cashierLogoutShow {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0) scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   35. TABLET RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .app {
+    grid-template-columns:
+      195px minmax(0, 1fr);
+  }
+
+  main {
+    padding: 24px;
+  }
+
+  .stats {
+    gap: 10px;
+  }
+
+  .stat {
+    padding: 16px;
+  }
+
+}
+
+
+/* =========================================================
+   36. MOBILE RESPONSIVE
+========================================================= */
+
+@media (max-width: 720px) {
+
+  .app {
+    display: block;
+  }
+
+  /* SIDEBAR */
+
+  .sidebar {
+    position: static;
+
+    width: 100%;
+    height: auto;
+
+    padding: 18px;
+
+    border-right: none;
+
+    border-bottom:
+      1px solid var(--border);
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .sidebar nav {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    margin-top: 18px;
+  }
+
+  .nav-button {
+    justify-content: center;
+
+    text-align: center;
+
+    font-size: 12px;
+  }
+
+  /* ACCOUNT */
+
+  .account {
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1fr) auto;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 17px;
+
+    padding-top: 14px;
+  }
+
+  .account small {
+    display: none;
+  }
+
+  .account #logoutButton {
+    width: auto;
+
+    margin-top: 0;
+  }
+
+  /* MAIN */
+
+  main {
+    padding: 20px 14px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  /* STATISTICS */
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+  }
+
+  .stat strong {
+    margin-top: 0;
+
+    font-size: 23px;
+  }
+
+  /* FILTERS */
+
+  .filters {
+    flex-wrap: wrap;
+  }
+
+  .search-field {
+    flex-basis: 100%;
+  }
+
+  #statusFilter {
+    flex: 1 1 150px;
+  }
+
+  /* ORDER DETAILS */
+
+  .detail-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .pagination,
+  .dialog-actions {
+    flex-wrap: wrap;
+  }
+
+}
+
+
+/* =========================================================
+   37. SMALL MOBILE RESPONSIVE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #refreshButton {
+    align-self: flex-start;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-field,
+  #statusFilter {
+    flex: auto;
+    width: 100%;
+  }
+
+  .filters > button {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination div {
+    justify-content: space-between;
+  }
+
+  dialog {
+    padding: 17px;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dialog-actions button {
+    flex: 1 1 100%;
+  }
+
+  /* LOGOUT MODAL */
+
+  .cashier-logout-box {
+    padding: 25px 20px;
+  }
+
+  .cashier-logout-box h2 {
+    font-size: 21px;
+  }
+
+  .cashier-logout-actions {
+    gap: 10px;
+  }
+
+  .cashier-logout-actions button {
+    min-width: 0;
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   38. PRINT STYLES
+========================================================= */
+
+@media print {
+
+  .sidebar,
+  .topbar button,
+  .filters,
+  .pagination,
+  .dialog-actions,
+  .payment-form,
+  .cashier-logout-modal {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  main {
+    padding: 0;
+  }
+
+}

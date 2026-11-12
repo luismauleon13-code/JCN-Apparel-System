@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCN Apparel | The Personal Fit Studio</title>
+  <link rel="stylesheet" href="../css/customer-customize-studio.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script type="importmap">
+  {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+  </script>
+  <script src="../js/jcn-studio-prices.js" defer></script>
+  <script src="../js/jcn-customization-studio.js" defer></script>
+  <script type="module" src="../js/bodyfit-studio.js"></script>
+</head>
+<body>
+  <header class="studio-topbar">
+    <a class="studio-brand" href="customer-shop.html" aria-label="JCN Apparel, back to shop">
+      <span class="studio-brand-mark">JCN</span>
+      <span class="studio-brand-text"><b>APPAREL</b><small>CUSTOMIZATION STUDIO</small></span>
+    </a>
+    <span class="studio-motto">MADE FOR YOU. BY YOU.</span>
+    <nav class="studio-nav" aria-label="Customer navigation">
+      <a href="customer-shop.html"><i class="fa-solid fa-arrow-left"></i> Shop</a>
+      <a href="customer-cart.html">Cart</a>
+      <a href="customer-orders.html">Orders</a>
+      <button type="button" id="customerLogoutBtn" class="studio-logout">Logout</button>
+      <button type="button" id="exportSummary" class="studio-export"><i class="fa-solid fa-download"></i> Export design</button>
+    </nav>
+  </header>
+
+  <main class="studio-layout">
+    <!-- LEFT: EXACT PROTOTYPE WORKFLOW, three steps -->
+    <aside class="studio-editor" aria-label="Customize your shirt">
+      <p class="eyebrow">THE PERSONAL FIT STUDIO</p>
+      <h1>Your fit.<br><em>Your design.</em></h1>
+      <p class="hero-subtitle">Make it yours, from every angle.</p>
+      <div class="steps" role="tablist" aria-label="Customize steps">
+        <button type="button" class="step active" role="tab" aria-controls="step-shirt" aria-selected="true" data-step="shirt">01 Shirt</button>
+        <button type="button" class="step" role="tab" aria-controls="step-design" aria-selected="false" data-step="design">02 Design</button>
+        <button type="button" class="step" role="tab" aria-controls="step-you" aria-selected="false" data-step="you">03 You</button>
+      </div>
+
+      <section id="step-shirt" class="step-panel" role="tabpanel">
+        <div class="mini-row"><b>The everyday oversized tee</b><small>8750</small></div>
+        <p class="muted">Heavy French terry · 260 GSM · 100% cotton</p>
+        <div class="label-row"><label for="shirtColor">COLOR</label><span id="colorName">Black</span></div>
+        <div class="swatches" id="colorSwatches" role="group" aria-label="Shirt color">
+          <button type="button" class="swatch active" data-color="#161616" title="Black" aria-label="Black" style="--swatch:#161616"></button>
+          <button type="button" class="swatch" data-color="#E5DDC8" title="Cream" aria-label="Cream" style="--swatch:#E5DDC8"></button>
+          <button type="button" class="swatch" data-color="#F5F5F2" title="White" aria-label="White" style="--swatch:#F5F5F2"></button>
+          <button type="button" class="swatch" data-color="#24374C" title="Navy Blue" aria-label="Navy Blue" style="--swatch:#24374C"></button>
+        </div>
+        <label class="custom-color" for="shirtColor">Custom color <input type="color" id="shirtColor" value="#161616"></label>
+        <div class="label-row"><label for="selectedSize">SHIRT SIZE</label><span class="gold">Size guide <i class="fa-solid fa-arrow-up-right-from-square"></i></span></div>
+        <div class="size-buttons" id="sizeButtons" role="group" aria-label="Select shirt size"></div>
+        <select id="selectedSize" aria-label="Selected shirt size" class="sr-only">
+          <option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option>
+        </select>
+        <div class="size-measurements"><div><b id="shirtLength">29″</b><span>Length</span></div><div><b id="shirtWidth">23″</b><span>Width (flat)</span></div><div><b id="shirtSleeve">9.5″</b><span>Sleeve</span></div></div>
+        <div class="studio-hint"><strong>Designed to sit loose.</strong><p>Add your measurements in “You” to compare garment and body sizes.</p></div>
+        <label class="field-block" for="quantity">QUANTITY <input type="number" id="quantity" min="1" max="100" step="1" value="1"></label>
+        <details class="images-details"><summary>Your reference images</summary><p class="muted">Your logo images are added in the Design tab.</p></details>
+      </section>
+
+      <section id="step-design" class="step-panel" role="tabpanel" hidden>
+        <p class="eyebrow">FRONT & BACK PRINT</p><h2>Make a statement.</h2>
+        <p class="muted">Upload artwork, choose print dimensions and see the estimate update.</p>
+        <div class="design-side-switch"><button type="button" class="active" data-design-side="front">Front</button><button type="button" data-design-side="back">Back</button></div>
+        <div class="design-fields" data-for-side="front">
+          <label class="field-block" for="printText">PRINT TEXT <input id="printText" type="text" maxlength="40" placeholder="Your design"></label>
+          <label class="field-block" for="logo">LOGO / ARTWORK <input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label>
+          <img id="artPreview" alt="Front artwork preview" class="art-preview" hidden>
+          <label class="field-block" for="frontPrintSize">PRINT SIZE <select id="frontPrintSize"><option value="none">No print</option><option value="A6">A6</option><option value="A5">A5</option><option value="A4">A4</option><option value="A3">A3</option></select></label>
+        </div>
+        <div class="design-fields" data-for-side="back" hidden>
+          <label class="field-block" for="backPrintText">BACK TEXT <input id="backPrintText" type="text" maxlength="40" placeholder="Back design"></label>
+          <label class="field-block" for="backLogo">BACK ARTWORK <input id="backLogo" type="file" accept="image/png,image/jpeg,image/webp"></label>
+          <img id="backArtPreview" alt="Back artwork preview" class="art-preview" hidden>
+          <label class="field-block" for="backPrintSize">PRINT SIZE <select id="backPrintSize"><option value="none">No print</option><option value="A6">A6</option><option value="A5">A5</option><option value="A4">A4</option><option value="A3">A3</option></select></label>
+        </div>
+        <p class="studio-hint">Live printed artwork is a flat 3D overlay on the T-shirt. It does not simulate fabric folds or actual print placement.</p>
+      </section>
+
+      <section id="step-you" class="step-panel body-scan-panel" role="tabpanel" hidden>
+        <p class="eyebrow">BODY SCAN & SIZING</p><h2>Made to fit you.</h2>
+        <p class="muted">Front/side capture runs locally. Camera guidance is approximate; manual measurements improve accuracy.</p>
+        <div class="split-fields">
+          <label class="field-block" for="heightCm">HEIGHT (CM)<input id="heightCm" type="number" value="165" min="110" max="230"></label>
+          <label class="field-block" for="fit">FIT PREFERENCE<select id="fit"><option value="slim">Slim</option><option value="regular" selected>Regular</option><option value="loose">Loose</option></select></label>
+        </div>
+        <div class="camera"><video id="camera" autoplay muted playsinline></video><canvas id="overlay"></canvas><span class="camera-label" id="cameraState">Camera off</span></div>
+        <div class="camera-actions"><button type="button" id="startCamera">Start camera</button><button type="button" id="front">Capture front</button><button type="button" id="side">Capture side</button><button type="button" id="stopCamera" class="secondary">Stop</button></div>
+        <label class="field-block" for="photo">UPLOAD FRONT-FACING PHOTO<input type="file" id="photo" accept="image/png,image/jpeg,image/webp"></label>
+        <img id="photoPreview" class="art-preview" alt="Uploaded front-facing photo" hidden>
+        <div class="scan-results"><p id="status" role="status">Ready for front scan.</p><div class="scan-size"><span id="sizeValue">—</span><small id="confidence">Awaiting scan</small></div><p id="measurements">Your recommended size appears after scanning or manual input.</p></div>
+        <label class="field-block" for="manualChest">ACTUAL CHEST CIRCUMFERENCE (CM)<input id="manualChest" type="number" min="50" max="180" placeholder="e.g., 96"></label>
+        <label class="field-block" for="manualWidth">PREFERRED SHIRT WIDTH (CM)<input id="manualWidth" type="number" min="30" max="100" placeholder="e.g., 55"></label>
+        <button type="button" id="estimate" class="primary-block">Update recommendation</button>
+        <p class="small-warning">A phone camera alone cannot accurately reconstruct body circumference or create an exact digital twin. This is a rough 3D size preview.</p>
+      </section>
+    </aside>
+
+    <!-- CENTER: Keep the real working Three.js viewer DOM id -->
+    <section class="studio-center" aria-label="Live 3D customization preview">
+      <div class="model-panel">
+        <div class="model-overlays" aria-hidden="true"><span class="model-label">● BLENDER 3D MODEL</span><span id="viewLabel" class="model-label">FRONT VIEW</span></div>
+        <div class="model-copy" aria-hidden="true"><p>BLENDER COLLECTION / 8750</p><h2>Crafted in 3D.<br>Made yours.</h2></div>
+        <div id="viewer" aria-label="Interactive 360-degree realistic 3D avatar"></div>
+        <div class="model-bottom" aria-hidden="true">↔ Drag to rotate · scroll to zoom</div>
+      </div>
+      <div class="viewer-toolbar">
+        <div class="toolbar-left"><button type="button" class="active" data-view="front">Front</button><button type="button" data-view="back">Back</button><button type="button" id="autoRotate">↻ Auto rotate</button></div>
+        <div class="toolbar-right"><button type="button" id="zoomOut" aria-label="Zoom out">−</button><button type="button" id="zoomIn" aria-label="Zoom in">+</button><button type="button" id="resetView">Reset view</button></div>
+      </div>
+      <div class="fit-glance"><span class="fit-icon">↔</span><div><strong>Your fit at a glance</strong><p id="fitGlance">Select a size or use Body Scan for a suggested fit. Garment measurements are estimates.</p><small>Visual estimate only. Fabric drape, stretch and tailoring are not simulated.</small></div></div>
+      <details class="model-tools"><summary>Blender model tools · reload or upload .glb</summary><div class="model-tool-body"><label class="field-block" for="avatarUpload">UPLOAD 3D AVATAR (.GLB)<input type="file" id="avatarUpload" accept=".glb,model/gltf-binary"></label><button type="button" id="reloadAvatar">Reload model</button><p id="avatarStatus" role="status">Checking avatar…</p></div></details>
+    </section>
+
+    <!-- RIGHT: Quote is deliberately an estimate until configured to actual store prices -->
+    <aside class="studio-summary" aria-label="Live design and pricing summary">
+      <p class="eyebrow">YOUR CREATION</p><h2>Made personal.</h2>
+      <div class="product-summary"><span class="product-icon"><i class="fa-solid fa-shirt"></i></span><div><b>French Terry Oversized Tee</b><small id="summaryVariant">Black / M / 260 GSM</small></div></div>
+      <div class="summary-breakdown"><div><span>Front print</span><b id="frontPrintLabel">No artwork added</b></div><div><span>Back print</span><b id="backPrintLabel">No artwork added</b></div><div><span>Quantity</span><b id="summaryQty">1</b></div><div><span>Blank shirt (each)</span><b id="shirtUnitCost">—</b></div><div><span>Prints (each)</span><b id="printUnitCost">₱0</b></div></div>
+      <div class="summary-total"><span id="quoteLabel">Estimated total</span><strong id="estimatedTotal">—</strong></div>
+      <p class="quote-note" id="pricingDisclosure">Live estimate only; confirm actual JCN rates before checkout. Delivery and discounts are excluded.</p>
+      <button type="button" class="gold-wide" id="downloadPrintSummary">↓ Download print summary</button>
+      <p class="preview-only">Preview and quotation tool; no order or payment is placed.</p>
+      <div class="creation-cta"><span class="eyebrow">01 — CREATE</span><h3>Choose your tee. Add your artwork. Find your fit.</h3><p>JCN APPAREL</p><small>Apparel Printing Services</small></div>
+      <div class="save-area"><button type="button" id="save">Save design to account</button><p id="saveStatus" role="status"></p></div>
+    </aside>
+  </main>
+
+  <dialog id="logoutDialog" class="logout-dialog"><h2>Log out of JCN?</h2><p>Are you sure you want to end your customer session?</p><form method="dialog"><button value="cancel">Cancel</button><button value="logout" id="confirmLogout" class="gold-wide">Log out</button></form></dialog>
+  <!-- BodyFit needs this picture preview for front artwork. It remains within Design tab. -->
+</body>
+</html>

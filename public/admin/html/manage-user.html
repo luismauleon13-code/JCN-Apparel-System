@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JCN | Manage Customers</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+  <link rel="stylesheet" href="../css/manage-user.css">
+
+  <script defer src="../js/manage-user.js"></script>
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+
+    <header class="dashboard-nav">
+      <a class="brand" href="admin-dashboard.html">
+        <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+        <span>Admin Dashboard</span>
+      </a>
+
+      <nav class="top-menu" aria-label="Main navigation">
+        <a href="admin-dashboard.html">Overview</a>
+        <a href="manage-user.html" class="active" aria-current="page">
+          Customers
+        </a>
+        <a href="manage-staff.html">Staff</a>
+        <a href="reports.html">Reports</a>
+      </nav>
+
+      <button id="adminLogoutBtn" class="btn btn-gold" type="button">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+        Logout
+      </button>
+    </header>
+
+    <section class="page-heading dashboard-card">
+      <div>
+        <p class="eyebrow">JCN APPAREL PRINTING SERVICES</p>
+        <h1>Manage Customers</h1>
+        <p class="muted">
+          Review registered customers and manage account access.
+        </p>
+      </div>
+
+      <span class="admin-badge">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        Administrator
+      </span>
+    </section>
+
+    <div class="dashboard-layout">
+      <aside class="dashboard-card sidebar">
+        <h2>
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+          Admin Menu
+        </h2>
+
+        <nav class="dashboard-menu" aria-label="Admin menu">
+          <a href="admin-dashboard.html">
+            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+            Overview
+          </a>
+
+          <a href="manage-user.html" class="active" aria-current="page">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+            Manage Customers
+          </a>
+
+          <a href="manage-staff.html">
+            <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+            Manage Staff
+          </a>
+
+          <a href="announcement.html">
+            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
+            Announcements
+          </a>
+
+          <a href="reports.html">
+            <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+            Reports
+          </a>
+
+          <a href="settings.html">
+            <i class="fa-solid fa-gear" aria-hidden="true"></i>
+            Settings
+          </a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-card directory">
+        <div class="section-heading">
+          <div>
+            <h2>Customer Directory</h2>
+            <p class="muted">Registered customer accounts</p>
+          </div>
+
+          <button id="refreshUsers" class="btn btn-outline" type="button">
+            <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+            Refresh
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <label class="search-field">
+            <span class="sr-only">Search customers</span>
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input
+              id="customerSearch"
+              type="search"
+              placeholder="Search name, email, or phone..."
+            >
+          </label>
+
+          <label>
+            <span class="sr-only">Filter by account status</span>
+            <select id="statusFilter">
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="restricted">Restricted</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </label>
+        </div>
+
+        <p id="customerCount" class="muted" aria-live="polite"></p>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Customer</th>
+                <th scope="col">Email Address</th>
+                <th scope="col">Phone Number</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col" class="actions-heading">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="usersTableBody">
+              <tr>
+                <td colspan="6" class="empty">Loading customers…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <p id="pageNotice" class="page-notice" role="status"></p>
+  </div>
+
+  <dialog id="actionModal" aria-labelledby="actionTitle">
+    <form id="actionForm">
+      <h2 id="actionTitle">Customer action</h2>
+      <p id="actionDescription" class="muted"></p>
+
+      <div id="restrictionFields" hidden>
+        <label for="restrictDays">Number of days</label>
+        <input
+          id="restrictDays"
+          name="days"
+          type="number"
+          min="1"
+          max="3650"
+          step="1"
+        >
+
+        <label for="restrictReason">Reason</label>
+        <textarea
+          id="restrictReason"
+          name="reason"
+          maxlength="300"
+          rows="3"
+          placeholder="Explain the reason for the restriction"
+        ></textarea>
+      </div>
+
+      <p id="actionError" class="error" role="alert"></p>
+
+      <div class="modal-actions">
+        <button id="cancelAction" class="btn btn-outline" type="button">
+          Cancel
+        </button>
+        <button id="confirmAction" class="btn btn-gold" type="submit">
+          Confirm
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="adminLogoutModal" aria-labelledby="logoutTitle">
+    <h2 id="logoutTitle">Logout Confirmation</h2>
+    <p class="muted">Are you sure you want to end your current session?</p>
+
+    <div class="modal-actions">
+      <button id="adminCancelLogout" class="btn btn-outline" type="button">
+        Cancel
+      </button>
+      <button id="adminConfirmLogout" class="btn btn-gold" type="button">
+        Yes, Logout
+      </button>
+    </div>
+  </dialog>
+
+  <noscript>
+    <p>Please enable JavaScript to manage customer accounts.</p>
+  </noscript>
+</body>
+</html>

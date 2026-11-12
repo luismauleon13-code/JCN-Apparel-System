@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JCN | Announcements</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+  <link rel="stylesheet" href="../css/announcement.css">
+
+  <script defer src="../js/announcement.js"></script>
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+
+    <header class="dashboard-nav">
+      <a class="brand" href="admin-dashboard.html">
+        <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+        <span>Admin Dashboard</span>
+      </a>
+
+      <nav class="top-menu" aria-label="Main navigation">
+        <a href="admin-dashboard.html">Overview</a>
+        <a href="manage-user.html">Customers</a>
+        <a href="manage-staff.html">Staff</a>
+        <a href="reports.html">Reports</a>
+      </nav>
+
+      <button id="adminLogoutBtn" class="btn btn-gold" type="button">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+        Logout
+      </button>
+    </header>
+
+    <section class="page-heading dashboard-card">
+      <div>
+        <p class="eyebrow">JCN APPAREL PRINTING SERVICES</p>
+        <h1>Announcements</h1>
+        <p class="muted">
+          Share shop updates, reminders, and important notices.
+        </p>
+      </div>
+
+      <span class="admin-badge">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        Administrator
+      </span>
+    </section>
+
+    <div class="dashboard-layout">
+      <aside class="dashboard-card sidebar">
+        <h2>
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+          Admin Menu
+        </h2>
+
+        <nav class="dashboard-menu" aria-label="Admin menu">
+          <a href="admin-dashboard.html">
+            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+            Overview
+          </a>
+
+          <a href="manage-user.html">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+            Manage Customers
+          </a>
+
+          <a href="manage-staff.html">
+            <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+            Manage Staff
+          </a>
+
+          <a href="announcement.html" class="active" aria-current="page">
+            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
+            Announcements
+          </a>
+
+          <a href="reports.html">
+            <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+            Reports
+          </a>
+
+          <a href="settings.html">
+            <i class="fa-solid fa-gear" aria-hidden="true"></i>
+            Settings
+          </a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-card announcement-panel">
+        <div class="section-heading">
+          <div>
+            <h2>Platform Announcements</h2>
+            <p class="muted">
+              Publish messages for customers to view.
+            </p>
+          </div>
+        </div>
+
+        <section class="announcement-composer" aria-labelledby="composerTitle">
+          <h3 id="composerTitle">
+            <i class="fa-solid fa-pen-nib" aria-hidden="true"></i>
+            Draft Announcement
+          </h3>
+
+          <form id="announcementForm">
+            <label for="announcementTitle">Title</label>
+            <input
+              id="announcementTitle"
+              name="title"
+              type="text"
+              maxlength="150"
+              placeholder="Enter an announcement title"
+              required
+            >
+
+            <label for="announcementMessage">Message</label>
+            <textarea
+              id="announcementMessage"
+              name="message"
+              rows="5"
+              maxlength="5000"
+              placeholder="Write your announcement..."
+              required
+            ></textarea>
+
+            <p id="formError" class="error" role="alert"></p>
+
+            <div class="composer-actions">
+              <button
+                id="postAnnouncementBtn"
+                class="btn btn-gold"
+                type="submit"
+              >
+                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                Post Announcement
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <p id="pageNotice" class="page-notice" role="status"></p>
+
+        <section aria-labelledby="historyTitle">
+          <div class="section-heading history-heading">
+            <div>
+              <h2 id="historyTitle">Recent History</h2>
+              <p id="historyCount" class="muted"></p>
+            </div>
+
+            <button
+              id="refreshAnnouncements"
+              class="btn btn-outline"
+              type="button"
+            >
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+              Refresh
+            </button>
+          </div>
+
+          <div id="announcementHistory" aria-busy="true">
+            <p class="empty">Loading announcements…</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="deleteModal" aria-labelledby="deleteTitle">
+    <div class="dialog-icon danger-icon">
+      <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+    </div>
+
+    <h2 id="deleteTitle">Delete Announcement</h2>
+    <p class="muted">
+      Permanently delete this announcement? This cannot be undone.
+    </p>
+
+    <p id="deleteAnnouncementTitle" class="selected-title"></p>
+    <p id="deleteError" class="error" role="alert"></p>
+
+    <div class="modal-actions">
+      <button id="cancelDelete" class="btn btn-outline" type="button">
+        Cancel
+      </button>
+      <button id="confirmDelete" class="btn btn-danger" type="button">
+        Delete
+      </button>
+    </div>
+  </dialog>
+
+  <dialog id="adminLogoutModal" aria-labelledby="logoutTitle">
+    <h2 id="logoutTitle">Logout Confirmation</h2>
+    <p class="muted">
+      Are you sure you want to end your current session?
+    </p>
+
+    <div class="modal-actions">
+      <button id="adminCancelLogout" class="btn btn-outline" type="button">
+        Cancel
+      </button>
+      <button id="adminConfirmLogout" class="btn btn-gold" type="button">
+        Yes, Logout
+      </button>
+    </div>
+  </dialog>
+
+  <noscript>
+    <p>Please enable JavaScript to manage announcements.</p>
+  </noscript>
+</body>
+</html>

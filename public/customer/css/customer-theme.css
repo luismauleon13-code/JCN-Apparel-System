@@ -1,0 +1,1475 @@
+/* ==========================================================
+   JCN APPAREL PRINTING SERVICES
+   CUSTOMER THEME - DARK / LIGHT MODE + SLIDING SWITCH
+========================================================== */
+
+/* 01. DEFAULT DARK THEME */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --jcn-bg: #0c0c0f;
+  --jcn-bg-secondary: #111318;
+  --jcn-surface: #191b20;
+  --jcn-surface-hover: #24272e;
+  --jcn-card: #191b20;
+  --jcn-input: #111318;
+  --jcn-navbar: #101115;
+  --jcn-text: #f7f7f9;
+  --jcn-text-secondary: #c5c6cd;
+  --jcn-muted: #a1a5b0;
+  --jcn-gold: #e5bd55;
+  --jcn-gold-hover: #f3cf73;
+  --jcn-gold-soft: rgba(229, 189, 85, 0.1);
+  --jcn-gold-text: #e5bd55;
+  --jcn-border: #34353b;
+  --jcn-border-gold: #8b7138;
+  --jcn-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  --jcn-btn-bg: #282a30;
+  --jcn-btn-text: #f7f7f9;
+  --jcn-on-gold: #101010;
+  --jcn-success: #65d6a0;
+  --jcn-danger: #ff8585;
+
+  /* Existing CSS aliases */
+  --background: var(--jcn-bg);
+  --bg: var(--jcn-bg);
+  --panel: var(--jcn-card);
+  --panel-light: var(--jcn-surface-hover);
+  --card: var(--jcn-card);
+  --text: var(--jcn-text);
+  --muted: var(--jcn-muted);
+  --border: var(--jcn-border);
+  --gold: var(--jcn-gold);
+}
+
+/* 02. LIGHT THEME */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jcn-bg: #f6f7f9;
+  --jcn-bg-secondary: #edf0f4;
+  --jcn-surface: #ffffff;
+  --jcn-surface-hover: #f0f2f5;
+  --jcn-card: #ffffff;
+  --jcn-input: #ffffff;
+  --jcn-navbar: #ffffff;
+  --jcn-text: #20242b;
+  --jcn-text-secondary: #434a55;
+  --jcn-muted: #626b78;
+  --jcn-gold: #c49a35;
+  --jcn-gold-hover: #d7ad48;
+  --jcn-gold-soft: rgba(196, 154, 53, 0.1);
+  --jcn-gold-text: #936a12;
+  --jcn-border: #dce0e6;
+  --jcn-border-gold: #c9a557;
+  --jcn-shadow: 0 8px 28px rgba(35, 40, 50, 0.07);
+  --jcn-btn-bg: #f0f2f5;
+  --jcn-btn-text: #20242b;
+  --jcn-on-gold: #17130a;
+  --jcn-success: #168258;
+  --jcn-danger: #c73636;
+}
+
+/* 03. BASE STYLES */
+body {
+  background-color: var(--jcn-bg);
+  color: var(--jcn-text);
+}
+
+body, header, nav, main, aside, footer, section, article,
+button, input, select, textarea {
+  transition: background-color 0.22s ease, color 0.22s ease,
+              border-color 0.22s ease;
+}
+
+/* 04. REUSABLE CUSTOMER COMPONENTS */
+.jcn-theme-page {
+  min-height: 100vh;
+  background: var(--jcn-bg);
+  color: var(--jcn-text);
+}
+
+.jcn-theme-navbar {
+  background: var(--jcn-navbar);
+  color: var(--jcn-text);
+  border-bottom: 1px solid var(--jcn-border);
+}
+
+.jcn-theme-card {
+  background: var(--jcn-card);
+  color: var(--jcn-text);
+  border: 1px solid var(--jcn-border);
+  border-radius: 14px;
+  box-shadow: var(--jcn-shadow);
+}
+
+.jcn-theme-panel {
+  background: var(--jcn-surface);
+  color: var(--jcn-text);
+  border: 1px solid var(--jcn-border);
+}
+
+.jcn-theme-muted { color: var(--jcn-muted); }
+.jcn-theme-gold { color: var(--jcn-gold-text); }
+.jcn-theme-border { border-color: var(--jcn-border); }
+
+/* 05. REUSABLE FORM CONTROLS */
+.jcn-theme-input,
+.jcn-theme-select,
+.jcn-theme-textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--jcn-border);
+  border-radius: 9px;
+  background: var(--jcn-input);
+  color: var(--jcn-text);
+  font: inherit;
+}
+
+.jcn-theme-input::placeholder,
+.jcn-theme-textarea::placeholder { color: var(--jcn-muted); }
+
+.jcn-theme-input:focus,
+.jcn-theme-select:focus,
+.jcn-theme-textarea:focus {
+  outline: 2px solid var(--jcn-gold);
+  outline-offset: 1px;
+}
+
+/* 06. REUSABLE BUTTONS */
+.jcn-theme-button,
+.jcn-theme-button-primary {
+  padding: 11px 18px;
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.jcn-theme-button {
+  border: 1px solid var(--jcn-border);
+  background: var(--jcn-btn-bg);
+  color: var(--jcn-btn-text);
+}
+
+.jcn-theme-button:hover { background: var(--jcn-surface-hover); }
+
+.jcn-theme-button-primary {
+  border: 1px solid var(--jcn-gold);
+  background: var(--jcn-gold);
+  color: var(--jcn-on-gold);
+  font-weight: 800;
+}
+
+.jcn-theme-button-primary:hover { background: var(--jcn-gold-hover); }
+
+.jcn-theme-button:focus-visible,
+.jcn-theme-button-primary:focus-visible {
+  outline: 2px solid var(--jcn-gold);
+  outline-offset: 3px;
+}
+
+/* 07. APPEARANCE SETTINGS WRAPPER */
+.jcn-appearance-section {
+  padding: 22px;
+  border: 1px solid var(--jcn-border);
+  border-radius: 14px;
+  background: var(--jcn-card);
+  color: var(--jcn-text);
+}
+
+.jcn-appearance-heading {
+  margin: 0 0 7px;
+  color: var(--jcn-text);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.jcn-appearance-description {
+  margin: 0 0 20px;
+  color: var(--jcn-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 08. SIMPLE SUN / MOON SLIDING TOGGLE */
+.jcn-theme-switch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+}
+
+.jcn-theme-switch-wrap > i {
+  font-size: 24px;
+  color: var(--jcn-muted);
+  transition: color 0.25s ease;
+}
+
+.jcn-theme-switch {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 94px;
+  width: 94px;
+  height: 44px;
+  min-width: 94px;
+  min-height: 44px;
+  padding: 4px;
+  border: 1px solid #50586a;
+  border-radius: 999px;
+  background: #343b4f;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.jcn-theme-switch:hover { filter: brightness(1.08); }
+
+.jcn-theme-switch:focus-visible {
+  outline: 2px solid var(--jcn-gold);
+  outline-offset: 3px;
+}
+
+.jcn-theme-thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #a6b0c7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.38);
+  transform: translateX(50px); /* Dark: thumb on right */
+  transition: transform 0.25s ease, background-color 0.25s ease;
+  pointer-events: none;
+}
+
+:root[data-theme="dark"] .jcn-theme-switch-wrap .fa-moon,
+:root:not([data-theme]) .jcn-theme-switch-wrap .fa-moon {
+  color: #e5bd55;
+}
+
+:root[data-theme="light"] .jcn-theme-switch {
+  background: #d9dee7;
+  border-color: #aeb5c2;
+  box-shadow: inset 0 2px 5px rgba(70, 80, 95, 0.12);
+}
+
+:root[data-theme="light"] .jcn-theme-thumb {
+  background: #ffffff;
+  transform: translateX(0); /* Light: thumb on left */
+  box-shadow: 0 2px 6px rgba(70, 80, 95, 0.2);
+}
+
+:root[data-theme="light"] .jcn-theme-switch-wrap .fa-sun {
+  color: #c49a35;
+}
+
+/* 09. OPTIONAL SETTINGS CHOICE BUTTONS */
+.jcn-theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.jcn-theme-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 100px;
+  padding: 17px 12px;
+  border: 1px solid var(--jcn-border);
+  border-radius: 12px;
+  background: var(--jcn-surface);
+  color: var(--jcn-text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.jcn-theme-option:hover { border-color: var(--jcn-gold); }
+
+.jcn-theme-option.active,
+.jcn-theme-option[aria-pressed="true"] {
+  border: 2px solid var(--jcn-gold);
+  background: var(--jcn-gold-soft);
+  color: var(--jcn-gold-text);
+}
+
+.jcn-theme-option i { font-size: 23px; }
+
+/* 10. OPTIONAL NAVBAR THEME TOGGLE */
+.jcn-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid var(--jcn-border);
+  border-radius: 10px;
+  background: var(--jcn-surface);
+  color: var(--jcn-gold-text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.jcn-theme-toggle:hover {
+  border-color: var(--jcn-gold);
+  background: var(--jcn-gold-soft);
+}
+
+/* 11. LIGHT OVERRIDES FOR COMMON CUSTOMER CLASSES */
+:root[data-theme="light"] body {
+  background: var(--jcn-bg);
+  color: var(--jcn-text);
+}
+
+:root[data-theme="light"] .customer-container,
+:root[data-theme="light"] .page-container,
+:root[data-theme="light"] .dashboard-wrapper { color: var(--jcn-text); }
+
+:root[data-theme="light"] .customer-navbar,
+:root[data-theme="light"] .navbar,
+:root[data-theme="light"] .site-header {
+  background: var(--jcn-navbar);
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+}
+
+:root[data-theme="light"] .product-card,
+:root[data-theme="light"] .cart-item,
+:root[data-theme="light"] .order-card,
+:root[data-theme="light"] .notification-card,
+:root[data-theme="light"] .settings-card,
+:root[data-theme="light"] .checkout-card,
+:root[data-theme="light"] .dashboard-card {
+  background: var(--jcn-card);
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+  box-shadow: var(--jcn-shadow);
+}
+
+:root[data-theme="light"] .panel,
+:root[data-theme="light"] .inner-panel {
+  background: var(--jcn-surface);
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+}
+
+:root[data-theme="light"] h1,
+:root[data-theme="light"] h2,
+:root[data-theme="light"] h3,
+:root[data-theme="light"] h4,
+:root[data-theme="light"] h5,
+:root[data-theme="light"] h6 { color: var(--jcn-text); }
+
+:root[data-theme="light"] p,
+:root[data-theme="light"] label,
+:root[data-theme="light"] .text-light { color: var(--jcn-text); }
+
+:root[data-theme="light"] .muted,
+:root[data-theme="light"] .text-muted,
+:root[data-theme="light"] .text-secondary-light { color: var(--jcn-muted); }
+
+:root[data-theme="light"] .text-gold { color: var(--jcn-gold-text); }
+
+:root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea {
+  background: var(--jcn-input);
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+}
+
+:root[data-theme="light"] input::placeholder,
+:root[data-theme="light"] textarea::placeholder { color: var(--jcn-muted); }
+
+:root[data-theme="light"] table { color: var(--jcn-text); }
+
+:root[data-theme="light"] th {
+  background: var(--jcn-bg-secondary);
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+}
+
+:root[data-theme="light"] td {
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+}
+
+:root[data-theme="light"] .dropdown-menu {
+  background: var(--jcn-surface);
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+}
+
+:root[data-theme="light"] .dropdown-item { color: var(--jcn-text); }
+:root[data-theme="light"] .dropdown-item:hover { background: var(--jcn-surface-hover); }
+
+:root[data-theme="light"] .modal-content {
+  background: var(--jcn-surface);
+  color: var(--jcn-text);
+  border-color: var(--jcn-border);
+}
+
+:root[data-theme="light"] .modal-header,
+:root[data-theme="light"] .modal-footer { border-color: var(--jcn-border); }
+
+:root[data-theme="light"] .nav-link { color: var(--jcn-text); }
+:root[data-theme="light"] .nav-link:hover { color: var(--jcn-gold-text); }
+
+/* 12. OPTIONAL SWEETALERT THEME CLASSES */
+.jcn-swal-popup {
+  background: var(--jcn-card) !important;
+  color: var(--jcn-text) !important;
+  border: 1px solid var(--jcn-border) !important;
+  border-radius: 15px !important;
+}
+
+.jcn-swal-title { color: var(--jcn-text) !important; }
+.jcn-swal-html { color: var(--jcn-muted) !important; }
+
+.jcn-swal-confirm {
+  background: var(--jcn-gold) !important;
+  color: var(--jcn-on-gold) !important;
+  border-radius: 9px !important;
+}
+
+.jcn-swal-cancel {
+  background: var(--jcn-btn-bg) !important;
+  color: var(--jcn-btn-text) !important;
+  border-radius: 9px !important;
+}
+
+/* 13. RESPONSIVENESS / ACCESSIBILITY */
+@media (max-width: 600px) {
+  .jcn-appearance-section { padding: 16px; }
+  .jcn-theme-options { gap: 10px; }
+  .jcn-theme-option {
+    min-height: 90px;
+    padding: 13px 9px;
+    font-size: 13px;
+  }
+  .jcn-appearance-heading { font-size: 17px; }
+  .jcn-theme-switch-wrap { gap: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body, header, nav, main, aside, footer, section, article,
+  button, input, select, textarea,
+  .jcn-theme-switch, .jcn-theme-thumb,
+  .jcn-theme-switch-wrap > i { transition: none; }
+}
+
+
+/* ============================================
+   JCN CUSTOMER SIDEBAR
+   DARK / LIGHT MODE SUPPORT
+============================================ */
+
+/* LIGHT MODE SIDEBAR */
+
+:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] .customer-sidebar,
+:root[data-theme="light"] .side-nav,
+:root[data-theme="light"] .sidebar-menu {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+/* SIDEBAR BRAND */
+
+:root[data-theme="light"] .sidebar .brand,
+:root[data-theme="light"] .sidebar .brand strong,
+:root[data-theme="light"] .sidebar .brand small,
+:root[data-theme="light"] .sidebar .brand-name,
+:root[data-theme="light"] .sidebar .brand-subtitle {
+  color: #20242b !important;
+}
+
+/* SIDEBAR NAVIGATION LINKS */
+
+:root[data-theme="light"] .sidebar nav a,
+:root[data-theme="light"] .sidebar a,
+:root[data-theme="light"] .customer-sidebar a,
+:root[data-theme="light"] .side-nav a {
+  color: #434a55 !important;
+}
+
+/* ICONS */
+
+:root[data-theme="light"] .sidebar nav a i,
+:root[data-theme="light"] .sidebar a i {
+  color: #b58a25 !important;
+}
+
+/* HOVER */
+
+:root[data-theme="light"] .sidebar nav a:hover,
+:root[data-theme="light"] .sidebar a:hover {
+  background: #f0f2f5 !important;
+  color: #936a12 !important;
+}
+
+/* ACTIVE MENU */
+
+:root[data-theme="light"] .sidebar nav a.active,
+:root[data-theme="light"] .sidebar a.active,
+:root[data-theme="light"] .sidebar .active {
+  background: #fff3d4 !important;
+  color: #936a12 !important;
+  border-color: #e1c37b !important;
+}
+
+/* SIDEBAR LOGOUT BUTTON */
+
+:root[data-theme="light"] .sidebar .logout-btn,
+:root[data-theme="light"] .sidebar #logoutBtn,
+:root[data-theme="light"] .sidebar #logoutButton {
+  background: #ffffff !important;
+  color: #936a12 !important;
+  border: 1px solid #c49a35 !important;
+}
+
+:root[data-theme="light"] .sidebar .logout-btn:hover,
+:root[data-theme="light"] .sidebar #logoutBtn:hover,
+:root[data-theme="light"] .sidebar #logoutButton:hover {
+  background: #c49a35 !important;
+  color: #111111 !important;
+}
+
+/* DARK MODE SIDEBAR */
+
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .customer-sidebar,
+:root[data-theme="dark"] .side-nav,
+:root[data-theme="dark"] .sidebar-menu {
+  background: #0c0c0e;
+  color: #f7f7f9;
+}
+
+:root[data-theme="dark"] .sidebar nav a,
+:root[data-theme="dark"] .sidebar a {
+  color: #c5c6cd;
+}
+
+:root[data-theme="dark"] .sidebar nav a.active,
+:root[data-theme="dark"] .sidebar a.active {
+  background: rgba(229, 189, 85, 0.15);
+  color: #e5bd55;
+}
+
+
+/* =========================================
+   JCN PROFILE SETTINGS HEADER
+   WITH DARK / LIGHT MODE TOGGLE
+========================================= */
+
+.jcn-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.jcn-settings-heading {
+  min-width: 0;
+}
+
+.jcn-settings-eyebrow {
+  margin: 0 0 7px;
+
+  color: var(--jcn-gold-text);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.jcn-settings-heading h1 {
+  margin: 0;
+
+  color: var(--jcn-text);
+  font-size: 27px;
+  font-weight: 800;
+}
+
+/* TOGGLE POSITION */
+
+.jcn-settings-header .jcn-theme-switch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  gap: 12px;
+
+  margin: 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 480px) {
+
+  .jcn-settings-header {
+    gap: 12px;
+  }
+
+  .jcn-settings-heading h1 {
+    font-size: 21px;
+  }
+
+  .jcn-settings-header .jcn-theme-switch-wrap {
+    gap: 7px;
+  }
+
+  .jcn-settings-header .jcn-theme-switch-wrap > i {
+    font-size: 18px;
+  }
+
+  .jcn-settings-header .jcn-theme-switch {
+    width: 76px;
+    min-width: 76px;
+  }
+
+  .jcn-settings-header .jcn-theme-thumb {
+    width: 34px;
+    height: 34px;
+  }
+
+  :root[data-theme="light"]
+  .jcn-settings-header .jcn-theme-thumb {
+    transform: translateX(32px);
+  }
+
+}
+
+
+/* GLOBAL THEME SWITCH POSITION */
+
+.jcn-theme-header-host {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.jcn-global-theme-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.jcn-theme-header-host > .jcn-theme-switch-wrap {
+  margin-left: auto;
+}
+
+.jcn-theme-floating {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 900;
+  padding: 8px 12px;
+  border: 1px solid var(--jcn-border);
+  border-radius: 30px;
+  background: var(--jcn-card);
+  box-shadow: var(--jcn-shadow);
+}
+
+@media (max-width: 600px) {
+  .jcn-theme-header-host {
+    gap: 10px;
+  }
+
+  .jcn-theme-floating {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+
+/* ======================================================
+   JCN CUSTOMER HOME
+   HERO SECTION - DARK / LIGHT MODE
+====================================================== */
+
+/* LIGHT MODE - HERO SECTION */
+
+:root[data-theme="light"] .hero,
+:root[data-theme="light"] .hero-section,
+:root[data-theme="light"] .hero-card,
+:root[data-theme="light"] .hero-banner,
+:root[data-theme="light"] .welcome-banner,
+:root[data-theme="light"] .dashboard-hero {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #20242b !important;
+
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 8px 28px rgba(35, 40, 50, 0.05);
+}
+
+/* HERO HEADING */
+
+:root[data-theme="light"] .hero h1,
+:root[data-theme="light"] .hero h2,
+:root[data-theme="light"] .hero-section h1,
+:root[data-theme="light"] .hero-section h2,
+:root[data-theme="light"] .hero-card h1,
+:root[data-theme="light"] .hero-card h2,
+:root[data-theme="light"] .hero-banner h1,
+:root[data-theme="light"] .hero-banner h2,
+:root[data-theme="light"] .dashboard-hero h1,
+:root[data-theme="light"] .dashboard-hero h2 {
+  color: #20242b !important;
+}
+
+/* HERO DESCRIPTION */
+
+:root[data-theme="light"] .hero p,
+:root[data-theme="light"] .hero-section p,
+:root[data-theme="light"] .hero-card p,
+:root[data-theme="light"] .hero-banner p,
+:root[data-theme="light"] .dashboard-hero p {
+  color: #626b78 !important;
+}
+
+/* HERO SMALL LABEL */
+
+:root[data-theme="light"] .hero .eyebrow,
+:root[data-theme="light"] .hero-section .eyebrow,
+:root[data-theme="light"] .hero-card .eyebrow,
+:root[data-theme="light"] .hero-banner .eyebrow,
+:root[data-theme="light"] .dashboard-hero .eyebrow {
+  color: #936a12 !important;
+}
+
+/* 3D PREVIEW AREA */
+
+:root[data-theme="light"] .preview-area,
+:root[data-theme="light"] .hero-preview,
+:root[data-theme="light"] .preview-box,
+:root[data-theme="light"] .preview-panel,
+:root[data-theme="light"] .preview-placeholder {
+  background: #f6f7f9 !important;
+  background-image: none !important;
+  color: #626b78 !important;
+
+  border: 1px solid #dce0e6 !important;
+}
+
+/* PREVIEW DESCRIPTION */
+
+:root[data-theme="light"] .preview-area p,
+:root[data-theme="light"] .hero-preview p,
+:root[data-theme="light"] .preview-box p,
+:root[data-theme="light"] .preview-panel p {
+  color: #626b78 !important;
+}
+
+/* KEEP GOLD BUTTONS */
+
+:root[data-theme="light"] .hero .btn-gold,
+:root[data-theme="light"] .hero-section .btn-gold,
+:root[data-theme="light"] .hero-card .btn-gold,
+:root[data-theme="light"] .hero-banner .btn-gold,
+:root[data-theme="light"] .dashboard-hero .btn-gold {
+  background: #d5a532 !important;
+  color: #111111 !important;
+  border-color: #d5a532 !important;
+}
+
+/* OUTLINE BUTTON */
+
+:root[data-theme="light"] .hero .btn-outline,
+:root[data-theme="light"] .hero-section .btn-outline,
+:root[data-theme="light"] .hero-card .btn-outline,
+:root[data-theme="light"] .hero-banner .btn-outline,
+:root[data-theme="light"] .dashboard-hero .btn-outline {
+  background: transparent !important;
+  color: #936a12 !important;
+  border: 1px solid #c49a35 !important;
+}
+
+/* PRESERVE ORIGINAL DARK THEME */
+
+:root[data-theme="dark"] .hero,
+:root[data-theme="dark"] .hero-section,
+:root[data-theme="dark"] .hero-card,
+:root[data-theme="dark"] .hero-banner,
+:root[data-theme="dark"] .dashboard-hero {
+  color: #ffffff;
+}
+
+
+/* ======================================================
+   JCN CUSTOMER MY ORDERS
+   LIGHT MODE - ORDER STATUS NAVIGATION
+====================================================== */
+
+/* STATUS TABS CONTAINER */
+
+:root[data-theme="light"] .order-tabs,
+:root[data-theme="light"] .orders-tabs,
+:root[data-theme="light"] .status-tabs,
+:root[data-theme="light"] .order-status-tabs,
+:root[data-theme="light"] .tabs-container,
+:root[data-theme="light"] .tabs-nav {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #dce0e6 !important;
+  color: #20242b !important;
+}
+
+/* STATUS TAB BUTTONS */
+
+:root[data-theme="light"] .order-tabs button,
+:root[data-theme="light"] .orders-tabs button,
+:root[data-theme="light"] .status-tabs button,
+:root[data-theme="light"] .order-status-tabs button,
+:root[data-theme="light"] .tabs-container button,
+:root[data-theme="light"] .tabs-nav button {
+  background: transparent !important;
+  color: #434a55 !important;
+  border-color: transparent !important;
+}
+
+/* HOVER */
+
+:root[data-theme="light"] .order-tabs button:hover,
+:root[data-theme="light"] .orders-tabs button:hover,
+:root[data-theme="light"] .status-tabs button:hover,
+:root[data-theme="light"] .order-status-tabs button:hover,
+:root[data-theme="light"] .tabs-container button:hover,
+:root[data-theme="light"] .tabs-nav button:hover {
+  background: #f7f1df !important;
+  color: #936a12 !important;
+}
+
+/* ACTIVE TAB */
+
+:root[data-theme="light"] .order-tabs button.active,
+:root[data-theme="light"] .orders-tabs button.active,
+:root[data-theme="light"] .status-tabs button.active,
+:root[data-theme="light"] .order-status-tabs button.active,
+:root[data-theme="light"] .tabs-container button.active,
+:root[data-theme="light"] .tabs-nav button.active,
+:root[data-theme="light"] .order-tabs button[aria-selected="true"],
+:root[data-theme="light"] .orders-tabs button[aria-selected="true"] {
+  background: #fff2d2 !important;
+  color: #936a12 !important;
+  border-bottom: 2px solid #c49a35 !important;
+  font-weight: 800 !important;
+}
+
+/* ORDER LIST AND DETAILS */
+
+:root[data-theme="light"] .order-list,
+:root[data-theme="light"] .orders-list,
+:root[data-theme="light"] .order-details,
+:root[data-theme="light"] .order-detail-panel,
+:root[data-theme="light"] .order-list-panel {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+/* ORDER CARDS */
+
+:root[data-theme="light"] .order-item,
+:root[data-theme="light"] .order-card {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+/* ORDER TEXT */
+
+:root[data-theme="light"] .order-details h2,
+:root[data-theme="light"] .order-details h3,
+:root[data-theme="light"] .order-list h2,
+:root[data-theme="light"] .order-list h3 {
+  color: #20242b !important;
+}
+
+
+/* ======================================================
+   JCN MY ORDERS - J&T TRACKING LIGHT MODE
+====================================================== */
+
+/* MAIN TRACKING CARD */
+
+:root[data-theme="light"] .jcn-journey-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 6px 24px rgba(20, 25, 35, 0.05);
+}
+
+/* HEADINGS */
+
+:root[data-theme="light"] .jcn-journey-card h2,
+:root[data-theme="light"] .jcn-journey-card h3,
+:root[data-theme="light"] .jcn-journey-card h4,
+:root[data-theme="light"] .jcn-journey-card strong {
+  color: #20242b !important;
+}
+
+/* COURIER TITLE */
+
+:root[data-theme="light"] .jcn-journey-heading strong {
+  color: #936a12 !important;
+}
+
+:root[data-theme="light"] .jcn-journey-heading i {
+  color: #b58a25 !important;
+}
+
+/* SECONDARY TEXT */
+
+:root[data-theme="light"] .jcn-journey-card p,
+:root[data-theme="light"] .jcn-journey-card small,
+:root[data-theme="light"] .jcn-journey-card .muted,
+:root[data-theme="light"] .jcn-journey-card .text-muted {
+  color: #626b78 !important;
+}
+
+/* ORDER STATUS BADGE */
+
+:root[data-theme="light"] .jcn-journey-badge {
+  background: #fff3d4 !important;
+  color: #936a12 !important;
+  border: 1px solid #d5b45b !important;
+}
+
+/* PROGRESS SECTION */
+
+:root[data-theme="light"] .jcn-journey-card .jcn-journey-progress,
+:root[data-theme="light"] .jcn-journey-card .jcn-journey-timeline,
+:root[data-theme="light"] .jcn-journey-card .journey-timeline {
+  background: transparent !important;
+  color: #20242b !important;
+}
+
+/* PROGRESS STEP TITLES */
+
+:root[data-theme="light"] .jcn-journey-card .step-title,
+:root[data-theme="light"] .jcn-journey-card .journey-step-title,
+:root[data-theme="light"] .jcn-journey-card .timeline-title {
+  color: #20242b !important;
+}
+
+/* PROGRESS STEP DETAILS */
+
+:root[data-theme="light"] .jcn-journey-card .step-description,
+:root[data-theme="light"] .jcn-journey-card .journey-step-description,
+:root[data-theme="light"] .jcn-journey-card .timeline-description {
+  color: #626b78 !important;
+}
+
+/* INACTIVE STEPS */
+
+:root[data-theme="light"] .jcn-journey-card .step:not(.active):not(.completed),
+:root[data-theme="light"] .jcn-journey-card .journey-step:not(.active):not(.completed) {
+  color: #626b78 !important;
+}
+
+/* PROGRESS CONNECTOR LINES */
+
+:root[data-theme="light"] .jcn-journey-card .timeline-line,
+:root[data-theme="light"] .jcn-journey-card .step-line {
+  background: #dce0e6 !important;
+}
+
+/* TRACKING INFORMATION */
+
+:root[data-theme="light"] .jcn-journey-card .tracking-number,
+:root[data-theme="light"] .jcn-journey-card .tracking-info {
+  color: #20242b !important;
+}
+
+/* SHIPMENT JOURNEY */
+
+:root[data-theme="light"] .jcn-journey-card .shipment-journey,
+:root[data-theme="light"] .jcn-journey-card .journey-history,
+:root[data-theme="light"] .jcn-journey-card .tracking-history {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+/* REFRESH TRACKING BUTTON */
+
+:root[data-theme="light"] .jcn-journey-card button {
+  background: #fff3d4;
+  color: #936a12;
+  border: 1px solid #c49a35;
+}
+
+:root[data-theme="light"] .jcn-journey-card button:hover {
+  background: #f7e5b7;
+}
+
+/* TRACKING NOTICE */
+
+:root[data-theme="light"] .jcn-journey-card .tracking-notice,
+:root[data-theme="light"] .jcn-journey-card .journey-notice {
+  background: #fff8e8 !important;
+  color: #795916 !important;
+  border-left: 3px solid #c49a35 !important;
+}
+
+
+/* ==========================================================
+   JCN GLOBAL CUSTOMER LOGOUT MODAL
+   DARK MODE / LIGHT MODE
+   Shared across all Customer Modules
+========================================================== */
+
+/* 01. DARK MODE VARIABLES */
+
+:root,
+:root[data-theme="dark"] {
+  --jcn-logout-bg: #171717;
+  --jcn-logout-title: #ffffff;
+  --jcn-logout-description: #cfcfcf;
+  --jcn-logout-border: #a98720;
+  --jcn-logout-confirm: #dfb52f;
+  --jcn-logout-confirm-text: #111111;
+  --jcn-logout-cancel-bg: transparent;
+  --jcn-logout-cancel-text: #e5bd55;
+  --jcn-logout-overlay: rgba(0, 0, 0, 0.65);
+}
+
+/* 02. LIGHT MODE VARIABLES */
+
+:root[data-theme="light"] {
+  --jcn-logout-bg: #ffffff;
+  --jcn-logout-title: #20242b;
+  --jcn-logout-description: #626b78;
+  --jcn-logout-border: #dce0e6;
+  --jcn-logout-confirm: #d5a532;
+  --jcn-logout-confirm-text: #111111;
+  --jcn-logout-cancel-bg: #ffffff;
+  --jcn-logout-cancel-text: #936a12;
+  --jcn-logout-overlay: rgba(0, 0, 0, 0.45);
+}
+
+/* 03. MODAL VISIBILITY */
+
+.customer-logout-modal.hidden,
+.customer-logout-modal[hidden] {
+  display: none !important;
+}
+
+/* 04. MODAL CONTAINER */
+
+.customer-logout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+}
+
+/* 05. BACKGROUND OVERLAY */
+
+.customer-logout-modal .modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background: var(--jcn-logout-overlay);
+  backdrop-filter: blur(5px);
+}
+
+/* 06. LOGOUT BOX */
+
+.customer-logout-modal .modal-box {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 390px;
+
+  padding: 24px 20px 20px;
+
+  background: var(--jcn-logout-bg) !important;
+  background-image: none !important;
+
+  border: 1px solid var(--jcn-logout-border) !important;
+  border-radius: 18px;
+
+  color: var(--jcn-logout-title) !important;
+  text-align: center;
+
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
+
+  animation: jcnLogoutOpen 0.2s ease-out;
+}
+
+/* 07. MODAL TITLE */
+
+.customer-logout-modal .modal-box h4 {
+  margin: 0 0 14px;
+
+  color: var(--jcn-logout-title) !important;
+
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+/* 08. MODAL DESCRIPTION */
+
+.customer-logout-modal .modal-box p {
+  margin: 0 0 22px;
+
+  color: var(--jcn-logout-description) !important;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 09. ACTION BUTTONS */
+
+.customer-logout-modal .logout-modal-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.customer-logout-modal .logout-modal-actions button {
+  position: relative;
+
+  width: 100%;
+  min-height: 40px;
+  height: auto;
+
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 10. YES LOGOUT */
+
+.customer-logout-modal .modal-confirm-btn {
+  background: var(--jcn-logout-confirm) !important;
+  color: var(--jcn-logout-confirm-text) !important;
+  border: 1px solid var(--jcn-logout-confirm) !important;
+}
+
+.customer-logout-modal .modal-confirm-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* 11. CANCEL */
+
+.customer-logout-modal .modal-cancel-btn {
+  background: var(--jcn-logout-cancel-bg) !important;
+  color: var(--jcn-logout-cancel-text) !important;
+  border: 1px solid var(--jcn-logout-confirm) !important;
+}
+
+.customer-logout-modal .modal-cancel-btn:hover {
+  background: var(--jcn-logout-confirm) !important;
+  color: #111111 !important;
+}
+
+/* 12. KEYBOARD FOCUS */
+
+.customer-logout-modal button:focus-visible {
+  outline: 2px solid var(--jcn-logout-confirm);
+  outline-offset: 3px;
+}
+
+/* 13. ANIMATION */
+
+@keyframes jcnLogoutOpen {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 14. MOBILE */
+
+@media (max-width: 480px) {
+  .customer-logout-modal .modal-box {
+    padding: 22px 16px;
+  }
+
+  .customer-logout-modal .logout-modal-actions {
+    gap: 10px;
+  }
+
+  .customer-logout-modal .logout-modal-actions button {
+    padding: 10px 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .customer-logout-modal .modal-box {
+    animation: none;
+  }
+}
+
+
+/* =====================================================
+   JCN CUSTOMER SHOP
+   BUY NOW / ADD TO CART MODAL
+   DARK MODE / LIGHT MODE
+===================================================== */
+
+/* LIGHT MODE - MODAL CONTAINER */
+
+:root[data-theme="light"] #buyNowModal .modal-content,
+:root[data-theme="light"] #buyNowModal .buy-modal-content,
+:root[data-theme="light"] #buyNowModal .buy-modal-box,
+:root[data-theme="light"] #buyNowModal .modal-box,
+:root[data-theme="light"] #buyNowModal .buy-modal {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #20242b !important;
+
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+/* PRODUCT TITLE AND HEADINGS */
+
+:root[data-theme="light"] #buyNowModal h2,
+:root[data-theme="light"] #buyNowModal h3,
+:root[data-theme="light"] #buyNowModal h4,
+:root[data-theme="light"] #buyNowModal #buyModalTitle {
+  color: #20242b !important;
+}
+
+/* PRODUCT DESCRIPTION */
+
+:root[data-theme="light"] #buyNowModal p,
+:root[data-theme="light"] #buyNowModal #buyModalDescription {
+  color: #626b78 !important;
+  line-height: 1.6;
+}
+
+/* PRODUCT CATEGORY */
+
+:root[data-theme="light"] #buyNowModal #buyModalCategory {
+  color: #936a12 !important;
+  font-weight: 700;
+}
+
+/* PRODUCT PRICE */
+
+:root[data-theme="light"] #buyNowModal #buyModalPrice {
+  color: #b58a25 !important;
+  font-weight: 800;
+}
+
+/* FORM LABELS */
+
+:root[data-theme="light"] #buyNowModal label,
+:root[data-theme="light"] #buyNowModal .form-label {
+  color: #434a55 !important;
+}
+
+/* SELECT, QUANTITY INPUT */
+
+:root[data-theme="light"] #buyNowModal select,
+:root[data-theme="light"] #buyNowModal input {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+}
+
+/* AVAILABLE STOCK */
+
+:root[data-theme="light"] #buyNowModal #buyStockText {
+  color: #936a12 !important;
+}
+
+/* CLOSE BUTTON */
+
+:root[data-theme="light"] #buyNowModal .close-btn,
+:root[data-theme="light"] #buyNowModal .modal-close,
+:root[data-theme="light"] #buyNowModal .close-modal {
+  color: #434a55 !important;
+  background: transparent !important;
+}
+
+:root[data-theme="light"] #buyNowModal .close-btn:hover,
+:root[data-theme="light"] #buyNowModal .modal-close:hover,
+:root[data-theme="light"] #buyNowModal .close-modal:hover {
+  color: #936a12 !important;
+}
+
+/* CONFIRM BUTTON */
+
+:root[data-theme="light"] #buyNowModal .buy-confirm-btn {
+  background: #d5a532 !important;
+  color: #111111 !important;
+  border: 1px solid #d5a532 !important;
+}
+
+:root[data-theme="light"] #buyNowModal .buy-confirm-btn:hover {
+  background: #e9be56 !important;
+}
+
+/* MODAL IMAGE */
+
+:root[data-theme="light"] #buyNowModal #buyModalImage {
+  background: #ffffff;
+  border-radius: 12px;
+}
+
+
+/* =====================================================
+   JCN CUSTOMER CHECKOUT
+   PAYMENT METHODS - LIGHT MODE FIX
+===================================================== */
+
+/* PAYMENT METHOD CONTAINER */
+
+:root[data-theme="light"] .payment-methods,
+:root[data-theme="light"] .payment-options,
+:root[data-theme="light"] .payment-section {
+  background: transparent !important;
+  color: #20242b !important;
+}
+
+/* PAYMENT OPTION CARDS */
+
+:root[data-theme="light"] .payment-option,
+:root[data-theme="light"] .payment-method,
+:root[data-theme="light"] .payment-card,
+:root[data-theme="light"] .payment-choice {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+}
+
+/* PAYMENT LABELS */
+
+:root[data-theme="light"] .payment-option label,
+:root[data-theme="light"] .payment-option strong,
+:root[data-theme="light"] .payment-option span,
+:root[data-theme="light"] .payment-option p,
+:root[data-theme="light"] .payment-method label,
+:root[data-theme="light"] .payment-method strong,
+:root[data-theme="light"] .payment-method span,
+:root[data-theme="light"] .payment-method p,
+:root[data-theme="light"] .payment-card strong,
+:root[data-theme="light"] .payment-card p,
+:root[data-theme="light"] .payment-choice strong,
+:root[data-theme="light"] .payment-choice p {
+  color: #20242b !important;
+}
+
+/* SECONDARY DESCRIPTION */
+
+:root[data-theme="light"] .payment-option small,
+:root[data-theme="light"] .payment-option .muted,
+:root[data-theme="light"] .payment-method small,
+:root[data-theme="light"] .payment-method .muted,
+:root[data-theme="light"] .payment-card small,
+:root[data-theme="light"] .payment-choice small {
+  color: #626b78 !important;
+}
+
+/* SELECTED PAYMENT METHOD */
+
+:root[data-theme="light"] .payment-option.selected,
+:root[data-theme="light"] .payment-option.active,
+:root[data-theme="light"] .payment-method.selected,
+:root[data-theme="light"] .payment-method.active,
+:root[data-theme="light"] .payment-card.selected,
+:root[data-theme="light"] .payment-choice.selected {
+  background: #fffaf0 !important;
+  border: 1px solid #c49a35 !important;
+  box-shadow: 0 0 0 1px rgba(196, 154, 53, 0.08);
+}
+
+/* PAYMENT ICONS */
+
+:root[data-theme="light"] .payment-option i,
+:root[data-theme="light"] .payment-method i,
+:root[data-theme="light"] .payment-card i,
+:root[data-theme="light"] .payment-choice i {
+  color: #c49a35 !important;
+}
+
+/* PAYPAL SPECIFIC FALLBACKS */
+
+:root[data-theme="light"] #paypalOption,
+:root[data-theme="light"] #paypalMethod,
+:root[data-theme="light"] .paypal-option,
+:root[data-theme="light"] .paypal-payment {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+}
+
+:root[data-theme="light"] #paypalOption *,
+:root[data-theme="light"] #paypalMethod *,
+:root[data-theme="light"] .paypal-option *,
+:root[data-theme="light"] .paypal-payment * {
+  color: #20242b;
+}
+
+/* HOVER */
+
+:root[data-theme="light"] .payment-option:hover,
+:root[data-theme="light"] .payment-method:hover,
+:root[data-theme="light"] .payment-card:hover,
+:root[data-theme="light"] .payment-choice:hover {
+  border-color: #c49a35 !important;
+  background: #fffdf7 !important;
+}
+
+/* CONFIRM ORDER BUTTON */
+
+:root[data-theme="light"] .confirm-order-btn,
+:root[data-theme="light"] #confirmOrderBtn {
+  background: #c49a35 !important;
+  color: #111111 !important;
+  border-color: #c49a35 !important;
+}
+
+
+
+
+
+
+
