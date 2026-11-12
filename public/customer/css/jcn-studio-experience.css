@@ -1,0 +1,76 @@
+/* JCN Studio UX v3. Add after original CSS. Never override 3D viewer size with display:none. */
+:root{--jcn-ux-gold:#e5bd55;--jcn-ux-border:#403d2e}
+body .studio-topbar{position:sticky;top:0;z-index:55;background:rgba(13,17,14,.97);backdrop-filter:blur(14px);min-height:72px}
+body .studio-layout{grid-template-columns:minmax(275px,315px) minmax(380px,1fr) minmax(260px,295px);max-width:2000px}
+body .studio-center{padding:16px clamp(14px,2vw,32px) 42px}
+body .model-panel{border-radius:17px;box-shadow:0 24px 75px #0005;min-height: min(73vh,850px)}
+body #viewer{height:min(73vh,850px);min-height:520px}
+body .model-copy h2{font-size:clamp(22px,2.7vw,35px)}
+body .studio-editor,body .studio-summary{background:linear-gradient(180deg,#101611,#0c100d);overflow-wrap:anywhere}
+body .studio-editor{padding:26px 18px 40px}body .studio-summary{padding:26px 18px 40px}
+body .studio-editor h1{font-size:clamp(29px,2.5vw,38px)}
+body .studio-summary h2{font-size:30px}
+body .creation-cta{margin-top:25px;padding-top:18px}body .creation-cta h3{margin-bottom:30px;font-size:22px}
+body .jcn-mode-switch,body .jcn-draft-link{border:1px solid #73613d;border-radius:8px;background:#151c17;color:#e5bd55;padding:9px 12px;font-size:12px;font-weight:700}
+body .jcn-mode-switch:hover,body .jcn-draft-link:hover{background:#342a17;color:#fff}
+body .jcn-cart-primary{display:block;width:100%;min-height:53px;border:0;border-radius:10px;background:linear-gradient(135deg,#f1ce72,#c69d39);color:#211a0e;font-weight:800;font-size:13px;padding:12px 16px;margin:16px 0 9px;box-shadow:0 6px 21px #0004}
+body .jcn-cart-primary:disabled{opacity:.52;cursor:not-allowed}#jcnCustomCartStatus{font-size:12px;line-height:1.7;color:#e9c97b;margin:8px 0}
+.jcn-draft-state{padding:10px 12px;color:#c7c4aa;background:#192119;border:1px solid #47513e;border-radius:8px;font-size:11px;line-height:1.5}
+.jcn-panel-hint{display:none}
+/* Hover/focus side panels: visible 54px rails, accessible with keyboard focus */
+@media(min-width:1100px){
+ body.jcn-focus-mode .studio-layout{grid-template-columns:54px minmax(0,1fr) 54px}
+ body.jcn-focus-mode .studio-editor,body.jcn-focus-mode .studio-summary{position:fixed;top:72px;bottom:0;overflow:auto;z-index:51;width:325px;padding:26px 19px 55px;box-shadow:0 14px 36px #0008;transition:transform .25s ease}
+ body.jcn-focus-mode .studio-editor{left:0;transform:translateX(calc(-100% + 54px));border-right:1px solid #a48945}
+ body.jcn-focus-mode .studio-summary{right:0;transform:translateX(calc(100% - 54px));border-left:1px solid #a48945}
+ body.jcn-focus-mode .studio-editor:hover,body.jcn-focus-mode .studio-editor:focus-within,body.jcn-focus-mode .studio-summary:hover,body.jcn-focus-mode .studio-summary:focus-within{transform:translateX(0)}
+ body.jcn-focus-mode .studio-center{grid-column:2;grid-row:1;padding:15px 20px}
+ body.jcn-focus-mode .model-panel{min-height:calc(100vh - 205px)}
+ body.jcn-focus-mode #viewer{min-height:calc(100vh - 205px);height:calc(100vh - 205px)}
+ body.jcn-focus-mode .jcn-panel-hint{display:block;position:sticky;bottom:0;padding:12px 8px;color:#f6cb68;background:#17190f;box-shadow:0 0 0 1px #655531;border-radius:10px;writing-mode:vertical-rl;font-weight:800;letter-spacing:3px;font-size:10px;z-index:2}
+ body.jcn-focus-mode .jcn-hint-left{margin-left:auto}body.jcn-focus-mode .jcn-hint-right{margin-right:auto}
+ body.jcn-focus-mode .studio-editor:hover .jcn-panel-hint,body.jcn-focus-mode .studio-editor:focus-within .jcn-panel-hint,body.jcn-focus-mode .studio-summary:hover .jcn-panel-hint,body.jcn-focus-mode .studio-summary:focus-within .jcn-panel-hint{display:none}
+}
+/* Camera workspace shows REAL video canvas rather than the 3D model */
+body.jcn-camera-active{overflow:hidden}
+.jcn-camera-workspace[hidden]{display:none!important}
+.jcn-camera-workspace{position:fixed;inset:0;z-index:2000;background:#080d0b;color:#faf5e8;padding:clamp(12px,2vw,30px);display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:15px;overflow:auto}
+.jcn-camera-workspace header,.jcn-camera-workspace footer{display:flex;justify-content:space-between;gap:14px;align-items:center;max-width:1560px;width:100%;margin:0 auto}
+.jcn-camera-workspace header h2{font:normal clamp(26px,3.7vw,44px) Georgia,serif;margin:3px 0}.jcn-camera-workspace header p{font-size:13px;color:#bfc7b7;margin:0}
+.jcn-camera-workspace header button{border:1px solid #7e7144;background:#1c251e;color:#f3dfa9;border-radius:10px;padding:11px 16px;cursor:pointer}
+.jcn-camera-workspace #jcnCameraPortal{width:min(100%,1560px);margin:auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,280px);gap:14px;grid-template-rows:auto auto minmax(0,1fr)}
+.jcn-camera-workspace #jcnCameraPortal .camera{grid-column:1;grid-row:1 / span 3;min-height:400px;height:min(67vh,780px);border:2px solid #9c8742;border-radius:18px;box-shadow:0 20px 100px #000b}
+.jcn-camera-workspace .camera video,.jcn-camera-workspace .camera canvas{object-fit:contain;background:#050605}
+.jcn-camera-workspace #jcnCameraPortal .camera-actions{grid-column:2;grid-row:1;display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:10px;margin:0}
+.jcn-camera-workspace .camera-actions button{min-height:49px;font-size:12px;border-radius:9px}
+.jcn-camera-workspace #autoScanPanel{grid-column:2;grid-row:2;align-self:start;margin-top:6px!important;padding:16px!important}
+.jcn-camera-workspace .scan-results{grid-column:2;grid-row:3;padding:15px;font-size:12px;max-height:240px;overflow:auto}
+.jcn-camera-workspace #jcnReturn3D{min-width:190px}
+.jcn-camera-workspace footer span{font-size:12px;color:#bac0b0}
+/* Confirmation and return-to-draft dialogs */
+.jcn-checkout-dialog,.jcn-ux-dialog{position:fixed;max-height:90vh;overflow:auto;border:1px solid #866e35;border-radius:21px;background:linear-gradient(145deg,#1c231b,#0d130f);color:#eee7db;box-shadow:0 35px 120px #000b;width:min(94vw,520px);padding:0}
+.jcn-checkout-dialog::backdrop,.jcn-ux-dialog::backdrop{background:#010403bd;backdrop-filter:blur(8px)}
+.jcn-dialog-head{display:flex;align-items:center;justify-content:space-between;padding:17px 24px;border-bottom:1px solid #394232}
+.jcn-dialog-head button{border:0;background:transparent;color:#d8dfd1;font-size:28px;cursor:pointer}
+.jcn-dialog-kicker,.jcn-ux-eyebrow{font-size:10px;font-weight:900;letter-spacing:2.3px;color:#e5bd55}
+.jcn-dialog-content{padding:26px 30px}.jcn-dialog-emblem,.jcn-ux-logo{display:grid;place-items:center;border:1px solid #957f47;background:#2b2d1e;color:#f3c968;border-radius:16px;width:58px;height:58px;font:normal 32px Georgia,serif;margin-bottom:15px}
+.jcn-dialog-content h2,.jcn-ux-dialog h2{font:normal 34px/1.12 Georgia,serif;margin:0 0 10px;color:#fff7e5}
+.jcn-dialog-content>p,.jcn-ux-dialog>p{color:#c4cabd;line-height:1.6;font-size:13px}
+.jcn-review-details{border:1px solid #44503f;border-radius:11px;padding:12px 17px;margin:18px 0;background:#151b15}
+.jcn-review-details>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:13px;border-bottom:1px solid #303c31}
+.jcn-review-details>div:last-child{border:0}.jcn-review-details span{color:#c2c7b8}.jcn-review-details strong{color:#fff9e7;text-align:right}.jcn-review-total{padding-top:15px!important}.jcn-review-total strong{color:#eaca6c!important;font-size:19px}
+.jcn-dialog-actions{border-top:1px solid #394232;padding:18px 24px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.jcn-gold-btn,.jcn-outline-btn,.jcn-secondary-btn,.jcn-text-btn{cursor:pointer;border-radius:10px;padding:12px 15px;font-weight:800;border:1px solid #917e4c}.jcn-gold-btn{background:#e5bd55;color:#1f210e}.jcn-secondary-btn,.jcn-outline-btn{background:#202820;color:#efdbb0}.jcn-text-btn{background:transparent;border:0;color:#bdbbab}.jcn-gold-btn:disabled{opacity:.58;cursor:wait}
+.jcn-dialog-note{font-size:11px!important;color:#aab2a7!important}.jcn-review-error{background:#472524;border:1px solid #af6055;color:#ffdbcf!important;border-radius:9px;padding:11px}
+.jcn-ux-dialog{padding:30px}.jcn-ux-dialog h2{margin-top:14px}.jcn-ux-dialog .jcn-ux-dialog-actions{display:grid;gap:10px;margin:24px 0}.jcn-ux-dialog>small{font-size:11px;color:#a8ada0;line-height:1.5;display:block}
+.jcn-ux-toast{position:fixed;right:20px;bottom:22px;z-index:2500;padding:13px 18px;background:#263220;color:#f8d882;border:1px solid #8f7637;border-radius:13px;box-shadow:0 10px 30px #0008;font-weight:700;font-size:12px}
+@media(max-width:1099px){body .studio-layout{grid-template-columns:minmax(230px,280px) minmax(360px,1fr)}body .studio-summary{grid-column:1/-1}body .studio-summary .creation-cta{display:none}body .jcn-mode-switch{display:none}}
+@media(max-width:800px){body .studio-layout{display:flex;flex-direction:column}body .studio-editor,body .studio-center,body .studio-summary{width:100%}body #viewer{min-height:430px;height:58vh}body .model-panel{min-height:430px}body .jcn-mode-switch{display:none}.jcn-camera-workspace #jcnCameraPortal{display:flex;flex-direction:column}.jcn-camera-workspace #jcnCameraPortal .camera{height:48vh;min-height:240px}.jcn-camera-workspace #autoScanPanel{margin-top:0!important}.jcn-camera-workspace header,.jcn-camera-workspace footer{flex-wrap:wrap}.jcn-camera-workspace .scan-results{max-height:none}.jcn-dialog-actions{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){body .studio-editor,body .studio-summary{transition:none!important}}
+
+@media(min-width:1100px){
+ body.jcn-focus-mode .studio-editor::before,body.jcn-focus-mode .studio-summary::before{position:absolute;top:30vh;z-index:4;writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:3px;font-size:11px;font-weight:900;color:#f0c966;pointer-events:none}
+ body.jcn-focus-mode .studio-editor::before{content:'✦  CUSTOMIZE';right:18px}
+ body.jcn-focus-mode .studio-summary::before{content:'YOUR CREATION  ✦';left:18px}
+ body.jcn-focus-mode .studio-editor:hover::before,body.jcn-focus-mode .studio-editor:focus-within::before,body.jcn-focus-mode .studio-summary:hover::before,body.jcn-focus-mode .studio-summary:focus-within::before{content:none}
+}

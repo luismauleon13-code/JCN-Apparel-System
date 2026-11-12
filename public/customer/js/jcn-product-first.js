@@ -4,7 +4,14 @@
   if (window.__jcnProductFirstLoaded) return;
   window.__jcnProductFirstLoaded = true;
   const $ = id => document.getElementById(id);
-  const API = '';
+  
+const API =
+  (location.hostname === "localhost" ||
+   location.hostname === "127.0.0.1") &&
+  location.port === "5500"
+    ? "http://127.0.0.1:5000"
+    : "";
+
   const HEX = {
     black:'#161616',white:'#F5F5F2',cream:'#E5DDC8',navy:'#24374C',
     'navy blue':'#24374C',blue:'#245DA1',red:'#AE2B34',maroon:'#672C3A',
@@ -26,7 +33,9 @@
 
   window.JCNCustomProduct = {
     getSelected: () => current ? {id:current.id,title:current.title,price:price(current)} : null,
-    getSelectedColor: () => color
+    getSelectedColor: () => color,
+    chooseById: id => { const product=products.find(p=>p.id===id);if(product){choose(product);return true;}return false; },
+    getProducts: () => products.map(p=>({id:p.id,title:p.title,price:price(p)}))
   };
 
   async function load() {
@@ -55,6 +64,7 @@
       text.append(name,meta);btn.append(img,text);
       btn.addEventListener('click',()=>choose(p));holder.append(btn);
     }
+    window.dispatchEvent(new Event('jcn:catalog-ready'));
   }
   function choose(p) {
     const available=p.sizes.filter(s=>s.qty>0);
