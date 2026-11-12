@@ -4731,339 +4731,195 @@ app.patch("/api/customer/orders/:id/complete", async (req, res) => {
 });
 
 
- 
- // =========================================================
- // JCN APPAREL - PAYPAL LIVE ₱1 TEST PAYMENT
- // =========================================================
-
+ const paypalJwt = require("jsonwebtoken");
 const PAYPAL_LIVE_URL = "https://api-m.paypal.com";
 const PAYPAL_TEST_AMOUNT = "1.00";
+const PAYPAL_BACKEND_URL = String(JCN_SITE_URL).replace(/\/$/, "");
+const PAYPAL_CUSTOMER_URL = String(process.env.JCN_CUSTOMER_URL || JCN_SITE_URL).replace(/\/$/, "");
+const PAYPAL_CHECKOUT_PAGE = `${PAYPAL_CUSTOMER_URL}/customer/html/customer-checkout.html`;
 
-// Use your existing JCN_SITE_URL backend domain.
-// JCN_CUSTOMER_URL should be your frontend domain.
-const PAYPAL_CUSTOMER_URL = (
-  process.env.JCN_CUSTOMER_URL || JCN_SITE_URL
-).replace(/\/$/, "");
-
-const PAYPAL_CHECKOUT_PAGE =
-  `${PAYPAL_CUSTOMER_URL}/customer/html/customer-checkout.html`;
-
-// =========================================================
-// PAYPAL ACCESS TOKEN
-// =========================================================
+// Change JWT_SECRET / decoded.id if your existing customer login
+// uses a different signing key or JWT payload.
+async function requirePayPalCustomer(req, res, next) {
+  try {
+    const authorization = req.headers.authorization || "";
+    const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : null;
+    if (!token || !process.env.JWT_SECRET) {
+      return res.status(401).json({ success: false, message: "Customer login required / JWT configuration missing." });
+    }
+    const decoded = paypalJwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id || decoded.user_id || decoded.userId;
+    if (!userId) return res.status(401).json({ success: false, message: "Invalid customer token." });
+    req.paypalCustomerId = String(userId);
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, message: "Customer session invalid or expired." });
+  }
+}
 
 async function getPayPalAccessToken() {
-  if (
-    !process.env.PAYPAL_CLIENT_ID ||
-    !process.env.PAYPAL_CLIENT_SECRET
-  ) {
-    throw new Error("PayPal Live credentials are missing.");
+  if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
+    throw new Error("PayPal LIVE credentials are missing.");
   }
-
-  const auth = Buffer.from(
+  const authorization = Buffer.from(
     `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
   ).toString("base64");
-
-  const response = await fetch(
-    `${PAYPAL_LIVE_URL}/v1/oauth2/token`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: "grant_type=client_credentials"
-    }
-  );
-
+  const response = await fetch(`${PAYPAL_LIVE_URL}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${authorization}`,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "grant_type=client_credentials"
+  });
   const data = await response.json();
-
   if (!response.ok || !data.access_token) {
-    console.error("PAYPAL TOKEN ERROR:", data);
-
-    throw new Error(
-      data.error_description || "PayPal authentication failed."
-    );
+    throw new Error(data.error_description || "PayPal LIVE authentication failed.");
   }
-
   return data.access_token;
 }
 
-// =========================================================
-// GET ORDER FROM SUPABASE
-// =========================================================
-
-async function getPayPalSystemOrder(systemOrderId) {
-  if (!systemOrderId) {
-    throw new Error("Missing system order ID.");
+async function paypalLiveRequest(path, options = {}) {
+  const token = await getPayPalAccessToken();
+  const response = await fetch(`${PAYPAL_LIVE_URL}${path}`, {
+    method: options.method || "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+      ...(options.requestId ? { "PayPal-Request-Id": options.requestId } : {})
+    },
+    ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {})
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    console.error("PAYPAL LIVE API ERROR", response.status, data);
+    throw new Error(data.details?.[0]?.description || data.message || "PayPal request failed.");
   }
-
-  const { data, error } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("id", systemOrderId)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  if (!data) {
-    throw new Error("Order not found.");
-  }
-
   return data;
 }
 
-// =========================================================
-// CREATE PAYPAL ORDER
-// =========================================================
+async function getPayPalSystemOrder(systemOrderId) {
+  if (!systemOrderId) throw new Error("Missing system order ID.");
+  const { data, error } = await supabase.from("orders")
+    .select("*").eq("id", systemOrderId).maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("System order not found.");
+  return data;
+}
 
-// IMPORTANT:
-// Add your existing customer authentication middleware
-// and verify order.user_id belongs to the customer.
-//
-// Do not expose a public Live route that permits anyone
-// to create transactions for arbitrary order IDs.
-
-async function createPayPalTestOrder(
-  systemOrderId,
-  redirectMode = false
-) {
-  const systemOrder = await getPayPalSystemOrder(
-    systemOrderId
-  );
-
-  if (systemOrder.payment_status === "Paid") {
-    throw new Error("Order is already paid.");
+function ensurePayPalOrderOwner(order, userId) {
+  if (!userId || String(order.user_id) !== String(userId)) {
+    throw new Error("You cannot pay for this order.");
   }
+}
 
-  if (
-    ["Cancelled", "Canceled", "Completed"].includes(
-      systemOrder.status
-    )
-  ) {
+function isFullOnePesoPayment(order) {
+  // ONLY a real ₱1 order may become Paid / Processing.
+  // Do not mark ₱499+ orders fully paid for a ₱1 test transaction.
+  return Number(order.total_amount) === 1;
+}
+
+async function createPayPalTestOrder(systemOrderId, customerId, redirectMode = false) {
+  const order = await getPayPalSystemOrder(systemOrderId);
+  ensurePayPalOrderOwner(order, customerId);
+  if (order.payment_status === "Paid") throw new Error("Order is already paid.");
+  if (["Cancelled", "Canceled", "Completed"].includes(order.status)) {
     throw new Error("This order cannot be paid.");
   }
-
-  if (
-    systemOrder.payment_method &&
-    systemOrder.payment_method !== "PayPal"
-  ) {
-    throw new Error("This order is not a PayPal order.");
+  if (order.payment_method && order.payment_method !== "PayPal") {
+    throw new Error("This is not a PayPal order.");
   }
-
-  if (systemOrder.paypal_order_id) {
-    throw new Error(
-      "A PayPal transaction already exists. Verify its payment status before retrying."
-    );
+  if (order.paypal_order_id) {
+    throw new Error("Existing PayPal payment attempt found. Reconcile it before starting another; do not pay twice.");
   }
-
-  const accessToken = await getPayPalAccessToken();
 
   const payload = {
     intent: "CAPTURE",
-    purchase_units: [
-      {
-        reference_id: String(systemOrder.id),
-        description: "JCN Apparel LIVE ₱1 Test Payment",
-        amount: {
-          currency_code: "PHP",
-          value: PAYPAL_TEST_AMOUNT
-        }
-      }
-    ]
+    purchase_units: [{
+      reference_id: String(order.id),
+      description: "JCN Apparel LIVE ₱1 TEST",
+      amount: { currency_code: "PHP", value: PAYPAL_TEST_AMOUNT }
+    }]
   };
-
   if (redirectMode) {
     payload.payment_source = {
       paypal: {
         experience_context: {
           brand_name: "JCN Apparel",
-          landing_page: "LOGIN",
           user_action: "PAY_NOW",
           shipping_preference: "NO_SHIPPING",
-          return_url:
-            `${JCN_SITE_URL}/api/paypal/success?system_order_id=${encodeURIComponent(systemOrderId)}`,
-          cancel_url:
-            `${JCN_SITE_URL}/api/paypal/cancel?system_order_id=${encodeURIComponent(systemOrderId)}`
+          return_url: `${PAYPAL_BACKEND_URL}/api/paypal/success?system_order_id=${encodeURIComponent(order.id)}`,
+          cancel_url: `${PAYPAL_BACKEND_URL}/api/paypal/cancel?system_order_id=${encodeURIComponent(order.id)}`
         }
       }
     };
   }
 
-  const response = await fetch(
-    `${PAYPAL_LIVE_URL}/v2/checkout/orders`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        Prefer: "return=representation",
-        "PayPal-Request-Id":
-          `jcn-test-create-${systemOrderId}`
-      },
-      body: JSON.stringify(payload)
-    }
-  );
+  const paypal = await paypalLiveRequest("/v2/checkout/orders", {
+    method: "POST",
+    body: payload,
+    requestId: `jcn-test-create-${order.id}`
+  });
+  if (!paypal.id) throw new Error("No PayPal order ID returned.");
 
-  const data = await response.json();
-
-  if (!response.ok || !data.id) {
-    console.error("PAYPAL CREATE ERROR:", data);
-
-    throw new Error(
-      data.details?.[0]?.description ||
-      data.message ||
-      "Cannot create PayPal order."
-    );
-  }
-
-  const { data: updated, error } = await supabase
-    .from("orders")
-    .update({
-      paypal_order_id: data.id,
-      payment_method: "PayPal",
-      payment_status: "Unpaid",
-      status: "Pending"
-    })
-    .eq("id", systemOrderId)
+  const { data: linked, error } = await supabase.from("orders").update({
+    paypal_order_id: paypal.id,
+    payment_method: "PayPal",
+    payment_status: "Unpaid",
+    status: "Pending"
+  }).eq("id", order.id)
     .is("paypal_order_id", null)
     .neq("payment_status", "Paid")
-    .select("id")
-    .maybeSingle();
-
+    .select("id").maybeSingle();
   if (error) throw error;
-
-  if (!updated) {
-    throw new Error(
-      "Could not link PayPal transaction to the order."
-    );
-  }
-
-  return {
-    ...data,
-    success: true,
-    actual_amount: PAYPAL_TEST_AMOUNT
-  };
+  if (!linked) throw new Error("Could not link PayPal order; check status before retrying.");
+  return { ...paypal, success: true, actual_amount: PAYPAL_TEST_AMOUNT };
 }
 
-// =========================================================
-// POST /api/paypal/create-order
-// =========================================================
-
-app.post("/api/paypal/create-order", async (req, res) => {
+app.post("/api/paypal/create-order", requirePayPalCustomer, async (req, res) => {
   try {
-    const { system_order_id } = req.body;
-
-    const result = await createPayPalTestOrder(
-      system_order_id,
-      false
-    );
-
-    return res.json(result);
-
+    return res.json(await createPayPalTestOrder(req.body?.system_order_id, req.paypalCustomerId));
   } catch (error) {
-    console.error("PAYPAL CREATE ORDER:", error);
-
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
+    console.error("PAYPAL CREATE:", error);
+    return res.status(400).json({ success: false, message: error.message });
   }
 });
 
-// =========================================================
-// POST /api/paypal/create-redirect-order
-// =========================================================
-
-app.post("/api/paypal/create-redirect-order", async (req, res) => {
+app.post("/api/paypal/create-redirect-order", requirePayPalCustomer, async (req, res) => {
   try {
-    const { system_order_id } = req.body;
-
-    const data = await createPayPalTestOrder(
-      system_order_id,
-      true
-    );
-
-    const approveLink = data.links?.find(
-      link =>
-        link.rel === "approve" ||
-        link.rel === "payer-action"
-    );
-
-    if (!approveLink?.href) {
-      throw new Error("PayPal approval link not found.");
-    }
-
-    return res.json({
-      success: true,
-      paypal_order_id: data.id,
-      approve_url: approveLink.href,
-      actual_amount: PAYPAL_TEST_AMOUNT
-    });
-
+    const data = await createPayPalTestOrder(req.body?.system_order_id, req.paypalCustomerId, true);
+    const link = data.links?.find(x => x.rel === "payer-action" || x.rel === "approve");
+    if (!link?.href) throw new Error("PayPal approval URL missing.");
+    return res.json({ success: true, paypal_order_id: data.id, approve_url: link.href, actual_amount: PAYPAL_TEST_AMOUNT });
   } catch (error) {
-    console.error("PAYPAL REDIRECT ERROR:", error);
-
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
+    console.error("PAYPAL REDIRECT CREATE:", error);
+    return res.status(400).json({ success: false, message: error.message });
   }
 });
 
-// =========================================================
-// CAPTURE PAYPAL TEST PAYMENT
-// =========================================================
-
-async function capturePayPalTestOrder(
-  systemOrderId,
-  paypalOrderId
-) {
+async function capturePayPalTestOrder(systemOrderId, paypalOrderId, customerId = null) {
   const order = await getPayPalSystemOrder(systemOrderId);
+  if (customerId) ensurePayPalOrderOwner(order, customerId);
+  if (order.paypal_order_id !== paypalOrderId) throw new Error("PayPal order ID mismatch.");
+  if (["Cancelled", "Canceled"].includes(order.status)) throw new Error("Order is cancelled.");
 
-  if (
-    !order.paypal_order_id ||
-    order.paypal_order_id !== paypalOrderId
-  ) {
-    throw new Error("PayPal order mismatch.");
-  }
-
-  if (
-    ["Cancelled", "Canceled"].includes(order.status)
-  ) {
-    throw new Error("Cancelled orders cannot be paid.");
-  }
-
-  if (
-    order.payment_status === "Paid" &&
-    order.paypal_capture_id
-  ) {
+  // A saved capture ID means this test has already been captured.
+  // Re-read its current state; never capture it again.
+  if (order.paypal_capture_id) {
     return {
       success: true,
-      already_paid: true,
-      order_number: order.order_number
+      already_captured: true,
+      test_payment: true,
+      payment_status: order.payment_status,
+      status: order.status,
+      order_number: order.order_number,
+      paypal_capture_id: order.paypal_capture_id
     };
   }
 
-  const accessToken = await getPayPalAccessToken();
-
-  const checkResponse = await fetch(
-    `${PAYPAL_LIVE_URL}/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    }
-  );
-
-  const details = await checkResponse.json();
-
-  if (!checkResponse.ok) {
-    throw new Error("Unable to verify PayPal order.");
-  }
-
+  const details = await paypalLiveRequest(`/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`);
   const unit = details.purchase_units?.[0];
-
   if (
     details.id !== paypalOrderId ||
     details.intent !== "CAPTURE" ||
@@ -5071,180 +4927,98 @@ async function capturePayPalTestOrder(
     unit?.reference_id !== String(order.id) ||
     unit?.amount?.currency_code !== "PHP" ||
     unit?.amount?.value !== PAYPAL_TEST_AMOUNT
-  ) {
-    throw new Error("PayPal test amount or reference mismatch.");
-  }
+  ) throw new Error("PayPal order reference or ₱1 amount mismatch.");
 
-  let paymentResult = details;
-
+  let result = details;
   if (details.status !== "COMPLETED") {
     if (details.status !== "APPROVED") {
-      throw new Error(
-        `PayPal order is not approved: ${details.status}`
-      );
+      throw new Error(`PayPal order not approved (status: ${details.status}).`);
     }
-
-    const response = await fetch(
-      `${PAYPAL_LIVE_URL}/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`,
+    result = await paypalLiveRequest(
+      `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          "PayPal-Request-Id":
-            `jcn-test-capture-${paypalOrderId}`
-        },
-        body: "{}"
+        body: {},
+        requestId: `jcn-test-capture-${paypalOrderId}`
       }
     );
-
-    paymentResult = await response.json();
-
-    if (!response.ok) {
-      console.error("PAYPAL CAPTURE ERROR:", paymentResult);
-
-      throw new Error(
-        paymentResult.details?.[0]?.description ||
-        paymentResult.message ||
-        "PayPal capture failed. Verify before retrying."
-      );
-    }
   }
 
-  const capture = paymentResult.purchase_units?.[0]
-    ?.payments?.captures?.find(
-      item => item.status === "COMPLETED"
-    );
-
+  const capture = result.purchase_units?.[0]?.payments?.captures
+    ?.find(x => x.status === "COMPLETED");
   if (
-    paymentResult.status !== "COMPLETED" ||
-    !capture?.id ||
+    result.status !== "COMPLETED" || !capture?.id ||
     capture.amount?.currency_code !== "PHP" ||
     capture.amount?.value !== PAYPAL_TEST_AMOUNT
-  ) {
-    throw new Error("PayPal has not confirmed ₱1 payment.");
-  }
+  ) throw new Error("PayPal ₱1 capture has not completed.");
 
-  // A ₱1 test is NOT full payment for a higher-value order.
-  // Keep the order unpaid so it cannot be fulfilled as paid.
-  const { data: updated, error } = await supabase
-    .from("orders")
-    .update({
-      paypal_order_id: paypalOrderId,
-      paypal_capture_id: capture.id,
-      payment_method: "PayPal",
-      payment_status: "Unpaid",
-      status: "Pending"
-    })
-    .eq("id", systemOrderId)
+  const fullPayment = isFullOnePesoPayment(order);
+  const { data: updated, error } = await supabase.from("orders").update({
+    paypal_order_id: paypalOrderId,
+    paypal_capture_id: capture.id,
+    payment_method: "PayPal",
+    payment_status: fullPayment ? "Paid" : "Unpaid",
+    status: fullPayment ? "Processing" : "Pending"
+  }).eq("id", order.id)
     .eq("paypal_order_id", paypalOrderId)
+    .is("paypal_capture_id", null)
     .neq("payment_status", "Paid")
-    .select("*")
-    .maybeSingle();
+    .select("*").maybeSingle();
 
   if (error || !updated) {
-    throw new Error(
-      `₱1 payment captured, but saving the test result failed. Capture ID: ${capture.id}. Do not pay again.`
-    );
+    // Capture already happened, so NEVER ask customer to pay again here.
+    throw new Error(`PayPal already captured ₱1 (capture ${capture.id}), but the system needs reconciliation. Do not pay again.`);
   }
 
   return {
     success: true,
     test_payment: true,
-    message: "₱1 Live test payment captured.",
+    message: fullPayment
+      ? "₱1 order fully paid; now Processing."
+      : "₱1 LIVE test captured. Full order balance remains unpaid.",
     order_number: updated.order_number,
-    payment_status: "Unpaid",
-    status: "Pending",
+    payment_status: updated.payment_status,
+    status: updated.status,
     amount: PAYPAL_TEST_AMOUNT,
     paypal_capture_id: capture.id
   };
 }
 
-// =========================================================
-// POST /api/paypal/capture-order
-// =========================================================
-
-app.post("/api/paypal/capture-order", async (req, res) => {
+app.post("/api/paypal/capture-order", requirePayPalCustomer, async (req, res) => {
   try {
-    const { system_order_id } = req.body;
-
-    const paypalOrderId =
-      req.body.paypal_order_id ||
-      req.body.orderID ||
-      req.body.orderId ||
-      req.body.token;
-
-    if (!system_order_id || !paypalOrderId) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing system order ID or PayPal order ID."
-      });
+    const systemOrderId = req.body?.system_order_id;
+    const paypalOrderId = req.body?.paypal_order_id || req.body?.orderID || req.body?.orderId || req.body?.token;
+    if (!systemOrderId || !paypalOrderId) {
+      return res.status(400).json({ success: false, message: "Missing system order ID or PayPal order ID." });
     }
-
-    const result = await capturePayPalTestOrder(
-      system_order_id,
-      paypalOrderId
-    );
-
-    return res.json(result);
-
+    return res.json(await capturePayPalTestOrder(systemOrderId, paypalOrderId, req.paypalCustomerId));
   } catch (error) {
-    console.error("PAYPAL CAPTURE ERROR:", error);
-
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
+    console.error("PAYPAL CAPTURE:", error);
+    return res.status(400).json({ success: false, message: error.message });
   }
 });
-
-// =========================================================
-// GET /api/paypal/success
-// =========================================================
 
 app.get("/api/paypal/success", async (req, res) => {
   try {
     const { token, system_order_id } = req.query;
-
-    if (!token || !system_order_id) {
-      return res.redirect(
-        `${PAYPAL_CHECKOUT_PAGE}?payment=missing`
-      );
-    }
-
-    const result = await capturePayPalTestOrder(
-      system_order_id,
-      token
-    );
-
+    if (!token || !system_order_id) return res.redirect(`${PAYPAL_CHECKOUT_PAGE}?payment=missing`);
+    const result = await capturePayPalTestOrder(system_order_id, token);
+    const payment = result.payment_status === "Paid" ? "success" : "test_success";
     return res.redirect(
-      `${PAYPAL_CHECKOUT_PAGE}?payment=test_success&order_number=${encodeURIComponent(result.order_number)}`
+      `${PAYPAL_CHECKOUT_PAGE}?payment=${payment}&order_number=${encodeURIComponent(result.order_number)}`
     );
-
   } catch (error) {
-    console.error("PAYPAL SUCCESS ERROR:", error);
-
-    return res.redirect(
-      `${PAYPAL_CHECKOUT_PAGE}?payment=error`
-    );
+    console.error("PAYPAL RETURN:", error);
+    return res.redirect(`${PAYPAL_CHECKOUT_PAGE}?payment=error`);
   }
 });
 
-// =========================================================
-// GET /api/paypal/cancel
-// =========================================================
-
-app.get("/api/paypal/cancel", async (req, res) => {
-  const orderId = req.query.system_order_id || "";
-
+app.get("/api/paypal/cancel", (req, res) => {
+  const orderId = req.query?.system_order_id || "";
   return res.redirect(
     `${PAYPAL_CHECKOUT_PAGE}?paypal=cancelled&order_id=${encodeURIComponent(orderId)}`
   );
 });
-
-// =========================================================
-// END PAYPAL LIVE ₱1 TEST
-// =========================================================
 
 
 
