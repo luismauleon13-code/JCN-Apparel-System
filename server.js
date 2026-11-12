@@ -4730,6 +4730,16 @@ app.patch("/api/customer/orders/:id/complete", async (req, res) => {
   }
 });
 
+
+ // =========================================================
+ // JCN PAYPAL LIVE CONFIGURATION
+ // =========================================================
+
+const PAYPAL_LIVE_URL = "https://api-m.paypal.com";
+
+const PAYPAL_CHECKOUT_PAGE =
+  `${process.env.JCN_CUSTOMER_URL || JCN_SITE_URL}/customer/html/customer-checkout.html`;
+
 // =========================================================
 // PAYPAL ACCESS TOKEN
 // =========================================================
@@ -4740,7 +4750,7 @@ async function getPayPalAccessToken() {
   ).toString("base64");
 
   const response = await fetch(
-    `${process.env.PAYPAL_BASE_URL}/v1/oauth2/token`,
+    `${PAYPAL_LIVE_URL}/v1/oauth2/token`,
     {
       method: "POST",
       headers: {
@@ -4753,9 +4763,9 @@ async function getPayPalAccessToken() {
 
   const data = await response.json();
 
-  if (!response.ok) {
+  if (!response.ok || !data.access_token) {
     throw new Error(
-      data.error_description || "PayPal token error"
+      data.error_description || "PayPal Live token error."
     );
   }
 
@@ -4763,44 +4773,188 @@ async function getPayPalAccessToken() {
 }
 
 // =========================================================
-// PAYPAL CREATE ORDER — EXISTING ₱1 TEST PAYMENT
+// GET ACTUAL ORDER AMOUNT FROM SUPABASE
 // =========================================================
+
+async function getPayPalSystemOrder(systemOrderId) {
+  if (!systemOrderId) {
+    throw new Error("Missing system order ID.");
+  }
+
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", systemOrderId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (!data) {
+    throw new Error("Order not found.");
+  }
+
+  return data;
+}
+
+function getActualPayPalAmount(order) {
+  const rawAmount = String(order.total_amount ?? "");
+
+  if (!/^\d+(\.\d{1,2})?$/.test(rawAmount)) {
+    throw new Error("Invalid order total.");
+  }
+
+  const amount = Number(rawAmount);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Order amount must be greater than zero.");
+  }
+
+  return amount.toFixed(2);
+}
+
+// =========================================================
+// CREATE PAYPAL ORDER HELPER
+// =========================================================
+
+async function createLivePayPalOrder(
+  systemOrderId,
+  redirectMode = false
+) {
+  const order = await getPayPalSystemOrder(systemOrderId);
+
+  if (order.payment_status === "Paid") {
+    throw new Error("This order is already paid.");
+  }
+
+  if (["Cancelled", "Canceled", "Completed"].includes(order.status)) {
+    throw new Error("This order cannot be paid.");
+  }
+
+  if (
+    order.payment_method &&
+    order.payment_method !== "PayPal"
+  ) {
+    throw new Error("This order is not a PayPal order.");
+  }
+
+  // Avoid silently replacing an existing payment attempt.
+  if (order.paypal_order_id) {
+    throw new Error(
+      "An existing PayPal payment attempt needs to be checked before creating another."
+    );
+  }
+
+  const amount = getActualPayPalAmount(order);
+  const accessToken = await getPayPalAccessToken();
+
+  const payload = {
+    intent: "CAPTURE",
+    purchase_units: [
+      {
+        reference_id: String(order.id),
+        amount: {
+          currency_code: "PHP",
+          value: amount
+        }
+      }
+    ]
+  };
+
+  if (redirectMode) {
+    payload.payment_source = {
+      paypal: {
+        experience_context: {
+          brand_name: "JCN Apparel",
+          landing_page: "LOGIN",
+          user_action: "PAY_NOW",
+          shipping_preference: "NO_SHIPPING",
+          return_url:
+            `${JCN_SITE_URL}/api/paypal/success?system_order_id=${encodeURIComponent(order.id)}`,
+          cancel_url:
+            `${JCN_SITE_URL}/api/paypal/cancel?system_order_id=${encodeURIComponent(order.id)}`
+        }
+      }
+    };
+  }
+
+  const response = await fetch(
+    `${PAYPAL_LIVE_URL}/v2/checkout/orders`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+        "PayPal-Request-Id": `jcn-create-${order.id}`
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok || !data.id) {
+    console.error("PAYPAL CREATE ERROR:", data);
+
+    throw new Error(
+      data.details?.[0]?.description ||
+      data.message ||
+      "Cannot create PayPal order."
+    );
+  }
+
+  const { data: updated, error } = await supabase
+    .from("orders")
+    .update({
+      paypal_order_id: data.id,
+      payment_method: "PayPal",
+      payment_status: "Unpaid",
+      status: "Pending"
+    })
+    .eq("id", systemOrderId)
+    .is("paypal_order_id", null)
+    .neq("payment_status", "Paid")
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (!updated) {
+    throw new Error(
+      "PayPal order could not be linked. Check the existing payment before trying again."
+    );
+  }
+
+  return {
+    ...data,
+    success: true,
+    actual_amount: amount
+  };
+}
+
+// =========================================================
+// PAYPAL CREATE ORDER - ACTUAL PRICE
+// =========================================================
+
+// IMPORTANT: Protect this route with your existing
+// customer-login middleware and verify order.user_id
+// matches the authenticated customer before using LIVE.
 
 app.post("/api/paypal/create-order", async (req, res) => {
   try {
-    const accessToken = await getPayPalAccessToken();
+    const { system_order_id } = req.body;
 
-    const response = await fetch(
-      `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          intent: "CAPTURE",
-          purchase_units: [
-            {
-              amount: {
-                currency_code: "PHP",
-                value: "1.00"
-              }
-            }
-          ]
-        })
-      }
+    const data = await createLivePayPalOrder(
+      system_order_id,
+      false
     );
 
-    const data = await response.json();
+    return res.json(data);
 
-    if (!response.ok) {
-      return res.status(400).json(data);
-    }
-
-    res.json(data);
   } catch (error) {
-    res.status(500).json({
+    console.error("PAYPAL CREATE ERROR:", error);
+
+    return res.status(400).json({
       success: false,
       message: error.message
     });
@@ -4808,65 +4962,20 @@ app.post("/api/paypal/create-order", async (req, res) => {
 });
 
 // =========================================================
-// PAYPAL REDIRECT ORDER
+// PAYPAL REDIRECT ORDER - ACTUAL PRICE
 // =========================================================
+
+// Apply the same customer authentication and ownership
+// checks here before accepting real customer payments.
 
 app.post("/api/paypal/create-redirect-order", async (req, res) => {
   try {
     const { system_order_id } = req.body;
 
-    if (!system_order_id) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing system order ID."
-      });
-    }
-
-    const accessToken = await getPayPalAccessToken();
-
-    const response = await fetch(
-      `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          intent: "CAPTURE",
-          purchase_units: [
-            {
-              reference_id: String(system_order_id),
-              amount: {
-                currency_code: "PHP",
-                value: "1.00"
-              }
-            }
-          ],
-          application_context: {
-            brand_name: "JCN Clothing",
-            landing_page: "LOGIN",
-            user_action: "PAY_NOW",
-            
-return_url:
-  `${JCN_SITE_URL}/api/paypal/success?system_order_id=${encodeURIComponent(system_order_id)}`,
-cancel_url:
-  `${JCN_SITE_URL}/api/paypal/cancel?system_order_id=${encodeURIComponent(system_order_id)}`
-
-          }
-        })
-      }
+    const data = await createLivePayPalOrder(
+      system_order_id,
+      true
     );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot create PayPal order.",
-        paypal: data
-      });
-    }
 
     const approveLink = data.links?.find(
       link =>
@@ -4874,33 +4983,227 @@ cancel_url:
         link.rel === "payer-action"
     );
 
-    if (!approveLink) {
+    if (!approveLink?.href) {
       return res.status(400).json({
         success: false,
-        message: "No PayPal approval URL found.",
-        paypal: data
+        message: "No PayPal approval URL found."
       });
     }
 
-    await supabase
-      .from("orders")
-      .update({
-        paypal_order_id: data.id,
-        payment_method: "PayPal",
-        payment_status: "Unpaid",
-        status: "Pending Payment"
-      })
-      .eq("id", system_order_id);
-
-    res.json({
+    return res.json({
       success: true,
       paypal_order_id: data.id,
-      approve_url: approveLink.href
+      approve_url: approveLink.href,
+      actual_amount: data.actual_amount
     });
-  } catch (error) {
-    console.error("CREATE PAYPAL REDIRECT ERROR:", error);
 
-    res.status(500).json({
+  } catch (error) {
+    console.error("PAYPAL REDIRECT ERROR:", error);
+
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// =========================================================
+// PAYPAL CAPTURE HELPER
+// =========================================================
+
+async function captureLivePayPalOrder(
+  systemOrderId,
+  paypalOrderId
+) {
+  const order = await getPayPalSystemOrder(systemOrderId);
+
+  if (
+    !order.paypal_order_id ||
+    order.paypal_order_id !== paypalOrderId
+  ) {
+    throw new Error("PayPal order ID mismatch.");
+  }
+
+  if (["Cancelled", "Canceled"].includes(order.status)) {
+    throw new Error("Cancelled order cannot be paid.");
+  }
+
+  if (
+    order.payment_status === "Paid" &&
+    order.paypal_capture_id
+  ) {
+    return {
+      success: true,
+      order_number: order.order_number,
+      already_paid: true
+    };
+  }
+
+  const accessToken = await getPayPalAccessToken();
+  const expectedAmount = getActualPayPalAmount(order);
+
+  // Verify PayPal order before capturing.
+  const detailsResponse = await fetch(
+    `${PAYPAL_LIVE_URL}/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    }
+  );
+
+  const details = await detailsResponse.json();
+
+  if (!detailsResponse.ok) {
+    throw new Error("Unable to verify PayPal payment.");
+  }
+
+  const purchaseUnit = details.purchase_units?.[0];
+
+  if (
+    details.id !== paypalOrderId ||
+    details.intent !== "CAPTURE" ||
+    details.purchase_units?.length !== 1 ||
+    purchaseUnit?.reference_id !== String(order.id) ||
+    purchaseUnit?.amount?.currency_code !== "PHP" ||
+    purchaseUnit?.amount?.value !== expectedAmount
+  ) {
+    throw new Error(
+      "PayPal amount or order reference mismatch."
+    );
+  }
+
+  let paypalData = details;
+
+  if (details.status !== "COMPLETED") {
+    if (details.status !== "APPROVED") {
+      throw new Error(
+        `PayPal payment is not approved: ${details.status}`
+      );
+    }
+
+    const response = await fetch(
+      `${PAYPAL_LIVE_URL}/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "PayPal-Request-Id": `jcn-capture-${paypalOrderId}`
+        },
+        body: "{}"
+      }
+    );
+
+    paypalData = await response.json();
+
+    if (!response.ok) {
+      console.error("PAYPAL CAPTURE ERROR:", paypalData);
+
+      throw new Error(
+        paypalData.details?.[0]?.description ||
+        paypalData.message ||
+        "PayPal capture failed. Check payment status before retrying."
+      );
+    }
+  }
+
+  const capture = paypalData.purchase_units?.[0]
+    ?.payments?.captures?.find(
+      item => item.status === "COMPLETED"
+    );
+
+  if (
+    paypalData.status !== "COMPLETED" ||
+    !capture?.id ||
+    capture.amount?.currency_code !== "PHP" ||
+    capture.amount?.value !== expectedAmount
+  ) {
+    throw new Error(
+      "PayPal has not confirmed the full payment."
+    );
+  }
+
+  const { data: updatedOrder, error } = await supabase
+    .from("orders")
+    .update({
+      status: "Processing",
+      payment_status: "Paid",
+      payment_method: "PayPal",
+      paypal_order_id: paypalOrderId,
+      paypal_capture_id: capture.id
+    })
+    .eq("id", systemOrderId)
+    .eq("paypal_order_id", paypalOrderId)
+    .neq("payment_status", "Paid")
+    .select("*")
+    .maybeSingle();
+
+  if (error || !updatedOrder) {
+    const latest = await getPayPalSystemOrder(systemOrderId);
+
+    if (
+      latest.payment_status === "Paid" &&
+      latest.paypal_capture_id === capture.id
+    ) {
+      return {
+        success: true,
+        order_number: latest.order_number,
+        already_paid: true
+      };
+    }
+
+    throw new Error(
+      `PayPal captured the payment but the order needs reconciliation. Capture ID: ${capture.id}. Do not pay again.`
+    );
+  }
+
+  return {
+    success: true,
+    message: "Payment successful!",
+    order_number: updatedOrder.order_number,
+    payment_status: "Paid",
+    status: "Processing",
+    amount: expectedAmount,
+    paypal_capture_id: capture.id
+  };
+}
+
+// =========================================================
+// PAYPAL CAPTURE ORDER - FIX MISSING ROUTE
+// =========================================================
+
+// Protect this route with your existing customer
+// authentication and order-ownership validation too.
+
+app.post("/api/paypal/capture-order", async (req, res) => {
+  try {
+    const { system_order_id } = req.body;
+
+    const paypalOrderId =
+      req.body.paypal_order_id ||
+      req.body.orderID ||
+      req.body.orderId ||
+      req.body.token;
+
+    if (!system_order_id || !paypalOrderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing system or PayPal order ID."
+      });
+    }
+
+    const result = await captureLivePayPalOrder(
+      system_order_id,
+      paypalOrderId
+    );
+
+    return res.json(result);
+
+  } catch (error) {
+    console.error("PAYPAL CAPTURE ERROR:", error);
+
+    return res.status(400).json({
       success: false,
       message: error.message
     });
@@ -4915,105 +5218,26 @@ app.get("/api/paypal/success", async (req, res) => {
   try {
     const { token, system_order_id } = req.query;
 
-    const CHECKOUT_PAGE =
-  `${JCN_SITE_URL}/customer/html/customer-checkout.html`;
-
     if (!token || !system_order_id) {
-      return res.redirect(`${CHECKOUT_PAGE}?payment=missing`);
-    }
-
-    const accessToken = await getPayPalAccessToken();
-
-    const response = await fetch(
-      `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${token}/capture`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
-
-    const paypalData = await response.json();
-
-    if (!response.ok || paypalData.status !== "COMPLETED") {
-      return res.redirect(`${CHECKOUT_PAGE}?payment=failed`);
-    }
-
-    const captureId =
-      paypalData.purchase_units?.[0]?.payments?.captures?.[0]?.id ||
-      null;
-
-    const {
-      data: updatedOrder,
-      error
-    } = await supabase
-      .from("orders")
-      .update({
-        status: "Processing",
-        payment_status: "Paid",
-        payment_method: "PayPal",
-        paypal_order_id: token,
-        paypal_capture_id: captureId
-      })
-      .eq("id", system_order_id)
-      .select("*")
-      .maybeSingle();
-
-    if (error || !updatedOrder) {
       return res.redirect(
-        `${CHECKOUT_PAGE}?payment=update_failed`
+        `${PAYPAL_CHECKOUT_PAGE}?payment=missing`
       );
     }
 
-    return res.redirect(
-      `${CHECKOUT_PAGE}?payment=success&order_number=${encodeURIComponent(updatedOrder.order_number)}`
+    const result = await captureLivePayPalOrder(
+      system_order_id,
+      token
     );
+
+    return res.redirect(
+      `${PAYPAL_CHECKOUT_PAGE}?payment=success&order_number=${encodeURIComponent(result.order_number)}`
+    );
+
   } catch (error) {
     console.error("PAYPAL SUCCESS ERROR:", error);
 
     return res.redirect(
-      `${JCN_SITE_URL}/customer/html/customer-checkout.html?payment=error`
-    );
-  }
-});
-
-// =========================================================
-// PAYPAL CANCEL RETURN
-// =========================================================
-
-
-app.get("/api/paypal/cancel", async (req, res) => {
-  const checkoutPage =
-    `${JCN_SITE_URL}/customer/html/customer-checkout.html`;
-
-  try {
-    const { system_order_id } = req.query;
-
-    if (system_order_id) {
-      const { error } = await supabase
-        .from("orders")
-        .update({
-          status: "Pending Payment",
-          payment_status: "Unpaid"
-        })
-        .eq("id", system_order_id);
-
-      if (error) {
-        throw error;
-      }
-    }
-
-    return res.redirect(
-      `${checkoutPage}?paypal=cancelled&order_id=${encodeURIComponent(system_order_id || "")}`
-    );
-
-  } catch (error) {
-    console.error("PAYPAL CANCEL ERROR:", error);
-
-    return res.redirect(
-      `${checkoutPage}?paypal=error`
+      `${PAYPAL_CHECKOUT_PAGE}?payment=error`
     );
   }
 });
