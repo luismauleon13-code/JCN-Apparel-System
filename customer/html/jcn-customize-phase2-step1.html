@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080a0e">
+  <title>JCN Apparel | Personal Fit Studio · Phase 2 · Step 1</title>
+  <link rel="stylesheet" href="../css/jcn-studio-phase2-step1.css">
+  <script defer src="../js/jcn-studio-phase2-step1.js"></script>
+</head>
+<body class="nav-collapsed">
+  <!-- Standalone Phase 2 · Step 1 design shell. DOES NOT replace the working customization page. -->
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="m7 3-5 5 4 4 2-2v11h8V10l2 2 4-4-5-5-3 2h-4z"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20h2a2.5 2.5 0 0 0 2-2.5c0-1.5-1-2.5-1-3.5 0-1.4 1-2 2-2h2a3 3 0 0 0 3-3A10 10 0 0 0 12 2z"/><circle cx="7" cy="10" r="1" fill="#121418"/><circle cx="11" cy="6" r="1" fill="#121418"/><circle cx="17" cy="9" r="1" fill="#121418"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M5 18h14l-2-3V10a5 5 0 0 0-10 0v5zM10 21h4"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2 12h12l3-9H6M9 21h1m8 0h1"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="15" rx="1"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 3H4v18h6M15 7l5 5-5 5m-10-5h15"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><circle cx="8" cy="9" r="2"/><path d="m2 18 7-6 4 3 4-6 5 9"/></symbol>
+    <symbol id="i-body" viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="m7 9 5-2 5 2 2 6m-12-6-2 6m7-8v8m-3 8 3-8 3 8"/></symbol>
+    <symbol id="i-focus" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4zM8 4v7h8V4M8 20v-6h8v6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 2v13m-5-5 5 5 5-5M3 18v4h18v-4"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="16" rx="2"/><path d="M8 6 10 3h4l2 3"/><circle cx="12" cy="14" r="4"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2-6m-2-4v6h6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+    <symbol id="i-text" viewBox="0 0 24 24"><path d="M3 4h18M12 4v17m-5 0h10"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 6-10 6L2 8zM2 13l10 6 10-6M2 18l10 6 10-6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m13 4-8 8 8 8M5 12h16"/></symbol>
+  </svg>
+
+  <!-- NAVIGATION: compact icons by default; slides open on hover/focus; optional pin -->
+  <aside class="app-nav" id="appNav" aria-label="JCN customer navigation">
+    <div class="brand-block">
+      <span class="brand-round">J</span>
+      <span class="brand-copy"><b>JCN</b><small>Apparel Printing</small></span>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Keep sidebar expanded" aria-pressed="false" title="Pin sidebar open">»</button>
+    </div>
+    <nav class="nav-menu">
+      <a href="customer-home.html" aria-label="Home" title="Home"><svg><use href="#i-home"/></svg><span>Home</span></a>
+      <a href="customer-shop.html" aria-label="Shop Products" title="Shop Products"><svg><use href="#i-shirt"/></svg><span>Shop Products</span></a>
+      <a class="active" aria-current="page" href="jcn-customize-exact-phase1-3-refined.html" aria-label="Customization" title="Customization"><svg><use href="#i-palette"/></svg><span>Customization</span></a>
+      <a href="customer-notifications.html" aria-label="Notifications" title="Notifications"><svg><use href="#i-bell"/></svg><span>Notifications</span></a>
+      <a href="customer-cart.html" aria-label="Cart" title="Cart"><svg><use href="#i-cart"/></svg><span>Cart</span></a>
+      <a href="customer-orders.html" aria-label="Orders" title="Orders"><svg><use href="#i-bag"/></svg><span>Orders</span></a>
+      <a href="customer-settings.html" aria-label="Profile" title="Profile"><svg><use href="#i-user"/></svg><span>Profile</span></a>
+    </nav>
+    <button id="logoutPreview" class="logout-button" aria-label="Logout (UI demo)" title="Logout"><svg><use href="#i-logout"/></svg><span>Logout</span></button>
+  </aside>
+
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="header-identity"><span class="mini-jcn">JCN<br>JCN</span><div><strong>JCN PERSONAL FIT STUDIO</strong><small>CLOTHING CUSTOMIZATION &amp; BODYFIT SCAN</small></div></div>
+      <div class="header-actions">
+        <button class="outline-button jcn-top-design-btn" id="reopenDesignDock" type="button" aria-controls="designDock" aria-expanded="false" title="Show or hide Design Tools"><svg><use href="#i-palette"/></svg><span>Design Tools</span></button>
+        <button class="outline-button" id="draftButton"><svg><use href="#i-save"/></svg> My Drafts</button><button class="outline-button" id="focusButton"><svg><use href="#i-focus"/></svg> Focus View</button><button class="outline-button" id="exportButton"><svg><use href="#i-download"/></svg> Export Design</button></div>
+    </header>
+
+    <main class="workspace" id="workspace">
+      <aside class="editor card" id="editorPanel">
+        <p class="eyebrow">THE PERSONAL FIT STUDIO</p>
+        <h1>Design your<br><em>own apparel.</em></h1>
+        <p class="editor-intro">Create, fit, and personalize your clothing with a body-guided 3D preview.</p>
+        <div class="steps-list" role="tablist" aria-label="Customization steps">
+          <button class="step-card" data-step="shirt" role="tab" aria-selected="false"><span class="step-icon"><svg><use href="#i-shirt"/></svg></span><span class="step-copy"><b>01&nbsp; Shirt</b><small>Choose your apparel.</small></span><span class="step-trailing">✓</span></button>
+          <button class="step-card active" data-step="design" role="tab" aria-selected="true"><span class="step-icon"><svg><use href="#i-image"/></svg></span><span class="step-copy"><b>02&nbsp; Design</b><small>Edit directly on your shirt.</small></span><span class="step-trailing"><svg><use href="#i-chevron"/></svg></span></button>
+          <button class="step-card" data-step="bodyfit" role="tab" aria-selected="false"><span class="step-icon"><svg><use href="#i-body"/></svg></span><span class="step-copy"><b>03&nbsp; BodyFit</b><small>Camera or manual sizing.</small></span><span class="step-trailing"><svg><use href="#i-chevron"/></svg></span></button>
+        </div>
+
+        <!-- 01: Apparel selection. Demo entries are rendered from a replaceable catalog array. -->
+        <section class="step-content" id="shirtPanel" data-content="shirt" hidden>
+          <div class="section-title-row"><h2>Choose your apparel.</h2><span class="ui-demo-flag">LIVE CATALOG</span></div>
+          <p class="catalog-section-kicker">01 / SELECT APPAREL TYPE</p>
+          <p class="muted">Choose a real JCN customizable product, then select an available size and color.</p>
+          <div class="category-filter" id="apparelCategoryFilter" role="group" aria-label="Clothing categories"></div>
+          <div class="catalog-filter-row"><span id="categoryResultCount">0 items</span><label class="sr-only" for="catalogSearch">Search apparel</label><input id="catalogSearch" type="search" placeholder="Search styles…"></div>
+          <div id="demoProductList" class="demo-product-list" aria-live="polite"></div>
+          <div id="productEmptyState" class="catalog-empty" hidden>Loading approved JCN apparel…</div>
+          <div class="selected-apparel-label"><b>Selected product</b><span id="selectedProductName">Select a product</span></div>
+          <div class="form-pair"><label>Size<select id="shirtSize" disabled><option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option></select></label><label>Color<select id="shirtColor" disabled><option selected>White</option><option>Black</option><option>Navy Blue</option></select></label></div>
+          <p id="jcnStockHint" class="stock-note">Choose a product to view live stock.</p><button type="button" id="nextToDesign" class="step-next-btn">Continue to Design <svg><use href="#i-chevron"/></svg></button>
+          <p class="catalog-help">✦ Products are read from the JCN backend. Only administrator-approved blank apparel appears; checkout and garment-specific 3D models are separate integration steps.</p>
+        </section>
+
+        <!-- 02: Approved direct design tools are unchanged; this is still a static avatar overlay. -->
+        <section class="step-content" id="designPanel" data-content="design">
+          <div class="section-title-row"><h2>Make a statement.</h2><span class="ui-demo-flag">SHIRT PREVIEW</span></div>
+          <p class="muted">Add text, artwork, or shapes and adjust them directly over the shirt preview.</p>
+          <h3 class="control-heading">Print Placement</h3>
+          <div class="placement-options" role="group" aria-label="Print placement">
+            <button class="placement" data-placement="front"><svg><use href="#i-shirt"/></svg><span>Front</span></button>
+            <button class="placement active" data-placement="back"><svg><use href="#i-shirt"/></svg><span>Back</span></button>
+            <button class="placement" data-placement="both"><svg><use href="#i-shirt"/></svg><span>Both</span></button>
+          </div>
+          <div class="design-tools-label"><strong>Design Toolbox</strong><small>Choose a tool to edit your print</small></div>
+          <div class="design-toolbox" role="group" aria-label="Quick design tools">
+            <button type="button" id="quickAddText" title="Add movable text"><svg><use href="#i-text"/></svg><span>Text</span></button>
+            <button type="button" id="quickUpload" title="Upload your own artwork"><svg><use href="#i-image"/></svg><span>Upload</span></button>
+            <button type="button" id="quickElements" title="Browse shapes and design elements"><svg><use href="#i-palette"/></svg><span>Elements</span></button>
+            <button type="button" id="quickLayers" title="Manage and reorder layers"><svg><use href="#i-layers"/></svg><span>Layers</span></button>
+          </div>
+          <div class="design-hint-card" role="note">
+            <b>✦ Design directly on the shirt</b>
+            <p>Click Text, Upload, or Elements below. Select designs on the shirt preview to move, resize or rotate them. No separate canvas needed.</p>
+            <button type="button" id="openInspectorFromTools" class="dock-launch-btn">Open Design Tools <svg><use href="#i-chevron"/></svg></button>
+          </div>
+          <button class="add-design" id="addDesign"><svg><use href="#i-plus"/></svg> Add Text to Design</button>
+          <button type="button" id="nextToBodyfit" class="step-next-btn">Continue to BodyFit <svg><use href="#i-chevron"/></svg></button>
+          <p class="ui-note">✦ Phase 2 · Step 1: design elements appear over the illustrated shirt preview. Actual GLB/3D material editing and printing prices will be integrated later.</p>
+        </section>
+
+        <!-- 03: Existing camera composition + a clearly separate manual alternative. -->
+        <section class="step-content" id="bodyfitPanel" data-content="bodyfit" hidden>
+          <div class="section-title-row"><h2>Find your fit.</h2><span class="ui-demo-flag">PREVIEW</span></div>
+          <p class="muted">Choose camera guidance or enter your measurements manually.</p>
+          <div class="fit-method" role="group" aria-label="BodyFit sizing method"><button type="button" data-fit-method="auto" class="active">◉ Auto scan</button><button type="button" data-fit-method="manual">✎ Manual</button></div>
+          <div id="autoFitSettings" class="fit-method-panel"><div class="scan-heading"><svg><use href="#i-body"/></svg><h3>Scan Result</h3></div><div class="result-card"><div class="result-size"><span class="outline-body"><svg><use href="#i-body"/></svg></span><div><small>Suggested Size</small><strong>Awaiting scan</strong></div></div><div class="scan-state"><span>Body Scan Status</span><b><span class="muted-dot"></span> Demo image only</b></div><p class="measure-caption">Camera preview does not measure your body yet.</p></div><div class="scan-hint"><b>ⓘ</b><span>In the next integration phase, the real BodyFit camera will help estimate a size. Camera-only measurements are approximate and should be verified.</span></div></div>
+          <div id="manualFitSettings" class="fit-method-panel" hidden><div class="scan-heading"><svg><use href="#i-body"/></svg><h3>Manual Measurements</h3></div><p class="muted">Use a measuring tape, in centimeters. Leave any field blank if unknown.</p><form id="manualFitForm"><div class="manual-fields"><label>Height (cm)<input id="fitHeight" type="number" inputmode="decimal" min="90" max="250" step="0.1" placeholder="e.g. 170"></label><label>Chest (cm)<input id="fitChest" type="number" inputmode="decimal" min="50" max="180" step="0.1" placeholder="e.g. 96"></label><label>Waist (cm)<input id="fitWaist" type="number" inputmode="decimal" min="40" max="200" step="0.1" placeholder="e.g. 82"></label><label>Hip (cm)<input id="fitHip" type="number" inputmode="decimal" min="50" max="200" step="0.1" placeholder="e.g. 98"></label><label>Shoulder (cm)<input id="fitShoulder" type="number" inputmode="decimal" min="25" max="80" step="0.1" placeholder="e.g. 45"></label></div><label class="fit-preference">Fit preference<select id="fitPreference"><option>Regular</option><option>Slim</option><option>Relaxed</option></select></label><button type="submit" class="manual-save">Save manual measurements</button><p id="manualStatus" role="status" class="manual-status">Not saved yet.</p></form></div>
+        </section>
+      </aside>
+
+      <section class="center-panel" aria-label="Main design preview">
+        <div class="stage design-stage dock-open" id="designStage">
+          <div class="view-tabs" role="group" aria-label="Preview angles"><button data-view="front">Front</button><button class="active" data-view="back">Back</button><button data-view="left">Left</button><button data-view="right">Right</button><button data-view="360">360° <svg><use href="#i-rotate"/></svg></button></div>
+          <div class="design-visual" id="designVisual">
+            <div class="avatar-stage-art" id="avatarStageArt">
+              <img src="../assets/phase1/design-avatar-preview.png" id="avatarMockup" alt="Static JCN reference avatar from the back, with an approximate editable design zone over the shirt">
+              <div class="shirt-print-region" id="shirtPrintRegion" aria-label="Shirt preview element placement area">
+                <div class="shirt-print-boundary" aria-hidden="true"></div>
+                <div id="shirtPrintLayers"></div>
+              </div>
+            </div>
+          </div>
+          <span class="preview-demo">SHIRT PREVIEW · UI DEMO</span>
+          <div class="view-tools" aria-label="Preview tools"><button id="zoomPlus" title="Zoom in"><span>＋</span><small>Zoom +</small></button><button id="zoomMinus" title="Zoom out"><span>−</span><small>Zoom −</small></button><button id="rotatePreview" title="Rotate"><svg><use href="#i-rotate"/></svg><small>Rotate</small></button><button id="movePreview" title="Move"><span>✥</span><small>Move</small></button><button id="resetPreview" title="Reset"><svg><use href="#i-rotate"/></svg><small>Reset</small></button></div>
+          <p id="jcnGarmentPreviewNote" class="live-garment-note" role="status">Select a real apparel in 01 Shirt. This is a static avatar placeholder until the garment-specific GLB integration.</p><div class="view-thumbnails"><button class="thumb" data-view="front"><img src="../assets/phase1/white-shirt.svg" alt="Front thumbnail"><small>Front View</small></button><button class="thumb active" data-view="back"><img src="../assets/phase1/white-shirt.svg" alt="Back thumbnail"><small>Back View</small></button><button class="thumb add-view" id="addView"><span>＋</span><small>Add View</small></button></div>
+          <!-- Phase 2 · Step 1: one preview only; no duplicate 2D artwork canvas. -->
+          <aside id="designDock" class="design-dock" aria-label="Design tools and element adjustments">
+            <header class="dock-header"><div><span class="dock-kicker">JCN DESIGN WORKSPACE</span><h2>Design Tools</h2><small>Edit elements on the shirt preview</small></div><button type="button" id="closeDesignDock" class="dock-close" aria-label="Collapse design tools" title="Collapse design tools">‹</button></header>
+            <div class="dock-scroll" id="dockScroll">
+              <div class="dock-intro"><span class="dock-badge">UI PROTOTYPE</span><span>Drag designs on the shirt</span></div>
+              <div class="preview-guidance"><b id="printSideName">Back side · shirt preview</b><small>Choose an element directly on the shirt. The dashed region is an approximate guide.</small></div>
+              <div class="editor-quick-actions"><button type="button" id="undoLayer" title="Undo" aria-label="Undo">↶ Undo</button><button type="button" id="redoLayer" title="Redo" aria-label="Redo">↷ Redo</button><span>Front and back have separate elements</span></div>
+              <div class="dock-inspector-title">
+                <div><strong>Adjust selected element</strong><small>Resize · Rotate · Opacity</small></div>
+                <button type="button" id="toggleAdjustments" class="jcn-inspector-toggle" aria-expanded="true" aria-controls="inspectorBody">Hide adjustments <span aria-hidden="true">⌃</span></button>
+              </div>
+              <div id="inspectorBody">
+                <div id="dockEmptySelection" class="dock-empty">Choose an element on the shirt or from Layers to adjust it.</div>
+                <div class="element-properties" id="elementProperties" hidden>
+                <div class="property-title"><b>Selected element</b><span id="selectedLayerName">—</span></div>
+                <label>Size <span id="elementSizeLabel">100%</span><input type="range" id="elementSize" min="35" max="220" value="100"></label>
+                <label>Rotation <span id="elementRotationLabel">0°</span><input type="range" id="elementRotation" min="-180" max="180" value="0"></label>
+                <label>Opacity <span id="elementOpacityLabel">100%</span><input type="range" id="elementOpacity" min="15" max="100" value="100"></label>
+                <div class="selection-actions">
+                  <button type="button" id="hideSelectedLayer" title="Temporarily hide this design; restore from Layers">◉ Hide element</button>
+                  <button type="button" id="deselectLayer" title="Remove selection outline">✕ Deselect</button>
+                  <button type="button" id="deleteSelectedNow" class="jcn-delete-element" title="Erase this element from your design">▤ Delete element</button>
+                </div>
+                </div>
+              </div>
+              <div class="dock-section-buttons" role="group" aria-label="Design tools"><button type="button" data-dock-section="textAccordion">Text</button><button type="button" data-dock-section="artworkAccordion">Upload</button><button type="button" data-dock-section="elementsAccordion">Elements</button><button type="button" data-dock-section="layersAccordion">Layers</button></div>
+              <div class="dock-accordions">
+                <details class="design-accordion" id="textAccordion"><summary><svg><use href="#i-text"/></svg> Text &amp; Typography <svg class="accordion-chevron"><use href="#i-chevron"/></svg></summary><div class="detail-inner">
+                  <label for="demoText">Your text</label><div class="inline-add"><input id="demoText" maxlength="55" placeholder="e.g., JCN CREW"><button type="button" id="insertText">Add text</button></div>
+                  <div class="property-pair"><label>Font<select id="demoFont"><option value="Arial">Modern Sans</option><option value="Georgia">Elegant Serif</option><option value="Impact">Bold Display</option><option value="Courier New">Monospace</option></select></label><label>Color<input type="color" id="demoTextColor" value="#17191b"></label></div>
+                  <small>Text appears on the main shirt preview. Drag to move it.</small>
+                </div></details>
+                <details class="design-accordion" id="artworkAccordion"><summary><svg><use href="#i-image"/></svg> Upload Artwork <svg class="accordion-chevron"><use href="#i-chevron"/></svg></summary><div class="detail-inner"><label for="demoArtwork">Choose image</label><input type="file" id="demoArtwork" accept="image/png,image/jpeg,image/webp"><small>Local preview only; images are not uploaded or retained after refresh.</small></div></details>
+                <details class="design-accordion" id="elementsAccordion"><summary><svg><use href="#i-palette"/></svg> Shapes &amp; Elements <svg class="accordion-chevron"><use href="#i-chevron"/></svg></summary><div class="detail-inner"><p class="palette-hint">Add an element directly onto the selected shirt side.</p><div class="elements-grid" id="elementsGrid"></div><small>Sample shapes only; a licensed element library may be added later.</small></div></details>
+                <details class="design-accordion layers-accordion" id="layersAccordion"><summary><svg><use href="#i-layers"/></svg> Design Layers <span class="layer-total" id="layerCount">0</span><svg class="accordion-chevron"><use href="#i-chevron"/></svg></summary><div class="detail-inner"><div id="layerList" class="layer-list" aria-label="Visible and hidden design layers"></div><div class="layer-buttons"><button id="showAllLayers" type="button">◉ Show hidden</button><button id="raiseLayer" type="button">Move up</button><button id="lowerLayer" type="button">Move down</button><button id="duplicateLayer" type="button">Duplicate</button><button id="deleteLayer" type="button">Delete</button></div></div></details>
+              </div>
+            </div>
+            <div class="dock-footer"><span>Phase 1.3 prototype · 3D mapping later</span><button type="button" id="dockCollapseFooter">Hide tools ›</button></div>
+          </aside>
+        </div>
+
+        <div class="stage camera-stage" id="cameraStage" hidden>
+          <div class="camera-stage-head"><div><div class="camera-title"><svg><use href="#i-camera"/></svg><h2>Live Body Scan</h2></div><p>Stand inside the frame and keep a natural, upright pose.</p></div><span class="bodyfit-badge"><svg><use href="#i-body"/></svg> BodyFit</span></div>
+          <div class="camera-visual"><img src="../assets/phase1/bodyfit-camera-preview.png" alt="BodyFit reference image: person standing centered with scanning guide"><span class="camera-status">● UI DEMO · NO LIVE CAMERA</span><span class="manual-stage-flag" id="manualStageFlag" hidden>MANUAL SIZING MODE<br><small>Enter measurements on the left panel.</small></span><span class="scan-corners c1"></span><span class="scan-corners c2"></span><span class="scan-corners c3"></span><span class="scan-corners c4"></span></div>
+          <div class="camera-buttons"><button id="startCamera"><svg><use href="#i-camera"/></svg><small>Start Camera</small></button><button id="captureFront" class="gold"><svg><use href="#i-camera"/></svg><small>Capture Front</small></button><button id="captureSide"><svg><use href="#i-body"/></svg><small>Capture Side</small></button><button id="retake"><svg><use href="#i-rotate"/></svg><small>Retake</small></button><button id="continueAvatar" class="continue">Continue to Avatar <svg><use href="#i-chevron"/></svg></button></div>
+        </div>
+        <div class="bottom-guidance" id="bottomGuidance"><svg><use href="#i-layers"/></svg><span><b>Next:</b> Preview this design on your 3D avatar. You can adjust print placement, fit, and colors before adding to cart.</span><svg><use href="#i-chevron"/></svg></div>
+      </section>
+
+      <aside class="order-panel card" aria-label="Your creation summary">
+        <p class="eyebrow">YOUR CREATION</p>
+        <div class="summary-product"><img id="summaryImage" src="../assets/phase1/white-shirt.svg" alt="Selected apparel"><div><strong id="summaryProduct">Select a product</strong><span>Size: <b id="summarySize">M</b></span><span>Color: <b id="summaryColor">White</b></span><b class="base-price" id="basePrice">Base price pending</b></div></div>
+        <div class="summary-section"><h3>Prints &amp; Design</h3><p><span class="mini-design">01</span><span id="designType">Back · shirt preview</span></p><p><span class="stripe-symbol"></span><span id="designText">No design elements yet</span></p><p><svg class="tiny-icon"><use href="#i-focus"/></svg><span id="printSize">Print dimensions: decide later</span></p></div>
+        <div class="summary-section order-details-section"><h3>Order Details</h3><div class="qty-row"><label for="orderQty">Quantity</label><div class="qty-stepper"><button id="decreaseQty" type="button" aria-label="Decrease quantity">−</button><input type="number" id="orderQty" value="1" min="1" max="99" step="1" aria-label="Quantity"><button id="increaseQty" type="button" aria-label="Increase quantity">+</button></div></div><div class="detail-price-row"><span>Unit base price (catalog)</span><strong id="itemPrice">₱299.00</strong></div><div class="detail-price-row"><span>Printing &amp; elements</span><strong>To be agreed</strong></div><div class="detail-price-row"><span>Quantity</span><strong id="qtySummary">×1</strong></div></div>
+        <div class="summary-section totals"><h3>Pricing to finalize</h3><div><span>Garment-only subtotal</span><strong id="garmentSubtotal">₱299.00</strong></div><div class="grand-total"><strong>Final price</strong><b id="totalPrice">Pending</b></div><small>Garment-only prices use the real product catalog. Printing, design elements and order pricing are still pending backend integration.</small></div>
+        <div class="summary-actions"><button class="primary-btn" id="reviewButton"><svg><use href="#i-cart"/></svg> Review &amp; Add to Cart</button><button class="secondary-btn" id="saveDraftButton"><svg><use href="#i-save"/></svg> Save as Draft</button></div>
+      </aside>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="demoDialog"><div class="dialog-eyebrow">JCN PERSONAL FIT STUDIO · PHASE 1.3 REFINED</div><h2 id="dialogTitle">UI Shell Preview</h2><p id="dialogText">This action will be connected in a later phase.</p><form method="dialog"><button class="primary-btn">OK</button></form></dialog>
+</body>
+</html>

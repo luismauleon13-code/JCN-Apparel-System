@@ -5176,6 +5176,11 @@ registerGraphicDesignerRoutes({
    verifyCustomerToken
  });
 
+ require("./backend/routes/jcn-studio-catalog.js")({
+  app,
+  supabase
+});
+
 // =========================================================
 // UNKNOWN API ROUTES
 // Must remain after all API routes.

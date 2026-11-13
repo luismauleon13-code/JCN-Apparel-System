@@ -1,0 +1,123 @@
+/* JCN Studio V5: Reference-faithful premium layout layered over WORKING V4. */
+:root{--jcn-v5-gold:#edc565;--jcn-v5-line:#44483d;--jcn-v5-ink:#0c0f10}
+body.jcn-v5-ready{background:#0a0c0e!important;color:#f3f0e8}
+body.jcn-v5-ready .jcn-v4-sidebar{background:#090c0f;border-color:#a37d35;box-shadow:4px 0 40px #0008}
+body.jcn-v5-ready .jcn-v4-link{font-size:13px;border-radius:11px}
+body.jcn-v5-ready .jcn-v4-link.is-active{background:linear-gradient(110deg,#43361c,#2b271d);border-color:#d9ab48;color:#f9d67f}
+body.jcn-v5-ready .studio-topbar{background:#0b0d11;min-height:78px;border-color:#363934}
+body.jcn-v5-ready .studio-brand-text b{letter-spacing:1px;font-size:15px}
+body.jcn-v5-ready .studio-brand-text small{letter-spacing:1.2px}
+body.jcn-v5-ready .studio-layout{padding:16px 18px 30px;gap:12px;background:#0a0c0e;align-items:start}
+body.jcn-v5-ready:not(.jcn-focus-mode) .studio-layout{grid-template-columns:minmax(300px,330px) minmax(0,1fr) minmax(292px,325px)}
+body.jcn-v5-ready:not(.jcn-focus-mode) .studio-editor,
+body.jcn-v5-ready:not(.jcn-focus-mode) .studio-summary{border:1px solid #3c4142;border-radius:19px;background:linear-gradient(155deg,#17191d,#101317 70%);padding:23px 20px;min-height:calc(100vh - 115px);box-shadow:0 18px 52px #0004}
+body.jcn-v5-ready:not(.jcn-focus-mode) .studio-editor h1{font:normal clamp(29px,2.5vw,40px)/1.09 Georgia,serif;margin:17px 0;color:#fcf8ee;letter-spacing:-.8px}
+body.jcn-v5-ready .studio-editor h1 em{color:var(--jcn-v5-gold)}
+body.jcn-v5-ready .studio-editor .hero-subtitle{font-size:12px;line-height:1.6;margin-bottom:17px;color:#bdc0ba}
+body.jcn-v5-ready .studio-editor .steps{display:grid;grid-template-columns:1fr;gap:8px;border:0;padding:12px 0 13px;margin:0 0 14px;border-top:1px solid #393d37;border-bottom:1px solid #393d37}
+body.jcn-v5-ready .studio-editor .step{display:grid;grid-template-columns:38px minmax(0,1fr) 12px;align-items:center;text-align:left;gap:12px;white-space:normal;border:1px solid transparent;border-radius:12px;padding:10px 12px;min-height:65px;background:transparent;color:#e4e7df}
+body.jcn-v5-ready .studio-editor .step:hover{border-color:#73613b;background:#25241b}
+body.jcn-v5-ready .studio-editor .step.active{background:linear-gradient(105deg,#594620,#302718);border-color:#c1984c;color:#ffe096;box-shadow:inset 0 0 23px #f8cb4e0a}
+.jcn-v5-step-icon{display:grid;place-items:center;width:37px;height:37px;border-radius:50%;border:1px solid #676b63;color:#edc565;font-size:15px}
+.step.active .jcn-v5-step-icon{background:#271e10;border-color:#e4bd60}
+.jcn-v5-step-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.jcn-v5-step-copy strong{font-size:13px}.jcn-v5-step-copy small{color:#aeb4ab;font-size:10px;line-height:1.3;font-weight:400}
+.jcn-v5-step-arrow{font-size:11px;color:#d4aa50}
+body.jcn-v5-ready .studio-editor .step-panel{padding-top:3px}
+body.jcn-v5-ready .studio-editor .step-panel h2{font:normal 24px Georgia,serif;color:#f8f1df}
+body.jcn-v5-ready #jcnProductCatalog{border-color:#3a3d35;margin:0 0 14px;padding:0 0 16px}
+body.jcn-v5-ready #jcnProductCatalog h2{font:normal 22px Georgia,serif;color:#e9c16a;margin-bottom:9px}
+body.jcn-v5-ready .jcn-product-choice{border-radius:12px;background:#1b1e1b;min-height:82px;padding:10px}
+body.jcn-v5-ready .jcn-product-choice.selected{background:#3a311f;border-color:#e2bc5c;box-shadow:0 0 0 1px #b8973b55}
+body.jcn-v5-ready .jcn-product-choice img{width:62px;height:65px;object-fit:contain;background:#f1f1ea}
+body.jcn-v5-ready .studio-center{border:0;padding:0;min-width:0;overflow:visible}
+body.jcn-v5-ready:not(.jcn-focus-mode) .model-panel{height:min(75vh,790px);min-height:590px;background:#d7d7d4;border-radius:18px;border:1px solid #6d7070;box-shadow:0 14px 45px #0004;overflow:hidden}
+body.jcn-v5-ready:not(.jcn-focus-mode) #viewer{height:100%;min-height:0;width:100%}
+body.jcn-v5-ready .model-copy{top:75px;left:25px;opacity:.7}
+body.jcn-v5-ready .model-copy h2{font-size:clamp(23px,2.6vw,32px)}
+body.jcn-v5-ready .model-overlays{top:19px;left:23px;right:23px}
+body.jcn-v5-ready .jcn-v5-model-title{position:absolute;top:20px;left:23px;z-index:9;display:grid;gap:3px;pointer-events:none;color:#353a34}
+body.jcn-v5-ready .jcn-v5-model-title strong{font-size:12px;letter-spacing:.3px}
+.jcn-v5-eyebrow{font-size:8px;letter-spacing:1.7px;font-weight:900;color:#6d705d}
+body.jcn-v5-ready .model-overlays .model-label:first-child{display:none}
+body.jcn-v5-ready .model-overlays .model-label:last-child{display:none}
+body.jcn-v5-ready .jcn-v5-floating-tools{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:10;margin:0;display:flex;justify-content:space-between;gap:8px;max-width:calc(100% - 50px);width:auto;pointer-events:auto;align-items:center}
+body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-left{display:flex;gap:3px;background:#161b1d;padding:5px;border-radius:13px;box-shadow:0 8px 24px #0004}
+body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-left button{border:0;background:transparent;border-radius:9px;color:#f2f1e9;padding:10px 14px;font-weight:700;font-size:11px}
+body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-left button.active{background:#e5bd55;color:#17120a}
+body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-right{position:absolute;right:4px;top:60px;flex-direction:column;gap:4px;background:#161b1d;border-radius:12px;padding:5px;box-shadow:0 8px 24px #0005}
+body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-right button{border:0;background:transparent;color:#f8f5ed;min-width:40px;padding:9px 8px;border-radius:8px}
+body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-right button:hover{background:#39301e;color:#e5bd55}
+body.jcn-v5-ready .jcn-v5-view-cards{display:flex;justify-content:center;gap:11px;padding:12px 4px 0}
+body.jcn-v5-ready .jcn-v5-view-card{width:95px;display:grid;gap:7px;justify-items:center;padding:9px 5px;border:1px solid #4d5249;background:#191d1c;border-radius:12px;color:#dfdfd6;cursor:pointer;font-size:10px}
+body.jcn-v5-ready .jcn-v5-view-card.is-active{border-color:#e5bd55;color:#e5bd55;background:#332b1c;box-shadow:0 0 0 1px #e5bd5544}
+body.jcn-v5-ready .jcn-v5-view-pict{display:grid;place-items:center;width:60px;height:48px;border-radius:7px;background:#e0e0d9;color:#343a39;font-size:29px}
+body.jcn-v5-ready .fit-glance{background:#141819;border:1px solid #373d3a;border-radius:13px;margin-top:13px;padding:14px}
+body.jcn-v5-ready .model-tools{background:#111617;border-radius:11px}
+body.jcn-v5-ready .studio-summary>h2{font:normal 30px Georgia,serif;margin:14px 0 21px}
+body.jcn-v5-ready #jcnSelectedProduct{border:0;border-bottom:1px solid #464b42;border-radius:0;background:transparent;margin:0 0 4px;padding:8px 0 20px;align-items:center}
+body.jcn-v5-ready #jcnSelectedProduct img{width:82px;height:88px;object-fit:contain;background:#f0f0e9;border-radius:11px}
+body.jcn-v5-ready #jcnSelectedProduct strong{font-size:13px;line-height:1.5}
+body.jcn-v5-ready #jcnSelectedProduct p{font-size:13px}
+body.jcn-v5-ready .studio-summary .summary-breakdown{margin-top:10px;padding:18px 0 17px}
+body.jcn-v5-ready .studio-summary .summary-breakdown>div{margin:13px 0}
+body.jcn-v5-ready .studio-summary .summary-breakdown span{font-size:12px;color:#d7d9ce}
+body.jcn-v5-ready .studio-summary .summary-breakdown b{font-size:12px}
+body.jcn-v5-ready .jcn-v5-total-heading{color:#edc565;font-size:14px;margin:18px 0 9px}
+body.jcn-v5-ready .studio-summary .summary-total{border-top:1px solid #43463e;margin:0;padding:16px 0 12px}
+body.jcn-v5-ready .studio-summary .summary-total strong{font-size:30px}
+body.jcn-v5-ready .studio-summary .summary-total span{font-size:11px;color:#b5b9a9}
+body.jcn-v5-ready .studio-summary .jcn-cart-primary{font-size:14px;min-height:59px;background:linear-gradient(120deg,#f6d77d,#e7b950);color:#18160d;border-radius:12px}
+body.jcn-v5-ready .studio-summary .save-area button{border:1px solid #e5bd55;min-height:47px;font-weight:750;border-radius:10px}
+body.jcn-v5-ready .studio-summary .creation-cta{display:none}
+body.jcn-v5-ready .studio-summary .jcn-v4-summary-hint{font-size:11px}
+body.jcn-v5-ready .studio-summary .quote-note{font-size:10px}
+/* BodyFit V3 already moves the REAL camera/video into the modal. Enlarge it like reference mock. */
+body.jcn-v5-ready .jcn-camera-workspace{background:#101318;z-index:2100}
+body.jcn-v5-ready .jcn-camera-workspace header{background:#191b20;border:1px solid #4f514b;border-radius:15px;padding:14px 18px;max-width:1520px}
+body.jcn-v5-ready .jcn-camera-workspace header h2{font-family:Arial,sans-serif;font-size:25px;font-weight:800;color:#f0cb6d}
+body.jcn-v5-ready .jcn-camera-workspace #jcnCameraPortal{max-width:1520px}
+body.jcn-v5-ready .jcn-camera-workspace #jcnCameraPortal .camera{height:min(76vh,930px);min-height:440px;border:2px solid #eac365;border-radius:18px;background:#050607;box-shadow:0 0 0 5px #eac36520}
+body.jcn-v5-ready .jcn-camera-workspace footer{max-width:1520px}
+body.jcn-v5-ready .jcn-camera-workspace #jcnReturn3D{font-weight:800;background:#e5bd55;color:#171309;border:0;border-radius:10px;min-height:49px}
+body.jcn-v5-ready .jcn-v5-live-tag{position:absolute;top:25px;left:25px;z-index:9;background:#aa2c33;padding:8px 13px;color:#fff;border-radius:9px;font-size:10px;font-weight:900;pointer-events:none}
+body.jcn-v5-ready #jcnCameraPortal{position:relative}
+@media(max-width:1450px){body.jcn-v5-ready:not(.jcn-focus-mode) .studio-layout{grid-template-columns:minmax(255px,295px) minmax(0,1fr) minmax(250px,285px);gap:9px;padding:12px}body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-left button{padding:9px 10px}}
+@media(max-width:1120px){body.jcn-v5-ready:not(.jcn-focus-mode) .studio-layout{grid-template-columns:minmax(240px,295px) minmax(0,1fr)}body.jcn-v5-ready:not(.jcn-focus-mode) .studio-summary{grid-column:1/-1;min-height:0}body.jcn-v5-ready .jcn-v5-floating-tools{left:52%}}
+@media(max-width:780px){body.jcn-v5-ready:not(.jcn-focus-mode) .studio-layout{display:flex;flex-direction:column;padding:8px}body.jcn-v5-ready:not(.jcn-focus-mode) .studio-editor,body.jcn-v5-ready:not(.jcn-focus-mode) .studio-summary{min-height:0;width:100%}body.jcn-v5-ready:not(.jcn-focus-mode) .model-panel{height:54vh;min-height:400px}body.jcn-v5-ready:not(.jcn-focus-mode) #viewer{height:100%;min-height:0}body.jcn-v5-ready .jcn-v5-floating-tools{max-width:95%;top:8px}body.jcn-v5-ready .jcn-v5-floating-tools .toolbar-right{display:none}body.jcn-v5-ready .jcn-v5-model-title{display:none}body.jcn-v5-ready .model-copy{display:none}body.jcn-v5-ready .studio-topbar{min-height:58px}}
+@media(prefers-reduced-motion:reduce){body.jcn-v5-ready *{scroll-behavior:auto!important}}
+/* Desktop camera is a large center-stage view, preserving the step and quote panels outside it. */
+@media(min-width:1451px){
+ body.jcn-v5-ready .jcn-camera-workspace{
+   inset:91px 341px 16px 422px;
+   z-index:60;
+   padding:10px;
+   display:grid;
+   grid-template-rows:auto minmax(0,1fr) auto;
+   background:#101318;
+   border:1px solid #595548;
+   box-shadow:0 10px 50px #000b;
+   border-radius:18px;
+ }
+ body.jcn-v5-ready .jcn-camera-workspace header{padding:9px 12px;gap:8px}
+ body.jcn-v5-ready .jcn-camera-workspace header h2{font-size:21px}
+ body.jcn-v5-ready .jcn-camera-workspace header p{font-size:11px}
+ body.jcn-v5-ready .jcn-camera-workspace .jcn-v4-camera-tip{display:none}
+ body.jcn-v5-ready .jcn-camera-workspace #jcnCameraPortal{display:grid;grid-template-columns:minmax(0,1fr) 180px;grid-template-rows:auto 1fr auto;gap:8px;width:100%;max-width:none}
+ body.jcn-v5-ready .jcn-camera-workspace #jcnCameraPortal .camera{grid-column:1;grid-row:1/span 3;height:100%;min-height:410px;max-height:calc(100vh - 250px)}
+ body.jcn-v5-ready .jcn-camera-workspace .camera-actions{grid-column:2;grid-row:1;grid-template-columns:1fr 1fr;gap:5px}
+ body.jcn-v5-ready .jcn-camera-workspace .camera-actions button{padding:8px 4px;min-height:40px;font-size:10px}
+ body.jcn-v5-ready .jcn-camera-workspace #autoScanPanel{grid-column:2;grid-row:2;padding:10px!important;font-size:10px}
+ body.jcn-v5-ready .jcn-camera-workspace .scan-results{grid-column:2;grid-row:3;padding:10px;max-height:155px;overflow-y:auto}
+ body.jcn-v5-ready .jcn-camera-workspace .jcn-v4-camera-result{display:none}
+ body.jcn-v5-ready .jcn-camera-workspace footer{gap:8px}
+ body.jcn-v5-ready .jcn-camera-workspace footer span{font-size:9px}
+ body.jcn-v5-ready .jcn-camera-workspace #jcnReturn3D{min-width:155px;min-height:40px;font-size:11px}
+}
+/* When screen is narrower, prioritize safe full camera visibility over squeezing the video. */
+@media(min-width:1121px) and (max-width:1450px){
+ body.jcn-v5-ready .jcn-camera-workspace{inset:0;overflow:auto}
+}
+/* Keep the live modal hidden when closed, overriding display:grid in responsive rules. */
+body.jcn-v5-ready .jcn-camera-workspace[hidden]{display:none!important}
+
+body.jcn-v5-ready .product-summary[hidden],body.jcn-v5-ready #jcnSelectedProduct[hidden]{display:none!important}
