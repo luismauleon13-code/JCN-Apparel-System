@@ -379,47 +379,162 @@ textarea:focus {
   color: #000;
 }
 
-/* RESPONSIVE */
-@media (max-width: 950px) {
-  .profile-layout {
-    grid-template-columns: 1fr;
-  }
+/* =========================================================
+   JCN PROFILE — COMPACT RESPONSIVE ONLY
+   Desktop styles above are preserved.
+========================================================= */
 
-  .password-panel {
-    grid-column: auto;
-  }
+.jcn-profile-mobile-bar,
+.jcn-profile-sidebar-close,
+.jcn-profile-menu-overlay { display: none; }
+
+@media (max-width: 1050px) {
+  .profile-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .password-panel { grid-column: auto; }
 }
 
 @media (max-width: 800px) {
-  body {
-    display: block;
-  }
+  html, body { width: 100%; max-width: 100%; }
+  body { display: block; min-width: 0; }
+  body.jcn-profile-menu-open { overflow: hidden; }
 
   .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    min-height: auto;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(280px, 85vw);
+    height: 100dvh;
+    min-height: 0;
+    padding: 22px 14px 18px;
+    z-index: 10020;
+    transform: translateX(-105%);
+    visibility: hidden;
+    pointer-events: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transition: transform .24s ease, visibility .24s ease;
+    box-shadow: 8px 0 30px rgba(0,0,0,.28);
   }
+  body.jcn-profile-menu-open .sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .sidebar .brand { margin-bottom: 22px; padding-right: 38px; }
+  .sidebar .menu { gap: 5px; }
+  .sidebar .menu a { padding: 11px 12px; font-size: 13px; }
+  .sidebar .logout-btn { margin-top: 22px; min-height: 42px; flex-shrink: 0; }
 
-  .logout-btn {
-    margin-top: 20px;
-    width: 100%;
+  .jcn-profile-sidebar-close {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 17px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--panel-light);
+    color: var(--gold);
+    font-size: 24px;
+    z-index: 2;
+    cursor: pointer;
   }
+  .jcn-profile-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10010;
+    background: rgba(0,0,0,.66);
+    backdrop-filter: blur(2px);
+  }
+  body.jcn-profile-menu-open .jcn-profile-menu-overlay { display: block; }
 
   .main {
     margin-left: 0;
     width: 100%;
-    padding: 18px;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0 16px 24px;
   }
+  .jcn-profile-mobile-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 57px;
+    padding: 9px 0;
+    margin-bottom: 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .jcn-profile-menu-toggle {
+    display: grid;
+    place-items: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel-light);
+    color: var(--gold);
+    font-size: 20px;
+    pointer-events: auto;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+  .jcn-profile-mobile-logo {
+    display: grid;
+    place-items: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #111;
+    font-weight: 900;
+  }
+  .jcn-profile-mobile-name { color: var(--gold); font-size: 14px; font-weight: 800; }
 
-  .topbar h1 {
-    font-size: 28px;
-  }
+  .topbar { margin-bottom: 16px; }
+  .topbar p { font-size: 10px; letter-spacing: 1.2px; }
+  .topbar h1 { font-size: 23px; }
+  .jcn-settings-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .jcn-settings-heading { min-width: 0; }
+  .jcn-settings-heading h1 { font-size: 23px; line-height: 1.25; overflow-wrap: anywhere; }
+  .jcn-settings-eyebrow { font-size: 10px; letter-spacing: 1.1px; }
+  .jcn-theme-switch-wrap { flex-shrink: 0; }
+
+  .profile-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .profile-card, .settings-panel { padding: 17px; border-radius: 14px; }
+  .profile-card { padding: 19px 14px; }
+  .avatar { width: 76px; height: 76px; font-size: 31px; margin-bottom: 12px; }
+  .profile-card h2 { font-size: 19px; }
+  .profile-card p { font-size: 12px; margin-bottom: 12px; }
+  .status { padding: 7px 12px; font-size: 11px; }
+  .settings-panel h2 { font-size: 18px; margin-bottom: 12px; }
+  .settings-panel label { font-size: 13px; margin: 12px 0 6px; }
+  .settings-panel input, .settings-panel textarea { min-width: 0; padding: 11px 12px; font-size: 16px; border-radius: 10px; }
+  .address-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
+  .password-box input { padding-right: 45px; }
+  .toggle-password { top: 12px; }
+  .save-btn { margin-top: 16px; padding: 12px; font-size: 13px; }
+  .customer-logout-modal .modal-box { width: min(390px, calc(100vw - 28px)); }
+  .logout-modal-actions button { min-height: 38px; }
 }
 
-@media (max-width: 700px) {
-  .address-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 520px) {
+  .main { padding: 0 11px 18px; }
+  .jcn-profile-mobile-bar { margin-bottom: 12px; }
+  .profile-card, .settings-panel { padding: 13px; }
+  .profile-card { padding: 17px 12px; }
+  .jcn-settings-heading h1 { font-size: 21px; }
+  .address-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .settings-panel h2 { font-size: 16px; }
+  .customer-logout-modal .modal-box { padding: 18px 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
 }

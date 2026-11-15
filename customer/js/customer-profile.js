@@ -461,3 +461,83 @@ function togglePassword(event) {
 
 // Existing customer logout modal remains unchanged.
 // Do not clear customerCart here.
+
+/* =========================================================
+   JCN PROFILE — MOBILE SIDEBAR
+   Additive module: existing profile data/password logic untouched.
+========================================================= */
+(() => {
+  function initProfileMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const main = document.querySelector('.main');
+    if (!sidebar || !main) return;
+    if (sidebar.dataset.jcnProfileMobileReady === 'true') return;
+    sidebar.dataset.jcnProfileMobileReady = 'true';
+
+    if (!sidebar.id) sidebar.id = 'jcnProfileSidebar';
+
+    let bar = document.querySelector('.jcn-profile-mobile-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.className = 'jcn-profile-mobile-bar';
+      bar.innerHTML = `
+        <button type="button" class="jcn-profile-menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="${sidebar.id}">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+        <span class="jcn-profile-mobile-logo" aria-hidden="true">J</span>
+        <span class="jcn-profile-mobile-name">JCN Apparel</span>
+      `;
+      main.prepend(bar);
+    }
+    const menuBtn = bar.querySelector('.jcn-profile-menu-toggle');
+    if (!menuBtn) return;
+    menuBtn.setAttribute('aria-controls', sidebar.id);
+
+    let closeBtn = sidebar.querySelector('.jcn-profile-sidebar-close');
+    if (!closeBtn) {
+      closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'jcn-profile-sidebar-close';
+      closeBtn.setAttribute('aria-label', 'Close navigation menu');
+      closeBtn.innerHTML = '&times;';
+      sidebar.prepend(closeBtn);
+    }
+    let overlay = document.querySelector('.jcn-profile-menu-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'jcn-profile-menu-overlay';
+      document.body.appendChild(overlay);
+    }
+
+    function closeMenu() {
+      document.body.classList.remove('jcn-profile-menu-open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      menuBtn.setAttribute('aria-label', 'Open navigation menu');
+    }
+    function openMenu() {
+      if (window.innerWidth > 800) return;
+      document.body.classList.add('jcn-profile-menu-open');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      menuBtn.setAttribute('aria-label', 'Close navigation menu');
+    }
+    menuBtn.addEventListener('click', event => {
+      event.preventDefault();
+      if (document.body.classList.contains('jcn-profile-menu-open')) closeMenu();
+      else openMenu();
+    });
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    sidebar.querySelectorAll('.menu a').forEach(link => link.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeMenu();
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 800) closeMenu();
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProfileMobileSidebar);
+  } else {
+    initProfileMobileSidebar();
+  }
+})();
