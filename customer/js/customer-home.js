@@ -644,8 +644,19 @@ async function loadOrderCount() {
     const myOrders = (Array.isArray(data.orders) ? data.orders : [])
       .filter(order => String(order.user_id) === String(customer.id));
 
-    // The dashboard card is labelled "Orders": count all statuses.
-    orderCount.textContent = String(myOrders.length);
+    // Only active orders should appear in the Dashboard counter.
+    // Exclude cancelled, completed, and delivered orders.
+    const inactiveStatuses = new Set([
+      "cancelled", "canceled", "completed", "delivered"
+    ]);
+    const activeOrders = myOrders.filter(order => {
+      const status = String(order.status || "")
+        .trim()
+        .toLowerCase();
+      return !inactiveStatuses.has(status);
+    });
+
+    orderCount.textContent = String(activeOrders.length);
   } catch (error) {
     console.error("DASHBOARD ORDER COUNT ERROR:", error);
     orderCount.textContent = "—";
