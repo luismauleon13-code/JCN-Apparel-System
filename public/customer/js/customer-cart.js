@@ -497,6 +497,8 @@ function saveCart() {
   renderCart();
 }
 
+
+
 /* ============================================
    CHECKOUT
 ============================================ */
@@ -542,3 +544,158 @@ async function checkout() {
 
   window.location.href = "customer-checkout.html";
 }
+
+
+
+/* ==========================================
+   JCN CUSTOMER CART - MOBILE SIDEBAR
+   FIXED CSS + JS INTEGRATION
+========================================== */
+
+function initializeCartMobileSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  const main = document.querySelector(".main");
+
+  if (!sidebar || !main) return;
+
+  // Prevent duplicate initialization
+  if (sidebar.dataset.cartMenuInitialized === "true") return;
+  sidebar.dataset.cartMenuInitialized = "true";
+
+  // Find existing mobile navigation
+  let mobileBar = document.querySelector(".jcn-cart-mobile-bar");
+  let menuBtn = document.querySelector(".jcn-cart-menu-toggle");
+  let closeBtn = document.querySelector(".jcn-cart-sidebar-close");
+  let overlay = document.querySelector(".jcn-cart-menu-overlay");
+
+  // Create mobile navigation if missing
+  if (!mobileBar) {
+    mobileBar = document.createElement("div");
+    mobileBar.className = "jcn-cart-mobile-bar";
+
+    mobileBar.innerHTML = `
+      <button
+        type="button"
+        class="jcn-cart-menu-toggle"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="jcnCartSidebar"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <span class="jcn-cart-mobile-logo">J</span>
+
+      <span class="jcn-cart-mobile-name">
+        JCN Apparel
+      </span>
+    `;
+
+    main.prepend(mobileBar);
+    menuBtn = mobileBar.querySelector(".jcn-cart-menu-toggle");
+  }
+
+  // Create hamburger if mobile bar exists without button
+  if (!menuBtn) {
+    menuBtn = document.createElement("button");
+    menuBtn.type = "button";
+    menuBtn.className = "jcn-cart-menu-toggle";
+    menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    menuBtn.setAttribute("aria-label", "Open navigation menu");
+    mobileBar.prepend(menuBtn);
+  }
+
+  // Set sidebar ID
+  if (!sidebar.id) {
+    sidebar.id = "jcnCartSidebar";
+  }
+
+  menuBtn.setAttribute("aria-controls", sidebar.id);
+
+  // Create sidebar close button
+  if (!closeBtn) {
+    closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "jcn-cart-sidebar-close";
+    closeBtn.setAttribute("aria-label", "Close navigation menu");
+    closeBtn.innerHTML = "&times;";
+
+    sidebar.prepend(closeBtn);
+  }
+
+  // Create overlay
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.className = "jcn-cart-menu-overlay";
+    document.body.appendChild(overlay);
+  }
+
+  
+function closeSidebar() {
+  document.body.classList.remove("jcn-cart-menu-open");
+  sidebar.classList.remove("mobile-open");
+
+  menuBtn.setAttribute("aria-expanded", "false");
+  menuBtn.setAttribute("aria-label", "Open navigation menu");
+}
+
+function openSidebar() {
+  if (window.innerWidth > 800) return;
+
+  document.body.classList.add("jcn-cart-menu-open");
+  sidebar.classList.add("mobile-open");
+
+  menuBtn.setAttribute("aria-expanded", "true");
+  menuBtn.setAttribute("aria-label", "Close navigation menu");
+}
+
+
+  // Hamburger click
+  menuBtn.addEventListener("click", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (document.body.classList.contains("jcn-cart-menu-open")) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  // Close button
+  closeBtn.addEventListener("click", closeSidebar);
+
+  // Overlay click
+  overlay.addEventListener("click", closeSidebar);
+
+  // Close when clicking a navigation link
+  sidebar.querySelectorAll(".menu a").forEach(link => {
+    link.addEventListener("click", closeSidebar);
+  });
+
+  // Close when pressing Escape
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+      closeSidebar();
+    }
+  });
+
+  // Close when resizing to desktop
+  window.addEventListener("resize", function() {
+    if (window.innerWidth > 800) {
+      closeSidebar();
+    }
+  });
+}
+
+// Initialize after DOM loads
+if (document.readyState === "loading") {
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeCartMobileSidebar
+  );
+} else {
+  initializeCartMobileSidebar();
+}
+
+

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,86 +5,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>JCN | Management Login</title>
+  <title>JCN | Admin Login</title>
 
   <!-- BOOTSTRAP -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- FONT AWESOME -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  >
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- EXISTING ADMIN CSS -->
+  <!-- JCN CSS -->
   <link rel="stylesheet" href="../css/style.css">
-
 </head>
 
-<body class="auth-page" data-page="management-login">
+<body class="auth-page">
 
-  <!-- BACKGROUND OVERLAY -->
-  <div class="auth-overlay" aria-hidden="true"></div>
+  <div class="auth-overlay"></div>
 
-  <main
-    class="container min-vh-100 d-flex justify-content-center align-items-center py-4 position-relative"
-  >
+  <div class="container min-vh-100 d-flex justify-content-center align-items-center py-4 position-relative">
 
     <div class="premium-auth-card p-4 p-md-5 w-100">
 
       <!-- HEADER -->
       <div class="text-center mb-4">
 
-        <img
-          src="../../logo.png"
-          alt="JCN Apparel Logo"
-          class="auth-logo mb-3"
-        >
+        <img src="../../logo.png" alt="JCN Logo" class="auth-logo mb-3">
 
         <p class="auth-brand-mini mb-2">
           JCN APPAREL PRINTING SERVICES
         </p>
 
         <h1 class="premium-auth-title">
-          MANAGEMENT LOGIN
+          ADMIN SIGN IN
         </h1>
 
         <p class="premium-auth-subtitle mb-0">
-          Secure access for authorized administrators
-          and staff members.
+          Login as administrator to manage orders, customers, and printing services.
         </p>
 
       </div>
 
-      <!-- MANAGEMENT LOGIN FORM -->
-      <form id="adminLoginForm" method="post">
+      <!-- LOGIN FORM -->
+      <form id="adminLoginForm">
 
         <!-- USERNAME -->
         <div class="premium-input-group mb-3">
 
           <label for="adminUsername" class="premium-label">
-            Username
+            Admin Username
           </label>
 
           <div class="premium-input-wrap">
 
-            <i
-              class="fa-solid fa-user-shield"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-solid fa-user-shield"></i>
 
             <input
               type="text"
               class="form-control premium-input"
               id="adminUsername"
               name="username"
-              placeholder="Enter your username"
+              placeholder="Enter admin username"
               autocomplete="username"
-              autocapitalize="none"
-              spellcheck="false"
               required
             >
 
@@ -102,17 +81,14 @@
 
           <div class="premium-input-wrap">
 
-            <i
-              class="fa-solid fa-lock"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-solid fa-lock"></i>
 
             <input
               type="password"
               class="form-control premium-input"
               id="adminPassword"
               name="password"
-              placeholder="Enter your password"
+              placeholder="Enter password"
               autocomplete="current-password"
               required
             >
@@ -122,27 +98,30 @@
               class="password-eye-btn"
               data-target="adminPassword"
               aria-label="Show or hide password"
-              aria-controls="adminPassword"
             >
-              <i
-                class="fa-solid fa-eye"
-                aria-hidden="true"
-              ></i>
+              <i class="fa-solid fa-eye"></i>
             </button>
 
           </div>
 
         </div>
 
-        <!-- FORGOT PASSWORD -->
-        <div
-          class="d-flex justify-content-end align-items-center mb-3 auth-links-row"
-        >
+            <!-- STAFF LOGIN -->
+<a
+              href="../../staff/html/staff-login.html"
+              class="admin-login-link"
+            >
+              <i class="fa-solid fa-users-gear"></i>
+              <span>Staff Login</span>
+            </a>
 
+          </div>
+
+          <!-- FORGOT PASSWORD -->
           <a
-            href="#resetModal"
+            href="#"
             id="adminForgotPasswordBtn"
-            class="gold-link small fw-semibold admin-forgot-link"
+            class="admin-login-link admin-forgot-link"
           >
             Forgot Password?
           </a>
@@ -150,44 +129,24 @@
         </div>
 
         <!-- LOGIN MESSAGE -->
-        <p
-          id="adminLoginMessage"
-          class="small text-center mb-3"
-          role="status"
-          aria-live="polite"
-        ></p>
+        <p id="adminLoginMessage" class="small text-center mb-3"></p>
 
         <!-- SIGN IN -->
         <div class="d-grid mb-3">
 
-          <button
-            type="submit"
-            class="premium-main-btn"
-          >
-            <i
-              class="fa-solid fa-right-to-bracket me-2"
-              aria-hidden="true"
-            ></i>
-
-            Sign In
-
+          <button type="submit" class="premium-main-btn">
+            <i class="fa-solid fa-right-to-bracket me-2"></i>
+            Admin Sign In
           </button>
 
         </div>
 
-        <!-- BACK TO WEBSITE -->
+        <!-- BACK HOME -->
         <div class="text-center mt-3">
 
-          <a
-            href="../../index.html"
-            class="back-home-link"
-          >
-            <i
-              class="fa-solid fa-arrow-left me-1"
-              aria-hidden="true"
-            ></i>
-
-            Back to Website
+          <a href="../../index.html" class="back-home-link">
+            <i class="fa-solid fa-arrow-left me-1"></i>
+            Back to Home
           </a>
 
         </div>
@@ -196,89 +155,61 @@
 
     </div>
 
-  </main>
+  </div>
 
-  <!-- PASSWORD RESET MODAL -->
-  <div
-    id="resetModal"
-    class="reset-modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="resetModalTitle"
-    aria-hidden="true"
-  >
+
+  <!-- RESET PASSWORD MODAL -->
+  <div id="resetModal" class="reset-modal hidden">
 
     <div class="reset-box">
 
-      <h2 id="resetModalTitle">
-        Reset Password
-      </h2>
+      <h2>Reset Password</h2>
 
       <p id="resetText">
-        Enter your registered admin email to receive OTP.
+        Enter your admin email to receive OTP.
       </p>
 
-      <!-- EMAIL -->
       <input
         type="email"
         id="resetEmail"
-        placeholder="Email address"
-        aria-label="Email address"
+        placeholder="Admin email"
         autocomplete="email"
       >
 
-      <!-- OTP -->
       <input
         type="text"
         id="resetOtp"
         class="hidden"
         placeholder="Enter OTP"
-        aria-label="One-time password"
         inputmode="numeric"
         autocomplete="one-time-code"
       >
 
-      <!-- NEW PASSWORD -->
       <input
         type="password"
         id="resetNewPassword"
         class="hidden"
         placeholder="New password"
-        aria-label="New password"
         autocomplete="new-password"
       >
 
-      <!-- CONFIRM PASSWORD -->
       <input
         type="password"
         id="resetConfirmPassword"
         class="hidden"
-        placeholder="Confirm new password"
-        aria-label="Confirm new password"
+        placeholder="Confirm password"
         autocomplete="new-password"
       >
 
-      <!-- RESET MESSAGE -->
-      <p
-        id="resetMessage"
-        role="status"
-        aria-live="polite"
-      ></p>
+      <p id="resetMessage"></p>
 
-      <!-- ACTION BUTTONS -->
       <div class="reset-actions">
 
-        <button
-          type="button"
-          id="cancelResetBtn"
-        >
+        <button type="button" id="cancelResetBtn">
           Cancel
         </button>
 
-        <button
-          type="button"
-          id="resetNextBtn"
-        >
+        <button type="button" id="resetNextBtn">
           Send OTP
         </button>
 
@@ -288,37 +219,23 @@
 
   </div>
 
-  <!-- RESET SUCCESS MODAL -->
-  <div
-    id="successModal"
-    class="success-modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="successModalTitle"
-    aria-hidden="true"
-  >
+
+  <!-- SUCCESS MODAL -->
+  <div id="successModal" class="success-modal hidden">
 
     <div class="success-box">
 
       <div class="success-icon">
-        <i
-          class="fa-solid fa-check"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-solid fa-check"></i>
       </div>
 
-      <h2 id="successModalTitle">
-        Success
-      </h2>
+      <h2>Success</h2>
 
       <p id="successText">
         Password reset successful. You can now login.
       </p>
 
-      <button
-        type="button"
-        id="successOkBtn"
-      >
+      <button type="button" id="successOkBtn">
         Continue
       </button>
 
@@ -326,13 +243,10 @@
 
   </div>
 
-  
-<!-- EXISTING ADMIN FUNCTIONS -->
-<script src="../js/script.js"></script>
 
-<!-- NEW MANAGEMENT LOGIN -->
-<script src="../js/management-login.js"></script>
-
+  <!-- ADMIN JAVASCRIPT -->
+  <script src="../js/script.js"></script>
 
 </body>
+
 </html>

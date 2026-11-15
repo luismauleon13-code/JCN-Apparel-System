@@ -1191,3 +1191,86 @@ window.completeOrder = completeOrder;
 window.continueToPay = continueToPay;
 window.toggleJntHistory = toggleJntHistory;
 window.loadOrders = loadOrders;
+
+
+/* ============================================
+   JCN ORDERS — MOBILE SIDEBAR NAVIGATION
+   Uses existing .sidebar and .main elements.
+============================================ */
+(() => {
+  function initializeOrdersMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const main = document.querySelector('.main');
+    if (!sidebar || !main) return;
+    if (document.getElementById('jcnOrdersMenuToggle')) return;
+
+    const bar = document.createElement('div');
+    bar.className = 'jcn-orders-mobile-bar';
+    bar.innerHTML = `
+      <button type="button" id="jcnOrdersMenuToggle"
+        class="jcn-orders-menu-toggle" aria-label="Open navigation menu"
+        aria-expanded="false" aria-controls="jcnOrdersSidebar">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+      <span class="jcn-orders-mobile-logo" aria-hidden="true">J</span>
+      <span class="jcn-orders-mobile-name">JCN Apparel</span>
+    `;
+    main.prepend(bar);
+    const toggle = bar.querySelector('.jcn-orders-menu-toggle');
+
+    if (!sidebar.id) sidebar.id = 'jcnOrdersSidebar';
+    toggle.setAttribute('aria-controls', sidebar.id);
+
+    let close = sidebar.querySelector('.jcn-orders-sidebar-close');
+    if (!close) {
+      close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'jcn-orders-sidebar-close';
+      close.setAttribute('aria-label', 'Close navigation menu');
+      close.innerHTML = '&times;';
+      sidebar.prepend(close);
+    }
+
+    let overlay = document.querySelector('.jcn-orders-menu-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'jcn-orders-menu-overlay';
+      document.body.appendChild(overlay);
+    }
+
+    function closeMenu() {
+      document.body.classList.remove('jcn-orders-menu-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation menu');
+    }
+    function openMenu() {
+      if (window.innerWidth > 800) return;
+      document.body.classList.add('jcn-orders-menu-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close navigation menu');
+    }
+
+    toggle.addEventListener('click', event => {
+      event.preventDefault();
+      if (document.body.classList.contains('jcn-orders-menu-open')) closeMenu();
+      else openMenu();
+    });
+    close.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    sidebar.querySelectorAll('.menu a').forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeMenu();
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 800) closeMenu();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeOrdersMobileSidebar);
+  } else {
+    initializeOrdersMobileSidebar();
+  }
+})();

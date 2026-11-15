@@ -111,24 +111,20 @@
         </div>
 
         <!-- LINKS -->
-        <div
-          class="d-flex justify-content-between align-items-center mb-3 auth-links-row"
-        >
-          <a
-            href="../../admin/html/admin-login.html"
-            class="gold-link small fw-semibold"
-          >
-            Admin Login
-          </a>
+       
+<!-- CUSTOMER LINKS -->
+<div class="d-flex justify-content-end align-items-center mb-3 auth-links-row">
 
-          <a
-            href="#customerResetModal"
-            class="gold-link small fw-semibold"
-            id="forgotPasswordBtn"
-          >
-            Forgot Password?
-          </a>
-        </div>
+  <a
+    href="#customerResetModal"
+    class="gold-link small fw-semibold"
+    id="forgotPasswordBtn"
+  >
+    Forgot Password?
+  </a>
+
+</div>
+
 
         <!-- MESSAGE -->
         <p
@@ -265,8 +261,13 @@
     </div>
   </div>
 
-  <!-- SHARED ADMIN + CUSTOMER LOGIN SCRIPT -->
-  <script src="../../admin/js/script.js"></script>
+  
+<!-- EXISTING CUSTOMER RESET HELPERS -->
+<script src="../../admin/js/script.js"></script>
+
+<!-- SEPARATE CUSTOMER LOGIN -->
+<script src="../js/customer-login.js"></script>
+
 
 </body>
 </html>

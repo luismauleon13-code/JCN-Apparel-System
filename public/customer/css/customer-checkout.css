@@ -619,3 +619,186 @@ select option {
     gap: 8px;
   }
 }
+
+
+/* ==========================================
+   JCN CUSTOMER CHECKOUT - MOBILE RESPONSIVE
+========================================== */
+
+.jcn-checkout-mobile-bar,
+.jcn-checkout-sidebar-close,
+.jcn-checkout-menu-overlay {
+  display: none;
+}
+
+@media (max-width: 800px) {
+
+  body {
+    display: block;
+    min-width: 0;
+  }
+
+  body.jcn-checkout-menu-open {
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(280px, 84vw);
+    height: 100dvh;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 22px 14px 18px;
+    z-index: 10020;
+    transform: translateX(-105%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform .22s ease, visibility .22s ease;
+    box-shadow: 8px 0 30px rgba(0,0,0,.25);
+  }
+
+  body.jcn-checkout-menu-open .sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .sidebar .brand {
+    margin-bottom: 22px;
+    padding-right: 38px;
+  }
+
+  .sidebar .menu a {
+    padding: 11px 12px;
+    font-size: 13px;
+  }
+
+  /* CLOSE BUTTON */
+  .jcn-checkout-sidebar-close {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    right: 12px;
+    top: 18px;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--panel-light);
+    color: var(--gold);
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  /* OVERLAY */
+  .jcn-checkout-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10010;
+    background: rgba(0,0,0,.66);
+    backdrop-filter: blur(2px);
+  }
+
+  body.jcn-checkout-menu-open
+  .jcn-checkout-menu-overlay {
+    display: block;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0 16px 24px;
+  }
+
+  /* MOBILE HEADER */
+  .jcn-checkout-mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 10px 0;
+    margin-bottom: 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* HAMBURGER */
+  .jcn-checkout-menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel-light);
+    color: var(--gold);
+    font-size: 20px;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  /* LOGO */
+  .jcn-checkout-mobile-logo {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #111;
+    font-weight: 900;
+  }
+
+  .jcn-checkout-mobile-name {
+    font-size: 14px;
+    color: var(--gold);
+    font-weight: 800;
+  }
+
+  /* CHECKOUT LAYOUT */
+  .checkout-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .checkout-layout > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .main {
+    padding: 0 11px 18px;
+  }
+
+  .jcn-checkout-mobile-name {
+    font-size: 13px;
+  }
+
+  .checkout-layout {
+    gap: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}

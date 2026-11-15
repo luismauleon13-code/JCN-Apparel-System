@@ -602,33 +602,156 @@ function updateCartCount() {
 
 
 
+/* ============================================
+   CUSTOMER DASHBOARD - ACCURATE ORDER COUNT
+   Uses the same customer-scoped endpoint as My Orders.
+============================================ */
 async function loadOrderCount() {
-  const user = JSON.parse(localStorage.getItem("customerUser")) || {};
+  const orderCount = document.getElementById("orderCount");
+  if (!orderCount) return;
 
+  let customer;
   try {
-    const res = await fetch(`${API_URL}/api/admin/reports`);
-    const data = await res.json();
-
-    if (!data.success) return;
-
-    const myOrders = (data.orders || []).filter(order => {
-      return (
-        String(order.user_id) === String(user.id) &&
-        !["Cancelled", "Completed", "Delivered"].includes(order.status)
-      );
-    });
-
-    document.getElementById("orderCount").textContent = myOrders.length;
-
+    customer = JSON.parse(localStorage.getItem("customerUser") || "{}");
   } catch (error) {
-    console.error("Cannot load orders:", error);
+    console.error("CUSTOMER SESSION ERROR:", error);
+    orderCount.textContent = "—";
+    return;
   }
 
-  window.addEventListener("pageshow", () => {
-  updateCartCount();
-});
+  const token = localStorage.getItem("customerToken");
+  if (!customer.id || !token) {
+    orderCount.textContent = "—";
+    return;
+  }
 
+  try {
+    const response = await fetch(
+      `${API_URL}/api/customer/orders/${encodeURIComponent(customer.id)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        cache: "no-store"
+      }
+    );
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Unable to load orders.");
+    }
+
+    const myOrders = (Array.isArray(data.orders) ? data.orders : [])
+      .filter(order => String(order.user_id) === String(customer.id));
+
+    // Only active orders should appear in the Dashboard counter.
+    // Exclude cancelled, completed, and delivered orders.
+    const inactiveStatuses = new Set([
+      "cancelled", "canceled", "completed", "delivered"
+    ]);
+    const activeOrders = myOrders.filter(order => {
+      const status = String(order.status || "")
+        .trim()
+        .toLowerCase();
+      return !inactiveStatuses.has(status);
+    });
+
+    orderCount.textContent = String(activeOrders.length);
+  } catch (error) {
+    console.error("DASHBOARD ORDER COUNT ERROR:", error);
+    orderCount.textContent = "—";
+  }
+}
+
+// Refresh after navigating back to the Dashboard or switching tabs.
+window.addEventListener("pageshow", () => {
+  updateCartCount();
+  loadOrderCount();
+});
 window.addEventListener("focus", () => {
   updateCartCount();
+  loadOrderCount();
 });
-}
+
+/* ==========================================================
+   JCN CUSTOMER HOME - MOBILE SIDEBAR
+   Self-contained: no HTML hamburger markup required.
+   Keep only ONE sidebar controller on this page.
+========================================================== */
+(() => {
+  function initializeHomeMobileSidebar() {
+    const sidebar = document.querySelector(".sidebar");
+    const main = document.querySelector(".main-content");
+    if (!sidebar || !main) return;
+    if (document.getElementById("jcnHomeMenuToggle")) return;
+
+    if (!sidebar.id) sidebar.id = "jcnHomeSidebar";
+
+    const mobileBar = document.createElement("div");
+    mobileBar.className = "jcn-home-mobile-bar";
+
+    const menuBtn = document.createElement("button");
+    menuBtn.id = "jcnHomeMenuToggle";
+    menuBtn.type = "button";
+    menuBtn.className = "jcn-home-menu-toggle";
+    menuBtn.setAttribute("aria-label", "Open navigation menu");
+    menuBtn.setAttribute("aria-expanded", "false");
+    menuBtn.setAttribute("aria-controls", sidebar.id);
+    menuBtn.innerHTML = '<i class="fa-solid fa-bars" aria-hidden="true"></i>';
+
+    const miniLogo = document.createElement("span");
+    miniLogo.className = "jcn-home-mobile-logo";
+    miniLogo.textContent = "J";
+
+    const miniName = document.createElement("span");
+    miniName.className = "jcn-home-mobile-name";
+    miniName.textContent = "JCN Apparel";
+    mobileBar.append(menuBtn, miniLogo, miniName);
+    main.prepend(mobileBar);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "jcn-home-sidebar-close";
+    closeBtn.setAttribute("aria-label", "Close navigation menu");
+    closeBtn.innerHTML = "&times;";
+    sidebar.prepend(closeBtn);
+
+    const overlay = document.createElement("div");
+    overlay.className = "jcn-home-menu-overlay";
+    document.body.appendChild(overlay);
+
+    function closeMenu() {
+      document.body.classList.remove("jcn-home-menu-open");
+      menuBtn.setAttribute("aria-expanded", "false");
+      menuBtn.setAttribute("aria-label", "Open navigation menu");
+    }
+
+    function openMenu() {
+      if (window.innerWidth > 800) return;
+      document.body.classList.add("jcn-home-menu-open");
+      menuBtn.setAttribute("aria-expanded", "true");
+      menuBtn.setAttribute("aria-label", "Close navigation menu");
+    }
+
+    menuBtn.addEventListener("click", event => {
+      event.preventDefault();
+      if (document.body.classList.contains("jcn-home-menu-open")) closeMenu();
+      else openMenu();
+    });
+    closeBtn.addEventListener("click", closeMenu);
+    overlay.addEventListener("click", closeMenu);
+    sidebar.querySelectorAll(".menu a").forEach(link => link.addEventListener("click", closeMenu));
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeMenu();
+    });
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 800) closeMenu();
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeHomeMobileSidebar);
+  } else {
+    initializeHomeMobileSidebar();
+  }
+})();
