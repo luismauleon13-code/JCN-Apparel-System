@@ -1,4 +1,5 @@
 /* JCN CUSTOMER ORDERS | Dashboard-aligned styles. All existing selectors retained. */
+
 * {
 
   margin: 0;
@@ -46,75 +47,131 @@ body {
 /* SIDEBAR */
 
 .sidebar {
+
   width: 250px;
+
   height: 100vh;
+
   min-height: 100vh;
+
   background: #090909;
+
   border-right: 1px solid var(--border);
+
   padding: 24px 16px;
+
   position: fixed;
+
   left: 0;
+
   top: 0;
+
   display: flex;
+
   flex-direction: column;
+
   z-index: 100;
+
 }
 
 .brand {
+
   display: flex;
+
   align-items: center;
+
   gap: 12px;
+
   margin-bottom: 35px;
+
 }
 
 .logo {
+
   width: 46px;
+
   height: 46px;
+
   flex-shrink: 0;
+
   border-radius: 50%;
+
   background: var(--gold);
+
   color: #000;
+
   display: grid;
+
   place-items: center;
+
   font-weight: 900;
+
   box-shadow: 0 0 20px rgba(244, 197, 66, 0.45);
+
 }
 
 .brand h2 {
+
   color: var(--gold);
+
   font-size: 22px;
+
 }
 
 .brand p {
+
   font-size: 12px;
+
   color: var(--muted);
+
 }
 
 .menu {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 10px;
+
 }
 
 .menu a {
+
   color: var(--text);
+
   text-decoration: none;
+
   padding: 13px 14px;
+
   border-radius: 12px;
+
   display: flex;
+
   align-items: center;
+
   gap: 12px;
+
   font-size: 14px;
+
   background: transparent;
+
   border: none;
+
   cursor: pointer;
+
   width: 100%;
+
   transition: 0.3s;
+
 }
 
 .menu a i {
+
   color: var(--gold);
+
   text-align: center;
+
 }
 
 .menu a.active,
@@ -130,23 +187,41 @@ body {
 /* LOGOUT BUTTON */
 
 .logout-btn {
+
   margin-top: auto;
+
   width: 100%;
+
   height: 42px;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
+
   gap: 8px;
+
   background: transparent;
+
   border: 1px solid var(--gold);
+
   border-radius: 12px;
+
   color: var(--gold);
+
   font-size: 13px;
+
   font-weight: 800;
+
   text-decoration: none;
+
   cursor: pointer;
+
   transition: all 0.3s ease;
+
   box-shadow: none;
+
 }
 
 .logout-btn i {
@@ -174,10 +249,15 @@ body {
 /* MAIN */
 
 .main {
+
   margin-left: 250px;
+
   width: calc(100% - 250px);
+
   min-width: 0;
+
   padding: 28px;
+
 }
 
 .topbar {
@@ -199,8 +279,11 @@ body {
 }
 
 .topbar h1 {
+
   font-size: 28px;
+
   margin-top: 6px;
+
 }
 
 /* ORDER TABS */
@@ -938,7 +1021,9 @@ body {
   }
 
   .logout-btn {
+
     margin-top: 20px;
+
   }
 
   .main {
@@ -1909,4 +1994,191 @@ body {
 
   }
 
+}
+
+
+/* =========================================================
+   JCN ORDERS — COMPACT MOBILE REFINEMENTS
+   Additive overrides; desktop presentation remains unchanged.
+   Sidebar controlled by customer-orders.js
+========================================================= */
+.jcn-orders-mobile-bar,
+.jcn-orders-sidebar-close,
+.jcn-orders-menu-overlay { display: none; }
+
+@media (max-width: 1100px) {
+  .orders-layout { grid-template-columns: minmax(0, 1fr); }
+  .orders-panel, .details-panel { min-width: 0; }
+}
+
+@media (max-width: 900px) {
+  .order-tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+  }
+  .tab-btn { flex: 0 0 auto; min-width: 108px; scroll-snap-align: start; }
+}
+
+@media (max-width: 800px) {
+  body { display: block; min-width: 0; }
+  body.jcn-orders-menu-open { overflow: hidden; }
+  .sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    display: flex;
+    flex-direction: column;
+    width: min(280px, 84vw) !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    padding: 22px 14px 18px !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    z-index: 10020 !important;
+    transform: translateX(-105%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform .24s ease, visibility .24s ease;
+    box-shadow: 8px 0 30px rgba(0,0,0,.35);
+  }
+  body.jcn-orders-menu-open .sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .sidebar .brand { margin-bottom: 22px; padding-right: 36px; }
+  .sidebar .menu { gap: 5px; }
+  .sidebar .menu a { padding: 11px 12px; font-size: 13px; }
+  .sidebar .logout-btn { margin-top: auto; min-height: 42px; }
+  .jcn-orders-sidebar-close {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 16px;
+    right: 12px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #1b1b1b;
+    color: var(--gold);
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .jcn-orders-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10010;
+    background: rgba(0,0,0,.66);
+    backdrop-filter: blur(2px);
+  }
+  body.jcn-orders-menu-open .jcn-orders-menu-overlay { display: block; }
+  .main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0 14px 24px !important;
+  }
+  .jcn-orders-mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+    margin-bottom: 14px;
+  }
+  .jcn-orders-menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #1b1b1b;
+    color: var(--gold);
+    font-size: 20px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .jcn-orders-mobile-logo {
+    display: grid;
+    place-items: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #111;
+    font-weight: 900;
+  }
+  .jcn-orders-mobile-name { font-size: 14px; font-weight: 800; color: var(--gold); }
+  .topbar { margin-bottom: 14px; }
+  .topbar p { font-size: 10px; letter-spacing: 1.2px; }
+  .topbar h1 { margin-top: 4px; font-size: 23px; }
+  .order-tabs { border-radius: 11px; margin-bottom: 14px; }
+  .tab-btn { height: 44px; min-width: 100px; padding: 0 12px; font-size: 12px; }
+  .orders-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .orders-panel, .details-panel { padding: 15px; border-radius: 14px; }
+  .orders-panel h2, .details-panel h2 { font-size: 17px; margin-bottom: 13px; }
+  .orders-list { gap: 10px; }
+  .order-card { padding: 12px; border-radius: 12px; }
+  .order-card h3 { font-size: 14px; overflow-wrap: anywhere; }
+  .order-card p { font-size: 12px; line-height: 1.5; }
+  .order-card-header, .order-card-footer { gap: 8px; flex-wrap: wrap; }
+  .status { padding: 5px 9px; font-size: 11px; }
+  .detail-row { padding: 10px 0; font-size: 12px; }
+  .detail-row strong { max-width: 55%; overflow-wrap: anywhere; }
+  .jcn-order-summary, .jcn-tracking-section { min-width: 0; }
+  .jcn-journey-card { padding: 14px; }
+  .jcn-journey-heading { align-items: flex-start; }
+  .jcn-journey-heading strong { font-size: 13px; }
+  .jcn-journey-timeline { margin-left: 4px; }
+  .jcn-journey-step { gap: 10px; min-height: 72px; }
+  .jcn-journey-step p, .jcn-courier-event p { font-size: 11px; }
+  .jcn-journey-number { font-size: 12px; }
+  .jcn-journey-subtitle { font-size: 13px; }
+  .complete-btn, .cancel-btn, .pay-btn { padding: 12px; font-size: 13px; }
+  .jcn-success-toast { left: 12px; right: 12px; top: 12px; padding: 12px 14px; }
+  .customer-logout-modal .modal-box { width: min(390px, calc(100% - 28px)); }
+  .swal2-popup.jcn-popup { width: min(400px, calc(100vw - 28px)) !important; }
+  .jcn-danger-btn, .jcn-cancel-btn { min-width: 0 !important; }
+}
+
+@media (max-width: 520px) {
+  .main { padding: 0 10px 18px !important; }
+  .topbar h1 { font-size: 21px; }
+  .orders-panel, .details-panel { padding: 12px; }
+  .tab-btn { min-width: 94px; height: 42px; font-size: 11px; }
+  .order-card { padding: 11px; }
+  .jcn-detail-banner { flex-direction: column; padding: 12px; }
+  .jcn-detail-info, .jcn-progress-box { padding-left: 11px; padding-right: 11px; }
+  .jcn-courier-box { padding: 12px; }
+  .jcn-tracking-number { flex-direction: column; }
+  .jcn-journey-card { padding: 12px; }
+  .jcn-journey-badge { font-size: 10px; }
+  .jcn-courier-events { padding-left: 14px; }
+  .logout-modal-actions { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .logout-modal-actions button { min-height: 38px; }
+}
+
+@media (max-width: 360px) {
+  .jcn-orders-mobile-name { font-size: 12px; }
+  .order-card-header { flex-direction: column; align-items: flex-start; }
+  .detail-row { flex-wrap: wrap; }
+  .detail-row strong { max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
 }
