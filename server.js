@@ -227,23 +227,25 @@ async function verifyCustomerToken(req, res, next) {
   }
 }
 
-// Public login aliases must be registered before the admin token guard.
-app.post(["/api/auth/admin-login", "/api/admin/login"], async (req, res) => {
+// =========================================================
+// MANAGEMENT AUTHENTICATION (ADMIN + STAFF)
+// Existing accounts live in admin_users in this version of JCN.
+// New unified endpoint plus legacy aliases keep existing portals working.
+// =========================================================
+const MANAGEMENT_ROLES = new Set([
+  "admin", "inventory_staff", "cashier", "graphic_designer"
+]);
+
+async function managementLogin(req, res, requiredGroup = "management") {
   try {
     const { username, password } = req.body || {};
-
-    if (
-      typeof username !== "string" ||
-      typeof password !== "string" ||
-      !username.trim() ||
-      !password
-    ) {
+    if (typeof username !== "string" || typeof password !== "string" ||
+        !username.trim() || !password) {
       return res.status(400).json({
         success: false,
         message: "Username and password are required."
       });
     }
-
     if (!process.env.JWT_SECRET) {
       return res.status(500).json({
         success: false,
@@ -251,33 +253,34 @@ app.post(["/api/auth/admin-login", "/api/admin/login"], async (req, res) => {
       });
     }
 
-    const { data: admin, error } = await supabase
+    const { data: account, error } = await supabase
       .from("admin_users")
       .select("*")
       .eq("username", username.trim())
       .maybeSingle();
 
     if (error) {
-      console.error("ADMIN LOGIN DATABASE ERROR:", error.message);
-
-      return res.status(500).json({
+      console.error("MANAGEMENT LOGIN DATABASE ERROR:", error.message);
+      return res.status(503).json({
         success: false,
-        message: "Unable to check your account."
+        message: "Unable to check account. Please try again."
       });
     }
 
-    if (!admin) {
+    // The same generic message is used for unknown users and bad passwords.
+    if (!account || typeof account.password !== "string") {
       return res.status(401).json({
         success: false,
         message: "Invalid username or password."
       });
     }
 
-    const storedPassword = String(admin.password || "");
-
+    const storedPassword = account.password;
+    // Plaintext comparison remains temporarily for legacy admin accounts.
+    // Migrate every legacy plaintext password to bcrypt in the database.
     const passwordMatch = storedPassword.startsWith("$2")
       ? await bcrypt.compare(password, storedPassword)
-      : storedPassword !== "" && password === storedPassword;
+      : storedPassword.length > 0 && password === storedPassword;
 
     if (!passwordMatch) {
       return res.status(401).json({
@@ -286,91 +289,111 @@ app.post(["/api/auth/admin-login", "/api/admin/login"], async (req, res) => {
       });
     }
 
-    const role = String(admin.role || "").trim().toLowerCase();
-    const status = String(admin.status || "").trim().toLowerCase();
+    const role = String(account.role || "").trim().toLowerCase();
+    const status = String(account.status || "").trim().toLowerCase();
 
-    if (role !== "admin") {
+    if (!MANAGEMENT_ROLES.has(role)) {
       return res.status(403).json({
         success: false,
-        message: "Staff accounts must use the Staff Login."
+        message: "This account is not authorized for management access."
       });
     }
 
+    if (requiredGroup === "admin" && role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "This login endpoint is for administrators only."
+      });
+    }
+    if (requiredGroup === "staff" && role === "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "This login endpoint is for staff only."
+      });
+    }
     if (status !== "active") {
       return res.status(403).json({
         success: false,
-        message: "Your admin account is inactive or restricted."
+        message: "This account is inactive or restricted."
       });
     }
 
     const token = jwt.sign(
-      {
-        id: admin.id,
-        username: admin.username,
-        role
-      },
+      { id: account.id, username: account.username, role },
       process.env.JWT_SECRET,
-      {
-        algorithm: "HS256",
-        expiresIn: "8h"
-      }
+      { algorithm: "HS256", expiresIn: "8h" }
     );
+
+    const loginTime = new Date().toISOString();
+    // Non-fatal: login should still succeed if last_login_at is unavailable.
+    if (role !== "admin") {
+      const { error: updateError } = await supabase
+        .from("admin_users")
+        .update({ last_login_at: loginTime })
+        .eq("id", account.id);
+      if (updateError) console.error("STAFF LAST LOGIN UPDATE:", updateError.message);
+    }
 
     return res.status(200).json({
       success: true,
-      message: "Admin login successful.",
+      message: "Login successful.",
       token,
       user: {
-        id: admin.id,
-        username: admin.username,
-        full_name: admin.full_name,
-        email: admin.email,
+        id: account.id,
+        username: account.username,
+        full_name: account.full_name || "",
+        email: account.email || "",
         role,
-        status
+        status,
+        last_login_at: loginTime
       }
     });
   } catch (error) {
-    console.error("ADMIN LOGIN ERROR:", error.message);
-
+    console.error("MANAGEMENT LOGIN ERROR:", error.message);
     return res.status(500).json({
       success: false,
       message: "Unable to log in. Please try again."
     });
   }
+}
+
+// Use this new endpoint in admin/js/management-login.js.
+app.post("/api/auth/management-login", (req, res) =>
+  managementLogin(req, res, "management")
+);
+
+// Compatibility for the existing Admin Login and Staff Login UIs.
+app.post(["/api/auth/admin-login", "/api/admin/login"], (req, res) =>
+  managementLogin(req, res, "admin")
+);
+
+app.post("/api/staff/login", (req, res) =>
+  managementLogin(req, res, "staff")
+);
+
+// Check management sessions and role against the current DB record.
+app.get("/api/auth/management-session", verifyStaffToken, (req, res) => {
+  return res.json({ success: true, user: req.staff });
 });
 
-// Protect admin routes, while keeping the current dashboard/product
-// compatibility endpoints working with the existing frontend.
-// Product READ is public because customers must be able to view products.
-// Product WRITE routes are protected again at route level for inventory staff/admin.
+// Protect Admin APIs globally. Product reads are intentionally public for
+// existing Customer Shop compatibility; product writes have route-level guards.
 app.use("/api/admin", (req, res, next) => {
-  const method = String(req.method || "GET").toUpperCase();
-  const path = String(req.path || "");
-
-  // Products are handled by their own route-level permissions below.
-  if (path === "/products" || path.startsWith("/products/")) {
+  const routePath = String(req.path || "");
+  // Product writes have their own verifyStaffToken + allowRoles guards below.
+  // Inventory staff must still be able to use legacy /api/admin/products URLs.
+  if (routePath === "/products" || routePath.startsWith("/products/")) {
     return next();
   }
-
-  // Current admin dashboard JS calls these without an Authorization header.
-  // Keep only these read-only dashboard endpoints compatible.
-  if (
-    method === "GET" &&
-    (path === "/overview" || path === "/sales-summary")
-  ) {
-    return next();
-  }
-
-  return verifyStaffToken(req, res, () => {
-    return allowRoles("admin")(req, res, next);
-  });
+  return verifyStaffToken(req, res, () =>
+    allowRoles("admin")(req, res, next)
+  );
 });
 
+// The route above protects /api/admin/session, /overview, /sales-summary,
+// staff management, users, reports, settings, announcements, etc.
 app.get("/api/admin/session", (req, res) => {
-  res.json({
-    success: true,
-    user: req.staff
-  });
+  return res.json({ success: true, user: req.staff });
 });
 
 // =========================================================
@@ -1800,123 +1823,7 @@ app.delete(
   }
 );
 
-// =========================================================
-// STAFF LOGIN
-// =========================================================
-
-app.post("/api/staff/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Username and password are required."
-      });
-    }
-
-    const cleanUsername = username.trim();
-
-    const { data: staff, error } = await supabase
-      .from("admin_users")
-      .select("*")
-      .eq("username", cleanUsername)
-      .maybeSingle();
-
-    if (error) {
-      console.error("STAFF LOGIN DATABASE ERROR:", error);
-
-      return res.status(500).json({
-        success: false,
-        message: "Database error."
-      });
-    }
-
-    if (!staff) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid username or password."
-      });
-    }
-
-    const allowedStaffRoles = [
-      "inventory_staff",
-      "graphic_designer",
-      "cashier"
-    ];
-
-    if (!allowedStaffRoles.includes(staff.role)) {
-      return res.status(403).json({
-        success: false,
-        message: "This account is not authorized for the Staff Portal."
-      });
-    }
-
-    if (staff.status !== "active") {
-      return res.status(403).json({
-        success: false,
-        message: "Your staff account is currently inactive or restricted."
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(
-      password,
-      staff.password
-    );
-
-    if (!passwordMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid username or password."
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        id: staff.id,
-        username: staff.username,
-        role: staff.role
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "8h" }
-    );
-
-    const loginTime = new Date().toISOString();
-
-    const { error: updateError } = await supabase
-      .from("admin_users")
-      .update({
-        last_login_at: loginTime
-      })
-      .eq("id", staff.id);
-
-    if (updateError) {
-      console.error("LAST LOGIN UPDATE ERROR:", updateError);
-    }
-
-    return res.json({
-      success: true,
-      message: "Login successful.",
-      token,
-      user: {
-        id: staff.id,
-        full_name: staff.full_name,
-        username: staff.username,
-        email: staff.email,
-        role: staff.role,
-        status: staff.status,
-        last_login_at: loginTime
-      }
-    });
-  } catch (error) {
-    console.error("STAFF LOGIN ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Server error."
-    });
-  }
-});
+// Existing /api/staff/login is registered with unified management auth above.
 
 // =========================================================
 // ADMIN DASHBOARD OVERVIEW
