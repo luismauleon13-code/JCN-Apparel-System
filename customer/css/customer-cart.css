@@ -693,27 +693,58 @@ body {
 }
 
 
+
 /* ==========================================
-   JCN CART - HAMBURGER CLICK FIX
+   JCN CART - FINAL MOBILE SIDEBAR FIX
 ========================================== */
 
 @media (max-width: 800px) {
 
-  .jcn-cart-menu-toggle {
+  .jcn-cart-mobile-bar {
+    display: flex;
     position: relative;
-    z-index: 10030;
+    z-index: 1000;
+  }
+
+  .jcn-cart-menu-toggle {
+    display: grid;
+    place-items: center;
+    position: relative;
+    z-index: 1;
     pointer-events: auto;
     touch-action: manipulation;
     cursor: pointer;
   }
 
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(280px, 84vw);
+    height: 100dvh;
+    z-index: 10020;
+    transform: translateX(-105%);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  body.jcn-cart-menu-open .sidebar,
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
   .jcn-cart-sidebar-close {
-    z-index: 10031;
+    z-index: 2;
     pointer-events: auto;
   }
 
   .jcn-cart-menu-overlay {
-    pointer-events: auto;
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10010;
   }
 
   body.jcn-cart-menu-open .jcn-cart-menu-overlay {

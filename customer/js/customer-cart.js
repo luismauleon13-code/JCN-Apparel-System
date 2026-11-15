@@ -630,21 +630,25 @@ function initializeCartMobileSidebar() {
     document.body.appendChild(overlay);
   }
 
-  function closeSidebar() {
-    document.body.classList.remove("jcn-cart-menu-open");
+  
+function closeSidebar() {
+  document.body.classList.remove("jcn-cart-menu-open");
+  sidebar.classList.remove("mobile-open");
 
-    menuBtn.setAttribute("aria-expanded", "false");
-    menuBtn.setAttribute("aria-label", "Open navigation menu");
-  }
+  menuBtn.setAttribute("aria-expanded", "false");
+  menuBtn.setAttribute("aria-label", "Open navigation menu");
+}
 
-  function openSidebar() {
-    if (window.innerWidth > 800) return;
+function openSidebar() {
+  if (window.innerWidth > 800) return;
 
-    document.body.classList.add("jcn-cart-menu-open");
+  document.body.classList.add("jcn-cart-menu-open");
+  sidebar.classList.add("mobile-open");
 
-    menuBtn.setAttribute("aria-expanded", "true");
-    menuBtn.setAttribute("aria-label", "Close navigation menu");
-  }
+  menuBtn.setAttribute("aria-expanded", "true");
+  menuBtn.setAttribute("aria-label", "Close navigation menu");
+}
+
 
   // Hamburger click
   menuBtn.addEventListener("click", function(event) {
