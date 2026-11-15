@@ -691,3 +691,32 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .sidebar { transition: none; }
 }
+
+
+/* ==========================================
+   JCN CART - HAMBURGER CLICK FIX
+========================================== */
+
+@media (max-width: 800px) {
+
+  .jcn-cart-menu-toggle {
+    position: relative;
+    z-index: 10030;
+    pointer-events: auto;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  .jcn-cart-sidebar-close {
+    z-index: 10031;
+    pointer-events: auto;
+  }
+
+  .jcn-cart-menu-overlay {
+    pointer-events: auto;
+  }
+
+  body.jcn-cart-menu-open .jcn-cart-menu-overlay {
+    display: block;
+  }
+}
