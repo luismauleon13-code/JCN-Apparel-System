@@ -14,6 +14,8 @@ let cart =
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("CHECKOUT JS LOADED");
 
+  initializeCheckoutMobileSidebar();
+
   const loggedIn = await checkLogin();
 
   if (!loggedIn) return;
@@ -1854,4 +1856,122 @@ function escapeHtml(value) {
       "'",
       "&#039;"
     );
+}
+
+
+
+/* =========================================================
+   CUSTOMER CHECKOUT - MOBILE SIDEBAR
+   Matches jcn-checkout-* CSS selectors.
+   This does not change COD/PayPal processing.
+========================================================= */
+
+function initializeCheckoutMobileSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  const main = document.querySelector(".main");
+
+  if (!sidebar || !main) {
+    console.warn("Checkout mobile sidebar: .sidebar or .main is missing.");
+    return;
+  }
+
+  // Avoid adding another set of event listeners on reinitialization.
+  if (sidebar.dataset.checkoutMenuInitialized === "true") return;
+  sidebar.dataset.checkoutMenuInitialized = "true";
+
+  let mobileBar = document.querySelector(".jcn-checkout-mobile-bar");
+  if (!mobileBar) {
+    mobileBar = document.createElement("div");
+    mobileBar.className = "jcn-checkout-mobile-bar";
+    main.prepend(mobileBar);
+  }
+
+  let menuBtn = mobileBar.querySelector(".jcn-checkout-menu-toggle");
+  if (!menuBtn) {
+    menuBtn = document.createElement("button");
+    menuBtn.type = "button";
+    menuBtn.className = "jcn-checkout-menu-toggle";
+    menuBtn.innerHTML = '<i class="fa-solid fa-bars" aria-hidden="true"></i>';
+    mobileBar.prepend(menuBtn);
+  }
+
+  // Add branding only if it has not been added in the HTML already.
+  if (!mobileBar.querySelector(".jcn-checkout-mobile-logo")) {
+    const logo = document.createElement("span");
+    logo.className = "jcn-checkout-mobile-logo";
+    logo.textContent = "J";
+    mobileBar.appendChild(logo);
+  }
+  if (!mobileBar.querySelector(".jcn-checkout-mobile-name")) {
+    const name = document.createElement("span");
+    name.className = "jcn-checkout-mobile-name";
+    name.textContent = "JCN Apparel";
+    mobileBar.appendChild(name);
+  }
+
+  if (!sidebar.id) sidebar.id = "jcnCheckoutSidebar";
+  menuBtn.setAttribute("aria-controls", sidebar.id);
+  menuBtn.setAttribute("aria-expanded", "false");
+  menuBtn.setAttribute("aria-label", "Open navigation menu");
+
+  let closeBtn = sidebar.querySelector(".jcn-checkout-sidebar-close");
+  if (!closeBtn) {
+    closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "jcn-checkout-sidebar-close";
+    closeBtn.setAttribute("aria-label", "Close navigation menu");
+    closeBtn.innerHTML = "&times;";
+    sidebar.prepend(closeBtn);
+  }
+
+  let overlay = document.querySelector(".jcn-checkout-menu-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.className = "jcn-checkout-menu-overlay";
+    document.body.appendChild(overlay);
+  }
+  overlay.setAttribute("aria-hidden", "true");
+
+  function closeSidebar(restoreFocus = false) {
+    const wasOpen = document.body.classList.contains("jcn-checkout-menu-open");
+    document.body.classList.remove("jcn-checkout-menu-open");
+    menuBtn.setAttribute("aria-expanded", "false");
+    menuBtn.setAttribute("aria-label", "Open navigation menu");
+    if (restoreFocus && wasOpen && window.innerWidth <= 800) menuBtn.focus();
+  }
+
+  function openSidebar() {
+    if (window.innerWidth > 800) return;
+    document.body.classList.add("jcn-checkout-menu-open");
+    menuBtn.setAttribute("aria-expanded", "true");
+    menuBtn.setAttribute("aria-label", "Close navigation menu");
+    closeBtn.focus();
+  }
+
+  menuBtn.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (document.body.classList.contains("jcn-checkout-menu-open")) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  closeBtn.addEventListener("click", () => closeSidebar(true));
+  overlay.addEventListener("click", () => closeSidebar());
+
+  sidebar.querySelectorAll(".menu a").forEach(link => {
+    link.addEventListener("click", () => closeSidebar());
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && document.body.classList.contains("jcn-checkout-menu-open")) {
+      closeSidebar(true);
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 800) closeSidebar();
+  });
 }
