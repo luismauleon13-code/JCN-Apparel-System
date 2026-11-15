@@ -497,6 +497,8 @@ function saveCart() {
   renderCart();
 }
 
+
+
 /* ============================================
    CHECKOUT
 ============================================ */
@@ -542,3 +544,74 @@ async function checkout() {
 
   window.location.href = "customer-checkout.html";
 }
+
+
+/* ==========================================
+   JCN CUSTOMER CART - MOBILE SIDEBAR
+========================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.querySelector(".sidebar");
+  const main = document.querySelector(".main");
+
+  if (!sidebar || !main) return;
+
+  // Prevent duplicate initialization
+  if (document.getElementById("jcnMobileMenuBtn")) return;
+
+  // Create hamburger button
+  const menuBtn = document.createElement("button");
+
+  menuBtn.id = "jcnMobileMenuBtn";
+  menuBtn.type = "button";
+  menuBtn.className = "jcn-mobile-menu-btn";
+  menuBtn.setAttribute("aria-label", "Open navigation menu");
+  menuBtn.setAttribute("aria-expanded", "false");
+
+  menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+
+  // Create sidebar overlay
+  const overlay = document.createElement("div");
+  overlay.className = "jcn-sidebar-overlay";
+
+  // Insert button and overlay
+  main.prepend(menuBtn);
+  document.body.appendChild(overlay);
+
+  function closeSidebar() {
+    sidebar.classList.remove("mobile-open");
+    overlay.classList.remove("active");
+    menuBtn.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("jcn-menu-open");
+  }
+
+  function openSidebar() {
+    sidebar.classList.add("mobile-open");
+    overlay.classList.add("active");
+    menuBtn.setAttribute("aria-expanded", "true");
+    document.body.classList.add("jcn-menu-open");
+  }
+
+  menuBtn.addEventListener("click", () => {
+    if (sidebar.classList.contains("mobile-open")) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  overlay.addEventListener("click", closeSidebar);
+
+  sidebar.querySelectorAll(".menu a").forEach(link => {
+    link.addEventListener("click", closeSidebar);
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeSidebar();
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 800) closeSidebar();
+  });
+});
+
