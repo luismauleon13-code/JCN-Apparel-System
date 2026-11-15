@@ -444,3 +444,86 @@ window.addEventListener("storage", event => {
     updateCartCount();
   }
 });
+
+
+/* =========================================================
+   JCN SHOP - MOBILE SIDEBAR
+   Appended to existing customer-shop.js; no extra HTML/JS file.
+========================================================= */
+(function () {
+  function initializeShopMobileSidebar() {
+    const sidebar = document.querySelector(".sidebar");
+    const main = document.querySelector(".main");
+    if (!sidebar || !main) return;
+    if (document.getElementById("jcnShopMobileToggle")) return;
+
+    const bar = document.createElement("div");
+    bar.className = "jcn-shop-mobile-bar";
+
+    const toggle = document.createElement("button");
+    toggle.id = "jcnShopMobileToggle";
+    toggle.type = "button";
+    toggle.className = "jcn-shop-menu-toggle";
+    toggle.setAttribute("aria-label", "Open navigation menu");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = '<i class="fa-solid fa-bars" aria-hidden="true"></i>';
+
+    const logo = document.createElement("span");
+    logo.className = "jcn-shop-mobile-logo";
+    logo.textContent = "J";
+
+    const name = document.createElement("span");
+    name.className = "jcn-shop-mobile-name";
+    name.textContent = "JCN Apparel";
+
+    bar.append(toggle, logo, name);
+    main.prepend(bar);
+
+    if (!sidebar.id) sidebar.id = "jcnShopSidebar";
+    toggle.setAttribute("aria-controls", sidebar.id);
+
+    const close = document.createElement("button");
+    close.className = "jcn-shop-sidebar-close";
+    close.type = "button";
+    close.setAttribute("aria-label", "Close navigation menu");
+    close.innerHTML = "&times;";
+    sidebar.prepend(close);
+
+    const overlay = document.createElement("div");
+    overlay.className = "jcn-shop-menu-overlay";
+    document.body.appendChild(overlay);
+
+    function setOpen(open) {
+      const isOpen = Boolean(open) && window.innerWidth <= 800;
+      document.body.classList.toggle("jcn-shop-menu-open", isOpen);
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      toggle.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+      if (isOpen) close.focus();
+    }
+
+    toggle.addEventListener("click", function (event) {
+      event.preventDefault();
+      setOpen(!document.body.classList.contains("jcn-shop-menu-open"));
+    });
+    close.addEventListener("click", function () { setOpen(false); toggle.focus(); });
+    overlay.addEventListener("click", function () { setOpen(false); toggle.focus(); });
+    sidebar.querySelectorAll(".menu a").forEach(function (link) {
+      link.addEventListener("click", function () { setOpen(false); });
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && document.body.classList.contains("jcn-shop-menu-open")) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 800) setOpen(false);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeShopMobileSidebar);
+  } else {
+    initializeShopMobileSidebar();
+  }
+})();
