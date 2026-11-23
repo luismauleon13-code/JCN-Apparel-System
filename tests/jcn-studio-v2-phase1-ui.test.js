@@ -156,7 +156,10 @@ test('product chooser is hidden until requested and can be closed',async()=>{
   app.win.JCNStudioPhase1OpenCatalog();
   assert.equal(chooser.open,true);
   assert.equal($('catalogSearch').focused,true);
-  const close=chooser.children[0].children[1];
+  const header=chooser.children.find(x=>x.className==='jcn-v2-browse-head');
+  assert.ok(header);
+  const close=header.children.find(x=>x.className==='jcn-v2-browse-close');
+  assert.ok(close);
   await close.fire('click');
   assert.equal(chooser.open,false);
 });
