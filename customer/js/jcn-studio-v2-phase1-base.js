@@ -196,9 +196,14 @@
   }
   function selectProduct(id) {
     const next=products.find(p=>p.id===id);if(!next)return;
+    const firstSelection=!state.product;
     state.product=id;
     if(!next.sizes.includes(state.size))state.size=next.sizes[0];
-    if(!next.colors.includes(state.color))state.color=next.colors[0];
+    const defaultBlack=next.colors.find(c=>c.toLowerCase()==='black');
+    // Choose the most representative front-view color on first load only.
+    // On later changes, preserve the customer's color when it is still available.
+    if(firstSelection && defaultBlack)state.color=defaultBlack;
+    else if(!next.colors.includes(state.color))state.color=next.colors[0];
     const size=$('shirtSize'), color=$('shirtColor');size.replaceChildren();color.replaceChildren();
     size.disabled=false;color.disabled=false;
     for(const v of next.sizes){const opt=new Option(v,v);size.add(opt);}
@@ -599,5 +604,5 @@
   for(const id of ['startCamera','captureFront','captureSide','retake'])$(id).onclick=()=>showDialog('BodyFit Camera — UI prototype','This is the approved large-camera visual layout, not a live camera. The existing MediaPipe scanner will be integrated after the UI is approved. No photo was taken.');
   $('continueAvatar').onclick=()=>{selectStep('design');showToast('Returned to design preview. Live scan-to-avatar is not connected in this shell.');};
   // Initial state
-  renderCategories();renderShapes();resetProductUI();renderCatalog();setPlacement('back');setView('back',false);setQty(1);renderFitMethod();selectStep('shirt');loadCatalog();
+  renderCategories();renderShapes();resetProductUI();renderCatalog();setPlacement('front');setView('front',false);setQty(1);renderFitMethod();selectStep('shirt');loadCatalog();
 })();
