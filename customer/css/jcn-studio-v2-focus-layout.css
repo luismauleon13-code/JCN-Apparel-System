@@ -1,0 +1,171 @@
+/* JCN Personal Fit Studio 2.0 — Focused Step Workspace.
+   Applied only to jcn-customize-v2-phase1.html via an explicit JS body class.
+   Existing JCN CSS remains untouched; this is an isolated layout layer. */
+body.jcn-focused-studio{--jcn-focus-bg:#0b0d11;--jcn-focus-card:#171a1f;--jcn-focus-border:#393e44;--jcn-focus-gold:#eac15e}
+body.jcn-focused-studio .workspace{
+  width:100%;max-width:1900px;
+  display:grid;grid-template-columns:220px minmax(0,1fr) 275px;
+  gap:12px;align-items:start;padding:15px;
+}
+body.jcn-focused-studio .editor{
+  position:sticky;top:calc(var(--header-h) + 10px);
+  max-height:calc(100vh - var(--header-h) - 24px);
+  overflow:auto;background:#14171c;padding:18px 12px 12px;
+}
+body.jcn-focused-studio .editor>.eyebrow,
+body.jcn-focused-studio .editor>h1,
+body.jcn-focused-studio .editor>.editor-intro{display:none}
+body.jcn-focused-studio .jcn-focus-step-intro{display:grid;gap:6px;padding:2px 7px 16px;border-bottom:1px solid #35383e;margin-bottom:12px}
+body.jcn-focused-studio .jcn-focus-step-intro span{color:#e5b959;font-size:9px;letter-spacing:1.1px;font-weight:900}
+body.jcn-focused-studio .jcn-focus-step-intro strong{font-size:15px;color:#f5f2e9}
+body.jcn-focused-studio .jcn-focus-step-intro small{font-size:10px;color:#a9adb3;line-height:1.4}
+body.jcn-focused-studio .steps-list{margin:0;gap:6px;display:grid}
+body.jcn-focused-studio .step-card{border:1px solid transparent;background:#1b1e23;min-height:73px;border-radius:12px;padding:11px 9px;gap:9px;margin:0}
+body.jcn-focused-studio .step-card:hover{border-color:#746341}
+body.jcn-focused-studio .step-card.active{background:linear-gradient(108deg,#4b3a1d,#292720);border-color:#d0a450;box-shadow:inset 0 0 0 1px #d9b35b2b;margin:0;color:#fff}
+body.jcn-focused-studio .step-icon{width:34px;height:34px}
+body.jcn-focused-studio .step-icon svg{width:19px;height:19px}
+body.jcn-focused-studio .step-copy b{font-size:13px}
+body.jcn-focused-studio .step-copy small{font-size:10px;line-height:1.35}
+body.jcn-focused-studio .step-card[data-step="shirt"] .step-trailing{visibility:hidden}
+body.jcn-focused-studio[data-jcn-shirt-validated="true"] .step-card[data-step="shirt"] .step-trailing{visibility:visible}
+body.jcn-focused-studio .center-panel{position:relative;display:flex;flex-direction:column;gap:9px;min-width:0}
+body.jcn-focused-studio .jcn-focus-workspace-head{min-height:76px;display:flex;align-items:center;padding:15px 19px;border:1px solid #343940;border-radius:15px;background:linear-gradient(110deg,#1b1e24,#121518)}
+body.jcn-focused-studio .jcn-focus-workspace-head span{font-size:10px;font-weight:900;letter-spacing:1.1px;color:#e7bb5c}
+body.jcn-focused-studio .jcn-focus-workspace-head h2{color:#f7f4ee;font:500 22px/1.14 var(--display-font);letter-spacing:-.25px;margin:5px 0 4px}
+body.jcn-focused-studio .jcn-focus-workspace-head p{color:#b7b9c0;font-size:11px;margin:0}
+body.jcn-focused-studio .jcn-focus-main{width:100%;display:grid;grid-template-columns:minmax(295px,43%) minmax(0,1fr);min-height:605px;gap:10px;align-items:stretch}
+body.jcn-focused-studio .jcn-focus-content{
+  background:linear-gradient(155deg,#181b20,#12151a);
+  border:1px solid #3c4149;border-radius:16px;
+  padding:19px 16px;min-width:0;max-height:calc(100dvh - var(--header-h) - 181px);min-height:510px;
+  overflow:auto;scrollbar-width:thin;scrollbar-color:#75603c #15171b;
+}
+body.jcn-focused-studio .jcn-focus-content .step-content{margin:0}
+body.jcn-focused-studio .jcn-focus-content .step-content[hidden]{display:none!important}
+body.jcn-focused-studio .jcn-focus-content .section-title-row{margin:0 0 9px;align-items:start}
+body.jcn-focused-studio .jcn-focus-content .section-title-row h2{font:500 21px var(--display-font)}
+body.jcn-focused-studio .jcn-focus-preview{position:relative;display:flex;flex-direction:column;min-height:510px;min-width:0;background:#dadad5;border:1px solid #878680;border-radius:16px;overflow:hidden}
+body.jcn-focused-studio .jcn-focus-preview .stage{height:100%;min-height:0;flex:1;border:0;border-radius:0;overflow:hidden}
+body.jcn-focused-studio .jcn-focus-preview .stage[hidden]{display:none!important}
+body.jcn-focused-studio .jcn-focus-preview-label{
+  position:absolute;left:12px;bottom:11px;z-index:18;
+  border:1px solid #746a4c;background:#181b1fe6;color:#eedbaf;
+  padding:7px 9px;border-radius:8px;font-size:9px;font-weight:700;letter-spacing:.4px;
+  max-width:calc(100% - 24px);pointer-events:none
+}
+body.jcn-focused-studio .jcn-focus-main[data-jcn-focus-step="bodyfit"]{grid-template-columns:minmax(250px,36%) minmax(0,1fr)}
+body.jcn-focused-studio .jcn-focus-main[data-jcn-focus-step="review"]{grid-template-columns:minmax(300px,45%) minmax(0,1fr)}
+body.jcn-focused-studio .jcn-focus-preview .camera-visual{min-height:360px}
+body.jcn-focused-studio .bottom-guidance{min-height:44px;padding:8px 12px;font-size:10px;opacity:.9}
+body.jcn-focused-studio .bottom-guidance>svg:first-child{width:21px;height:21px}
+body.jcn-focused-studio .order-panel{
+  position:sticky;top:calc(var(--header-h) + 10px);
+  padding:17px 13px;max-height:calc(100vh - var(--header-h) - 24px);
+  overflow:auto;display:block;min-width:0;
+}
+body.jcn-focused-studio .summary-product{padding:13px 0;gap:10px}
+body.jcn-focused-studio .summary-product>img{width:70px;height:74px;object-fit:contain}
+body.jcn-focused-studio .summary-product>div{gap:5px}
+body.jcn-focused-studio .summary-product strong{font-size:12px}
+body.jcn-focused-studio .summary-section{padding:10px 0 12px}
+body.jcn-focused-studio .summary-section h3{margin:0 0 8px;font-size:12px}
+body.jcn-focused-studio .jcn-v2-right-variants{padding:8px;margin:7px 0}
+body.jcn-focused-studio .jcn-v2-right-variants li{font-size:10px}
+body.jcn-focused-studio .summary-actions{margin-top:12px}
+body.jcn-focused-studio .order-panel .summary-section:first-of-type{display:none}
+body.jcn-focused-studio[data-jcn-focus-step="bodyfit"] .order-panel .order-details-section,
+body.jcn-focused-studio[data-jcn-focus-step="bodyfit"] .order-panel .totals{display:none}
+body.jcn-focused-studio[data-jcn-focus-step="design"] .order-panel .summary-section:first-of-type,
+body.jcn-focused-studio[data-jcn-focus-step="review"] .order-panel .summary-section:first-of-type{display:block}
+body.jcn-focused-studio .summary-actions #reviewButton,
+body.jcn-focused-studio .summary-actions #saveDraftButton{display:none!important}
+body.jcn-focused-studio .site-header #draftButton,
+body.jcn-focused-studio .site-header #exportButton,
+body.jcn-focused-studio .site-header #reopenDesignDock{display:none!important}
+body.jcn-focused-studio[data-jcn-focus-step="design"] .site-header #reopenDesignDock{display:inline-flex!important}
+body.jcn-focused-studio .jcn-focus-summary-toggle{
+  display:none;background:#1d2025;color:#f0cf80;
+  border:1px solid #9c7b42;border-radius:10px;padding:9px 12px;
+  font-size:11px;font-weight:800;cursor:pointer;
+}
+body.jcn-focused-studio .jcn-focus-summary-close{display:none}
+body.jcn-focused-studio .jcn-focus-summary-veil[hidden]{display:none}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .jcn-focus-content .jcn-v2-browse{margin:7px 0 11px}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .jcn-focus-content .jcn-v2-browse:not([open]){background:#28251d;border-color:#917544}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .jcn-focus-content .jcn-v2-chips-block{margin:12px 0}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .jcn-focus-content .jcn-v2-selection{margin:10px 0 10px}
+body.jcn-focused-studio .jcn-focus-content .jcn-v2-browse .demo-product-list{max-height:270px}
+body.jcn-focused-studio .jcn-focus-content #shirtPanel>.form-pair{display:none}
+body.jcn-focused-studio .jcn-focus-content .jcn-v2-selection .jcn-v2-help{line-height:1.5}
+body.jcn-focused-studio .jcn-focus-content #shirtPanel>.catalog-help{font-size:10px;line-height:1.5;margin:10px 0 0}
+body.jcn-focused-studio .jcn-focus-content #shirtPanel>.stock-note{font-size:10px}
+body.jcn-focused-studio .jcn-focus-content #shirtPanel>.selected-apparel-label{margin-top:11px}
+body.jcn-focused-studio .jcn-focus-content .jcn-v2-right-variants{margin:10px 0}
+body.jcn-focused-studio .design-stage .live-garment-note{max-width:165px}
+body.jcn-focused-studio .jcn-focus-preview .jcn-preview-mode{top:58px}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] #jcnEditPlacement,
+body.jcn-focused-studio[data-jcn-focus-step="review"] #jcnEditPlacement{display:none!important}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .design-stage .design-dock,
+body.jcn-focused-studio[data-jcn-focus-step="review"] .design-stage .design-dock,
+body.jcn-focused-studio[data-jcn-focus-step="bodyfit"] .design-stage .design-dock{display:none!important}
+body.jcn-focused-studio .jcn-focus-content .step-next-btn:disabled{cursor:not-allowed;opacity:.4}
+body.jcn-focused-studio .jcn-focus-content button:focus-visible,
+body.jcn-focused-studio .jcn-focus-summary-toggle:focus-visible{outline:2px solid #ffd77a;outline-offset:2px}
+@media(max-width:1580px){
+ body.jcn-focused-studio .workspace{grid-template-columns:195px minmax(0,1fr) 235px;padding:11px;gap:9px}
+ body.jcn-focused-studio .jcn-focus-main{grid-template-columns:minmax(265px,44%) minmax(0,1fr)}
+ body.jcn-focused-studio .jcn-focus-content{padding:16px 12px}
+}
+@media(max-width:1250px){
+ body.jcn-focused-studio .workspace{grid-template-columns:185px minmax(0,1fr);gap:10px}
+ body.jcn-focused-studio .jcn-focus-main{grid-template-columns:minmax(265px,42%) minmax(0,1fr)}
+ body.jcn-focused-studio .order-panel{
+   position:fixed;right:0;top:0;bottom:0;z-index:1002;
+   width:min(350px,92vw);max-height:none;border-radius:14px 0 0 14px;
+   transform:translateX(103%);transition:transform .22s ease;
+   box-shadow:-15px 0 42px #0008
+ }
+ body.jcn-focused-studio.jcn-focus-show-summary .order-panel{transform:translateX(0)}
+ body.jcn-focused-studio .jcn-focus-summary-toggle,
+ body.jcn-focused-studio .jcn-focus-summary-close{display:inline-flex;align-items:center}
+ body.jcn-focused-studio .jcn-focus-summary-close{margin-left:auto;border:1px solid #61533a;border-radius:8px;background:#25201a;color:#f7cf75;padding:7px 12px;cursor:pointer}
+ body.jcn-focused-studio .jcn-focus-summary-veil:not([hidden]){
+   position:fixed;inset:0;background:#000a;z-index:1001;display:block
+ }
+}
+@media(max-width:900px){
+ body.jcn-focused-studio .workspace{grid-template-columns:1fr;display:flex;flex-direction:column;padding:10px}
+ body.jcn-focused-studio .editor{position:static;max-height:none;width:100%;padding:11px}
+ body.jcn-focused-studio .jcn-focus-step-intro{display:none}
+ body.jcn-focused-studio .steps-list{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ body.jcn-focused-studio .step-card{min-height:68px;flex-direction:column;justify-content:center;text-align:center;padding:8px 4px;gap:4px}
+ body.jcn-focused-studio .step-card .step-trailing{display:none}
+ body.jcn-focused-studio .step-icon{display:none}
+ body.jcn-focused-studio .step-copy b{font-size:11px}
+ body.jcn-focused-studio .step-copy small{font-size:9px}
+ body.jcn-focused-studio .center-panel{width:100%}
+ body.jcn-focused-studio .jcn-focus-main{grid-template-columns:minmax(0,42%) minmax(0,1fr)}
+ body.jcn-focused-studio .jcn-focus-content{max-height:none;min-height:460px}
+ body.jcn-focused-studio .jcn-focus-preview{min-height:460px}
+}
+@media(max-width:720px){
+ body.jcn-focused-studio .workspace{padding:8px 8px 80px}
+ body.jcn-focused-studio .jcn-focus-main,
+ body.jcn-focused-studio .jcn-focus-main[data-jcn-focus-step="bodyfit"],
+ body.jcn-focused-studio .jcn-focus-main[data-jcn-focus-step="review"]{display:flex;flex-direction:column;min-height:auto}
+ body.jcn-focused-studio .jcn-focus-content{max-height:none;min-height:auto;overflow:visible;padding:15px 12px}
+ body.jcn-focused-studio .jcn-focus-preview{min-height:440px;height:440px}
+ body.jcn-focused-studio .jcn-focus-preview .stage{min-height:0}
+ body.jcn-focused-studio .jcn-focus-workspace-head{min-height:70px;padding:12px 14px}
+ body.jcn-focused-studio .jcn-focus-workspace-head h2{font-size:21px}
+ body.jcn-focused-studio .steps-list{gap:3px}
+ body.jcn-focused-studio .step-card{min-height:53px;padding:6px 3px}
+ body.jcn-focused-studio .step-card .step-copy small{display:none}
+ body.jcn-focused-studio .jcn-focus-preview .camera-visual{min-height:255px}
+ body.jcn-focused-studio .jcn-focus-summary-toggle{position:fixed;bottom:76px;right:11px;z-index:999;padding:11px 13px;box-shadow:0 7px 18px #0009}
+ body.jcn-focused-studio .jcn-focus-preview-label{font-size:8px;bottom:7px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.jcn-focused-studio .order-panel{transition:none}
+}
