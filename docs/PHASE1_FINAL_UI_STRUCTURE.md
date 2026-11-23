@@ -1,6 +1,6 @@
 # JCN PERSONAL FIT STUDIO 2.0
 ## PHASE 1 — FINAL FOCUSED WORKSPACE UI STRUCTURE
-Status: Approved design direction / implementation blueprint  
+Status: Focused layout committed on development branch; awaiting actual browser and responsive acceptance tests  
 Target branch: `feature/personal-fit-studio-v2`  
 Existing production customer page: **must remain unchanged** until complete testing and approval.
 
@@ -123,3 +123,13 @@ Desktop width below 1200 px: replace always-open contextual summary with a slide
 - [ ] Production security assessment and restore test are resolved before any merge/deployment.
 
 **Design decision approved:** the Focused Step Workspace is the Phase 1 visual direction. Exact pixel values above are starting specifications that can be adjusted after browser screenshots and responsive testing.
+
+### Implementation snapshot — 2026-11-24
+
+- Added `customer/js/jcn-studio-v2-focus-layout.js`: moves the original step content nodes into a dedicated focus workspace without cloning or renaming the existing inputs; retains 3D and camera stage nodes, plus adaptive order-summary drawer.
+- Added `customer/css/jcn-studio-v2-focus-layout.css`: responsive editorial-style step rail, contextual center workspace, minimized right summary, mobile layout.
+- Added selected-garment hero in Step 01 with thumbnail, name, current price, and on-demand Change Apparel chooser. Existing size chips, color swatches, variant matrix and read-only stock validation are retained.
+- Progress-rail navigation now checks the validated Phase 1 selection and returns user to Shirt instead of skipping it.
+- `tests/jcn-studio-v2-focus-layout.test.js` added with Node mocked-DOM regression cases. Other Phase 1 variant/backend regression suites remain in `tests/`.
+- Static JavaScript syntax and markup reference checks passed; simulated focus-step interaction checks passed. **Real browser rendering, mobile screenshots, keyboard accessibility, WebGL resizing, and live API integration are still pending.**
+- The latest source remains an **isolated test page**, not the active live customer customization or production checkout.
