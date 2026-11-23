@@ -256,8 +256,8 @@
       setTimeout(()=>{
         sync();
         catalogPicker.open=false;
-        const target=$('selectedProductName');
-        if(target)target.scrollIntoView({block:'nearest',behavior:'smooth'});
+        const target=$('jcnFocusProductHero')||$('selectedProductName');
+        if(target && typeof target.scrollIntoView==='function')target.scrollIntoView({block:'nearest',behavior:'smooth'});
       },0);
     }
     if(e.target.closest('[data-step="review"],#nextToBodyfit'))setTimeout(refreshReview,0);
