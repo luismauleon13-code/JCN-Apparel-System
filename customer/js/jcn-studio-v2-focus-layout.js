@@ -129,6 +129,27 @@
   }
 
   window.addEventListener('jcn:studio3d-step',event=>showStep(event.detail?.step));
+
+  // Do not let direct clicking of the progress rail bypass selection validation.
+  // Navigate back to Shirt instead of silently accepting an incomplete order.
+  document.addEventListener('click',event=>{
+    const target=event.target.closest('.step-card[data-step]');
+    if(!target || target.dataset.step==='shirt')return;
+    if(window.JCNStudioPhase1State?.canContinue?.())return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const status=$('jcnV2Status');
+    if(status){
+      status.textContent='Please choose shirt variants and validate garment availability before continuing.';
+      status.dataset.type='error';
+    }
+    const shirtButton=document.querySelector('.step-card[data-step="shirt"]');
+    if(shirtButton && !shirtButton.classList.contains('active'))shirtButton.click();
+    const selector=$('jcnV2Add');
+    if(selector && typeof selector.scrollIntoView==='function')
+      selector.scrollIntoView({block:'nearest',behavior:'smooth'});
+  },true);
+
   const selected=document.querySelector('.step-card.active');
   showStep(selected?.dataset.step||'shirt');
   document.body.classList.add('jcn-focused-studio');
