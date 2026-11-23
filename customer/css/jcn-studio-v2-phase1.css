@@ -1,0 +1,40 @@
+/* JCN Personal Fit Studio 2.0 — isolated Phase 1 controls.
+   Reuses the established black-and-gold layout. */
+.jcn-v2-selection {margin:16px 0 12px;padding:15px 12px;background:#17191c;border:1px solid #746039;border-radius:13px;color:#f3f0e7}
+.jcn-v2-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.jcn-v2-head strong{font-size:14px;color:#f3c565}
+.jcn-v2-head small,.jcn-v2-help,.jcn-v2-disclaimer{font-size:10px;line-height:1.55;color:#c3bbaa}
+.jcn-v2-help{margin:10px 0 12px}
+.jcn-v2-add{display:grid;grid-template-columns:minmax(70px,1fr) 1.7fr;gap:8px;align-items:end}
+.jcn-v2-add label{display:grid;gap:5px;font-size:11px;color:#e5c273}
+.jcn-v2-add input,.jcn-v2-row input{height:36px;min-width:0;width:100%;background:#0d0e12;border:1px solid #71603d;border-radius:8px;padding:6px 9px;color:#fff}
+.jcn-v2-add button,.jcn-v2-check{border-radius:9px;border:1px solid #dfb452;background:#e4b64d;color:#21180d;font-size:11px;font-weight:800;padding:10px;cursor:pointer}
+.jcn-v2-add button:disabled,.jcn-v2-check:disabled{opacity:.4;cursor:not-allowed}
+.jcn-v2-variants{display:grid;gap:6px;margin:11px 0}
+.jcn-v2-variants>p{font-size:11px;color:#bbb4a4;padding:9px;border:1px dashed #63522e;border-radius:8px}
+.jcn-v2-row{display:grid;grid-template-columns:minmax(0,1fr) 60px 30px;gap:7px;align-items:center;padding:8px;background:#23241f;border:1px solid #52472c;border-radius:9px}
+.jcn-v2-row span{font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.jcn-v2-row button{height:34px;background:#432421;color:#ffb0aa;border:1px solid #88524e;border-radius:8px;cursor:pointer}
+.jcn-v2-totals{border-top:1px solid #554831;padding-top:10px;display:grid;gap:7px}
+.jcn-v2-totals span{display:flex;justify-content:space-between;gap:7px;color:#c7c0b1;font-size:11px}
+.jcn-v2-totals b{color:#ffcb60}
+.jcn-v2-check{margin-top:12px;width:100%;background:#222018;color:#f4cb66}
+.jcn-v2-status{font-size:11px;margin:9px 0 12px;line-height:1.6;color:#d9cba4}
+.jcn-v2-status[data-type="success"]{color:#a9e5b3}
+.jcn-v2-status[data-type="error"]{color:#ffb2aa}
+.jcn-v2-chart{border-top:1px solid #4c4534;padding-top:12px;margin-top:12px}
+.jcn-v2-chart summary{cursor:pointer;font-weight:bold;font-size:12px;color:#ebc56f}
+.jcn-v2-chart table{width:100%;margin:10px 0;border-collapse:collapse;font-size:10px}
+.jcn-v2-chart th,.jcn-v2-chart td{padding:7px 3px;text-align:left;border-bottom:1px solid #3c3b36}
+.jcn-v2-chart th{color:#eed18b}
+.jcn-v2-chart small{font-size:10px;color:#bfb8aa;line-height:1.6}
+.jcn-v2-fabric{border-top:1px solid #4c4534;margin-top:10px;padding-top:10px;font-size:11px}
+.jcn-v2-fabric b{color:#efc15f}
+.jcn-v2-fabric p{line-height:1.55;margin:6px 0;color:#c8c6c3}
+.jcn-v2-disclaimer{border-left:2px solid #c29a43;padding:8px;margin-top:12px;background:#28251e}
+.jcn-v2-review-details{margin:10px 0 20px;background:#1d211d;border:1px solid #5d5035;padding:15px;border-radius:10px;color:#ddd}
+.jcn-v2-review-details h3{font-size:15px;color:#e6c166;margin:0 0 10px}
+.jcn-v2-review-details li{font-size:12px;margin:7px 0}
+.jcn-v2-review-details p{font-size:11px;margin-top:12px;line-height:1.6}
+.step-next-btn:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:720px){.jcn-v2-selection{padding:13px 11px}.jcn-v2-head{flex-direction:column;gap:3px}}
