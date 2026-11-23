@@ -160,7 +160,7 @@
       img.onerror=()=>{img.onerror=null;img.src=fallbackImage;};
       const content=document.createElement('span');content.className='product-choice-copy';
       const title=document.createElement('strong');title.textContent=p.name;
-      const desc=document.createElement('small');desc.textContent=p.desc || p.category;
+      const desc=document.createElement('small');desc.textContent=p.desc || p.category;desc.title=p.desc || p.category;
       const price=document.createElement('em');price.textContent='Base price '+money(p.base)+' · '+p.sizes.length+' size'+(p.sizes.length>1?'s':'')+' in stock';
       content.append(title,desc,price);
       const tick=document.createElement('span');tick.className='select-tick';tick.textContent=state.product===p.id?'✓':'+';
@@ -237,6 +237,10 @@
     if(!['shirt','bodyfit','design','review'].includes(step))return;
     state.step=step;
     document.body.classList.toggle('design-step-active',step==='design');
+    document.body.classList.toggle('phase1-compact-selection',step==='shirt');
+    // Each step opens at its beginning instead of retaining the previous scroll offset.
+    const editorPanel=$('editorPanel');
+    if (editorPanel) editorPanel.scrollTop=0;
     document.querySelectorAll('.step-card').forEach(button=>{
       const yes=button.dataset.step===step;button.classList.toggle('active',yes);button.setAttribute('aria-selected',String(yes));
     });
