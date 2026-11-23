@@ -73,11 +73,11 @@ body.jcn-focused-studio .summary-section h3{margin:0 0 8px;font-size:12px}
 body.jcn-focused-studio .jcn-v2-right-variants{padding:8px;margin:7px 0}
 body.jcn-focused-studio .jcn-v2-right-variants li{font-size:10px}
 body.jcn-focused-studio .summary-actions{margin-top:12px}
-body.jcn-focused-studio .order-panel .summary-section:first-of-type{display:none}
+body.jcn-focused-studio .order-panel .summary-product + .summary-section{display:none}
 body.jcn-focused-studio[data-jcn-focus-step="bodyfit"] .order-panel .order-details-section,
 body.jcn-focused-studio[data-jcn-focus-step="bodyfit"] .order-panel .totals{display:none}
-body.jcn-focused-studio[data-jcn-focus-step="design"] .order-panel .summary-section:first-of-type,
-body.jcn-focused-studio[data-jcn-focus-step="review"] .order-panel .summary-section:first-of-type{display:block}
+body.jcn-focused-studio[data-jcn-focus-step="design"] .order-panel .summary-product + .summary-section,
+body.jcn-focused-studio[data-jcn-focus-step="review"] .order-panel .summary-product + .summary-section{display:block}
 body.jcn-focused-studio .summary-actions #reviewButton,
 body.jcn-focused-studio .summary-actions #saveDraftButton{display:none!important}
 body.jcn-focused-studio .site-header #draftButton,
