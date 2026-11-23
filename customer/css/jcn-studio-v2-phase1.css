@@ -38,3 +38,67 @@
 .jcn-v2-review-details p{font-size:11px;margin-top:12px;line-height:1.6}
 .step-next-btn:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:720px){.jcn-v2-selection{padding:13px 11px}.jcn-v2-head{flex-direction:column;gap:3px}}
+
+
+/* Phase 1 usability pass — keep the JCN shell, reduce steps to a usable apparel flow. */
+body.phase1-compact-selection .editor > .eyebrow{font-size:9px;letter-spacing:1.2px}
+body.phase1-compact-selection .editor > h1{font-size:23px;line-height:1.04;margin:7px 0 6px}
+body.phase1-compact-selection .editor > .editor-intro{font-size:10px;margin:0 0 8px;padding-bottom:7px}
+body.phase1-compact-selection .steps-list{margin-bottom:5px}
+body.phase1-compact-selection .step-card{min-height:49px;padding:6px 9px;gap:8px}
+body.phase1-compact-selection .step-icon{width:34px;height:34px}
+body.phase1-compact-selection .step-icon svg{width:18px;height:18px}
+body.phase1-compact-selection .step-copy{gap:2px}
+body.phase1-compact-selection .step-copy b{font-size:12px}
+body.phase1-compact-selection .step-copy small{font-size:9px}
+body.phase1-compact-selection .step-content{margin-top:7px}
+body.phase1-compact-selection #shirtPanel > .muted{font-size:10px;margin:7px 0}
+body.phase1-compact-selection .catalog-section-kicker{margin:8px 0 5px}
+body.phase1-compact-selection #shirtPanel > .form-pair{display:none}
+body.phase1-compact-selection .selected-apparel-label{margin-top:8px;padding:9px 11px}
+body.phase1-compact-selection .stock-note{margin:7px 0;padding:7px 9px;font-size:10px}
+body.phase1-compact-selection .catalog-help{font-size:9px;margin-top:9px;padding:8px}
+.jcn-v2-browse{margin:10px 0 8px;border:1px solid #685631;background:#171a1d;border-radius:11px;padding:0 9px 8px}
+.jcn-v2-browse > summary{cursor:pointer;padding:10px 8px;color:#f0c664;font-size:12px;font-weight:800;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.jcn-v2-browse > summary::-webkit-details-marker{display:none}
+.jcn-v2-browse > summary:after{content:'+';font-size:18px;line-height:1;font-weight:500}
+.jcn-v2-browse[open] > summary:after{content:'−'}
+.jcn-v2-browse[open] > summary{border-bottom:1px solid #51452c;margin-bottom:6px}
+.jcn-v2-browse .category-filter{margin:4px 0;padding-bottom:5px}
+.jcn-v2-browse .category-chip{padding:6px 8px;font-size:10px}
+.jcn-v2-browse .catalog-filter-row{margin:0 0 7px}
+.jcn-v2-browse .demo-product-list{max-height:185px;gap:6px}
+.jcn-v2-browse .demo-product{min-height:69px;padding:6px;gap:8px}
+.jcn-v2-browse .demo-product img{width:48px;height:50px;object-fit:contain;flex:none}
+.jcn-v2-browse .demo-product .product-choice-copy{gap:3px}
+.jcn-v2-browse .demo-product strong{font-size:11px}
+.jcn-v2-browse .demo-product .product-choice-copy small{font-size:9px;color:#c5c3bb;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-clamp:2;overflow:hidden;line-height:1.25}
+.jcn-v2-browse .demo-product .product-choice-copy em{font-size:9px}
+.jcn-v2-selection{margin-top:8px}
+.jcn-v2-chips-block{margin:12px 0 10px}
+.jcn-v2-pick-head{display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.jcn-v2-pick-head strong{font-size:11px;color:#f5d38b}
+.jcn-v2-pick-head span{font-size:9px;color:#aaa69e}
+.jcn-v2-chips,.jcn-v2-colors{display:flex;flex-wrap:wrap;gap:6px}
+.jcn-v2-size-chip{border:1px solid #615a4e;border-radius:8px;background:#181c1e;color:#e8e3dc;padding:9px 10px;min-width:38px;font-size:11px;font-weight:800}
+.jcn-v2-size-chip.is-active,.jcn-v2-color-chip.is-active{border-color:#eac267;background:#4a361d;color:#ffe09b;box-shadow:inset 0 0 0 1px #f5ca623d}
+.jcn-v2-size-chip:disabled{opacity:.38;cursor:not-allowed;text-decoration:line-through}
+.jcn-v2-color-chip{display:flex;align-items:center;gap:5px;border:1px solid #59554b;background:#202224;color:#ddd;border-radius:8px;padding:6px 8px;font-size:10px;min-height:35px}
+.jcn-v2-swatch{width:15px;height:15px;border-radius:50%;border:1px solid #eaeaea69;display:block;flex:none}
+.jcn-v2-browse button:focus-visible,.jcn-v2-selection button:focus-visible{outline:2px solid #ffdb7d;outline-offset:2px}
+.jcn-v2-right-variants{margin:8px 0 13px;border:1px solid #51442d;border-radius:10px;padding:10px;background:#171817}
+.jcn-v2-right-variants>strong{color:#e8bc5f;font-size:11px}
+.jcn-v2-right-variants>p{color:#c6bda9;font-size:11px;line-height:1.5;margin:0}
+.jcn-v2-right-variants ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+.jcn-v2-right-variants li{display:flex;justify-content:space-between;gap:8px;color:#e5e0d7;font-size:11px;line-height:1.3}
+.jcn-v2-right-variants li b{color:#edc566;white-space:nowrap}
+.order-panel #decreaseQty:disabled,.order-panel #increaseQty:disabled{opacity:.28;cursor:not-allowed}
+.order-panel #orderQty[readonly]{border-color:#65573c;background:#17191c;color:#f4c564}
+.design-stage .live-garment-note{position:absolute;top:108px;left:12px;right:auto;max-width:190px;z-index:6;margin:0;padding:7px 9px;text-align:left;background:#eeeae0eb;color:#3b3c39;border:1px solid #b9a77b;border-radius:8px;font-size:9px;line-height:1.4;pointer-events:none}
+@media(max-width:720px){
+ body.phase1-compact-selection .editor > h1{font-size:26px}
+ body.phase1-compact-selection .step-card{min-height:56px}
+ .jcn-v2-browse .demo-product-list{max-height:240px}
+ .jcn-v2-size-chip{min-width:42px}
+ .design-stage .live-garment-note{top:112px;max-width:145px;font-size:8px}
+}
