@@ -27,6 +27,9 @@ class Element {
   replaceChildren(...children){this.children=[...children]}
   before(){} after(){} insertBefore(element){this.children.unshift(element)}
   setAttribute(name,value){this[name]=value}
+  focus(){this.focused=true}
+  showModal(){this.open=true}
+  close(){this.open=false}
   addEventListener(name,callback){(this.listeners[name]??=[]).push(callback)}
   dispatchEvent(event){
     const handlers=[...(this.listeners[event.type]||[]),...(this['on'+event.type]?[this['on'+event.type]]:[])];
@@ -54,6 +57,7 @@ function setup() {
   const get=id=>registry.get(id);
   get('shirtSize').value='S'; get('shirtColor').value='Black';
   const doc={
+    body:new Element(registry,'body'),
     getElementById:get,
     createElement:tag=>new Element(registry,tag),
     querySelector:selector=>selector==='.catalog-filter-row'?new Element(registry):null,
@@ -95,6 +99,7 @@ test('multi-size apparel matrix, stock checks, and synchronized review',async()=
   const app=setup(),$=app.get;
   await app.loaded();
   assert.equal($('jcnV2Info').textContent,'Cotton test material');
+  assert.equal($('jcnV2Chart').parent?.open ?? false,false);
   assert.equal($('jcnV2SizeChoices').children.length,2);
   assert.equal($('jcnV2ColorChoices').children.length,2);
   assert.equal($('nextToDesign').disabled,true);
@@ -137,4 +142,19 @@ test('multi-size apparel matrix, stock checks, and synchronized review',async()=
   assert.equal($('summarySize').textContent,'Not selected');
   assert.match($('itemPrice').textContent,/399/);
   assert.equal($('reviewButton').disabled,true);
+});
+
+
+test('product chooser is hidden until requested and can be closed',async()=>{
+  const app=setup(),$=app.get;
+  await app.loaded();
+  const chooser=$('jcnV2Browse');
+  assert.ok(chooser);
+  assert.equal(chooser.open,false);
+  app.win.JCNStudioPhase1OpenCatalog();
+  assert.equal(chooser.open,true);
+  assert.equal($('catalogSearch').focused,true);
+  const close=chooser.children[0].children[1];
+  await close.fire('click');
+  assert.equal(chooser.open,false);
 });
