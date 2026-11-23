@@ -41,6 +41,11 @@
   const filterRow=document.querySelector('.catalog-filter-row');
   if(filterRow)catalogPicker.insertBefore(filterRow,$('demoProductList'));
   const state={catalog:new Map(),productId:null,items:[],revision:0,validated:false};
+  // Read-only navigation gate for the focused shell. No order or payment state.
+  window.JCNStudioPhase1State={
+    canContinue:()=>Boolean(state.validated && state.items.length && selectedProduct()),
+    snapshot:()=>({product_id:state.productId,variants:state.items.map(x=>({...x})),validated:state.validated})
+  };
   const selection = () => window.JCNStudio3DBridge.selection();
   const selectedProduct = () => state.catalog.get(selection()?.id);
   const sizes = p => Array.isArray(p?.sizes)?p.sizes.map(s=>({
@@ -110,6 +115,7 @@
     $('jcnV2Add').disabled=!p;
     $('jcnV2Check').disabled=!p||!state.items.length;
     $('nextToDesign').disabled=!p||!state.items.length||!state.validated;
+    document.body.dataset.jcnShirtValidated=String(Boolean(state.validated && state.items.length && p));
     $('nextToDesign').title=state.validated?'Proceed to BodyFit':'Add variants and validate selection before continuing';
     refreshSummary();
     refreshReview();
