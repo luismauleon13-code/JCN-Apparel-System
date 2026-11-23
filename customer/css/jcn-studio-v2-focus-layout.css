@@ -275,3 +275,23 @@ body.jcn-focused-studio .jcn-v2-browse .demo-product .product-choice-copy small{
  body.jcn-focused-studio .jcn-v2-color-chip{min-height:44px}
  body.jcn-focused-studio .jcn-v2-add button{min-height:44px}
 }
+
+/* Keep status accessible without placing competing labels over the avatar's head. */
+body.jcn-focused-studio .jcn-focus-preview .jcn-model-state{
+ top:auto;bottom:48px;left:12px;right:auto;transform:none;
+ max-width:min(300px,calc(100% - 70px));
+ padding:6px 9px;border-radius:9px;font-size:10px;line-height:1.4;
+ text-align:left;background:#191c1ce8;border-color:#a3854a;color:#f2dbad;
+}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .jcn-focus-preview .live-garment-note,
+body.jcn-focused-studio[data-jcn-focus-step="review"] .jcn-focus-preview .live-garment-note{display:none}
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .jcn-focus-preview .preview-demo,
+body.jcn-focused-studio[data-jcn-focus-step="shirt"] .jcn-focus-preview .jcn-preview-kicker{display:none}
+body.jcn-focused-studio .jcn-focus-preview .jcn-focus-preview-label{bottom:9px;left:auto;right:9px;max-width:170px;font-size:9px;line-height:1.4}
+body.jcn-focused-studio .jcn-focus-preview .jcn-preview-mode{z-index:15}
+body.jcn-focused-studio .jcn-focus-preview .view-tools{z-index:14}
+body.jcn-focused-studio .jcn-focus-preview .view-thumbnails{z-index:13}
+@media(max-width:720px){
+ body.jcn-focused-studio .jcn-focus-preview .jcn-model-state{bottom:44px;max-width:160px;font-size:9px}
+ body.jcn-focused-studio .jcn-focus-preview .jcn-focus-preview-label{font-size:8px;max-width:120px}
+}
