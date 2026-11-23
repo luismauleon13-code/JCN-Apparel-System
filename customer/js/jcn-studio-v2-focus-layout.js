@@ -59,12 +59,7 @@
   heroChange.textContent='Change Apparel';
   heroChange.className='jcn-focus-change-apparel';
   heroChange.addEventListener('click',()=>{
-    const browse=$('jcnV2Browse');
-    if(browse){
-      browse.open=true;
-      browse.scrollIntoView({block:'nearest',behavior:'smooth'});
-      $('catalogSearch')?.focus();
-    }
+    window.JCNStudioPhase1OpenCatalog?.();
   });
   heroInfo.append(heroKicker,heroTitle,heroDetails,heroPrice,heroChange);
   hero.append(heroImage,heroInfo);
@@ -80,7 +75,8 @@
       return;
     }
     heroTitle.textContent=selected.name||'Selected JCN garment';
-    heroDetails.textContent=[selected.category,selected.size,selected.color].filter(Boolean).join(' · ');
+    // Preview size/color are not yet ordered. Actual purchase variants are added below.
+    heroDetails.textContent=[selected.category,'Preview: '+selected.size+' / '+selected.color].filter(Boolean).join(' · ');
     heroImage.src=selected.image||'../assets/studio-shirt-placeholder.svg';
     heroPrice.textContent=$('basePrice')?.textContent||'Price pending';
   }
