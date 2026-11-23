@@ -102,3 +102,7 @@ body.phase1-compact-selection .catalog-help{font-size:9px;margin-top:9px;padding
  .jcn-v2-size-chip{min-width:42px}
  .design-stage .live-garment-note{top:112px;max-width:145px;font-size:8px}
 }
+
+/* Phase 1 intentionally cannot submit purchases until production checkout is integrated. */
+.summary-actions #reviewButton:disabled{opacity:.5;cursor:not-allowed;filter:saturate(.5)}
+.summary-actions #reviewButton:disabled:hover{filter:saturate(.5)}
