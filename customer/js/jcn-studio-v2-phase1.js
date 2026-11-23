@@ -19,6 +19,25 @@
     '<div class="jcn-v2-fabric"><b>Garment Details</b><p id="jcnV2Info">Select a product to see its description.</p></div>'+
     '<p class="jcn-v2-disclaimer">Printing prices and checkout are not included in this Phase 1 preview. Actual color-specific stock requires a future database change.</p>';
   $('jcnStockHint').after(ui);
+  // Keep product browsing available, but let customers collapse the catalog after choosing.
+  // This moves the size/color matrix above the fold without replacing the approved JCN layout.
+  const catalogPicker=document.createElement('details');
+  catalogPicker.className='jcn-v2-browse';
+  catalogPicker.id='jcnV2Browse';
+  catalogPicker.open=true;
+  const pickerTitle=document.createElement('summary');
+  pickerTitle.textContent='Browse / Change JCN Apparel';
+  catalogPicker.append(pickerTitle);
+  const categoryFilter=$('apparelCategoryFilter');
+  categoryFilter.before(catalogPicker);
+  for(const id of ['apparelCategoryFilter','categoryResultCount','catalogSearch','demoProductList','productEmptyState']) {
+    const element=$(id);
+    if(id==='categoryResultCount'||id==='catalogSearch')continue;
+    if(id==='demoProductList'||id==='productEmptyState'||id==='apparelCategoryFilter')catalogPicker.append(element);
+  }
+  // The existing search/count row must move together with the product list.
+  const filterRow=document.querySelector('.catalog-filter-row');
+  if(filterRow)catalogPicker.insertBefore(filterRow,$('demoProductList'));
   const state={catalog:new Map(),productId:null,items:[],revision:0,validated:false};
   const selection = () => window.JCNStudio3DBridge.selection();
   const selectedProduct = () => state.catalog.get(selection()?.id);
@@ -92,6 +111,28 @@
     $('nextToDesign').title=state.validated?'Proceed to BodyFit':'Add variants and validate selection before continuing';
     refreshSummary();
     refreshReview();
+    renderRightVariants();
+  }
+  function renderRightVariants(){
+    const summary=$('jcnV2RightVariants');
+    if(!summary)return;
+    summary.replaceChildren();
+    if(!state.items.length){
+      const hint=document.createElement('p');
+      hint.textContent='Choose sizes and colors in Step 01.';
+      summary.append(hint);
+      return;
+    }
+    const label=document.createElement('strong');label.textContent='Selected size & color breakdown';
+    summary.append(label);
+    const list=document.createElement('ul');
+    for(const item of state.items){
+      const li=document.createElement('li');
+      const name=document.createElement('span');name.textContent=item.size+' · '+item.color;
+      const count=document.createElement('b');count.textContent=item.quantity+' pcs';
+      li.append(name,count);list.append(li);
+    }
+    summary.append(list);
   }
   function chart(p){
     const box=$('jcnV2Chart');box.replaceChildren();
@@ -161,7 +202,14 @@
   $('reviewButton').textContent='Checkout in Later Phase';
   $('reviewButton').title='Phase 1 preview only; cart integration is planned in a later phase.';
   document.addEventListener('click',e=>{
-    if(e.target.closest('#demoProductList .demo-product'))setTimeout(sync,0);
+    if(e.target.closest('#demoProductList .demo-product')){
+      setTimeout(()=>{
+        sync();
+        catalogPicker.open=false;
+        const target=$('selectedProductName');
+        if(target)target.scrollIntoView({block:'nearest',behavior:'smooth'});
+      },0);
+    }
     if(e.target.closest('[data-step="review"],#nextToBodyfit'))setTimeout(refreshReview,0);
   });
   // The original catalog can complete after our own catalog request.
