@@ -17,29 +17,45 @@
     '<div class="jcn-v2-totals"><span>Total <b id="jcnV2Count">0 pcs</b></span><span>Garment subtotal <b id="jcnV2Sum">₱0.00</b></span></div>'+
     '<button type="button" id="jcnV2Check" class="jcn-v2-check">Validate Garment Selection</button>'+
     '<p id="jcnV2Status" class="jcn-v2-status" role="status">No order is created or stock reserved.</p>'+
-    '<details class="jcn-v2-chart" open><summary>Size Chart (cm) &amp; Availability</summary><div id="jcnV2Chart"></div></details>'+
-    '<div class="jcn-v2-fabric"><b>Garment Details</b><p id="jcnV2Info">Select a product to see its description.</p></div>'+
+    '<details class="jcn-v2-chart"><summary>Size chart &amp; availability <span class="jcn-v2-expand-hint">View measurements</span></summary><div id="jcnV2Chart"></div></details>'+
+    '<details class="jcn-v2-fabric"><summary>Fabric &amp; garment details</summary><p id="jcnV2Info">Select a product to see its description.</p></details>'+
     '<p class="jcn-v2-disclaimer">Printing prices and checkout are not included in this Phase 1 preview. Actual color-specific stock requires a future database change.</p>';
   $('jcnStockHint').after(ui);
   // Keep product browsing available, but let customers collapse the catalog after choosing.
   // This moves the size/color matrix above the fold without replacing the approved JCN layout.
-  const catalogPicker=document.createElement('details');
+  // The product catalog is a true on-demand chooser. It no longer consumes
+  // permanent space in the Shirt editing workspace.
+  const catalogPicker=document.createElement('dialog');
   catalogPicker.className='jcn-v2-browse';
   catalogPicker.id='jcnV2Browse';
-  catalogPicker.open=true;
-  const pickerTitle=document.createElement('summary');
-  pickerTitle.textContent='Browse / Change JCN Apparel';
-  catalogPicker.append(pickerTitle);
-  const categoryFilter=$('apparelCategoryFilter');
-  categoryFilter.before(catalogPicker);
-  for(const id of ['apparelCategoryFilter','categoryResultCount','catalogSearch','demoProductList','productEmptyState']) {
+  catalogPicker.setAttribute('aria-label','Choose JCN apparel');
+  const pickerHeader=document.createElement('div');
+  pickerHeader.className='jcn-v2-browse-head';
+  const pickerTitle=document.createElement('strong');
+  pickerTitle.textContent='Choose JCN apparel';
+  const pickerClose=document.createElement('button');
+  pickerClose.type='button';
+  pickerClose.className='jcn-v2-browse-close';
+  pickerClose.textContent='Close ×';
+  pickerClose.addEventListener('click',()=>catalogPicker.close());
+  pickerHeader.append(pickerTitle,pickerClose);
+  catalogPicker.append(pickerHeader);
+  for(const id of ['apparelCategoryFilter','demoProductList','productEmptyState']){
     const element=$(id);
-    if(id==='categoryResultCount'||id==='catalogSearch')continue;
-    if(id==='demoProductList'||id==='productEmptyState'||id==='apparelCategoryFilter')catalogPicker.append(element);
+    if(element)catalogPicker.append(element);
   }
-  // The existing search/count row must move together with the product list.
   const filterRow=document.querySelector('.catalog-filter-row');
   if(filterRow)catalogPicker.insertBefore(filterRow,$('demoProductList'));
+  document.body.append(catalogPicker);
+  const openCatalog=()=>{
+    if(!catalogPicker.open){
+      if(typeof catalogPicker.showModal==='function') catalogPicker.showModal();
+      else catalogPicker.setAttribute('open','');
+    }
+    $('catalogSearch')?.focus();
+  };
+  // Exposed for the selected apparel hero; the chooser is shared with this controller.
+  window.JCNStudioPhase1OpenCatalog=openCatalog;
   const state={catalog:new Map(),productId:null,items:[],revision:0,validated:false};
   // Read-only navigation gate for the focused shell. No order or payment state.
   window.JCNStudioPhase1State={
@@ -255,7 +271,7 @@
     if(e.target.closest('#demoProductList .demo-product')){
       setTimeout(()=>{
         sync();
-        catalogPicker.open=false;
+        if(catalogPicker.open && typeof catalogPicker.close==='function')catalogPicker.close();
         const target=$('jcnFocusProductHero')||$('selectedProductName');
         if(target && typeof target.scrollIntoView==='function')target.scrollIntoView({block:'nearest',behavior:'smooth'});
       },0);
