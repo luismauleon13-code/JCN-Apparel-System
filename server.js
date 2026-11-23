@@ -5181,6 +5181,12 @@ registerGraphicDesignerRoutes({
   supabase
 });
 
+// Phase 1: read-only size/color selection preview (no checkout mutations).
+require("./backend/routes/jcn-studio-selection-preview.js")({
+  app,
+  supabase
+});
+
 // =========================================================
 // UNKNOWN API ROUTES
 // Must remain after all API routes.
