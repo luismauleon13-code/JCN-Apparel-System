@@ -31,7 +31,26 @@
   const used = (size,skip=-1) => state.items.reduce((n,x,i)=>n+(i!==skip&&x.size===size?x.quantity:0),0);
   const all = () => state.items.reduce((n,x)=>n+x.quantity,0);
   function say(message,type='neutral'){$('jcnV2Status').textContent=message;$('jcnV2Status').dataset.type=type;}
-  function dirty(){state.revision++;state.validated=false;say('Selection changed. Validate before ordering; no stock is reserved.');}
+  function dirty(){state.revision++;state.validated=false;say('Selection changed. Validate again to confirm live stock and garment price.');}
+  // Phase 1 variants are the sole source of truth for the quantity shown in the summary.
+  // Legacy single-item quantity is visual only and cannot create an order on this page.
+  function refreshSummary(){
+    const p=selectedProduct();
+    const count=all();
+    const uniqueSizes=[...new Set(state.items.map(item=>item.size))];
+    const uniqueColors=[...new Set(state.items.map(item=>item.color))];
+    $('summarySize').textContent=uniqueSizes.length===1?uniqueSizes[0]:uniqueSizes.length?uniqueSizes.length+' sizes':'Not selected';
+    $('summaryColor').textContent=uniqueColors.length===1?uniqueColors[0]:uniqueColors.length?uniqueColors.length+' colors':'Not selected';
+    $('qtySummary').textContent='×'+count;
+    $('orderQty').value=String(count);
+    $('garmentSubtotal').textContent=p&&price(p)!==null?money(price(p)*count):'—';
+    $('itemPrice').textContent=p&&price(p)!==null?money(price(p)):'—';
+    $('increaseQty').disabled=true;
+    $('decreaseQty').disabled=true;
+    $('orderQty').readOnly=true;
+    $('orderQty').setAttribute('aria-label','Total pieces from Shirt size and color variants');
+    $('totalPrice').textContent='Pending';
+  }
   function refreshReview(){
     const holder=$('jcnV2ReviewDetails');
     if(!holder)return;
@@ -69,7 +88,9 @@
     $('jcnV2Sum').textContent=p&&price(p)!==null?money(price(p)*all()):'—';
     $('jcnV2Add').disabled=!p;
     $('jcnV2Check').disabled=!p||!state.items.length;
-    $('nextToDesign').disabled=!p||!state.items.length;
+    $('nextToDesign').disabled=!p||!state.items.length||!state.validated;
+    $('nextToDesign').title=state.validated?'Proceed to BodyFit':'Add variants and validate selection before continuing';
+    refreshSummary();
     refreshReview();
   }
   function chart(p){
@@ -79,8 +100,9 @@
     for(const label of ['Size','Stock','Length','Width','Sleeve']){
       const th=document.createElement('th');th.textContent=label;tr.append(th);
     }
+    const tbody=table.createTBody();
     for(const s of sizes(p)){
-      const row=table.createTBody().insertRow();
+      const row=tbody.insertRow();
       [s.size,s.qty,s.length,s.width,s.sleeve].forEach((val,i)=>{
         const cell=row.insertCell();
         cell.textContent=i>=2?(Number.isFinite(val)&&val>0?val+' cm':'—'):String(val);
@@ -133,15 +155,25 @@
       state.validated=true;
       say('Validated '+data.total_quantity+' garments. Garment-only subtotal: '+money(data.garment_subtotal)+'. Stock is not reserved.','success');
     }catch(e){if(revision===state.revision){state.validated=false;say('Validation failed: '+e.message+'. Do not proceed to checkout.','error');}}
-    refreshReview();
+    refresh();
   });
   $('reviewButton').disabled=true;
+  $('reviewButton').textContent='Checkout in Later Phase';
   $('reviewButton').title='Phase 1 preview only; cart integration is planned in a later phase.';
   document.addEventListener('click',e=>{
     if(e.target.closest('#demoProductList .demo-product'))setTimeout(sync,0);
     if(e.target.closest('[data-step="review"],#nextToBodyfit'))setTimeout(refreshReview,0);
   });
+  // The original catalog can complete after our own catalog request.
+  // Subscribe to its selection event so initial auto-selection is reflected immediately.
+  window.addEventListener('jcn:studio3d-selection',sync);
   $('shirtSize').addEventListener('change',()=>setTimeout(sync,0));
   $('shirtColor').addEventListener('change',()=>setTimeout(sync,0));
+  // Prevent the old one-size quantity control from overwriting a multi-variant summary.
+  for(const id of ['increaseQty','decreaseQty','orderQty']){
+    const old=$(id);
+    old.setAttribute('title','Edit quantities in Step 01 · Size & Color Matrix');
+  }
+  refreshSummary();
   load();
 })();
