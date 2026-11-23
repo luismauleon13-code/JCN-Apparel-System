@@ -35,6 +35,58 @@
   preview.append($('designStage'), $('cameraStage'));
   center.insertBefore(focus, guidance);
 
+  // Product hero stays visible even when the long catalog chooser is collapsed.
+  const shirtPanel=$('shirtPanel');
+  const hero=document.createElement('div');
+  hero.className='jcn-focus-product-hero';
+  hero.id='jcnFocusProductHero';
+  const heroImage=document.createElement('img');
+  heroImage.src='../assets/studio-shirt-placeholder.svg';
+  heroImage.alt='Selected JCN apparel';
+  heroImage.onerror=()=>{heroImage.onerror=null;heroImage.src='../assets/studio-shirt-placeholder.svg';};
+  const heroInfo=document.createElement('div');
+  heroInfo.className='jcn-focus-product-info';
+  const heroKicker=document.createElement('small');
+  heroKicker.textContent='CURRENT APPAREL';
+  const heroTitle=document.createElement('strong');
+  heroTitle.textContent='Choose an apparel';
+  const heroDetails=document.createElement('span');
+  heroDetails.textContent='Select an available JCN product to begin.';
+  const heroPrice=document.createElement('b');
+  heroPrice.textContent='Base price not selected';
+  const heroChange=document.createElement('button');
+  heroChange.type='button';
+  heroChange.textContent='Change Apparel';
+  heroChange.className='jcn-focus-change-apparel';
+  heroChange.addEventListener('click',()=>{
+    const browse=$('jcnV2Browse');
+    if(browse){
+      browse.open=true;
+      browse.scrollIntoView({block:'nearest',behavior:'smooth'});
+      $('catalogSearch')?.focus();
+    }
+  });
+  heroInfo.append(heroKicker,heroTitle,heroDetails,heroPrice,heroChange);
+  hero.append(heroImage,heroInfo);
+  const heroAnchor=shirtPanel?.querySelector('.section-title-row');
+  if(heroAnchor)heroAnchor.after(hero);
+  function updateHero(){
+    const selected=window.JCNStudio3DBridge?.selection?.();
+    if(!selected){
+      heroImage.src='../assets/studio-shirt-placeholder.svg';
+      heroTitle.textContent='Choose an apparel';
+      heroDetails.textContent='Select an available JCN garment.';
+      heroPrice.textContent='Base price not selected';
+      return;
+    }
+    heroTitle.textContent=selected.name||'Selected JCN garment';
+    heroDetails.textContent=[selected.category,selected.size,selected.color].filter(Boolean).join(' · ');
+    heroImage.src=selected.image||'../assets/studio-shirt-placeholder.svg';
+    heroPrice.textContent=$('basePrice')?.textContent||'Price pending';
+  }
+  window.addEventListener('jcn:studio3d-selection',updateHero);
+  updateHero();
+
   const intro = document.createElement('div');
   intro.className = 'jcn-focus-step-intro';
   intro.innerHTML = '<span>YOUR WORKFLOW</span><strong>Personal Fit Studio</strong><small>Make one decision at a time.</small>';
@@ -46,9 +98,6 @@
   contextual.id = 'jcnFocusPreviewLabel';
   preview.prepend(contextual);
 
-  const compact = document.createElement('div');
-  compact.className = 'jcn-focus-order-hint';
-  compact.id = 'jcnFocusOrderHint';
   const basket = document.createElement('button');
   basket.type = 'button';
   basket.className = 'jcn-focus-summary-toggle';
