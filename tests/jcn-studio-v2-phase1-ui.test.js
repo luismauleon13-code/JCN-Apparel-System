@@ -9,12 +9,14 @@ const vm = require('node:vm');
 
 class Element {
   constructor(registry, tag='div', id='') {
-    this.registry=registry; this.tag=tag; this.id=id; this.children=[];
+    this.registry=registry; this.tag=tag; this._id=''; this.id=id; this.children=[];
     this.listeners={}; this.value=''; this.textContent=''; this.style={};
     this.dataset={}; this.className=''; this.disabled=false; this.readOnly=false;
     this.title=''; this.open=false; this.classList={add(){},remove(){},toggle(){}};
     if(id)registry.set(id,this);
   }
+  get id(){return this._id}
+  set id(value){this._id=value;if(value)this.registry.set(value,this)}
   set innerHTML(value) {
     this.raw=value;
     for(const match of value.matchAll(/id="([^"]+)"/g)) {
