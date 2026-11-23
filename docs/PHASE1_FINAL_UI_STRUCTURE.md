@@ -133,3 +133,14 @@ Desktop width below 1200 px: replace always-open contextual summary with a slide
 - `tests/jcn-studio-v2-focus-layout.test.js` added with Node mocked-DOM regression cases. Other Phase 1 variant/backend regression suites remain in `tests/`.
 - Static JavaScript syntax and markup reference checks passed; simulated focus-step interaction checks passed. **Real browser rendering, mobile screenshots, keyboard accessibility, WebGL resizing, and live API integration are still pending.**
 - The latest source remains an **isolated test page**, not the active live customer customization or production checkout.
+
+### Visual feedback polish — 2026-11-24, local screenshots
+
+Based on the screenshots of the focused workspace:
+- Removed the always-open product catalog. **Change Apparel** now opens an on-demand native dialog with product categories, search and product cards; choosing an apparel closes the dialog. Escape and the **Close** button also dismiss it.
+- The **Size Chart & Availability** and **Fabric & Garment Details** are collapsed by default, keeping size chips, colors, pieces and **Add Variant** above optional technical details.
+- Removed duplicated Shirt help blocks and persistent bottom guidance; reduced intermediate price and legacy single-item quantity noise in the right-side summary.
+- Relocated the 3D status label away from the avatar's head. The selected apparel hero now explicitly labels size/color as **Preview**, not ordered variants.
+- Initial Shirt preview uses the front view and defaults to Black when listed for the first selected product, so a black product photograph does not initially show a white garment.
+- Regression checks for the new chooser were added to `tests/jcn-studio-v2-phase1-ui.test.js` and pass in a simulated DOM test.
+- Remaining acceptance checks: actual browser screenshot after pull, responsive 360–430px rendering, 3D mesh alignment, database stock state, manual order gate and later secure production integration. Do not deploy to production while security audit is pending.
