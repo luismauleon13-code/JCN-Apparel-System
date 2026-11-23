@@ -9,6 +9,8 @@
   ui.className = 'jcn-v2-selection';
   ui.innerHTML = '<div class="jcn-v2-head"><strong>Size &amp; Color Matrix</strong><small>One design • multiple garment variants</small></div>'+
     '<p class="jcn-v2-help">Choose size and color above, then add how many pieces. Inventory quantities are shared between colors until staff configures per-color stock.</p>'+
+    '<div class="jcn-v2-chips-block"><div class="jcn-v2-pick-head"><strong>Choose Size</strong><span>Use size chart below if unsure</span></div><div class="jcn-v2-chips" id="jcnV2SizeChoices" role="group" aria-label="Select shirt size"></div></div>'+
+    '<div class="jcn-v2-chips-block"><div class="jcn-v2-pick-head"><strong>Choose Color</strong><span>Live preview on shirt</span></div><div class="jcn-v2-colors" id="jcnV2ColorChoices" role="group" aria-label="Select shirt color"></div></div>'+
     '<div class="jcn-v2-add"><label>Pieces <input id="jcnV2AddQty" type="number" min="1" max="30" step="1" value="1"></label>'+
     '<button type="button" id="jcnV2Add">+ Add Variant</button></div>'+
     '<div id="jcnV2Variants" class="jcn-v2-variants" aria-live="polite"></div>'+
@@ -134,6 +136,47 @@
     }
     summary.append(list);
   }
+  const SWATCHES={
+    'black':'#18191b','white':'#eeeeeb','navy blue':'#233a56','red':'#b4363d',
+    'maroon':'#733042','blue':'#3272a9','gray':'#888888','grey':'#888888',
+    'army green':'#57684d','mustard':'#c99d39','pink':'#e8aeb7',
+    'dark green':'#31543d','brown':'#815c45','mint':'#95c9ae','cream':'#e4ddc9',
+    'rust':'#ab6141','taupe':'#a28b78','deep royal':'#305cc9'
+  };
+  function changeVariantChoice(id,value){
+    const el=$(id);if(!el||el.value===value)return;
+    el.value=value;
+    // The legacy selector remains the authoritative 3D-bridge source.
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  function renderQuickOptions(p){
+    const sizeBox=$('jcnV2SizeChoices'),colorBox=$('jcnV2ColorChoices');
+    sizeBox.replaceChildren();colorBox.replaceChildren();
+    if(!p)return;
+    const selectedSize=$('shirtSize').value;
+    const selectedColor=$('shirtColor').value;
+    for(const item of sizes(p)){
+      const button=document.createElement('button');
+      button.type='button';button.textContent=item.size;
+      button.className='jcn-v2-size-chip'+(item.size===selectedSize?' is-active':'');
+      button.disabled=item.qty<=0;
+      button.setAttribute('aria-pressed',String(item.size===selectedSize));
+      button.title=item.qty>0?item.qty+' pieces available across all colors':'Out of stock';
+      button.addEventListener('click',()=>changeVariantChoice('shirtSize',item.size));
+      sizeBox.append(button);
+    }
+    for(const color of (p.colors||[])){
+      const button=document.createElement('button');button.type='button';
+      button.className='jcn-v2-color-chip'+(color===selectedColor?' is-active':'');
+      const swatch=document.createElement('span');
+      swatch.className='jcn-v2-swatch';swatch.style.background=SWATCHES[color.toLowerCase()]||'#777a7c';
+      const name=document.createElement('span');name.textContent=color;
+      button.append(swatch,name);
+      button.setAttribute('aria-pressed',String(color===selectedColor));
+      button.addEventListener('click',()=>changeVariantChoice('shirtColor',color));
+      colorBox.append(button);
+    }
+  }
   function chart(p){
     const box=$('jcnV2Chart');box.replaceChildren();
     if(!p){box.textContent='Select an apparel first.';return;}
@@ -156,6 +199,7 @@
     const id=selection()?.id||null,p=selectedProduct();
     if(id!==state.productId){state.productId=id;state.items=[];dirty();}
     chart(p);
+    renderQuickOptions(p);
     $('jcnV2Info').textContent=p?(p.description||'Fabric composition, GSM and fit have not been configured for this garment.'):'Select an apparel to view its description.';
     refresh();
   }
