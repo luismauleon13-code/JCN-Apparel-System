@@ -40,15 +40,10 @@ module.exports = function registerStudioSelectionPreview({app, supabase}) {
       }
 
       const {data:product, error} = await supabase.from('products')
-        .select('id,title,category,price,sizes,colors,sale_percent,sale_end,is_customizable')
+        .select('*')
         .eq('id', productId).maybeSingle();
-      // Older JCN projects do not have an is_customizable column yet. Retry only if absent.
-      let item = product;
-      if (error && String(error.code) === '42703') {
-        const retry = await supabase.from('products').select('*').eq('id', productId).maybeSingle();
-        if (retry.error) throw retry.error;
-        item = retry.data;
-      } else if (error) throw error;
+      if (error) throw error;
+      const item = product;
 
       if (!item || !isCustomizable(item)) {
         return res.status(404).json({success:false, message:'Customizable apparel is not available.'});
