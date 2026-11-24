@@ -1,7 +1,139 @@
-/* Complete JCN Manage Staff CSS - original staff features plus aligned Admin layout */
-/* =========================================
-   JCN MANAGE STAFF
-========================================= */
+/* ==========================================================
+   JCN APPAREL PRINTING SERVICES
+   MANAGE STAFF
+   GLOBAL DARK AND LIGHT MODE COMPATIBLE
+========================================================== */
+
+/* ==========================================================
+   01. DEFAULT DARK THEME
+========================================================== */
+
+:root {
+  color-scheme: dark;
+
+  --ms-bg: #0c0c0d;
+  --ms-card: #141414;
+  --ms-surface: #191919;
+  --ms-input: #080808;
+
+  --ms-text: #ffffff;
+  --ms-text-secondary: #dddddd;
+  --ms-muted: #a5a5a5;
+
+  --ms-gold: #f4c542;
+  --ms-gold-dark: #c79b1b;
+  --ms-gold-hover: #ffe08a;
+  --ms-gold-text: #f4c542;
+
+  --ms-border: rgba(244, 197, 66, 0.22);
+  --ms-input-border: #292929;
+  --ms-divider: rgba(255, 255, 255, 0.07);
+
+  --ms-success: #53db8c;
+  --ms-danger: #ff6969;
+
+  --ms-active: rgba(244, 197, 66, 0.17);
+  --ms-hover: rgba(244, 197, 66, 0.08);
+
+  --ms-icon-bg: rgba(244, 197, 66, 0.10);
+  --ms-icon-border: rgba(244, 197, 66, 0.20);
+
+  --ms-table-header: #090909;
+  --ms-table-row: #101010;
+  --ms-table-hover: #19170f;
+
+  --ms-button-bg: #111111;
+  --ms-button-text: #aaaaaa;
+
+  --ms-note-bg: rgba(244, 197, 66, 0.04);
+
+  --ms-page-bg:
+    radial-gradient(
+      circle at top right,
+      #211c12 0,
+      transparent 48%
+    ),
+    #0c0c0d;
+
+  --ms-card-bg:
+    linear-gradient(135deg, #151515, #0c0c0c);
+
+  --ms-modal-bg:
+    linear-gradient(145deg, #121212, #090909);
+
+  --ms-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.20);
+
+  --ms-modal-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.60);
+
+  --ms-backdrop: rgba(0, 0, 0, 0.75);
+
+  --ms-gold-gradient:
+    linear-gradient(135deg, #f4c542, #d4a72c);
+}
+
+
+/* ==========================================================
+   02. LIGHT THEME
+========================================================== */
+
+:root[data-account-theme="light"] {
+  color-scheme: light;
+
+  --ms-bg: #f6f7f9;
+  --ms-card: #ffffff;
+  --ms-surface: #f0f2f5;
+  --ms-input: #f8f9fb;
+
+  --ms-text: #20242b;
+  --ms-text-secondary: #434a55;
+  --ms-muted: #626b78;
+
+  --ms-gold: #f4c542;
+  --ms-gold-dark: #d4a72c;
+  --ms-gold-hover: #e8b830;
+  --ms-gold-text: #936a12;
+
+  --ms-border: #dce0e6;
+  --ms-input-border: #dce0e6;
+  --ms-divider: #e1e4e8;
+
+  --ms-success: #168258;
+  --ms-danger: #c73636;
+
+  --ms-active: #fff3d4;
+  --ms-hover: #fff9eb;
+
+  --ms-icon-bg: #fff7e3;
+  --ms-icon-border: #efddb0;
+
+  --ms-table-header: #edf0f4;
+  --ms-table-row: #ffffff;
+  --ms-table-hover: #fffaf0;
+
+  --ms-button-bg: #f0f2f5;
+  --ms-button-text: #434a55;
+
+  --ms-note-bg: #fff9eb;
+
+  --ms-page-bg: #f6f7f9;
+  --ms-card-bg: #ffffff;
+  --ms-modal-bg: #ffffff;
+
+  --ms-shadow:
+    0 8px 28px rgba(35, 40, 50, 0.07);
+
+  --ms-modal-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.18);
+
+  --ms-backdrop: rgba(15, 23, 42, 0.48);
+}
+
+
+/* ==========================================================
+   03. RESET AND GENERAL STYLES
+========================================================== */
 
 * {
   margin: 0;
@@ -9,52 +141,46 @@
   box-sizing: border-box;
 }
 
-:root {
-  --gold: #f4c542;
-  --gold-dark: #c79b1b;
-
-  --black: #0c0c0d;
-  --dark: #0b0b0b;
-  --card: #101010;
-  --card-light: #151515;
-
-  --border: rgba(244, 197, 66, 0.20);
-
-  --white: #ffffff;
-  --muted: #999999;
-
-  --danger: #ff5d5d;
-  --success: #46d483;
-}
-
 body {
   min-height: 100vh;
 
-  background:
-    radial-gradient(
-      circle at top left,
-      rgba(214, 165, 29, 0.12),
-      transparent 35%
-    ),
-    linear-gradient(
-      135deg,
-      #0c0c0d,
-      #0b0b0b 55%,
-      #000
-    );
+  background: var(--ms-page-bg);
+  color: var(--ms-text);
 
-  color: var(--white);
-
-  font-family:
-    "Segoe UI",
-    Arial,
-    sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-/* =========================================
-   GENERAL
-========================================= */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ms-gold-text);
+  outline-offset: 3px;
+}
 
 .staff-wrapper {
   width: 100%;
@@ -62,47 +188,122 @@ body {
 }
 
 .text-gold {
-  color: var(--gold) !important;
+  color: var(--ms-gold-text) !important;
+}
+
+.muted {
+  color: var(--ms-muted);
 }
 
 
-/* =========================================
-   NAVBAR
-========================================= */
+/* ==========================================================
+   04. DASHBOARD WRAPPER
+========================================================== */
+
+.dashboard-wrapper {
+  width: min(1400px, calc(100% - 40px));
+  margin: 20px auto;
+}
+
+.dashboard-nav,
+.dashboard-card {
+  background: var(--ms-card-bg);
+
+  border: 1px solid var(--ms-border);
+  border-radius: 16px;
+
+  box-shadow: var(--ms-shadow);
+}
+
+
+/* ==========================================================
+   05. ADMIN NAVIGATION
+========================================================== */
+
+.dashboard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  gap: 20px;
+  padding: 16px 22px;
+  margin-bottom: 20px;
+}
+
+.dashboard-nav .brand {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 10px;
+  margin: 0;
+
+  color: var(--ms-text);
+
+  font-size: 17px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.dashboard-nav .brand i {
+  color: var(--ms-gold-text);
+}
+
+.dashboard-nav .top-menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 26px;
+}
+
+.dashboard-nav .top-menu a {
+  padding: 6px 0;
+
+  color: var(--ms-text);
+
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+.dashboard-nav .top-menu a:hover,
+.dashboard-nav .top-menu a.active {
+  color: var(--ms-gold-text);
+}
+
+
+/* OLD STAFF NAVBAR COMPATIBILITY */
 
 .staff-navbar {
-  background:
-    rgba(15, 15, 15, 0.92);
+  background: var(--ms-card-bg);
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--ms-border);
   border-radius: 18px;
 
-  box-shadow:
-    0 18px 50px rgba(0, 0, 0, 0.30);
-
-  backdrop-filter: blur(15px);
+  box-shadow: var(--ms-shadow);
 }
 
 .navbar-brand {
   font-size: 18px;
+  color: var(--ms-text);
 }
 
 .staff-navbar .nav-link {
   position: relative;
 
-  color: #ddd !important;
+  color: var(--ms-text-secondary) !important;
 
-  transition: 0.25s ease;
+  transition: color 0.25s ease;
 }
 
-.staff-navbar .nav-link:hover {
-  color: var(--gold) !important;
+.staff-navbar .nav-link:hover,
+.staff-navbar .active-link {
+  color: var(--ms-gold-text) !important;
 }
 
 .staff-navbar .active-link {
-  color: var(--gold) !important;
   font-weight: 700;
 }
 
@@ -118,1214 +319,72 @@ body {
   height: 2px;
 
   border-radius: 20px;
-
-  background: var(--gold);
+  background: var(--ms-gold);
 }
 
 .navbar-toggler {
-  border:
-    1px solid rgba(244, 197, 66, 0.30);
+  border: 1px solid var(--ms-border);
 }
 
 .navbar-toggler:focus {
   box-shadow: none;
 }
 
-.btn-gold {
-  background:
-    linear-gradient(
-      135deg,
-      var(--gold-dark),
-      var(--gold)
-    );
 
-  color: #000;
+/* ==========================================================
+   06. GENERAL BUTTONS
+========================================================== */
 
-  border: none;
-
-  border-radius: 9px;
-
-  font-weight: 700;
-
-  transition: 0.25s ease;
-}
-
-.btn-gold:hover {
-  background:
-    linear-gradient(
-      135deg,
-      var(--gold),
-      #ffe08a
-    );
-
-  color: #000;
-
-  transform: translateY(-1px);
-}
-
-
-/* =========================================
-   PAGE HEADER
-========================================= */
-
-.page-header {
-  padding: 30px;
-
-  border:
-    1px solid var(--border);
-
-  border-radius: 18px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(20, 20, 20, 0.95),
-      rgba(9, 9, 9, 0.95)
-    );
-
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.25);
-}
-
-.page-eyebrow {
-  color: var(--gold);
-
-  font-size: 12px;
-
-  font-weight: 800;
-
-  letter-spacing: 2px;
-}
-
-.page-title {
-  color: #fff;
-
-  font-size: 30px;
-
-  font-weight: 800;
-
-  margin-bottom: 8px;
-}
-
-.page-description {
-  color: var(--muted);
-
-  font-size: 14px;
-}
-
-.btn-add-staff {
-  padding: 13px 20px;
-
-  border: none;
-
-  border-radius: 10px;
-
-  background:
-    linear-gradient(
-      135deg,
-      var(--gold-dark),
-      var(--gold)
-    );
-
-  color: #0c0c0d;
-
-  font-weight: 800;
-
-  transition: 0.25s ease;
-}
-
-.btn-add-staff i {
-  margin-right: 7px;
-}
-
-.btn-add-staff:hover {
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 10px 30px rgba(244, 197, 66, 0.15);
-}
-
-
-/* =========================================
-   SUMMARY CARDS
-========================================= */
-
-.summary-card {
-  min-height: 125px;
-
-  padding: 24px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 18px;
-
-  background:
-    linear-gradient(
-      145deg,
-      #111,
-      #0c0c0c
-    );
-
-  border:
-    1px solid var(--border);
-
-  border-radius: 16px;
-
-  box-shadow:
-    0 15px 40px rgba(0, 0, 0, 0.25);
-
-  transition: 0.25s ease;
-}
-
-.summary-card:hover {
-  transform: translateY(-3px);
-
-  border-color:
-    rgba(244, 197, 66, 0.45);
-}
-
-.summary-icon {
-  width: 55px;
-  height: 55px;
-
-  flex-shrink: 0;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 14px;
-
-  background:
-    rgba(244, 197, 66, 0.10);
-
-  border:
-    1px solid rgba(244, 197, 66, 0.20);
-
-  color: var(--gold);
-
-  font-size: 21px;
-}
-
-.summary-card p {
-  color: #999;
-
-  font-size: 13px;
-
-  margin-bottom: 5px;
-}
-
-.summary-card h3 {
-  color: var(--gold);
-
-  font-size: 27px;
-
-  font-weight: 800;
-
-  margin: 0;
-}
-
-
-/* =========================================
-   STAFF PANEL
-========================================= */
-
-.staff-panel {
-  overflow: hidden;
-
-  background:
-    rgba(15, 15, 15, 0.95);
-
-  border:
-    1px solid var(--border);
-
-  border-radius: 18px;
-
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.30);
-}
-
-.staff-panel-header {
-  padding: 25px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 20px;
-
-  border-bottom:
-    1px solid rgba(255, 255, 255, 0.06);
-}
-
-.staff-panel-header h3 {
-  color: #fff;
-
-  font-size: 20px;
-
-  font-weight: 800;
-
-  margin-bottom: 5px;
-}
-
-.staff-panel-header p {
-  color: #888;
-
-  font-size: 13px;
-
-  margin: 0;
-}
-
-
-/* =========================================
-   SEARCH & FILTER
-========================================= */
-
-.staff-tools {
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  flex-wrap: wrap;
-}
-
-.search-box {
-  min-width: 230px;
-
-  height: 42px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 0 13px;
-
-  background: #080808;
-
-  border:
-    1px solid #292929;
-
-  border-radius: 9px;
-}
-
-.search-box i {
-  color: #777;
-
-  font-size: 13px;
-}
-
-.search-box input {
-  width: 100%;
-
-  border: none;
-
-  outline: none;
-
-  background: transparent;
-
-  color: #fff;
-
-  font-size: 13px;
-}
-
-.search-box input::placeholder {
-  color: #666;
-}
-
-.search-box:focus-within {
-  border-color: var(--gold);
-}
-
-.staff-filter {
-  height: 42px;
-
-  padding: 0 35px 0 13px;
-
-  border:
-    1px solid #292929;
-
-  border-radius: 9px;
-
-  background: #080808;
-
-  color: #ddd;
-
-  outline: none;
-
-  font-size: 13px;
-}
-
-.staff-filter:focus {
-  border-color: var(--gold);
-}
-
-
-/* =========================================
-   STAFF TABLE
-========================================= */
-
-.staff-table {
-  width: 100%;
-
-  border-collapse: collapse;
-}
-
-.staff-table thead {
-  background: #090909;
-}
-
-.staff-table th {
-  padding: 17px 20px;
-
-  color: #8c8c8c;
-
-  border-bottom:
-    1px solid rgba(255, 255, 255, 0.06);
-
-  font-size: 11px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.7px;
-
-  text-transform: uppercase;
-}
-
-.staff-table td {
-  padding: 18px 20px;
-
-  color: #ddd;
-
-  border-bottom:
-    1px solid rgba(255, 255, 255, 0.05);
-
-  font-size: 13px;
-
-  vertical-align: middle;
-}
-
-.staff-table tbody tr {
-  transition: 0.2s ease;
-}
-
-.staff-table tbody tr:hover {
-  background:
-    rgba(244, 197, 66, 0.025);
-}
-
-
-/* =========================================
-   STAFF PROFILE
-========================================= */
-
-.staff-profile {
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-}
-
-.staff-avatar {
-  width: 40px;
-  height: 40px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  background:
-    rgba(244, 197, 66, 0.10);
-
-  border:
-    1px solid rgba(244, 197, 66, 0.25);
-
-  color: var(--gold);
-
-  font-weight: 800;
-}
-
-.staff-name {
-  color: #fff;
-
-  font-weight: 700;
-
-  margin-bottom: 2px;
-}
-
-.staff-email {
-  color: #777;
-
-  font-size: 11px;
-}
-
-
-/* =========================================
-   ROLE BADGES
-========================================= */
-
-.role-badge {
-  display: inline-flex;
-
-  align-items: center;
-
-  padding: 6px 10px;
-
-  border-radius: 20px;
-
-  background:
-    rgba(244, 197, 66, 0.08);
-
-  border:
-    1px solid rgba(244, 197, 66, 0.18);
-
-  color: var(--gold);
-
-  font-size: 11px;
-
-  font-weight: 700;
-}
-
-
-/* =========================================
-   STATUS BADGES
-========================================= */
-
-.status-badge {
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  padding: 6px 10px;
-
-  border-radius: 20px;
-
-  font-size: 11px;
-
-  font-weight: 700;
-}
-
-.status-active {
-  color: #53db8c;
-
-  background:
-    rgba(83, 219, 140, 0.08);
-
-  border:
-    1px solid rgba(83, 219, 140, 0.20);
-}
-
-.status-inactive {
-  color: #aaa;
-
-  background:
-    rgba(170, 170, 170, 0.08);
-
-  border:
-    1px solid rgba(170, 170, 170, 0.20);
-}
-
-.status-restricted {
-  color: #ff6969;
-
-  background:
-    rgba(255, 105, 105, 0.08);
-
-  border:
-    1px solid rgba(255, 105, 105, 0.20);
-}
-
-
-/* =========================================
-   ACTION BUTTONS
-========================================= */
-
-.staff-actions {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 7px;
-}
-
-.action-btn {
-  width: 34px;
-  height: 34px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border-radius: 8px;
-
-  background: #111;
-
-  border:
-    1px solid #292929;
-
-  color: #aaa;
-
-  cursor: pointer;
-
-  transition: 0.2s ease;
-}
-
-.action-btn:hover {
-  border-color: var(--gold);
-
-  color: var(--gold);
-}
-
-.action-btn.delete:hover {
-  border-color: var(--danger);
-
-  color: var(--danger);
-}
-
-
-/* =========================================
-   EMPTY TABLE
-========================================= */
-
-.empty-table {
-  padding: 65px 20px !important;
-
-  text-align: center;
-}
-
-.empty-icon {
-  width: 65px;
-  height: 65px;
-
-  margin: 0 auto 15px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background:
-    rgba(244, 197, 66, 0.08);
-
-  color: var(--gold);
-
-  font-size: 24px;
-}
-
-.empty-table h4 {
-  color: #fff;
-
-  font-size: 17px;
-
-  font-weight: 700;
-}
-
-.empty-table p {
-  max-width: 420px;
-
-  margin:
-    7px auto 0;
-
-  color: #777;
-
-  font-size: 13px;
-}
-
-
-/* =========================================
-   MODAL
-========================================= */
-
-.modal-backdrop.show {
-  opacity: 0.8;
-}
-
-.staff-modal {
-  overflow: hidden;
-
-  background:
-    linear-gradient(
-      145deg,
-      #121212,
-      #090909
-    );
-
-  border:
-    1px solid rgba(244, 197, 66, 0.25);
-
-  border-radius: 18px;
-
-  color: #fff;
-
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.7);
-}
-
-.staff-modal .modal-header {
-  padding: 22px 25px;
-
-  border-bottom:
-    1px solid rgba(255, 255, 255, 0.07);
-}
-
-.modal-eyebrow {
-  color: var(--gold);
-
-  font-size: 10px;
-
-  font-weight: 800;
-
-  letter-spacing: 1.5px;
-
-  margin-bottom: 4px;
-}
-
-.staff-modal .modal-title {
-  font-weight: 800;
-}
-
-.staff-modal .modal-body {
-  padding: 25px;
-}
-
-.form-label {
-  color: #bbb;
-
-  font-size: 12px;
-
-  font-weight: 700;
-
-  margin-bottom: 8px;
-}
-
-
-/* =========================================
-   FORM INPUTS
-========================================= */
-
-.input-group-custom {
-  min-height: 48px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 11px;
-
-  padding: 0 14px;
-
-  background: #070707;
-
-  border:
-    1px solid #292929;
-
-  border-radius: 9px;
-
-  transition: 0.2s ease;
-}
-
-.input-group-custom:focus-within {
-  border-color: var(--gold);
-
-  box-shadow:
-    0 0 0 3px rgba(244, 197, 66, 0.05);
-}
-
-.input-group-custom i {
-  width: 16px;
-
-  color: #666;
-
-  font-size: 13px;
-}
-
-.input-group-custom input,
-.input-group-custom select {
-  width: 100%;
-
-  height: 46px;
-
-  border: none;
-
-  outline: none;
-
-  background: transparent;
-
-  color: #fff;
-
-  font-size: 13px;
-}
-
-.input-group-custom input::placeholder {
-  color: #555;
-}
-
-.input-group-custom select option {
-  background: #111;
-
-  color: #fff;
-}
-
-
-/* =========================================
-   ACCOUNT NOTE
-========================================= */
-
-.account-note {
-  margin-top: 25px;
-
-  padding: 15px;
-
-  display: flex;
-
-  gap: 12px;
-
-  border:
-    1px solid rgba(244, 197, 66, 0.16);
-
-  border-radius: 10px;
-
-  background:
-    rgba(244, 197, 66, 0.04);
-}
-
-.account-note > i {
-  margin-top: 3px;
-
-  color: var(--gold);
-}
-
-.account-note strong {
-  display: block;
-
-  color: #ddd;
-
-  font-size: 12px;
-
-  margin-bottom: 3px;
-}
-
-.account-note p {
-  color: #777;
-
-  font-size: 11px;
-
-  margin: 0;
-}
-
-
-/* =========================================
-   MODAL FOOTER
-========================================= */
-
-.staff-modal .modal-footer {
-  padding: 18px 25px;
-
-  border-top:
-    1px solid rgba(255, 255, 255, 0.07);
-}
-
-.btn-cancel,
-.btn-create {
-  padding: 11px 18px;
-
-  border-radius: 9px;
-
-  font-size: 13px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
-.btn-cancel {
-  border:
-    1px solid #333;
-
-  background: #111;
-
-  color: #aaa;
-}
-
-.btn-cancel:hover {
-  color: #fff;
-
-  border-color: #555;
-}
-
-.btn-create {
-  border: none;
-
-  background:
-    linear-gradient(
-      135deg,
-      var(--gold-dark),
-      var(--gold)
-    );
-
-  color: #0c0c0d;
-}
-
-.btn-create i {
-  margin-right: 6px;
-}
-
-.btn-create:hover {
-  opacity: 0.92;
-}
-
-
-/* =========================================
-   LOGOUT MODAL
-========================================= */
-
-.custom-logout-modal {
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 9999;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-}
-
-.custom-logout-modal.hidden {
-  display: none;
-}
-
-.logout-backdrop {
-  position: absolute;
-
-  inset: 0;
-
-  background:
-    rgba(0, 0, 0, 0.82);
-
-  backdrop-filter: blur(4px);
-}
-
-.logout-box {
-  position: relative;
-
-  z-index: 2;
-
-  width:
-    min(420px, calc(100% - 35px));
-
-  padding: 30px;
-
-  text-align: center;
-
-  border-radius: 17px;
-
-  background:
-    linear-gradient(
-      145deg,
-      #151515,
-      #090909
-    );
-
-  border:
-    1px solid rgba(244, 197, 66, 0.25);
-
-  box-shadow:
-    0 25px 80px rgba(0, 0, 0, 0.70);
-}
-
-.logout-icon {
-  width: 60px;
-  height: 60px;
-
-  margin:
-    0 auto 15px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background:
-    rgba(244, 197, 66, 0.10);
-
-  color: var(--gold);
-
-  font-size: 23px;
-}
-
-.logout-box h4 {
-  font-weight: 800;
-
-  margin-bottom: 10px;
-}
-
-.logout-box p {
-  color: #888;
-
-  font-size: 13px;
-}
-
-.logout-actions {
-  margin-top: 23px;
-
-  display: flex;
-
-  justify-content: center;
-
-  gap: 10px;
-}
-
-.confirm-logout,
-.cancel-logout {
-  padding: 11px 17px;
-
-  border-radius: 9px;
-
-  font-size: 13px;
-
-  font-weight: 700;
-}
-
-.confirm-logout {
-  border: none;
-
-  background:
-    linear-gradient(
-      135deg,
-      var(--gold-dark),
-      var(--gold)
-    );
-
-  color: #000;
-}
-
-.cancel-logout {
-  border:
-    1px solid #333;
-
-  background: #111;
-
-  color: #aaa;
-}
-
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
-@media (max-width: 991px) {
-
-  .staff-navbar .navbar-collapse {
-    padding-top: 18px;
-  }
-
-  .staff-navbar .navbar-nav {
-    margin-bottom: 18px;
-  }
-
-  .staff-panel-header {
-    flex-direction: column;
-
-    align-items: stretch;
-  }
-
-  .staff-tools {
-    width: 100%;
-  }
-
-  .search-box {
-    flex: 1;
-  }
-
-}
-
-
-@media (max-width: 767px) {
-
-  .page-header {
-    padding: 22px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  .btn-add-staff {
-    width: 100%;
-  }
-
-  .staff-tools {
-    flex-direction: column;
-
-    align-items: stretch;
-  }
-
-  .search-box,
-  .staff-filter {
-    width: 100%;
-  }
-
-  .staff-table {
-    min-width: 850px;
-  }
-
-}
-
-
-@media (max-width: 480px) {
-
-  body > .container-fluid {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .staff-navbar {
-    padding-left: 18px !important;
-    padding-right: 18px !important;
-  }
-
-  .summary-card {
-    padding: 20px;
-  }
-
-  .logout-actions {
-    flex-direction: column;
-  }
-
-  .confirm-logout,
-  .cancel-logout {
-    width: 100%;
-  }
-
-}
-
-/* =========================================================
-   ADMIN LAYOUT - SAME AS MANAGE CUSTOMERS
-   Matches the supplied manage-staff.html selectors
-   Preserves original staff cards, tables, filters and modals
-========================================================= */
-
-body {
-  background: radial-gradient(circle at top right, #211c12 0, transparent 48%), #0c0c0d;
-  color: #ffffff;
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.dashboard-wrapper {
-  width: min(1400px, calc(100% - 40px));
-  margin: 20px auto;
-}
-
-.dashboard-nav,
-.dashboard-card {
-  background: linear-gradient(135deg, #151515, #0c0c0c);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-}
-
-.dashboard-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 16px 22px;
-  margin-bottom: 20px;
-}
-
-.dashboard-nav .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-size: 17px;
-  font-weight: 750;
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.dashboard-nav .brand i { color: var(--gold); }
-
-.dashboard-nav .top-menu {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 26px;
-}
-
-.dashboard-nav .top-menu a {
-  padding: 6px 0;
-  color: #ffffff;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.dashboard-nav .top-menu a:hover,
-.dashboard-nav .top-menu a.active { color: var(--gold); }
-
-.dashboard-nav .btn {
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 8px;
   padding: 10px 16px;
+
   border: 1px solid transparent;
   border-radius: 9px;
+
   font-weight: 700;
+
   cursor: pointer;
-  text-decoration: none;
+
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
+.btn-gold,
 .dashboard-nav .btn-gold {
-  background: var(--gold);
+  background: var(--ms-gold-gradient);
   color: #16120a;
-  transform: none;
+
+  border: none;
+
+  font-weight: 700;
 }
 
+.btn-gold:hover,
 .dashboard-nav .btn-gold:hover {
-  background: #f7d76a;
+  background: var(--ms-gold-hover);
   color: #16120a;
-  transform: none;
 }
 
-/* Manage Staff heading: fix text hugging top/left and badge below */
+
+/* ==========================================================
+   07. MAIN PAGE HEADING
+========================================================== */
+
 .dashboard-wrapper .page-heading {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
+
   gap: 16px;
+
   padding: 24px;
   margin-bottom: 22px;
 }
@@ -1337,7 +396,9 @@ body {
 
 .dashboard-wrapper .page-heading .eyebrow {
   margin: 0 0 4px;
-  color: var(--gold);
+
+  color: var(--ms-gold-text);
+
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.5px;
@@ -1345,7 +406,9 @@ body {
 
 .dashboard-wrapper .page-heading h1 {
   margin: 0 0 4px;
-  color: #fff;
+
+  color: var(--ms-text);
+
   font-size: clamp(24px, 3vw, 32px);
   font-weight: 750;
   line-height: 1.2;
@@ -1353,7 +416,9 @@ body {
 
 .dashboard-wrapper .page-heading .muted {
   margin: 5px 0 0;
-  color: #b8b8b8;
+
+  color: var(--ms-muted);
+
   font-size: 14px;
 }
 
@@ -1361,46 +426,76 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 6px;
   flex-shrink: 0;
+
   padding: 5px 10px;
-  background: rgba(244, 197, 66, 0.08);
-  border: 1px solid rgba(244, 197, 66, 0.4);
+
+  background: var(--ms-icon-bg);
+
+  border: 1px solid var(--ms-icon-border);
   border-radius: 20px;
-  color: var(--gold);
+
+  color: var(--ms-gold-text);
+
   font-size: 11px;
   font-weight: 700;
+
   white-space: nowrap;
 }
 
-/* In-page Admin Menu: NOT the fixed Customer sidebar */
+
+/* ==========================================================
+   08. ADMIN MAIN LAYOUT
+========================================================== */
+
 .dashboard-layout {
   display: grid;
+
   grid-template-columns: 265px minmax(0, 1fr);
-  gap: 20px;
+
   align-items: start;
+  gap: 20px;
 }
+
+
+/* ==========================================================
+   09. ADMIN SIDEBAR
+========================================================== */
 
 .dashboard-layout .sidebar {
   position: static;
+
   width: auto;
   height: auto;
   min-height: 0;
+
   margin: 0;
   padding: 24px;
+
+  background: var(--ms-card-bg);
+
+  border: 1px solid var(--ms-border);
+  border-radius: 16px;
 }
 
 .dashboard-layout .sidebar h2 {
   display: flex;
   align-items: center;
+
   gap: 10px;
   margin: 0 0 20px;
-  color: #fff;
+
+  color: var(--ms-text);
+
   font-size: 20px;
   font-weight: 700;
 }
 
-.dashboard-layout .sidebar h2 i { color: var(--gold); }
+.dashboard-layout .sidebar h2 i {
+  color: var(--ms-gold-text);
+}
 
 .dashboard-menu {
   display: grid;
@@ -1410,13 +505,20 @@ body {
 .dashboard-menu a {
   display: flex;
   align-items: center;
+
   gap: 12px;
   padding: 12px;
+
   border-radius: 10px;
-  color: #fff;
+
+  color: var(--ms-text-secondary);
+
   font-weight: 600;
   text-decoration: none;
-  transition: background 0.2s ease, color 0.2s ease;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .dashboard-menu a i {
@@ -1425,28 +527,38 @@ body {
 }
 
 .dashboard-menu a:hover {
-  background: rgba(244, 197, 66, 0.08);
-  color: var(--gold);
+  background: var(--ms-hover);
+  color: var(--ms-gold-text);
 }
 
 .dashboard-menu a.active {
-  background: rgba(244, 197, 66, 0.17);
-  color: var(--gold);
+  background: var(--ms-active);
+  color: var(--ms-gold-text);
 }
 
-/* Staff Directory + Add Staff alignment */
+
+/* ==========================================================
+   10. STAFF DIRECTORY HEADER
+========================================================== */
+
 .staff-main {
   width: 100%;
   min-width: 0;
 }
 
+.page-header,
 .staff-main .page-header {
   display: block;
+
   padding: 24px;
   margin-bottom: 24px !important;
+
+  background: var(--ms-card-bg);
+
+  border: 1px solid var(--ms-border);
   border-radius: 16px;
-  background: linear-gradient(135deg, #151515, #0c0c0c);
-  box-shadow: none;
+
+  box-shadow: var(--ms-shadow);
 }
 
 .staff-main .page-header .row {
@@ -1461,25 +573,34 @@ body {
   padding-right: 0;
 }
 
+.page-eyebrow,
 .staff-main .page-eyebrow {
   margin-bottom: 6px !important;
-  color: var(--gold);
+
+  color: var(--ms-gold-text);
+
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1px;
 }
 
+.page-title,
 .staff-main .page-title {
   margin: 0 0 6px;
-  color: #fff;
+
+  color: var(--ms-text);
+
   font-size: 24px;
   font-weight: 750;
   line-height: 1.25;
 }
 
+.page-description,
 .staff-main .page-description {
   margin: 0;
-  color: var(--muted);
+
+  color: var(--ms-muted);
+
   font-size: 13px;
   line-height: 1.5;
 }
@@ -1490,69 +611,1306 @@ body {
   justify-content: flex-end;
 }
 
+
+/* ==========================================================
+   11. ADD STAFF BUTTON
+========================================================== */
+
+.btn-add-staff,
 .staff-main .btn-add-staff {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 8px;
+
   width: auto;
   min-height: 42px;
+
   padding: 11px 18px;
+
   border: 0;
   border-radius: 10px;
-  background: var(--gold);
-  color: #000;
+
+  background: var(--ms-gold-gradient);
+  color: #171717;
+
   font-size: 13px;
   font-weight: 800;
   line-height: 1.3;
+
   white-space: nowrap;
+
+  transition: 0.25s ease;
+}
+
+.btn-add-staff i {
+  margin-right: 0;
+}
+
+.btn-add-staff:hover,
+.staff-main .btn-add-staff:hover {
+  background: var(--ms-gold-hover);
+
+  color: #171717;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 18px rgba(244, 197, 66, 0.18);
+}
+
+
+/* ==========================================================
+   12. STAFF SUMMARY CARDS
+========================================================== */
+
+.summary-card {
+  display: flex;
+  align-items: center;
+
+  min-height: 100px;
+
+  gap: 18px;
+  padding: 16px;
+
+  background: var(--ms-card-bg);
+
+  border: 1px solid var(--ms-border);
+  border-radius: 16px;
+
+  box-shadow: var(--ms-shadow);
+
+  transition:
+    transform 0.25s,
+    border-color 0.25s;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+
+  border-color: var(--ms-gold);
+}
+
+.summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 14px;
+
+  background: var(--ms-icon-bg);
+
+  border: 1px solid var(--ms-icon-border);
+
+  color: var(--ms-gold-text);
+
+  font-size: 21px;
+}
+
+.summary-card p {
+  margin-bottom: 5px;
+
+  color: var(--ms-muted);
+
+  font-size: 13px;
+}
+
+.summary-card h3 {
+  margin: 0;
+
+  color: var(--ms-text);
+
+  font-size: 23px;
+  font-weight: 800;
+}
+
+:root[data-account-theme="dark"] .summary-card h3 {
+  color: var(--ms-gold);
+}
+
+
+/* ==========================================================
+   13. STAFF ACCOUNTS PANEL
+========================================================== */
+
+.staff-panel {
+  overflow: hidden;
+
+  background: var(--ms-card);
+
+  border: 1px solid var(--ms-border);
+  border-radius: 16px;
+
+  box-shadow: var(--ms-shadow);
+}
+
+.staff-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+  padding: 22px;
+
+  background: var(--ms-card);
+
+  border-bottom: 1px solid var(--ms-divider);
+}
+
+.staff-panel-header h3 {
+  margin-bottom: 5px;
+
+  color: var(--ms-text);
+
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.staff-panel-header p {
+  margin: 0;
+
+  color: var(--ms-muted);
+
+  font-size: 13px;
+}
+
+
+/* ==========================================================
+   14. SEARCH AND FILTERS
+========================================================== */
+
+.staff-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+
+  min-width: 230px;
+  height: 42px;
+
+  gap: 10px;
+  padding: 0 13px;
+
+  background: var(--ms-input);
+
+  border: 1px solid var(--ms-input-border);
+  border-radius: 9px;
+}
+
+.search-box i {
+  color: var(--ms-muted);
+  font-size: 13px;
+}
+
+.search-box input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--ms-text);
+
+  font-size: 13px;
+}
+
+.search-box input::placeholder {
+  color: var(--ms-muted);
+}
+
+.search-box:focus-within {
+  border-color: var(--ms-gold-text);
+}
+
+.staff-filter {
+  height: 42px;
+
+  padding: 0 35px 0 13px;
+
+  border: 1px solid var(--ms-input-border);
+  border-radius: 9px;
+
+  background-color: var(--ms-input);
+  color: var(--ms-text);
+
+  outline: none;
+
+  font-size: 13px;
+}
+
+.staff-filter:focus {
+  border-color: var(--ms-gold-text);
+}
+
+.staff-filter option {
+  background: var(--ms-card);
+  color: var(--ms-text);
+}
+
+
+/* ==========================================================
+   15. STAFF TABLE
+========================================================== */
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.staff-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  background: var(--ms-card);
+  color: var(--ms-text);
+}
+
+.staff-table thead {
+  background: var(--ms-table-header);
+}
+
+.staff-table th {
+  padding: 15px 12px;
+
+  background: var(--ms-table-header);
+  color: var(--ms-muted);
+
+  border-bottom: 1px solid var(--ms-divider);
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.staff-table td {
+  padding: 15px 12px;
+
+  background: var(--ms-table-row);
+  color: var(--ms-text-secondary);
+
+  border-bottom: 1px solid var(--ms-divider);
+
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.staff-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.staff-table tbody tr:hover td {
+  background: var(--ms-table-hover);
+}
+
+
+/* ==========================================================
+   16. STAFF PROFILE
+========================================================== */
+
+.staff-profile {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.staff-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+
+  background: var(--ms-icon-bg);
+
+  border: 1px solid var(--ms-icon-border);
+
+  color: var(--ms-gold-text);
+
+  font-weight: 800;
+}
+
+.staff-name {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: var(--ms-text);
+
+  font-weight: 700;
+}
+
+.staff-email {
+  display: block;
+
+  color: var(--ms-muted);
+
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+
+/* ==========================================================
+   17. ROLE BADGES
+========================================================== */
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  background: var(--ms-icon-bg);
+
+  border: 1px solid var(--ms-icon-border);
+
+  color: var(--ms-gold-text);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
+   18. STATUS BADGES
+========================================================== */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.status-active {
+  color: var(--ms-success);
+
+  background: rgba(83, 219, 140, 0.08);
+
+  border: 1px solid rgba(83, 219, 140, 0.20);
+}
+
+.status-inactive {
+  color: var(--ms-muted);
+
+  background: rgba(170, 170, 170, 0.08);
+
+  border: 1px solid rgba(170, 170, 170, 0.20);
+}
+
+.status-restricted {
+  color: var(--ms-danger);
+
+  background: rgba(255, 105, 105, 0.08);
+
+  border: 1px solid rgba(255, 105, 105, 0.20);
+}
+
+
+/* ==========================================================
+   19. STAFF ACTION BUTTONS
+========================================================== */
+
+.staff-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid var(--ms-input-border);
+  border-radius: 8px;
+
+  background: var(--ms-button-bg);
+  color: var(--ms-button-text);
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.action-btn:hover {
+  background: var(--ms-hover);
+
+  border-color: var(--ms-gold);
+
+  color: var(--ms-gold-text);
+}
+
+.action-btn.delete:hover {
+  border-color: var(--ms-danger);
+
+  color: var(--ms-danger);
+}
+
+
+/* ==========================================================
+   20. EMPTY TABLE
+========================================================== */
+
+.empty-table {
+  padding: 65px 20px !important;
+  text-align: center;
+}
+
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 65px;
+  height: 65px;
+
+  margin: 0 auto 15px;
+
+  border-radius: 50%;
+
+  background: var(--ms-icon-bg);
+  color: var(--ms-gold-text);
+
+  font-size: 24px;
+}
+
+.empty-table h4 {
+  color: var(--ms-text);
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.empty-table p {
+  max-width: 420px;
+
+  margin: 7px auto 0;
+
+  color: var(--ms-muted);
+
+  font-size: 13px;
+}
+
+
+/* ==========================================================
+   21. STAFF MODAL
+========================================================== */
+
+.modal-backdrop.show {
+  background: var(--ms-backdrop);
+  opacity: 1;
+}
+
+.staff-modal {
+  overflow: hidden;
+
+  background: var(--ms-modal-bg);
+
+  border: 1px solid var(--ms-border);
+  border-radius: 18px;
+
+  color: var(--ms-text);
+
+  box-shadow: var(--ms-modal-shadow);
+}
+
+.staff-modal .modal-header {
+  padding: 22px 25px;
+
+  background: var(--ms-card);
+
+  border-bottom: 1px solid var(--ms-divider);
+}
+
+.modal-eyebrow {
+  margin-bottom: 4px;
+
+  color: var(--ms-gold-text);
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.staff-modal .modal-title {
+  color: var(--ms-text);
+  font-weight: 800;
+}
+
+.staff-modal .modal-body {
+  padding: 25px;
+
+  background: var(--ms-card);
+
+  color: var(--ms-text);
+}
+
+.form-label {
+  margin-bottom: 8px;
+
+  color: var(--ms-text-secondary);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* ==========================================================
+   22. STAFF MODAL INPUT GROUPS
+========================================================== */
+
+.input-group-custom {
+  display: flex;
+  align-items: center;
+
+  min-height: 48px;
+
+  gap: 11px;
+  padding: 0 14px;
+
+  background: var(--ms-input);
+
+  border: 1px solid var(--ms-input-border);
+  border-radius: 9px;
+
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.input-group-custom:focus-within {
+  border-color: var(--ms-gold-text);
+
+  box-shadow:
+    0 0 0 3px rgba(196, 154, 53, 0.14);
+}
+
+.input-group-custom i {
+  flex-shrink: 0;
+
+  width: 16px;
+
+  color: var(--ms-gold-text);
+
+  font-size: 13px;
+}
+
+.input-group-custom input,
+.input-group-custom select {
+  width: 100%;
+  min-width: 0;
+
+  height: 46px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--ms-text);
+
+  font-size: 13px;
+}
+
+.input-group-custom input::placeholder {
+  color: var(--ms-muted);
+}
+
+.input-group-custom select option {
+  background: var(--ms-card);
+  color: var(--ms-text);
+}
+
+.input-group-custom input:-webkit-autofill {
+  -webkit-box-shadow:
+    0 0 0 1000px var(--ms-input) inset !important;
+
+  -webkit-text-fill-color:
+    var(--ms-text) !important;
+
+  caret-color: var(--ms-text);
+}
+
+
+/* ==========================================================
+   23. STAFF ACCESS INFORMATION
+========================================================== */
+
+.account-note {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 25px;
+  padding: 15px;
+
+  background: var(--ms-note-bg);
+
+  border: 1px solid var(--ms-icon-border);
+  border-radius: 10px;
+}
+
+.account-note > i {
+  margin-top: 3px;
+
+  color: var(--ms-gold-text);
+}
+
+.account-note strong {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: var(--ms-text);
+
+  font-size: 12px;
+}
+
+.account-note p {
+  margin: 0;
+
+  color: var(--ms-muted);
+
+  font-size: 11px;
+}
+
+
+/* ==========================================================
+   24. MODAL CLOSE BUTTON
+========================================================== */
+
+.staff-modal .btn-close {
+  opacity: 1;
+
+  background-color: var(--ms-surface);
+
+  border-radius: 6px;
+
+  background-size: 12px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+:root[data-account-theme="dark"]
+.staff-modal .btn-close {
+  filter: invert(1) grayscale(100%);
+}
+
+:root[data-account-theme="light"]
+.staff-modal .btn-close {
+  filter: none !important;
+
+  background-color: #edf0f4 !important;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='%23434a55' stroke-width='2' stroke-linecap='round' d='M3 3l10 10M13 3L3 13'/%3E%3C/svg%3E") !important;
+
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 12px !important;
+
+  opacity: 1 !important;
+}
+
+
+/* ==========================================================
+   25. MODAL FOOTER
+========================================================== */
+
+.staff-modal .modal-footer {
+  padding: 18px 25px;
+
+  background: var(--ms-card);
+
+  border-top: 1px solid var(--ms-divider);
+}
+
+.btn-cancel,
+.btn-create {
+  padding: 11px 18px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 700;
+
   cursor: pointer;
 }
 
-.staff-main .btn-add-staff i { margin-right: 0; }
+.btn-cancel {
+  background: var(--ms-button-bg);
+  color: var(--ms-button-text);
 
-.staff-main .btn-add-staff:hover {
-  background: #f7d76a;
-  box-shadow: 0 5px 18px rgba(244, 197, 66, 0.18);
+  border: 1px solid var(--ms-input-border);
 }
 
-.staff-main .summary-card { min-height: 100px; padding: 16px; }
-.staff-main .summary-icon { width: 44px; height: 44px; }
-.staff-main .summary-card h3 { font-size: 23px; }
-.staff-main .staff-panel { border-radius: 16px; }
-.staff-main .staff-panel-header { padding: 22px; }
-.staff-main .staff-table th,
-.staff-main .staff-table td { padding: 15px 12px; }
+.btn-cancel:hover {
+  background: var(--ms-surface);
 
-/* Responsive: keep the Admin Menu + content aligned */
+  color: var(--ms-text);
+
+  border-color: var(--ms-gold-text);
+}
+
+.btn-create {
+  background: var(--ms-gold-gradient);
+
+  color: #171717;
+
+  border: none;
+}
+
+.btn-create i {
+  margin-right: 6px;
+}
+
+.btn-create:hover {
+  background: var(--ms-gold-hover);
+  color: #171717;
+}
+
+
+/* ==========================================================
+   26. LOGOUT MODAL
+========================================================== */
+
+.custom-logout-modal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-logout-modal.hidden {
+  display: none;
+}
+
+.logout-backdrop {
+  position: absolute;
+  inset: 0;
+
+  background: var(--ms-backdrop);
+
+  backdrop-filter: blur(4px);
+}
+
+.logout-box {
+  position: relative;
+
+  z-index: 2;
+
+  width: min(420px, calc(100% - 35px));
+
+  padding: 30px;
+
+  text-align: center;
+
+  border-radius: 17px;
+
+  background: var(--ms-modal-bg);
+
+  color: var(--ms-text);
+
+  border: 1px solid var(--ms-border);
+
+  box-shadow: var(--ms-modal-shadow);
+}
+
+.logout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 60px;
+  height: 60px;
+
+  margin: 0 auto 15px;
+
+  border-radius: 50%;
+
+  background: var(--ms-icon-bg);
+  color: var(--ms-gold-text);
+
+  font-size: 23px;
+}
+
+.logout-box h4 {
+  margin-bottom: 10px;
+
+  color: var(--ms-text);
+
+  font-weight: 800;
+}
+
+.logout-box p {
+  color: var(--ms-muted);
+  font-size: 13px;
+}
+
+.logout-actions {
+  display: flex;
+  justify-content: center;
+
+  gap: 10px;
+
+  margin-top: 23px;
+}
+
+.confirm-logout,
+.cancel-logout {
+  padding: 11px 17px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.confirm-logout {
+  background: var(--ms-gold-gradient);
+
+  color: #171717;
+
+  border: none;
+}
+
+.cancel-logout {
+  background: var(--ms-button-bg);
+
+  color: var(--ms-button-text);
+
+  border: 1px solid var(--ms-input-border);
+}
+
+.cancel-logout:hover {
+  background: var(--ms-surface);
+  color: var(--ms-text);
+}
+
+
+/* ==========================================================
+   27. EXACT GLOBAL LIGHT MODE OVERRIDES
+
+   Prevent old admin-theme.css rules from overriding
+   the Manage Staff theme.
+========================================================== */
+
+/* NAVIGATION */
+
+:root[data-account-theme="light"]
+.dashboard-nav .brand,
+
+:root[data-account-theme="light"]
+.dashboard-nav .top-menu a {
+  color: var(--ms-text) !important;
+}
+
+:root[data-account-theme="light"]
+.dashboard-nav .top-menu a:hover,
+
+:root[data-account-theme="light"]
+.dashboard-nav .top-menu a.active {
+  color: var(--ms-gold-text) !important;
+}
+
+
+/* STAFF DIRECTORY */
+
+:root[data-account-theme="light"]
+.staff-main .page-header {
+  background: #ffffff !important;
+  background-image: none !important;
+
+  color: var(--ms-text) !important;
+  border-color: var(--ms-border) !important;
+
+  box-shadow: var(--ms-shadow) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .page-title {
+  color: var(--ms-text) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .page-eyebrow {
+  color: var(--ms-gold-text) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .page-description {
+  color: var(--ms-muted) !important;
+}
+
+
+/* SUMMARY CARDS */
+
+:root[data-account-theme="light"]
+.staff-main .summary-card {
+  background: var(--ms-card) !important;
+  border-color: var(--ms-border) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .summary-card p {
+  color: var(--ms-muted) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .summary-card h3 {
+  color: var(--ms-text) !important;
+}
+
+
+/* STAFF PANEL */
+
+:root[data-account-theme="light"]
+.staff-main .staff-panel,
+
+:root[data-account-theme="light"]
+.staff-main .staff-panel-header {
+  background: var(--ms-card) !important;
+  border-color: var(--ms-border) !important;
+}
+
+
+/* MODAL INPUT WRAPPERS */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom {
+  background: var(--ms-input) !important;
+
+  border-color: var(--ms-input-border) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom i {
+  background: transparent !important;
+
+  color: var(--ms-gold-text) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom input,
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom select {
+  background: transparent !important;
+
+  color: var(--ms-text) !important;
+
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom:focus-within {
+  border-color: #c49a35 !important;
+
+  box-shadow:
+    0 0 0 3px rgba(196, 154, 53, 0.14) !important;
+}
+
+
+/* ACCOUNT NOTE */
+
+:root[data-account-theme="light"]
+.staff-modal .account-note {
+  background: var(--ms-note-bg) !important;
+
+  border-color: var(--ms-icon-border) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .account-note strong {
+  color: var(--ms-gold-text) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .account-note p {
+  color: var(--ms-muted) !important;
+}
+
+
+/* MODAL BUTTONS */
+
+:root[data-account-theme="light"]
+.staff-modal .btn-cancel {
+  background: var(--ms-button-bg) !important;
+  color: var(--ms-button-text) !important;
+
+  border-color: var(--ms-border) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .btn-create,
+
+:root[data-account-theme="light"]
+.staff-main .btn-add-staff {
+  background: var(--ms-gold-gradient) !important;
+
+  color: #171717 !important;
+}
+
+
+/* STATUS BADGES */
+
+:root[data-account-theme="light"]
+.staff-table .status-active {
+  background: #eaf9f0 !important;
+  color: #168258 !important;
+
+  border-color: #bce8cf !important;
+}
+
+:root[data-account-theme="light"]
+.staff-table .status-inactive {
+  background: #edf0f4 !important;
+  color: #626b78 !important;
+
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-table .status-restricted {
+  background: #fff0f0 !important;
+  color: #c73636 !important;
+
+  border-color: #efc5c5 !important;
+}
+
+
+/* ==========================================================
+   28. SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ms-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b9953b;
+  border-radius: 10px;
+}
+
+
+/* ==========================================================
+   29. TABLET RESPONSIVE DESIGN
+========================================================== */
+
 @media (max-width: 1000px) {
-  .dashboard-layout { grid-template-columns: 220px minmax(0, 1fr); }
-  .dashboard-layout .sidebar { padding: 18px; }
+
+  .dashboard-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .dashboard-layout .sidebar {
+    padding: 18px;
+  }
+
 }
 
 @media (max-width: 991px) {
-  .staff-main .page-header .col-lg-4 { justify-content: flex-start; }
+
+  .staff-navbar .navbar-collapse {
+    padding-top: 18px;
+  }
+
+  .staff-navbar .navbar-nav {
+    margin-bottom: 18px;
+  }
+
+  .staff-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .staff-tools {
+    width: 100%;
+  }
+
+  .search-box {
+    flex: 1;
+  }
+
+  .staff-main .page-header .col-lg-4 {
+    justify-content: flex-start;
+    margin-top: 14px;
+  }
+
 }
 
+
+/* ==========================================================
+   30. MOBILE RESPONSIVE DESIGN
+========================================================== */
+
 @media (max-width: 760px) {
-  .dashboard-wrapper { width: calc(100% - 24px); margin: 12px auto; }
-  .dashboard-nav { padding: 16px; }
+
+  .dashboard-wrapper {
+    width: calc(100% - 24px);
+    margin: 12px auto;
+  }
+
+  .dashboard-nav {
+    padding: 16px;
+  }
+
   .dashboard-nav .top-menu {
     order: 3;
+
     width: 100%;
+
     justify-content: center;
+
     gap: 18px;
-    border-top: 1px solid var(--border);
+
+    border-top: 1px solid var(--ms-border);
     padding-top: 12px;
   }
-  .dashboard-wrapper .page-heading { padding: 20px; }
-  .dashboard-layout { grid-template-columns: 1fr; }
-  .dashboard-menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .staff-main .page-header { padding: 20px; }
+
+  .dashboard-wrapper .page-heading {
+    padding: 20px;
+  }
+
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .staff-main .page-header {
+    padding: 20px;
+  }
+
+  .staff-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box,
+  .staff-filter {
+    width: 100%;
+  }
+
+  .staff-table {
+    min-width: 850px;
+  }
+
+  .staff-modal .modal-body {
+    padding: 18px;
+  }
+
+  .staff-modal .modal-header,
+  .staff-modal .modal-footer {
+    padding: 18px;
+  }
+
+}
+
+
+/* ==========================================================
+   31. SMALL MOBILE DEVICES
+========================================================== */
+
+@media (max-width: 480px) {
+
+  body > .container-fluid {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .summary-card {
+    padding: 16px;
+  }
+
+  .logout-actions {
+    flex-direction: column;
+  }
+
+  .confirm-logout,
+  .cancel-logout {
+    width: 100%;
+  }
+
 }
 
 @media (max-width: 420px) {
-  .dashboard-nav .brand { font-size: 14px; }
-  .dashboard-menu { grid-template-columns: 1fr; }
-  .staff-main .btn-add-staff { width: 100%; }
+
+  .dashboard-nav .brand {
+    font-size: 14px;
+  }
+
+  .dashboard-menu {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-main .btn-add-staff {
+    width: 100%;
+  }
+
+}
+
+
+/* ==========================================================
+   32. ACCESSIBILITY
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+
 }
