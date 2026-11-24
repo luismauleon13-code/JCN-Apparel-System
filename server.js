@@ -2117,7 +2117,7 @@ app.get("/api/admin/sales-summary", async (req, res) => {
 // Existing inventory RPC handles order creation and stock.
 // =========================================================
 
-app.post("/api/orders", async (req, res) => {
+app.post("/api/orders", verifyCustomerToken, async (req, res) => {
   try {
     const {
       user_id,
@@ -2151,11 +2151,13 @@ app.post("/api/orders", async (req, res) => {
       });
     }
 
+    if (payment_method === "PayPal") return res.status(409).json({ success: false, message: "Refresh checkout to use the PayPal payment page." });
+
     const { data, error } = await supabase.rpc(
       "jcn_inventory_create_order",
       {
         p_payload: {
-          user_id: user_id || null,
+          user_id: req.customer.id,
           customer_name,
           customer_email,
           customer_phone,
@@ -2175,7 +2177,7 @@ app.post("/api/orders", async (req, res) => {
       order: data
     });
   } catch (error) {
-    console.error("CREATE ORDER ERROR:", error.message);
+    console.error("CREATE ORDER ERROR:", error.code, error.message, error.details, error.hint);
 
     return res
       .status(error.code === "P0001" ? 400 : 500)
@@ -2193,9 +2195,11 @@ app.post("/api/orders", async (req, res) => {
 // CUSTOMER ORDERS
 // =========================================================
 
-app.get("/api/customer/orders/:userId", async (req, res) => {
+app.get("/api/customer/orders/:userId", verifyCustomerToken, async (req, res) => {
   try {
     const { userId } = req.params;
+    if (String(userId) !== String(req.customer.id)) return res.status(403).json({ success: false, message: "Access denied." });
+    res.set("Cache-Control", "no-store");
 
     const { data, error } = await supabase
       .from("orders")
@@ -2223,33 +2227,17 @@ app.get("/api/customer/orders/:userId", async (req, res) => {
 });
 
 // Existing cancellation route from the supplied server.
-app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
+app.patch("/api/customer/orders/:id/cancel", verifyCustomerToken, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const { data, error } = await supabase
-      .from("orders")
-      .update({ status: "Cancelled" })
-      .eq("id", id)
-      .select();
-
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.message
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Order cancelled successfully.",
-      order: data[0]
-    });
+    const { data, error } = await supabase.from("orders").update({ status: "Cancelled" })
+      .eq("id", req.params.id).eq("user_id", req.customer.id).eq("payment_method", "COD")
+      .in("status", ["Pending", "Preparing", "Processing"]).select("id").maybeSingle();
+    if (error) throw error;
+    if (!data) return res.status(409).json({ success: false, message: "Order cannot be cancelled here. Contact JCN support for PayPal payments." });
+    return res.json({ success: true, message: "Order cancelled successfully." });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    console.error("CANCEL ORDER ERROR", error.code, error.message);
+    return res.status(500).json({ success: false, message: "Unable to cancel order." });
   }
 });
 
@@ -4235,121 +4223,8 @@ app.post("/api/custom-designs", async (req, res) => {
 // EXISTING CUSTOMER CANCELLATION / REFUND HANDLER
 // =========================================================
 
-app.patch("/api/customer/orders/:id/cancel", async (req, res) => {
-  try {
-    const { id } = req.params;
+// Customer cancellation is handled by the authenticated route above.
 
-    const {
-      data: order,
-      error: findError
-    } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (findError || !order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found."
-      });
-    }
-
-    if (
-      order.status === "To Ship" ||
-      order.status === "To Deliver" ||
-      order.status === "To Receive" ||
-      order.status === "Completed"
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "This order can no longer be cancelled."
-      });
-    }
-
-    if (
-      order.payment_method === "PayPal" &&
-      order.payment_status === "Paid" &&
-      order.paypal_capture_id
-    ) {
-      const accessToken = await getPayPalAccessToken();
-
-      const refundResponse = await fetch(
-        `${process.env.PAYPAL_BASE_URL}/v2/payments/captures/${order.paypal_capture_id}/refund`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-
-      const refundData = await refundResponse.json();
-
-      if (!refundResponse.ok) {
-        console.error("PAYPAL REFUND ERROR:", refundData);
-
-        return res.status(400).json({
-          success: false,
-          message: refundData.message || "PayPal refund failed."
-        });
-      }
-
-      const { data, error } = await supabase
-        .from("orders")
-        .update({
-          status: "Cancelled",
-          payment_status: "Refunded",
-          paypal_refund_id: refundData.id,
-          refunded_at: new Date().toISOString()
-        })
-        .eq("id", id)
-        .select();
-
-      if (error) {
-        return res.status(400).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      return res.json({
-        success: true,
-        message: "Order cancelled and PayPal payment refunded.",
-        order: data[0]
-      });
-    }
-
-    const { data, error } = await supabase
-      .from("orders")
-      .update({
-        status: "Cancelled"
-      })
-      .eq("id", id)
-      .select();
-
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.message
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Order cancelled successfully.",
-      order: data[0]
-    });
-  } catch (error) {
-    console.error("CANCEL ORDER ERROR:", error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
 
 // =========================================================
 // LIVE J&T EXPRESS PHILIPPINES / AFTERSHIP TRACKING
@@ -4708,34 +4583,25 @@ app.get("/api/orders/:id/sync-tracking", verifyStaffToken, allowRoles("admin"), 
 // COMPLETE ORDER
 // =========================================================
 
-app.patch("/api/customer/orders/:id/complete", async (req, res) => {
+app.patch("/api/customer/orders/:id/complete", verifyCustomerToken, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const { error } = await supabase
-      .from("orders")
-      .update({
-        status: "Completed",
-        payment_status: "Paid"
-      })
-      .eq("id", id);
-
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.message
-      });
+    const { data: order, error } = await supabase.from("orders").select("*")
+      .eq("id", req.params.id).eq("user_id", req.customer.id).maybeSingle();
+    if (error) throw error;
+    if (!order || !["To Receive", "To Deliver", "Shipped", "Delivered", "In Transit", "Out for Delivery"].includes(order.status) ||
+      (order.payment_method === "PayPal" && (order.payment_status !== "Paid" || !order.paypal_capture_id))) {
+      return res.status(409).json({ success: false, message: "Order is not eligible for completion." });
     }
-
-    res.json({
-      success: true,
-      message: "Order completed successfully."
-    });
+    const { data, error: updateError } = await supabase.from("orders")
+      .update({ status: "Completed", ...(order.payment_method === "COD" ? { payment_status: "Paid" } : {}) })
+      .eq("id", order.id).eq("user_id", req.customer.id).eq("status", order.status)
+      .eq("payment_status", order.payment_status).select("id").maybeSingle();
+    if (updateError) throw updateError;
+    if (!data) return res.status(409).json({ success: false, message: "Order changed. Refresh My Orders." });
+    return res.json({ success: true, message: "Order completed successfully." });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    console.error("COMPLETE ORDER ERROR", error.code, error.message);
+    return res.status(500).json({ success: false, message: "Unable to complete order." });
   }
 });
 
@@ -4822,9 +4688,6 @@ function paypalAmount(order) {
     throw new Error("Invalid stored order total.");
   }
   const formatted = amount.toFixed(2);
-  if (process.env.PAYPAL_TEST_MODE === "true" && formatted !== "1.00") {
-    throw new Error("Test mode requires a real PHP 1.00 order. No payment was created.");
-  }
   return formatted;
 }
 
@@ -4846,6 +4709,7 @@ async function createPayPalOrder(systemOrderId, customerId, redirectMode = false
     throw new Error("This order cannot be paid. Check its order and payment status.");
   }
   const amount = paypalAmount(order);
+  if (amount !== "1.00") throw new Error("This earlier order has a different payment amount. Contact JCN support to review it.");
   if (order.paypal_order_id || order.paypal_capture_id) {
     throw new Error("Existing payment attempt. Check or reconcile it before paying again.");
   }
@@ -4872,6 +4736,65 @@ async function createPayPalOrder(systemOrderId, customerId, redirectMode = false
   if (error) throw error;
   if (!linked) throw new Error("Payment link not saved. Check the order before trying again.");
   return { ...paypal, success: true, actual_amount: amount };
+}
+
+// Browser submits a normal same-origin form. PayPal API credentials stay server-side.
+app.post("/api/paypal/checkout", express.urlencoded({ extended: false, limit: "2mb" }),
+  (req, res, next) => {
+    if (req.get("origin") !== PAYPAL_BACKEND_URL) return res.status(403).send("Invalid checkout origin.");
+    if (typeof req.body?.customer_token !== "string") return res.status(401).send("Please sign in again.");
+    req.headers.authorization = `Bearer ${req.body.customer_token}`;
+    return next();
+  }, requirePayPalCustomer, async (req, res) => {
+    res.set("Cache-Control", "no-store");
+    let orderId = null;
+    try {
+      const input = JSON.parse(req.body.payload || "{}");
+      const requestId = String(input.request_id || "");
+      if (!/^[0-9a-f-]{36}$/i.test(requestId) || !Array.isArray(input.items) || !input.items.length ||
+          !String(input.shipping_address || "").trim() || !String(input.customer_phone || "").trim()) {
+        throw new Error("Invalid checkout information.");
+      }
+      const payload = {
+        user_id: req.customer.id,
+        customer_name: req.customer.full_name || req.customer.username,
+        customer_email: req.customer.email,
+        customer_phone: String(input.customer_phone).trim(),
+        shipping_address: String(input.shipping_address).trim(),
+        payment_method: "PayPal", total_amount: 1, items: input.items
+      };
+      const { data: order, error } = await supabase.rpc("jcn_paypal_checkout_once", {
+        p_request_id: requestId, p_payload: payload
+      });
+      if (error) throw error;
+      if (!order?.id || String(order.user_id) !== req.paypalCustomerId || Number(order.total_amount) !== 1) throw new Error("Invalid saved order.");
+      orderId = String(order.id);
+      if (order.paypal_order_id) {
+        const details = await paypalLiveRequest(`/v2/checkout/orders/${encodeURIComponent(order.paypal_order_id)}`);
+        verifyPayPalDetails(details, order, order.paypal_order_id);
+        if (["APPROVED", "COMPLETED"].includes(details.status)) {
+          return res.redirect(303, `${PAYPAL_BACKEND_URL}/api/paypal/success?${new URLSearchParams({system_order_id: orderId, token: order.paypal_order_id})}`);
+        }
+        if (!PAYPAL_PAYABLE_STATUSES.includes(order.status) || !PAYPAL_UNPAID_STATUSES.includes(order.payment_status) || order.paypal_capture_id) throw new Error("Order is not payable.");
+        const link = details.links?.find(x => ["approve", "payer-action"].includes(x.rel));
+        if (!link?.href) throw new Error("Existing payment needs review.");
+        return res.redirect(303, safePayPalApproval(link.href));
+      }
+      const data = await createPayPalOrder(orderId, req.paypalCustomerId, true);
+      const link = data.links?.find(x => ["approve", "payer-action"].includes(x.rel));
+      if (!link?.href) throw new Error("PayPal approval URL missing.");
+      return res.redirect(303, safePayPalApproval(link.href));
+    } catch (error) {
+      console.error("PAYPAL DIRECT CHECKOUT", error.code, error.message, error.details, error.hint);
+      const query = new URLSearchParams({ payment: "review", ...(orderId ? { order_id: orderId } : {}) });
+      return res.redirect(303, `${PAYPAL_ORDERS_PAGE}?${query}`);
+    }
+  });
+
+function safePayPalApproval(href) {
+  const url = new URL(href);
+  if (url.protocol !== "https:" || !["www.paypal.com", "paypal.com"].includes(url.hostname) || url.username || url.password) throw new Error("Invalid PayPal approval URL.");
+  return url.href;
 }
 
 app.post("/api/paypal/create-order", requirePayPalCustomer, async (req, res) => {
@@ -4999,7 +4922,7 @@ app.get("/api/paypal/success", async (req, res) => {
     return res.redirect(303, `${PAYPAL_ORDERS_PAGE}?${query}`);
   } catch (error) {
     console.error("PAYPAL RETURN:", error.message);
-    return res.redirect(303, `${PAYPAL_ORDERS_PAGE}?payment=review`);
+    return res.redirect(303, `${PAYPAL_ORDERS_PAGE}?${new URLSearchParams({payment: "review", ...(typeof system_order_id === "string" ? {order_id: system_order_id} : {})})}`);
   }
 });
 

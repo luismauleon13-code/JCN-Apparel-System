@@ -32,8 +32,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (await handlePayPalReturn()) return;
 
   fillCustomerInfo();
-  loadOrderSummary();
   setupPaymentMethod();
+  loadOrderSummary();
   setupCheckoutForm();
   setupLogoutButton();
   setupOrderButton();
@@ -266,7 +266,9 @@ function updateTotals() {
   const deliveryFee =
     cart.length ? DELIVERY_FEE : 0;
 
-  const grandTotal = subtotal + deliveryFee;
+  const regularTotal = subtotal + deliveryFee;
+  const isPayPal = document.getElementById("paymentMethod")?.value === "PayPal";
+  const grandTotal = isPayPal && cart.length ? 1 : regularTotal;
 
   const subtotalElement =
     document.getElementById("subtotal");
@@ -288,8 +290,17 @@ function updateTotals() {
   }
 
   if (grandTotalElement) {
-    grandTotalElement.textContent =
-      `₱${grandTotal.toFixed(2)}`;
+    grandTotalElement.textContent = `₱${grandTotal.toFixed(2)}`;
+    let note = document.getElementById("jcnPayPalPricingNote");
+    if (!note) {
+      note = document.createElement("small");
+      note.id = "jcnPayPalPricingNote";
+      note.style.display = "block";
+      grandTotalElement.insertAdjacentElement("afterend", note);
+    }
+    note.hidden = !isPayPal;
+    note.style.display = isPayPal ? "block" : "none";
+    note.textContent = isPayPal ? `PayPal discount: ₱${Math.max(0, regularTotal - 1).toFixed(2)}. Amount due: ₱1.00.` : "";
   }
 
   return grandTotal;
@@ -361,6 +372,7 @@ function setupPaymentMethod() {
       console.log("PAYMENT SELECTED:", method);
 
       paymentInput.value = method;
+      updateTotals();
 
       if (!confirmBtn) return;
 
@@ -643,508 +655,46 @@ function checkoutItemSignature(items) {
    PayPal orders are still pending.
 ========================================================= */
 
-async function checkExistingPayPalAttempt(token, key) {
-  const user = JSON.parse(
-    localStorage.getItem("customerUser") || "null"
-  );
-
-  if (!user?.id || !token) {
-    throw new Error("Please log in again.");
-  }
-
-  const saved = JSON.parse(
-    localStorage.getItem(key) || "null"
-  );
-
-  const response = await fetch(
-    `${API_URL}/api/customer/orders/${encodeURIComponent(user.id)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-
-      cache: "no-store"
-    }
-  );
-
-  const data = await response.json();
-
-  if (
-    !response.ok ||
-    !data.success ||
-    !Array.isArray(data.orders)
-  ) {
-    throw new Error(
-      "Unable to verify previous orders. Please check My Orders."
-    );
-  }
-
-  const orders = data.orders.filter(order =>
-    String(order.user_id) === String(user.id)
-  );
-
-
-  // CHECK SAVED PAYMENT REFERENCE
-
-  const previous = saved?.orderId
-    ? orders.find(order =>
-        String(order.id) === String(saved.orderId)
-      )
-    : null;
-
-  if (saved?.orderId && !previous) {
-    throw new Error(
-      "Previous payment reference could not be verified. " +
-      "Contact JCN support."
-    );
-  }
-
-
-  // CLEAR PREVIOUS VERIFIED PAYMENT REFERENCE
-
-  if (
-    previous &&
-    String(previous.payment_status)
-      .trim()
-      .toLowerCase() === "paid" &&
-    previous.paypal_capture_id
-  ) {
-    localStorage.removeItem(key);
-  }
-
-
-  // FIND UNRESOLVED PAYPAL ORDERS
-
-  const unresolved = orders.filter(order => {
-    const method = String(order.payment_method || "")
-      .trim()
-      .toLowerCase();
-
-    const status = String(order.status || "")
-      .trim()
-      .toLowerCase();
-
-    const payment = String(order.payment_status || "")
-      .trim()
-      .toLowerCase();
-
-    if (method !== "paypal") {
-      return false;
-    }
-
-    if (
-      payment === "paid" &&
-      order.paypal_capture_id &&
-      !["cancelled", "canceled"].includes(status)
-    ) {
-      return false;
-    }
-
-    if (
-      ["cancelled", "canceled"].includes(status) &&
-      !order.paypal_order_id &&
-      !order.paypal_capture_id
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
-
-  // NO PREVIOUS UNRESOLVED PAYMENT
-
-  if (!unresolved.length) {
-    return false;
-  }
-
-
-  // IDENTIFY CURRENT CHECKOUT PRODUCTS
-
-  const signature = checkoutItemSignature(cart);
-
-  if (!signature) {
-    throw new Error(
-      "Unable to identify checkout items. Please review your cart."
-    );
-  }
-
-
-  // CHECK POSSIBLE DUPLICATE PURCHASE
-
-  const matching = unresolved.find(order => {
-    const other = checkoutItemSignature(
-      order.inventory_items
-    );
-
-    return !other || other === signature;
-  });
-
-
-  // MATCHING OR INCOMPLETE PREVIOUS ORDER
-
-  if (matching) {
-    const result = await Swal.fire({
-      icon: "warning",
-
-      title: "Review Existing PayPal Order",
-
-      text:
-        "A previous PayPal order matches these items " +
-        "or has incomplete item details. " +
-        "Review it before paying again.",
-
-      showCancelButton: true,
-
-      confirmButtonText: "View My Orders",
-
-      cancelButtonText: "Stay in Checkout",
-
-      customClass: {
-        popup: "jcn-popup",
-        confirmButton: "jcn-confirm-btn",
-        cancelButton: "jcn-cancel-btn"
-      },
-
-      buttonsStyling: false
-    });
-
-    if (result.isConfirmed) {
-      goToOrders();
-    }
-
-    return true;
-  }
-
-
-  // ALLOW A SEPARATE NEW PURCHASE
-
-  const result = await Swal.fire({
-    icon: "info",
-
-    title: "Separate New Order",
-
-    text:
-      "You have earlier PayPal orders with different items. " +
-      "Continue only if this is a separate new purchase. " +
-      "Earlier payments remain subject to verification.",
-
-    showCancelButton: true,
-    showDenyButton: true,
-
-    confirmButtonText: "Continue New Order",
-
-    denyButtonText: "View My Orders",
-
-    cancelButtonText: "Cancel",
-
-    customClass: {
-      popup: "jcn-popup",
-      confirmButton: "jcn-confirm-btn",
-      denyButton: "jcn-cancel-btn",
-      cancelButton: "jcn-cancel-btn"
-    },
-
-    buttonsStyling: false
-  });
-
-  if (result.isDenied) {
-    goToOrders();
-  }
-
-  return !result.isConfirmed;
-}
-
-
-/* =========================================================
-   18. LIVE PAYPAL ORDER CREATION
-========================================================= */
-
+// PayPal uses a normal form POST; no browser fetch or extra confirmation.
 async function createPayPalOrder() {
-  let systemOrderId = null;
-
   try {
-
-    // VERIFY CUSTOMER AUTHENTICATION
-
-    const customerToken =
-      localStorage.getItem("customerToken");
-
-    if (!customerToken) {
-      throw new Error(
-        "Your session has expired. Please log in again."
-      );
+    const token = localStorage.getItem("customerToken");
+    const user = JSON.parse(localStorage.getItem("customerUser") || "null");
+    if (!token || !user?.id) throw new Error("Please sign in again.");
+    const signature = checkoutItemSignature(cart);
+    if (!signature) throw new Error("Please review your checkout items.");
+    const address = (document.getElementById("address")?.value || user.address || "").trim();
+    const phone = (document.getElementById("phone")?.value || user.phone || "").trim();
+    if (!address || !phone) throw new Error("Shipping address and contact number are required.");
+    const payload = { shipping_address: address, customer_phone: phone, items: cart };
+    const key = `jcnDirectPayPal_${user.id}`;
+    const fingerprint = JSON.stringify(payload);
+    let previous = JSON.parse(sessionStorage.getItem(key) || "null");
+    if (!previous || previous.fingerprint !== fingerprint) {
+      previous = { fingerprint, requestId: crypto.randomUUID() };
+      sessionStorage.setItem(key, JSON.stringify(previous));
     }
-
-    const expectedSignature =
-      checkoutItemSignature(cart);
-
-
-    // CHECK EXISTING PAYPAL ORDERS
-
-    const attemptKey = getPayPalAttemptKey();
-
-    if (
-      await checkExistingPayPalAttempt(
-        customerToken,
-        attemptKey
-      )
-    ) {
-      return;
+    payload.request_id = previous.requestId;
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `${API_URL}/api/paypal/checkout`;
+    form.hidden = true;
+    for (const [name, value] of Object.entries({ customer_token: token, payload: JSON.stringify(payload) })) {
+      const input = document.createElement("input");
+      input.type = "hidden"; input.name = name; input.value = value;
+      form.appendChild(input);
     }
-
-
-    // CONFIRM PAYPAL PAYMENT
-
-    const result = await Swal.fire({
-      title: "PayPal Payment",
-
-      text:
-        "Continue to PayPal to complete your payment.",
-
-      icon: "info",
-
-      showCancelButton: true,
-
-      confirmButtonText: "Continue to PayPal",
-
-      cancelButtonText: "Cancel",
-
-      customClass: {
-        popup: "jcn-popup",
-        title: "jcn-title",
-        confirmButton: "jcn-confirm-btn",
-        cancelButton: "jcn-cancel-btn"
-      },
-
-      buttonsStyling: false
-    });
-
-    if (!result.isConfirmed) {
-      return;
-    }
-
-    setCheckoutLoading(
-      true,
-      "Connecting to PayPal..."
-    );
-
-
-    // CREATE SYSTEM ORDER IN SUPABASE
-
-    const orderData = await createSystemOrder(
-      "PayPal",
-      expectedSignature
-    );
-
-    if (!orderData) {
-      return;
-    }
-
-    systemOrderId =
-      orderData.order?.id ||
-      orderData.order_id ||
-      orderData.id;
-
-    const orderNumber =
-      orderData.order?.order_number ||
-      orderData.order_number ||
-      orderData.orderNumber;
-
-    if (!systemOrderId) {
-      throw new Error(
-        "Order ID missing. Check My Orders before trying again."
-      );
-    }
-
-
-    // PRESERVE PREVIOUS PAYMENT REFERENCES
-
-    const previousAttempt = JSON.parse(
-      localStorage.getItem(attemptKey) || "null"
-    );
-
-    if (
-      previousAttempt?.orderId &&
-      String(previousAttempt.orderId) !==
-        String(systemOrderId)
-    ) {
-      localStorage.setItem(
-        `${attemptKey}_${previousAttempt.orderId}`,
-        JSON.stringify(previousAttempt)
-      );
-    }
-
-
-    // SAVE CURRENT SYSTEM ORDER
-
-    const attempt = {
-      orderId: String(systemOrderId),
-      orderNumber: orderNumber || null
-    };
-
-    localStorage.setItem(
-      attemptKey,
-      JSON.stringify(attempt)
-    );
-
-    localStorage.setItem(
-      "lastOrderId",
-      String(systemOrderId)
-    );
-
-    if (orderNumber) {
-      localStorage.setItem(
-        "lastOrderNumber",
-        orderNumber
-      );
-    }
-
-
-    /* =====================================================
-       CREATE AUTHORIZED PAYPAL REDIRECT ORDER
-    ===================================================== */
-
-    const response = await fetch(
-      `${API_URL}/api/paypal/create-redirect-order`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-
-          "Authorization": `Bearer ${customerToken}`
-        },
-
-        body: JSON.stringify({
-          system_order_id: systemOrderId
-        })
-      }
-    );
-
-
-    // READ SERVER RESPONSE
-
-    const data = await response
-      .json()
-      .catch(() => null);
-
-    console.log("PAYPAL CREATE RESPONSE:", {
-      success: data?.success,
-      status: response.status,
-      message: data?.message
-    });
-
-
-    // CHECK CUSTOMER AUTHENTICATION
-
-    if (response.status === 401) {
-      throw new Error(
-        "Your session is invalid or expired. " +
-        "Please log in again."
-      );
-    }
-
-
-    // CHECK PAYPAL RESPONSE
-
-    if (
-      !response.ok ||
-      !data?.success ||
-      !data.approve_url
-    ) {
-      throw new Error(
-        data?.message ||
-        "Unable to create PayPal payment."
-      );
-    }
-
-
-    // VALIDATE LIVE PAYPAL URL
-
-    const url = new URL(data.approve_url);
-
-    if (
-      url.protocol !== "https:" ||
-      ![
-        "www.paypal.com",
-        "paypal.com"
-      ].includes(url.hostname) ||
-      url.username ||
-      url.password
-    ) {
-      throw new Error(
-        "Invalid live PayPal approval URL."
-      );
-    }
-
-
-    // SAVE PAYPAL ORDER ID
-
-    if (data.paypal_order_id) {
-      attempt.paypalOrderId =
-        data.paypal_order_id;
-
-      localStorage.setItem(
-        attemptKey,
-        JSON.stringify(attempt)
-      );
-
-      localStorage.setItem(
-        "paypalOrderId",
-        data.paypal_order_id
-      );
-    }
-
-
-    /* =====================================================
-       REDIRECT CUSTOMER TO PAYPAL
-
-       Server handles payment capture.
-    ===================================================== */
-
+    document.body.appendChild(form);
     checkoutNavigating = true;
-
-    window.location.assign(url.href);
-
-
+    setCheckoutLoading(true, "Connecting to PayPal...");
+    form.submit();
   } catch (error) {
-    console.error("PAYPAL ERROR:", error.message);
-
-    const message =
-      error.message || "Unable to connect to PayPal.";
-
-    await showAlert(
-      "error",
-      "PayPal Error",
-
-      message +
-      (
-        systemOrderId
-          ? " Your order already exists. " +
-            "Check My Orders before paying again."
-          : ""
-      )
-    );
-
-    if (systemOrderId) {
-      goToOrders();
-    }
-
-  } finally {
-    if (!checkoutNavigating) {
-      setCheckoutLoading(false);
-    }
+    checkoutNavigating = false;
+    await showAlert("error", "PayPal Error", error.message);
   }
 }
 
-
-/* =========================================================
-   19. CREATE SYSTEM ORDER
-
-   SUPPORTS PAYPAL AND CASH ON DELIVERY
-========================================================= */
-
+/* Existing COD order creation */
 async function createSystemOrder(
   paymentMethod,
   expectedSignature = null
@@ -1312,7 +862,7 @@ async function createSystemOrder(
 
   // VALIDATE TOTAL AMOUNT
 
-  const totalAmount = updateTotals();
+  const totalAmount = paymentMethod === "PayPal" ? 1 : calculateSubtotal() + DELIVERY_FEE;
 
   if (
     !Number.isFinite(totalAmount) ||
@@ -1975,3 +1525,4 @@ function initializeCheckoutMobileSidebar() {
     }
   });
 }
+window.addEventListener("pageshow", event => { if (event.persisted) { checkoutSubmitting = false; checkoutNavigating = false; setCheckoutLoading(false); } });
