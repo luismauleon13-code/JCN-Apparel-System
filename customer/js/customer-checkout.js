@@ -1,5 +1,14 @@
+/* =========================================================
+   JCN APPAREL PRINTING SERVICES
+   CUSTOMER CHECKOUT
+   LIVE PAYPAL AND CASH ON DELIVERY
+========================================================= */
+
 const API_URL = "";
 const DELIVERY_FEE = 80;
+
+let checkoutSubmitting = false;
+let checkoutNavigating = false;
 
 let cart =
   JSON.parse(localStorage.getItem("checkoutItems")) ||
@@ -8,10 +17,11 @@ let cart =
 
 
 /* =========================================================
-   PAGE LOAD
+   01. PAGE LOAD
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
+
   console.log("CHECKOUT JS LOADED");
 
   initializeCheckoutMobileSidebar();
@@ -20,6 +30,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!loggedIn) return;
 
+  if (await handlePayPalReturn()) return;
+
   fillCustomerInfo();
   loadOrderSummary();
   setupPaymentMethod();
@@ -27,16 +39,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupLogoutButton();
   setupOrderButton();
 
-  await handlePayPalReturn();
 });
 
 
 /* =========================================================
-   ALERT
+   02. ALERT
 ========================================================= */
 
 async function showAlert(icon, title, text) {
+
   return Swal.fire({
+
     icon,
     title,
     text,
@@ -57,15 +70,18 @@ async function showAlert(icon, title, text) {
     },
 
     buttonsStyling: false
+
   });
+
 }
 
 
 /* =========================================================
-   LOGIN CHECK
+   03. CUSTOMER LOGIN CHECK
 ========================================================= */
 
 async function checkLogin() {
+
   const token =
     localStorage.getItem("customerToken");
 
@@ -73,143 +89,136 @@ async function checkLogin() {
     localStorage.getItem("customerUser");
 
   if (!token || !rawUser) {
+
     await showAlert(
       "warning",
       "Login Required",
       "Please login first."
     );
 
-    window.location.href =
-      "user-login.html";
+    window.location.href = "user-login.html";
 
     return false;
+
   }
 
-
-  /*
-    Don't block PayPal return page.
-  */
-
   const params =
-    new URLSearchParams(
-      window.location.search
-    );
+    new URLSearchParams(window.location.search);
 
   const payment =
     params.get("payment");
 
+  const paypal =
+    params.get("paypal");
 
   if (
     !cart.length &&
-    payment !== "success" &&
-    payment !== "cancelled"
+    !payment &&
+    !paypal
   ) {
+
     await showAlert(
       "warning",
       "No Checkout Items",
       "Please select a product first."
     );
 
-    window.location.href =
-      "customer-shop.html";
+    window.location.href = "customer-shop.html";
 
     return false;
+
   }
 
   return true;
+
 }
 
 
 /* =========================================================
-   CUSTOMER INFORMATION
+   04. CUSTOMER INFORMATION
 ========================================================= */
 
 function fillCustomerInfo() {
+
   const user =
     JSON.parse(
-      localStorage.getItem(
-        "customerUser"
-      )
+      localStorage.getItem("customerUser")
     ) || {};
 
-
   const fullNameInput =
-    document.getElementById(
-      "fullName"
-    ) ||
-    document.getElementById(
-      "fullname"
-    );
-
+    document.getElementById("fullName") ||
+    document.getElementById("fullname");
 
   const emailInput =
-    document.getElementById(
-      "email"
-    );
+    document.getElementById("email");
 
   const phoneInput =
-    document.getElementById(
-      "phone"
-    );
+    document.getElementById("phone");
 
   const addressInput =
-    document.getElementById(
-      "address"
-    );
+    document.getElementById("address");
 
 
   if (fullNameInput) {
+
     fullNameInput.value =
       user.full_name ||
       user.fullname ||
       user.fullName ||
       user.username ||
       "";
+
   }
 
 
   if (emailInput) {
+
     emailInput.value =
       user.email || "";
+
   }
 
 
   if (phoneInput) {
+
     phoneInput.value =
       user.phone || "";
+
   }
 
 
   if (addressInput) {
+
     addressInput.value =
       user.address || "";
+
   }
+
 }
 
 
 /* =========================================================
-   ORDER SUMMARY
+   05. ORDER SUMMARY
 ========================================================= */
 
 function loadOrderSummary() {
+
   const orderItems =
-    document.getElementById(
-      "orderItems"
-    );
+    document.getElementById("orderItems");
 
   if (!orderItems) {
-    console.warn(
-      "#orderItems not found"
-    );
+
+    console.warn("#orderItems not found");
 
     return;
-  }
 
+  }
 
   orderItems.innerHTML = "";
 
 
   if (!cart.length) {
+
     orderItems.innerHTML = `
       <p class="empty">
         No selected products.
@@ -219,21 +228,21 @@ function loadOrderSummary() {
     updateTotals();
 
     return;
+
   }
 
 
   cart.forEach(item => {
-    const quantity =
-      Number(
-        item.quantity || 1
-      );
 
+    const quantity =
+      Number(item.quantity || 1);
 
     const price =
       getItemPrice(item);
 
 
     orderItems.innerHTML += `
+
       <div class="order-item">
 
         <div class="order-item-info">
@@ -247,164 +256,158 @@ function loadOrderSummary() {
           </strong>
 
           <p>
+
             Size:
-            ${escapeHtml(
-              item.size || "N/A"
-            )}
+            ${escapeHtml(item.size || "N/A")}
 
             &nbsp; | &nbsp;
 
             Color:
-            ${escapeHtml(
-              item.color || "N/A"
-            )}
+            ${escapeHtml(item.color || "N/A")}
 
             &nbsp; | &nbsp;
 
             Qty:
             ${quantity}
+
           </p>
 
         </div>
 
         <div class="order-item-price">
-          ₱${(
-            price * quantity
-          ).toFixed(2)}
+
+          ₱${(price * quantity).toFixed(2)}
+
         </div>
 
       </div>
+
     `;
+
   });
 
-
   updateTotals();
+
 }
 
 
 /* =========================================================
-   PRICE
+   06. GET PRODUCT PRICE
 ========================================================= */
 
 function getItemPrice(item) {
+
   return Number(
+
     item.discounted_price ??
     item.discountedPrice ??
     item.final_price ??
     item.finalPrice ??
     item.price ??
     0
+
   );
+
 }
 
 
 /* =========================================================
-   TOTAL
+   07. CALCULATE SUBTOTAL
 ========================================================= */
 
 function calculateSubtotal() {
-  return cart.reduce(
-    (total, item) => {
 
-      const price =
-        getItemPrice(item);
+  return cart.reduce((total, item) => {
 
-      const quantity =
-        Number(
-          item.quantity || 1
-        );
+    const price =
+      getItemPrice(item);
 
+    const quantity =
+      Number(item.quantity || 1);
 
-      return (
-        total +
-        price * quantity
-      );
+    return total + price * quantity;
 
-    },
+  }, 0);
 
-    0
-  );
 }
 
 
+/* =========================================================
+   08. UPDATE CHECKOUT TOTALS
+========================================================= */
+
 function updateTotals() {
+
   const subtotal =
     calculateSubtotal();
-
 
   const deliveryFee =
     cart.length
       ? DELIVERY_FEE
       : 0;
 
-
   const grandTotal =
-    subtotal +
-    deliveryFee;
+    subtotal + deliveryFee;
 
 
   const subtotalElement =
-    document.getElementById(
-      "subtotal"
-    );
+    document.getElementById("subtotal");
 
   const deliveryElement =
-    document.getElementById(
-      "deliveryFee"
-    );
+    document.getElementById("deliveryFee");
 
   const grandTotalElement =
-    document.getElementById(
-      "grandTotal"
-    );
+    document.getElementById("grandTotal");
 
 
   if (subtotalElement) {
+
     subtotalElement.textContent =
       `₱${subtotal.toFixed(2)}`;
+
   }
 
 
   if (deliveryElement) {
+
     deliveryElement.textContent =
       `₱${deliveryFee.toFixed(2)}`;
+
   }
 
 
   if (grandTotalElement) {
+
     grandTotalElement.textContent =
       `₱${grandTotal.toFixed(2)}`;
+
   }
 
-
   return grandTotal;
+
 }
 
 
 /* =========================================================
-   ORDER NUMBER
+   09. GENERATE ORDER NUMBER
 ========================================================= */
 
 function generateOrderNumber() {
-  const date =
-    new Date();
 
+  const date = new Date();
 
   const year =
     date.getFullYear();
-
 
   const month =
     String(
       date.getMonth() + 1
     ).padStart(2, "0");
 
-
   const day =
     String(
       date.getDate()
     ).padStart(2, "0");
-
 
   const random =
     Math.floor(
@@ -412,227 +415,225 @@ function generateOrderNumber() {
       Math.random() * 900000
     );
 
+  return `JCN-${year}${month}${day}-${random}`;
 
-  return (
-    `JCN-${year}${month}${day}-${random}`
-  );
 }
 
 
 /* =========================================================
-   PAYMENT METHOD
+   10. PAYMENT METHOD SELECTION
 ========================================================= */
 
 function setupPaymentMethod() {
-  const paymentCards =
-    document.querySelectorAll(
-      ".payment-card"
-    );
 
+  const paymentCards =
+    document.querySelectorAll(".payment-card");
 
   const paymentInput =
-    document.getElementById(
-      "paymentMethod"
-    );
-
+    document.getElementById("paymentMethod");
 
   const confirmBtn =
-    document.querySelector(
-      ".confirm-btn"
-    );
+    document.querySelector(".confirm-btn");
 
 
   if (!paymentInput) {
+
     console.error(
       "paymentMethod input not found"
     );
 
     return;
+
   }
 
 
-  /*
-    Default COD
-  */
+  // DEFAULT PAYMENT METHOD
 
   if (!paymentInput.value) {
-    paymentInput.value =
-      "COD";
+
+    paymentInput.value = "COD";
+
   }
 
 
   paymentCards.forEach(card => {
 
-    card.addEventListener(
-      "click",
-      () => {
+    card.addEventListener("click", () => {
 
-        paymentCards.forEach(
-          current => {
-            current.classList.remove(
-              "active"
-            );
-          }
-        );
+      if (
+        checkoutSubmitting ||
+        checkoutNavigating
+      ) {
+        return;
+      }
 
 
-        card.classList.add(
-          "active"
-        );
+      paymentCards.forEach(current => {
+
+        current.classList.remove("active");
+
+      });
 
 
-        const method =
-          card.dataset.method;
+      card.classList.add("active");
+
+      const method =
+        card.dataset.method;
+
+      console.log(
+        "PAYMENT SELECTED:",
+        method
+      );
+
+      paymentInput.value = method;
 
 
-        console.log(
-          "PAYMENT SELECTED:",
-          method
-        );
+      if (!confirmBtn) return;
 
 
-        paymentInput.value =
-          method;
+      if (method === "PayPal") {
 
+        confirmBtn.textContent =
+          "Pay with PayPal";
 
-        if (!confirmBtn) {
-          return;
-        }
+      } else {
 
-
-        if (
-          method === "PayPal"
-        ) {
-          confirmBtn.textContent =
-            "Pay with PayPal";
-        } else {
-          confirmBtn.textContent =
-            "Confirm Order";
-        }
+        confirmBtn.textContent =
+          "Confirm Order";
 
       }
-    );
+
+    });
+
   });
+
 }
 
 
 /* =========================================================
-   CHECKOUT FORM
+   11. CHECKOUT FORM
 ========================================================= */
 
 function setupCheckoutForm() {
-  const checkoutForm =
-    document.getElementById(
-      "checkoutForm"
-    );
 
+  const checkoutForm =
+    document.getElementById("checkoutForm");
 
   if (!checkoutForm) {
+
     console.error(
       "ERROR: checkoutForm not found."
     );
 
     return;
+
   }
 
-
-  console.log(
-    "Checkout form connected."
-  );
-
+  console.log("Checkout form connected.");
 
   checkoutForm.addEventListener(
     "submit",
     confirmOrder
   );
+
 }
 
 
 /* =========================================================
-   CONFIRM ORDER
+   12. CONFIRM ORDER
+   PREVENT REPEATED SUBMISSIONS
 ========================================================= */
 
 async function confirmOrder(event) {
+
   event.preventDefault();
 
-
-  console.log(
-    "CONFIRM ORDER CLICKED"
-  );
-
-
-  const paymentMethod =
-    document.getElementById(
-      "paymentMethod"
-    )?.value || "COD";
-
-
-  console.log(
-    "METHOD:",
-    paymentMethod
-  );
-
-
   if (
-    paymentMethod === "PayPal"
+    checkoutSubmitting ||
+    checkoutNavigating
   ) {
-    await createPayPalOrder();
-
     return;
   }
 
+  checkoutSubmitting = true;
 
-  await createCODOrder();
+
+  try {
+
+    const paymentMethod =
+      document.getElementById(
+        "paymentMethod"
+      )?.value || "COD";
+
+
+    if (paymentMethod === "PayPal") {
+
+      await createPayPalOrder();
+
+    } else {
+
+      await createCODOrder();
+
+    }
+
+
+  } finally {
+
+    if (!checkoutNavigating) {
+
+      checkoutSubmitting = false;
+
+      setCheckoutLoading(false);
+
+    }
+
+  }
+
 }
 
 
 /* =========================================================
-   COD
+   13. CASH ON DELIVERY
 ========================================================= */
 
 async function createCODOrder() {
-  const result =
-    await Swal.fire({
 
-      title:
-        "Confirm Order",
+  const result = await Swal.fire({
 
-      text:
-        "Do you want to place this Cash on Delivery order?",
+    title: "Confirm Order",
 
-      icon:
-        "question",
+    text:
+      "Do you want to place this Cash on Delivery order?",
 
-      showCancelButton:
-        true,
+    icon: "question",
 
-      confirmButtonText:
-        "Place Order",
+    showCancelButton: true,
 
-      cancelButtonText:
-        "Cancel",
+    confirmButtonText: "Place Order",
 
-      customClass: {
-        popup:
-          "jcn-popup",
+    cancelButtonText: "Cancel",
 
-        title:
-          "jcn-title",
+    customClass: {
 
-        confirmButton:
-          "jcn-confirm-btn",
+      popup: "jcn-popup",
 
-        cancelButton:
-          "jcn-cancel-btn"
-      },
+      title: "jcn-title",
 
-      buttonsStyling:
-        false
-    });
+      confirmButton: "jcn-confirm-btn",
+
+      cancelButton: "jcn-cancel-btn"
+
+    },
+
+    buttonsStyling: false
+
+  });
 
 
   if (!result.isConfirmed) {
+
     return;
+
   }
 
 
@@ -645,18 +646,19 @@ async function createCODOrder() {
   try {
 
     const data =
-      await createSystemOrder(
-        "COD"
-      );
+      await createSystemOrder("COD");
 
 
     if (!data) {
+
       return;
+
     }
 
 
-    removeCheckedOutItemsFromCart();
+    // REMOVE PURCHASED PRODUCTS
 
+    removeCheckedOutItemsFromCart();
 
     localStorage.removeItem(
       "checkoutItems"
@@ -672,13 +674,12 @@ async function createCODOrder() {
 
     await Swal.fire({
 
-      icon:
-        "success",
+      icon: "success",
 
-      title:
-        "Order Confirmed!",
+      title: "Order Confirmed!",
 
       html: `
+
         <p>
           Your COD order has been placed.
         </p>
@@ -688,33 +689,34 @@ async function createCODOrder() {
         </p>
 
         <strong style="
-          color:#d4af37;
-          font-size:22px;
+          color: #d4af37;
+          font-size: 22px;
         ">
-          ${escapeHtml(
-            orderNumber
-          )}
+
+          ${escapeHtml(orderNumber)}
+
         </strong>
+
       `,
 
-      confirmButtonText:
-        "View My Orders",
+      confirmButtonText: "View My Orders",
 
       customClass: {
-        popup:
-          "jcn-popup",
 
-        title:
-          "jcn-success-title",
+        popup: "jcn-popup",
 
-        confirmButton:
-          "jcn-confirm-btn"
+        title: "jcn-success-title",
+
+        confirmButton: "jcn-confirm-btn"
+
       },
 
-      buttonsStyling:
-        false
+      buttonsStyling: false
+
     });
 
+
+    checkoutNavigating = true;
 
     window.location.href =
       "customer-orders.html";
@@ -724,298 +726,711 @@ async function createCODOrder() {
 
     console.error(
       "COD ERROR:",
-      error
+      error.message
     );
-
 
     await showAlert(
+
       "error",
+
       "Order Failed",
+
       error.message ||
       "Unable to create COD order."
+
     );
+
 
   } finally {
 
-    setCheckoutLoading(
-      false
-    );
+    if (!checkoutNavigating) {
+
+      setCheckoutLoading(false);
+
+    }
+
   }
+
 }
 
 
 /* =========================================================
-   PAYPAL
+   14. PAYPAL ATTEMPT STORAGE
 ========================================================= */
 
-async function createPayPalOrder() {
-  const result =
-    await Swal.fire({
+function getPayPalAttemptKey() {
 
-      title:
-        "PayPal Payment",
+  const user =
+    JSON.parse(
+      localStorage.getItem("customerUser") ||
+      "null"
+    );
 
-      text:
-        "Continue to PayPal to complete your payment.",
+  if (!user?.id) {
 
-      icon:
-        "info",
+    throw new Error(
+      "Please log in again."
+    );
 
-      showCancelButton:
-        true,
-
-      confirmButtonText:
-        "Continue to PayPal",
-
-      cancelButtonText:
-        "Cancel",
-
-      customClass: {
-        popup:
-          "jcn-popup",
-
-        title:
-          "jcn-title",
-
-        confirmButton:
-          "jcn-confirm-btn",
-
-        cancelButton:
-          "jcn-cancel-btn"
-      },
-
-      buttonsStyling:
-        false
-    });
-
-
-  if (!result.isConfirmed) {
-    return;
   }
 
+  return `jcnPendingPayPal_${user.id}`;
+
+}
+
+
+/* =========================================================
+   15. REDIRECT TO MY ORDERS
+========================================================= */
+
+function goToOrders() {
+
+  checkoutNavigating = true;
 
   setCheckoutLoading(
     true,
-    "Connecting to PayPal..."
+    "Opening My Orders..."
   );
+
+  window.location.replace(
+    "customer-orders.html"
+  );
+
+}
+
+
+/* =========================================================
+   16. CHECK EXISTING PAYPAL PAYMENT ATTEMPT
+
+   Prevent creating a new payment while an existing
+   transaction still requires verification.
+========================================================= */
+
+async function checkExistingPayPalAttempt(
+  token,
+  key
+) {
+
+  const saved =
+    JSON.parse(
+      localStorage.getItem(key) ||
+      "null"
+    );
+
+
+  if (!saved?.orderId) {
+
+    return false;
+
+  }
+
+
+  const user =
+    JSON.parse(
+      localStorage.getItem("customerUser") ||
+      "null"
+    );
+
+
+  const response = await fetch(
+
+    `${API_URL}/api/customer/orders/${encodeURIComponent(user.id)}`,
+
+    {
+
+      headers: {
+
+        Authorization: `Bearer ${token}`
+
+      },
+
+      cache: "no-store"
+
+    }
+
+  );
+
+
+  const data =
+    await response.json();
+
+
+  if (
+    !response.ok ||
+    !data.success ||
+    !Array.isArray(data.orders)
+  ) {
+
+    throw new Error(
+
+      "Unable to verify your previous order. " +
+      "Check My Orders before paying again."
+
+    );
+
+  }
+
+
+  const order =
+    data.orders.find(item =>
+
+      String(item.id) ===
+        String(saved.orderId) &&
+
+      String(item.user_id) ===
+        String(user.id)
+
+    );
+
+
+  if (order?.payment_status === "Paid") {
+
+    localStorage.removeItem(key);
+
+    await showAlert(
+
+      "info",
+
+      "Previous Payment Confirmed",
+
+      "Your previous payment is recorded. " +
+      "Check My Orders before placing another order."
+
+    );
+
+
+  } else if (
+
+    order &&
+
+    ["Cancelled", "Canceled"].includes(
+      order.status
+    ) &&
+
+    !order.paypal_capture_id
+
+  ) {
+
+    localStorage.removeItem(key);
+
+    await showAlert(
+
+      "info",
+
+      "Previous Order Cancelled",
+
+      "Check your PayPal activity before starting a new payment."
+
+    );
+
+
+  } else {
+
+    await showAlert(
+
+      "warning",
+
+      "Existing PayPal Order",
+
+      "An earlier payment attempt needs checking. " +
+      "Do not pay again until it is resolved in My Orders " +
+      "or by JCN support."
+
+    );
+
+  }
+
+
+  goToOrders();
+
+  return true;
+
+}
+
+
+/* =========================================================
+   17. LIVE PAYPAL ORDER CREATION
+
+   IMPORTANT:
+   Authorization header is required by server.js.
+========================================================= */
+
+async function createPayPalOrder() {
+
+  let systemOrderId = null;
 
 
   try {
 
-    /*
-      First create JCN/Supabase order
-    */
+    // VERIFY CUSTOMER AUTHENTICATION
 
-    const orderData =
-      await createSystemOrder(
-        "PayPal"
+    const customerToken =
+      localStorage.getItem("customerToken");
+
+
+    if (!customerToken) {
+
+      throw new Error(
+
+        "Your session has expired. Please log in again."
+
       );
 
-
-    if (!orderData) {
-      return;
     }
 
 
-    const systemOrderId =
+    // CHECK PREVIOUS PAYMENT ATTEMPTS
+
+    const attemptKey =
+      getPayPalAttemptKey();
+
+
+    if (
+
+      await checkExistingPayPalAttempt(
+        customerToken,
+        attemptKey
+      )
+
+    ) {
+
+      return;
+
+    }
+
+
+    // PAYPAL CONFIRMATION
+
+    const result = await Swal.fire({
+
+      title: "PayPal Payment",
+
+      text:
+        "Continue to PayPal to complete your payment.",
+
+      icon: "info",
+
+      showCancelButton: true,
+
+      confirmButtonText: "Continue to PayPal",
+
+      cancelButtonText: "Cancel",
+
+      customClass: {
+
+        popup: "jcn-popup",
+
+        title: "jcn-title",
+
+        confirmButton: "jcn-confirm-btn",
+
+        cancelButton: "jcn-cancel-btn"
+
+      },
+
+      buttonsStyling: false
+
+    });
+
+
+    if (!result.isConfirmed) {
+
+      return;
+
+    }
+
+
+    setCheckoutLoading(
+      true,
+      "Connecting to PayPal..."
+    );
+
+
+    /* =====================================================
+       CREATE SYSTEM ORDER IN SUPABASE
+    ===================================================== */
+
+    const orderData =
+      await createSystemOrder("PayPal");
+
+
+    if (!orderData) {
+
+      return;
+
+    }
+
+
+    systemOrderId =
+
       orderData.order?.id ||
+
       orderData.order_id ||
+
       orderData.id;
 
 
     const orderNumber =
+
       orderData.order?.order_number ||
+
       orderData.order_number ||
+
       orderData.orderNumber;
 
 
     if (!systemOrderId) {
 
-      console.error(
-        "INVALID ORDER RESPONSE:",
-        orderData
-      );
-
-
       throw new Error(
-        "Order ID was not returned by server."
+
+        "Order ID missing. Check My Orders before trying again."
+
       );
+
     }
 
 
+    /* =====================================================
+       SAVE SYSTEM ORDER REFERENCE
+    ===================================================== */
+
+    const attempt = {
+
+      orderId: String(systemOrderId),
+
+      orderNumber: orderNumber || null
+
+    };
+
+
     localStorage.setItem(
+
+      attemptKey,
+
+      JSON.stringify(attempt)
+
+    );
+
+
+    localStorage.setItem(
+
       "lastOrderId",
+
       String(systemOrderId)
+
     );
 
 
     if (orderNumber) {
+
       localStorage.setItem(
+
         "lastOrderNumber",
+
         orderNumber
+
       );
+
     }
 
 
-    /*
-      Then create PayPal order.
-    */
+    /* =====================================================
+       CREATE PAYPAL REDIRECT ORDER
 
-    const response =
-      await fetch(
-        `${API_URL}/api/paypal/create-redirect-order`,
-        {
+       FIX: CUSTOMER AUTHORIZATION TOKEN
+    ===================================================== */
 
-          method:
-            "POST",
+    const response = await fetch(
 
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
+      `${API_URL}/api/paypal/create-redirect-order`,
 
-          body:
-            JSON.stringify({
+      {
 
-              system_order_id:
-                systemOrderId
+        method: "POST",
 
-            })
-        }
-      );
+        headers: {
 
+          "Content-Type": "application/json",
 
-    let data;
+          "Authorization": `Bearer ${customerToken}`
 
+        },
 
-    try {
-      data =
-        await response.json();
-    } catch {
-      throw new Error(
-        "Invalid response from PayPal server."
-      );
-    }
+        body: JSON.stringify({
 
+          system_order_id: systemOrderId
 
-    console.log(
-      "PAYPAL CREATE RESPONSE:",
-      data
+        })
+
+      }
+
     );
 
 
-    if (!response.ok) {
+    /* =====================================================
+       READ PAYPAL SERVER RESPONSE
+    ===================================================== */
+
+    const data = await response
+      .json()
+      .catch(() => null);
+
+
+    console.log("PAYPAL CREATE RESPONSE:", {
+
+      success: data?.success,
+
+      status: response.status,
+
+      message: data?.message
+
+    });
+
+
+    /* =====================================================
+       CHECK CUSTOMER SESSION
+    ===================================================== */
+
+    if (response.status === 401) {
+
       throw new Error(
-        data.message ||
-        `Server returned ${response.status}`
+
+        "Your session is invalid or expired. " +
+        "Please log in again."
+
       );
+
     }
 
 
+    /* =====================================================
+       CHECK API RESPONSE
+    ===================================================== */
+
     if (
-      !data.success ||
+
+      !response.ok ||
+
+      !data?.success ||
+
       !data.approve_url
+
     ) {
+
       throw new Error(
-        data.message ||
-        "PayPal approval URL was not returned."
+
+        data?.message ||
+
+        "Unable to create PayPal payment."
+
       );
+
     }
+
+
+    /* =====================================================
+       VALIDATE LIVE PAYPAL APPROVAL URL
+    ===================================================== */
+
+    const url =
+      new URL(data.approve_url);
 
 
     if (
-      data.paypal_order_id
+
+      url.protocol !== "https:" ||
+
+      ![
+        "www.paypal.com",
+        "paypal.com"
+      ].includes(url.hostname) ||
+
+      url.username ||
+
+      url.password
+
     ) {
-      localStorage.setItem(
-        "paypalOrderId",
-        data.paypal_order_id
+
+      throw new Error(
+
+        "Invalid live PayPal approval URL."
+
       );
+
     }
 
 
-    /*
-      Redirect to PayPal
-    */
+    /* =====================================================
+       SAVE PAYPAL ORDER ID
+    ===================================================== */
 
-    window.location.href =
-      data.approve_url;
+    if (data.paypal_order_id) {
+
+      attempt.paypalOrderId =
+        data.paypal_order_id;
+
+
+      localStorage.setItem(
+
+        attemptKey,
+
+        JSON.stringify(attempt)
+
+      );
+
+
+      localStorage.setItem(
+
+        "paypalOrderId",
+
+        data.paypal_order_id
+
+      );
+
+    }
+
+
+    /* =====================================================
+       REDIRECT TO LIVE PAYPAL
+
+       Do not capture payment on this page.
+       The server handles payment verification.
+    ===================================================== */
+
+    checkoutNavigating = true;
+
+    window.location.assign(url.href);
 
 
   } catch (error) {
 
     console.error(
+
       "PAYPAL ERROR:",
-      error
+
+      error.message
+
     );
+
+
+    const message =
+
+      error.message ||
+
+      "Unable to connect to PayPal.";
 
 
     await showAlert(
+
       "error",
+
       "PayPal Error",
-      error.message ||
-      "Unable to connect to PayPal."
+
+      message +
+
+      (
+        systemOrderId
+
+          ? " Your order already exists. " +
+            "Check My Orders before paying again."
+
+          : ""
+      )
+
     );
+
+
+    if (systemOrderId) {
+
+      goToOrders();
+
+    }
+
 
   } finally {
 
-    setCheckoutLoading(
-      false
-    );
+    if (!checkoutNavigating) {
+
+      setCheckoutLoading(false);
+
+    }
+
   }
+
 }
 
 
 /* =========================================================
-   CREATE SYSTEM ORDER
+   18. CREATE SYSTEM ORDER
+
+   Supports both COD and PayPal.
 ========================================================= */
 
-async function createSystemOrder(
-  paymentMethod
-) {
+async function createSystemOrder(paymentMethod) {
 
   cart =
+
     JSON.parse(
-      localStorage.getItem(
-        "checkoutItems"
-      )
+
+      localStorage.getItem("checkoutItems")
+
     ) ||
 
     JSON.parse(
-      localStorage.getItem(
-        "customerCart"
-      )
+
+      localStorage.getItem("customerCart")
+
     ) ||
 
     [];
 
 
+  /* =====================================================
+     VALIDATE CHECKOUT ITEMS
+  ===================================================== */
+
   if (!cart.length) {
 
     await showAlert(
+
       "warning",
+
       "No Products",
+
       "Your checkout is empty."
+
     );
 
     return null;
+
   }
 
 
+  /* =====================================================
+     VALIDATE CUSTOMER ACCOUNT
+  ===================================================== */
+
   const rawUser =
-    localStorage.getItem(
-      "customerUser"
-    );
+    localStorage.getItem("customerUser");
+
+  const customerToken =
+    localStorage.getItem("customerToken");
 
 
-  if (!rawUser) {
+  if (!rawUser || !customerToken) {
 
     await showAlert(
+
       "warning",
+
       "Login Required",
+
       "Please login again."
+
     );
 
     return null;
+
   }
 
 
@@ -1023,222 +1438,275 @@ async function createSystemOrder(
     JSON.parse(rawUser);
 
 
+  /* =====================================================
+     GET CUSTOMER INFORMATION
+  ===================================================== */
+
   const fullNameInput =
-    document.getElementById(
-      "fullName"
-    ) ||
-    document.getElementById(
-      "fullname"
-    );
+
+    document.getElementById("fullName") ||
+
+    document.getElementById("fullname");
 
 
   const customerName =
+
     fullNameInput?.value?.trim() ||
+
     user.full_name ||
+
     user.fullname ||
+
     user.username ||
+
     "";
 
 
   const customerEmail =
-    document
-      .getElementById(
-        "email"
-      )
-      ?.value
-      ?.trim() ||
+
+    document.getElementById("email")
+      ?.value?.trim() ||
+
     user.email ||
+
     "";
 
 
   const customerPhone =
-    document
-      .getElementById(
-        "phone"
-      )
-      ?.value
-      ?.trim() ||
+
+    document.getElementById("phone")
+      ?.value?.trim() ||
+
     user.phone ||
+
     "";
 
 
   const shippingAddress =
-    document
-      .getElementById(
-        "address"
-      )
-      ?.value
-      ?.trim() ||
+
+    document.getElementById("address")
+      ?.value?.trim() ||
+
     user.address ||
+
     "";
 
+
+  /* =====================================================
+     VALIDATE CUSTOMER NAME
+  ===================================================== */
 
   if (!customerName) {
 
     await showAlert(
+
       "warning",
+
       "Missing Name",
+
       "Please enter your full name."
+
     );
 
     return null;
+
   }
 
+
+  /* =====================================================
+     VALIDATE CUSTOMER EMAIL
+  ===================================================== */
 
   if (!customerEmail) {
 
     await showAlert(
+
       "warning",
+
       "Missing Email",
+
       "Please enter your email address."
+
     );
 
     return null;
+
   }
 
+
+  /* =====================================================
+     VALIDATE CUSTOMER PHONE
+  ===================================================== */
 
   if (!customerPhone) {
 
     await showAlert(
+
       "warning",
+
       "Missing Phone",
+
       "Please enter your phone number."
+
     );
 
     return null;
+
   }
 
+
+  /* =====================================================
+     VALIDATE SHIPPING ADDRESS
+  ===================================================== */
 
   if (!shippingAddress) {
 
     await showAlert(
+
       "warning",
+
       "Missing Address",
+
       "Please enter your shipping address."
+
     );
 
     return null;
+
   }
 
+
+  /* =====================================================
+     VALIDATE CUSTOMER ID
+  ===================================================== */
 
   if (!user.id) {
 
-    console.error(
-      "CUSTOMER USER:",
-      user
-    );
-
-
     await showAlert(
+
       "error",
+
       "Account Error",
-      "Customer ID is missing. Please logout and login again."
+
+      "Customer ID is missing. " +
+      "Please logout and login again."
+
     );
 
     return null;
+
   }
 
+
+  /* =====================================================
+     VALIDATE TOTAL AMOUNT
+  ===================================================== */
 
   const totalAmount =
     updateTotals();
 
 
   if (
-    !Number.isFinite(
-      totalAmount
-    ) ||
+
+    !Number.isFinite(totalAmount) ||
+
     totalAmount <= 0
+
   ) {
 
     await showAlert(
+
       "error",
+
       "Invalid Total",
+
       "The order total is invalid."
+
     );
 
     return null;
+
   }
 
+
+  /* =====================================================
+     GENERATE ORDER NUMBER
+  ===================================================== */
 
   const orderNumber =
     generateOrderNumber();
 
 
+  /* =====================================================
+     PREPARE ORDER REQUEST
+  ===================================================== */
+
   const requestBody = {
 
-    user_id:
-      user.id,
+    user_id: user.id,
 
-    order_number:
-      orderNumber,
+    order_number: orderNumber,
 
-    customer_name:
-      customerName,
+    customer_name: customerName,
 
-    customer_email:
-      customerEmail,
+    customer_email: customerEmail,
 
-    customer_phone:
-      customerPhone,
+    customer_phone: customerPhone,
 
-    shipping_address:
-      shippingAddress,
+    shipping_address: shippingAddress,
 
-    total_amount:
-      totalAmount,
+    total_amount: totalAmount,
 
-    payment_method:
-      paymentMethod,
+    payment_method: paymentMethod,
 
     payment_status:
+
       paymentMethod === "PayPal"
+
         ? "Unpaid"
+
         : "Pending",
 
     status:
+
       paymentMethod === "PayPal"
+
         ? "Pending Payment"
+
         : "Preparing",
 
-    items:
-      cart
+    items: cart
+
   };
 
 
-  console.log(
-    "ORDER REQUEST:",
-    requestBody
-  );
-
+  /* =====================================================
+     SEND ORDER TO BACKEND
+  ===================================================== */
 
   try {
 
-    const response =
-      await fetch(
-        `${API_URL}/api/orders`,
-        {
+    const response = await fetch(
 
-          method:
-            "POST",
+      `${API_URL}/api/orders`,
 
-          headers: {
-            "Content-Type":
-              "application/json",
+      {
 
-            Authorization:
-              `Bearer ${
-                localStorage.getItem(
-                  "customerToken"
-                ) || ""
-              }`
-          },
+        method: "POST",
 
-          body:
-            JSON.stringify(
-              requestBody
-            )
-        }
-      );
+        headers: {
+
+          "Content-Type": "application/json",
+
+          "Authorization": `Bearer ${customerToken}`
+
+        },
+
+        body: JSON.stringify(requestBody)
+
+      }
+
+    );
 
 
     let data;
@@ -1246,445 +1714,308 @@ async function createSystemOrder(
 
     try {
 
-      data =
-        await response.json();
+      data = await response.json();
 
     } catch {
 
-      const text =
-        await response.text();
-
-      console.error(
-        "SERVER RESPONSE:",
-        text
-      );
-
-
       throw new Error(
+
         "Server returned an invalid response."
+
       );
+
     }
 
 
-    console.log(
-      "ORDER RESPONSE:",
-      data
-    );
-
+    /* =====================================================
+       HANDLE SERVER ERROR
+    ===================================================== */
 
     if (!response.ok) {
 
       throw new Error(
+
         data.message ||
+
         `Request failed (${response.status})`
+
       );
+
     }
 
+
+    /* =====================================================
+       VALIDATE ORDER CREATION
+    ===================================================== */
 
     if (!data.success) {
 
       throw new Error(
+
         data.message ||
+
         "Order could not be created."
+
       );
+
     }
 
 
+    /* =====================================================
+       RETURN CREATED ORDER
+    ===================================================== */
+
     return {
+
       ...data,
 
       order_number:
+
         data.order?.order_number ||
+
         data.order_number ||
+
         orderNumber
+
     };
 
 
   } catch (error) {
 
     console.error(
+
       "CREATE ORDER ERROR:",
-      error
+
+      error.message
+
     );
 
 
     await showAlert(
+
       "error",
+
       "Order Failed",
+
       error.message ||
+
       "Cannot connect to the server."
+
     );
 
 
     return null;
+
   }
+
 }
 
 
 /* =========================================================
-   PAYPAL RETURN / CAPTURE
+   19. PAYPAL RETURN HANDLING
+
+   IMPORTANT:
+   PayPal capture is now handled by server.js.
+
+   Do not call /api/paypal/capture-order again
+   from this checkout page.
 ========================================================= */
 
 async function handlePayPalReturn() {
+
   const params =
-    new URLSearchParams(
-      window.location.search
-    );
+    new URLSearchParams(window.location.search);
 
 
   const payment =
     params.get("payment");
 
+  const paypal =
+    params.get("paypal");
 
-  /*
-    Customer cancelled PayPal
-  */
+
+  if (!payment && !paypal) {
+
+    return false;
+
+  }
+
+
+  /* =====================================================
+     PAYMENT CANCELLED
+  ===================================================== */
 
   if (
-    payment === "cancelled"
+
+    payment === "cancelled" ||
+
+    paypal === "cancelled"
+
   ) {
 
     await showAlert(
+
       "info",
+
       "Payment Cancelled",
-      "Your PayPal payment was cancelled."
+
+      "You returned from PayPal. Check your existing " +
+      "order before starting another payment."
+
     );
 
 
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname
-    );
+  } else if (payment === "success") {
 
+    /* =====================================================
+       PAYMENT RETURNED
 
-    return;
-  }
-
-
-  if (
-    payment !== "success"
-  ) {
-    return;
-  }
-
-
-  /*
-    PayPal normally returns PayPal order
-    ID as token.
-  */
-
-  const paypalOrderId =
-    params.get("token") ||
-    localStorage.getItem(
-      "paypalOrderId"
-    );
-
-
-  const systemOrderId =
-    params.get(
-      "system_order_id"
-    ) ||
-    localStorage.getItem(
-      "lastOrderId"
-    );
-
-
-  console.log(
-    "PAYPAL RETURN:",
-    {
-      paypalOrderId,
-      systemOrderId
-    }
-  );
-
-
-  if (
-    !paypalOrderId ||
-    !systemOrderId
-  ) {
+       The URL alone does not prove successful payment.
+       My Orders must display the verified database status.
+    ===================================================== */
 
     await showAlert(
-      "error",
-      "Payment Error",
-      "Payment information is incomplete."
-    );
 
-    return;
-  }
+      "info",
 
+      "Payment Returned",
 
-  try {
+      "Open My Orders to check your verified payment status."
 
-    Swal.fire({
-
-      title:
-        "Confirming Payment",
-
-      text:
-        "Please wait while we confirm your PayPal payment.",
-
-      allowOutsideClick:
-        false,
-
-      allowEscapeKey:
-        false,
-
-      didOpen() {
-        Swal.showLoading();
-      }
-    });
-
-
-    const response =
-      await fetch(
-        `${API_URL}/api/paypal/capture-order`,
-        {
-
-          method:
-            "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify({
-
-              paypal_order_id:
-                paypalOrderId,
-
-              system_order_id:
-                systemOrderId
-
-            })
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    console.log(
-      "CAPTURE RESPONSE:",
-      data
     );
 
 
-    if (
-      !response.ok ||
-      !data.success
-    ) {
+  } else {
 
-      throw new Error(
-        data.message ||
-        "PayPal payment could not be captured."
-      );
-    }
-
-
-    removeCheckedOutItemsFromCart();
-
-
-    localStorage.removeItem(
-      "checkoutItems"
-    );
-
-    localStorage.removeItem(
-      "paypalOrderId"
-    );
-
-    localStorage.removeItem(
-      "lastOrderId"
-    );
-
-
-    const orderNumber =
-      data.order_number ||
-      localStorage.getItem(
-        "lastOrderNumber"
-      ) ||
-      "N/A";
-
-
-    localStorage.removeItem(
-      "lastOrderNumber"
-    );
-
-
-    await Swal.fire({
-
-      icon:
-        "success",
-
-      title:
-        "Payment Successful!",
-
-      html: `
-        <p>
-          Your PayPal payment has
-          been completed.
-        </p>
-
-        <p>
-          Order Number:
-        </p>
-
-        <strong style="
-          color:#d4af37;
-          font-size:22px;
-        ">
-          ${escapeHtml(
-            orderNumber
-          )}
-        </strong>
-      `,
-
-      confirmButtonText:
-        "View My Orders",
-
-      customClass: {
-        popup:
-          "jcn-popup",
-
-        title:
-          "jcn-success-title",
-
-        confirmButton:
-          "jcn-confirm-btn"
-      },
-
-      buttonsStyling:
-        false
-    });
-
-
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname
-    );
-
-
-    window.location.href =
-      "customer-orders.html";
-
-
-  } catch (error) {
-
-    Swal.close();
-
-
-    console.error(
-      "PAYPAL CAPTURE ERROR:",
-      error
-    );
-
+    /* =====================================================
+       FAILED OR UNRESOLVED PAYMENT
+    ===================================================== */
 
     await showAlert(
-      "error",
-      "Payment Error",
-      error.message ||
-      "Unable to confirm PayPal payment."
+
+      "warning",
+
+      "Payment Needs Review",
+
+      "Check My Orders and your PayPal activity. " +
+      "Do not pay again until the previous transaction is verified."
+
     );
+
   }
+
+
+  /* =====================================================
+     REDIRECT TO MY ORDERS
+
+     Preserve payment references and checkout items until
+     the payment has been verified.
+  ===================================================== */
+
+  goToOrders();
+
+  return true;
+
 }
 
 
 /* =========================================================
-   REMOVE PURCHASED ITEMS
+   20. REMOVE PURCHASED ITEMS FROM CART
+
+   Used after successful COD order creation.
+   PayPal cart cleanup requires verified payment status.
 ========================================================= */
 
 function removeCheckedOutItemsFromCart() {
+
   const customerCart =
+
     JSON.parse(
-      localStorage.getItem(
-        "customerCart"
-      )
-    ) || [];
+
+      localStorage.getItem("customerCart")
+
+    ) ||
+
+    [];
 
 
-  const purchasedKeys =
-    cart.map(item =>
+  const purchasedKeys = cart.map(item =>
 
-      item.cartKey ||
+    item.cartKey ||
 
-      `${
-        item.product_id ||
-        item.id
-      }-${item.size}-${item.color}`
+    `${
+      item.product_id ||
+      item.id
+    }-${item.size}-${item.color}`
 
-    );
+  );
 
 
   const remainingCart =
-    customerCart.filter(
-      item => {
+    customerCart.filter(item => {
 
-        const key =
-          item.cartKey ||
+      const key =
 
-          `${
-            item.product_id ||
-            item.id
-          }-${item.size}-${item.color}`;
+        item.cartKey ||
+
+        `${
+          item.product_id ||
+          item.id
+        }-${item.size}-${item.color}`;
 
 
-        return (
-          !purchasedKeys.includes(
-            key
-          )
-        );
-      }
-    );
+      return !purchasedKeys.includes(key);
+
+    });
 
 
   localStorage.setItem(
+
     "customerCart",
-    JSON.stringify(
-      remainingCart
-    )
+
+    JSON.stringify(remainingCart)
+
   );
+
 }
 
 
 /* =========================================================
-   CHECKOUT BUTTON LOADING
+   21. CHECKOUT BUTTON LOADING
 ========================================================= */
 
 function setCheckoutLoading(
+
   loading,
+
   text = "Please wait..."
+
 ) {
 
   const button =
-    document.querySelector(
-      ".confirm-btn"
-    );
+    document.querySelector(".confirm-btn");
 
 
   if (!button) {
+
     return;
+
   }
 
 
-  if (loading) {
+  if (loading || checkoutNavigating) {
 
     button.dataset.originalText =
       button.textContent;
 
-    button.disabled =
-      true;
+    button.disabled = true;
 
-    button.textContent =
-      text;
+    button.textContent = text;
+
 
   } else {
 
-    button.disabled =
-      false;
+    button.disabled = false;
 
 
     const paymentMethod =
@@ -1693,10 +2024,7 @@ function setCheckoutLoading(
       )?.value;
 
 
-    if (
-      paymentMethod ===
-      "PayPal"
-    ) {
+    if (paymentMethod === "PayPal") {
 
       button.textContent =
         "Pay with PayPal";
@@ -1705,56 +2033,60 @@ function setCheckoutLoading(
 
       button.textContent =
         "Confirm Order";
+
     }
+
   }
+
 }
 
 
 /* =========================================================
-   MY ORDERS BUTTON
+   22. MY ORDERS BUTTON
 ========================================================= */
 
 function setupOrderButton() {
+
   const button =
-    document.getElementById(
-      "goOrdersBtn"
-    );
+    document.getElementById("goOrdersBtn");
 
 
   if (!button) {
+
     return;
+
   }
 
 
-  button.addEventListener(
-    "click",
-    () => {
+  button.addEventListener("click", () => {
 
-      window.location.href =
-        "customer-orders.html";
+    window.location.href =
+      "customer-orders.html";
 
-    }
-  );
+  });
+
 }
 
 
 /* =========================================================
-   LOGOUT
+   23. CUSTOMER LOGOUT
 ========================================================= */
 
 function setupLogoutButton() {
+
   const logoutBtn =
-    document.getElementById(
-      "logoutBtn"
-    );
+    document.getElementById("logoutBtn");
 
 
   if (!logoutBtn) {
+
     return;
+
   }
 
 
   logoutBtn.addEventListener(
+
     "click",
 
     async event => {
@@ -1762,50 +2094,57 @@ function setupLogoutButton() {
       event.preventDefault();
 
 
-      const result =
-        await Swal.fire({
-
-          title:
-            "Logout?",
-
-          text:
-            "Are you sure you want to logout?",
-
-          icon:
-            "question",
-
-          showCancelButton:
-            true,
-
-          confirmButtonText:
-            "Logout",
-
-          cancelButtonText:
-            "Cancel",
-
-          customClass: {
-
-            popup:
-              "jcn-popup",
-
-            confirmButton:
-              "jcn-confirm-btn",
-
-            cancelButton:
-              "jcn-cancel-btn"
-          },
-
-          buttonsStyling:
-            false
-        });
-
-
       if (
-        !result.isConfirmed
+
+        checkoutSubmitting ||
+
+        checkoutNavigating
+
       ) {
+
         return;
+
       }
 
+
+      const result = await Swal.fire({
+
+        title: "Logout?",
+
+        text:
+          "Are you sure you want to logout?",
+
+        icon: "question",
+
+        showCancelButton: true,
+
+        confirmButtonText: "Logout",
+
+        cancelButtonText: "Cancel",
+
+        customClass: {
+
+          popup: "jcn-popup",
+
+          confirmButton: "jcn-confirm-btn",
+
+          cancelButton: "jcn-cancel-btn"
+
+        },
+
+        buttonsStyling: false
+
+      });
+
+
+      if (!result.isConfirmed) {
+
+        return;
+
+      }
+
+
+      // CLEAR CUSTOMER SESSION ONLY
 
       localStorage.removeItem(
         "customerToken"
@@ -1816,162 +2155,535 @@ function setupLogoutButton() {
       );
 
 
+      // KEEP CUSTOMER THEME AND PAYMENT REFERENCES
+
       window.location.href =
         "user-login.html";
+
     }
+
   );
+
 }
 
 
 /* =========================================================
-   HTML ESCAPE
+   24. HTML ESCAPE
 ========================================================= */
 
 function escapeHtml(value) {
-  return String(
-    value ?? ""
-  )
 
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
+  return String(value ?? "")
 
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
+    .replaceAll("&", "&amp;")
 
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
+    .replaceAll("<", "&lt;")
 
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
+    .replaceAll(">", "&gt;")
 
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#039;");
+
 }
 
 
-
 /* =========================================================
-   CUSTOMER CHECKOUT - MOBILE SIDEBAR
-   Matches jcn-checkout-* CSS selectors.
-   This does not change COD/PayPal processing.
+   25. CUSTOMER CHECKOUT MOBILE SIDEBAR
+
+   Existing responsive mobile navigation.
 ========================================================= */
 
 function initializeCheckoutMobileSidebar() {
-  const sidebar = document.querySelector(".sidebar");
-  const main = document.querySelector(".main");
+
+  const sidebar =
+    document.querySelector(".sidebar");
+
+  const main =
+    document.querySelector(".main");
+
 
   if (!sidebar || !main) {
-    console.warn("Checkout mobile sidebar: .sidebar or .main is missing.");
+
+    console.warn(
+
+      "Checkout mobile sidebar: " +
+      ".sidebar or .main is missing."
+
+    );
+
     return;
+
   }
 
-  // Avoid adding another set of event listeners on reinitialization.
-  if (sidebar.dataset.checkoutMenuInitialized === "true") return;
-  sidebar.dataset.checkoutMenuInitialized = "true";
 
-  let mobileBar = document.querySelector(".jcn-checkout-mobile-bar");
+  /* =====================================================
+     PREVENT DUPLICATE INITIALIZATION
+  ===================================================== */
+
+  if (
+
+    sidebar.dataset.checkoutMenuInitialized === "true"
+
+  ) {
+
+    return;
+
+  }
+
+
+  sidebar.dataset.checkoutMenuInitialized =
+    "true";
+
+
+  /* =====================================================
+     CREATE MOBILE NAVIGATION BAR
+  ===================================================== */
+
+  let mobileBar =
+    document.querySelector(
+      ".jcn-checkout-mobile-bar"
+    );
+
+
   if (!mobileBar) {
-    mobileBar = document.createElement("div");
-    mobileBar.className = "jcn-checkout-mobile-bar";
+
+    mobileBar =
+      document.createElement("div");
+
+    mobileBar.className =
+      "jcn-checkout-mobile-bar";
+
     main.prepend(mobileBar);
+
   }
 
-  let menuBtn = mobileBar.querySelector(".jcn-checkout-menu-toggle");
+
+  /* =====================================================
+     CREATE MOBILE MENU BUTTON
+  ===================================================== */
+
+  let menuBtn =
+    mobileBar.querySelector(
+      ".jcn-checkout-menu-toggle"
+    );
+
+
   if (!menuBtn) {
-    menuBtn = document.createElement("button");
+
+    menuBtn =
+      document.createElement("button");
+
     menuBtn.type = "button";
-    menuBtn.className = "jcn-checkout-menu-toggle";
-    menuBtn.innerHTML = '<i class="fa-solid fa-bars" aria-hidden="true"></i>';
+
+    menuBtn.className =
+      "jcn-checkout-menu-toggle";
+
+
+    menuBtn.innerHTML = `
+
+      <i
+        class="fa-solid fa-bars"
+        aria-hidden="true">
+      </i>
+
+    `;
+
+
     mobileBar.prepend(menuBtn);
+
   }
 
-  // Add branding only if it has not been added in the HTML already.
-  if (!mobileBar.querySelector(".jcn-checkout-mobile-logo")) {
-    const logo = document.createElement("span");
-    logo.className = "jcn-checkout-mobile-logo";
+
+  /* =====================================================
+     MOBILE JCN LOGO
+  ===================================================== */
+
+  if (
+
+    !mobileBar.querySelector(
+      ".jcn-checkout-mobile-logo"
+    )
+
+  ) {
+
+    const logo =
+      document.createElement("span");
+
+    logo.className =
+      "jcn-checkout-mobile-logo";
+
     logo.textContent = "J";
+
     mobileBar.appendChild(logo);
+
   }
-  if (!mobileBar.querySelector(".jcn-checkout-mobile-name")) {
-    const name = document.createElement("span");
-    name.className = "jcn-checkout-mobile-name";
-    name.textContent = "JCN Apparel";
+
+
+  /* =====================================================
+     MOBILE BRAND NAME
+  ===================================================== */
+
+  if (
+
+    !mobileBar.querySelector(
+      ".jcn-checkout-mobile-name"
+    )
+
+  ) {
+
+    const name =
+      document.createElement("span");
+
+    name.className =
+      "jcn-checkout-mobile-name";
+
+    name.textContent =
+      "JCN Apparel";
+
     mobileBar.appendChild(name);
+
   }
 
-  if (!sidebar.id) sidebar.id = "jcnCheckoutSidebar";
-  menuBtn.setAttribute("aria-controls", sidebar.id);
-  menuBtn.setAttribute("aria-expanded", "false");
-  menuBtn.setAttribute("aria-label", "Open navigation menu");
 
-  let closeBtn = sidebar.querySelector(".jcn-checkout-sidebar-close");
+  /* =====================================================
+     MOBILE MENU ACCESSIBILITY
+  ===================================================== */
+
+  if (!sidebar.id) {
+
+    sidebar.id =
+      "jcnCheckoutSidebar";
+
+  }
+
+
+  menuBtn.setAttribute(
+
+    "aria-controls",
+
+    sidebar.id
+
+  );
+
+
+  menuBtn.setAttribute(
+
+    "aria-expanded",
+
+    "false"
+
+  );
+
+
+  menuBtn.setAttribute(
+
+    "aria-label",
+
+    "Open navigation menu"
+
+  );
+
+
+  /* =====================================================
+     CREATE SIDEBAR CLOSE BUTTON
+  ===================================================== */
+
+  let closeBtn =
+    sidebar.querySelector(
+      ".jcn-checkout-sidebar-close"
+    );
+
+
   if (!closeBtn) {
-    closeBtn = document.createElement("button");
+
+    closeBtn =
+      document.createElement("button");
+
     closeBtn.type = "button";
-    closeBtn.className = "jcn-checkout-sidebar-close";
-    closeBtn.setAttribute("aria-label", "Close navigation menu");
+
+    closeBtn.className =
+      "jcn-checkout-sidebar-close";
+
+    closeBtn.setAttribute(
+
+      "aria-label",
+
+      "Close navigation menu"
+
+    );
+
     closeBtn.innerHTML = "&times;";
+
     sidebar.prepend(closeBtn);
+
   }
 
-  let overlay = document.querySelector(".jcn-checkout-menu-overlay");
+
+  /* =====================================================
+     CREATE MOBILE MENU OVERLAY
+  ===================================================== */
+
+  let overlay =
+    document.querySelector(
+      ".jcn-checkout-menu-overlay"
+    );
+
+
   if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.className = "jcn-checkout-menu-overlay";
-    document.body.appendChild(overlay);
-  }
-  overlay.setAttribute("aria-hidden", "true");
 
-  function closeSidebar(restoreFocus = false) {
-    const wasOpen = document.body.classList.contains("jcn-checkout-menu-open");
-    document.body.classList.remove("jcn-checkout-menu-open");
-    menuBtn.setAttribute("aria-expanded", "false");
-    menuBtn.setAttribute("aria-label", "Open navigation menu");
-    if (restoreFocus && wasOpen && window.innerWidth <= 800) menuBtn.focus();
+    overlay =
+      document.createElement("div");
+
+    overlay.className =
+      "jcn-checkout-menu-overlay";
+
+    document.body.appendChild(overlay);
+
   }
+
+
+  overlay.setAttribute(
+
+    "aria-hidden",
+
+    "true"
+
+  );
+
+
+  /* =====================================================
+     CLOSE SIDEBAR
+  ===================================================== */
+
+  function closeSidebar(
+    restoreFocus = false
+  ) {
+
+    const wasOpen =
+      document.body.classList.contains(
+
+        "jcn-checkout-menu-open"
+
+      );
+
+
+    document.body.classList.remove(
+
+      "jcn-checkout-menu-open"
+
+    );
+
+
+    menuBtn.setAttribute(
+
+      "aria-expanded",
+
+      "false"
+
+    );
+
+
+    menuBtn.setAttribute(
+
+      "aria-label",
+
+      "Open navigation menu"
+
+    );
+
+
+    if (
+
+      restoreFocus &&
+
+      wasOpen &&
+
+      window.innerWidth <= 800
+
+    ) {
+
+      menuBtn.focus();
+
+    }
+
+  }
+
+
+  /* =====================================================
+     OPEN SIDEBAR
+  ===================================================== */
 
   function openSidebar() {
-    if (window.innerWidth > 800) return;
-    document.body.classList.add("jcn-checkout-menu-open");
-    menuBtn.setAttribute("aria-expanded", "true");
-    menuBtn.setAttribute("aria-label", "Close navigation menu");
+
+    if (window.innerWidth > 800) {
+
+      return;
+
+    }
+
+
+    document.body.classList.add(
+
+      "jcn-checkout-menu-open"
+
+    );
+
+
+    menuBtn.setAttribute(
+
+      "aria-expanded",
+
+      "true"
+
+    );
+
+
+    menuBtn.setAttribute(
+
+      "aria-label",
+
+      "Close navigation menu"
+
+    );
+
+
     closeBtn.focus();
+
   }
 
-  menuBtn.addEventListener("click", event => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (document.body.classList.contains("jcn-checkout-menu-open")) {
-      closeSidebar();
-    } else {
-      openSidebar();
+
+  /* =====================================================
+     MOBILE MENU TOGGLE
+  ===================================================== */
+
+  menuBtn.addEventListener(
+
+    "click",
+
+    event => {
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      if (
+
+        document.body.classList.contains(
+
+          "jcn-checkout-menu-open"
+
+        )
+
+      ) {
+
+        closeSidebar();
+
+      } else {
+
+        openSidebar();
+
+      }
+
     }
-  });
 
-  closeBtn.addEventListener("click", () => closeSidebar(true));
-  overlay.addEventListener("click", () => closeSidebar());
+  );
 
-  sidebar.querySelectorAll(".menu a").forEach(link => {
-    link.addEventListener("click", () => closeSidebar());
-  });
 
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && document.body.classList.contains("jcn-checkout-menu-open")) {
-      closeSidebar(true);
+  /* =====================================================
+     CLOSE BUTTON EVENT
+  ===================================================== */
+
+  closeBtn.addEventListener(
+
+    "click",
+
+    () => closeSidebar(true)
+
+  );
+
+
+  /* =====================================================
+     OVERLAY EVENT
+  ===================================================== */
+
+  overlay.addEventListener(
+
+    "click",
+
+    () => closeSidebar()
+
+  );
+
+
+  /* =====================================================
+     CLOSE WHEN SELECTING NAVIGATION LINK
+  ===================================================== */
+
+  sidebar.querySelectorAll(".menu a")
+    .forEach(link => {
+
+      link.addEventListener(
+
+        "click",
+
+        () => closeSidebar()
+
+      );
+
+    });
+
+
+  /* =====================================================
+     ESCAPE KEY SUPPORT
+  ===================================================== */
+
+  document.addEventListener(
+
+    "keydown",
+
+    event => {
+
+      if (
+
+        event.key === "Escape" &&
+
+        document.body.classList.contains(
+
+          "jcn-checkout-menu-open"
+
+        )
+
+      ) {
+
+        closeSidebar(true);
+
+      }
+
     }
-  });
 
-  window.addEventListener("resize", () => {
-    if (window.innerWidth > 800) closeSidebar();
-  });
+  );
+
+
+  /* =====================================================
+     WINDOW RESIZE SUPPORT
+  ===================================================== */
+
+  window.addEventListener(
+
+    "resize",
+
+    () => {
+
+      if (window.innerWidth > 800) {
+
+        closeSidebar();
+
+      }
+
+    }
+
+  );
+
 }
