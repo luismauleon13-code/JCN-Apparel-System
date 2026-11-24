@@ -1,671 +1,1023 @@
-/* =========================================
-   JCN GLOBAL ADMIN THEME
-========================================= */
+/* ==========================================================
+   JCN APPAREL PRINTING SERVICES
+   GLOBAL ADMIN DARK / LIGHT THEME
+========================================================== */
 
 
-/* =========================================
-   01. DARK MODE VARIABLES
-========================================= */
+/* ==========================================================
+   01. DEFAULT DARK THEME
+========================================================== */
 
-html[data-account-theme="dark"] {
+:root,
+:root[data-account-theme="dark"] {
+
   color-scheme: dark;
 
-  --bg: #0c0c0c;
-  --background: #0c0c0c;
+  --jcn-admin-bg: #0c0c0f;
+  --jcn-admin-bg-secondary: #111318;
 
-  --panel: #141414;
-  --panel-bg: #141414;
-  --panel-light: #1b1b1b;
-  --input-bg: #101010;
+  --jcn-admin-surface: #191b20;
+  --jcn-admin-surface-hover: #24272e;
 
-  --text: #ffffff;
-  --muted: #b8b8b8;
+  --jcn-admin-card: #141414;
+  --jcn-admin-input: #111318;
+  --jcn-admin-navbar: #101115;
 
-  --gold: #f4c542;
-  --gold-hover: #ffda65;
-  --gold-dark: #c79b1b;
+  --jcn-admin-text: #f7f7f9;
+  --jcn-admin-text-secondary: #c5c6cd;
+  --jcn-admin-muted: #a1a5b0;
 
-  --gold-gradient: linear-gradient(
-    135deg,
-    #f4c542,
-    #d6a51d
-  );
+  --jcn-admin-gold: #f4c542;
+  --jcn-admin-gold-hover: #ffda65;
+  --jcn-admin-gold-text: #f4c542;
 
-  --border: rgba(244, 197, 66, 0.25);
+  --jcn-admin-gold-soft: rgba(244, 197, 66, 0.12);
 
-  --success: #72f2b4;
-  --danger: #ff8b8b;
-  --warning: #f4c542;
+  --jcn-admin-border: #34353b;
 
-  --theme-hover: rgba(244, 197, 66, 0.08);
-  --theme-active: rgba(244, 197, 66, 0.18);
+  --jcn-admin-border-gold: #8b7138;
 
-  --theme-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --jcn-admin-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.25);
+
+  --jcn-admin-button-bg: #282a30;
+
+  --jcn-admin-success: #65d6a0;
+  --jcn-admin-danger: #ff8585;
+
+  --jcn-admin-active: rgba(244, 197, 66, 0.18);
+
 }
 
 
-/* =========================================
-   02. LIGHT MODE VARIABLES
-========================================= */
+/* ==========================================================
+   02. LIGHT THEME
+========================================================== */
 
-html[data-account-theme="light"] {
+:root[data-account-theme="light"] {
+
   color-scheme: light;
 
-  --bg: #f3f4f6;
-  --background: #f3f4f6;
+  --jcn-admin-bg: #f6f7f9;
+  --jcn-admin-bg-secondary: #edf0f4;
 
-  --panel: #ffffff;
-  --panel-bg: #ffffff;
-  --panel-light: #f8f9fa;
-  --input-bg: #f7f7f7;
+  --jcn-admin-surface: #ffffff;
+  --jcn-admin-surface-hover: #f0f2f5;
 
-  --text: #202020;
-  --muted: #626262;
+  --jcn-admin-card: #ffffff;
+  --jcn-admin-input: #ffffff;
+  --jcn-admin-navbar: #ffffff;
 
-  --gold: #926600;
-  --gold-hover: #b98500;
-  --gold-dark: #795400;
+  --jcn-admin-text: #20242b;
+  --jcn-admin-text-secondary: #434a55;
+  --jcn-admin-muted: #626b78;
 
-  --gold-gradient: linear-gradient(
-    135deg,
-    #f4c542,
-    #d6a51d
-  );
+  --jcn-admin-gold: #c49a35;
+  --jcn-admin-gold-hover: #d7ad48;
+  --jcn-admin-gold-text: #936a12;
 
-  --border: #dedede;
+  --jcn-admin-gold-soft: rgba(196, 154, 53, 0.10);
 
-  --success: #16834d;
-  --danger: #c62828;
-  --warning: #926600;
+  --jcn-admin-border: #dce0e6;
 
-  --theme-hover: #fff8e6;
-  --theme-active: #fff0bf;
+  --jcn-admin-border-gold: #c9a557;
 
-  --theme-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  --jcn-admin-shadow:
+    0 8px 28px rgba(35, 40, 50, 0.07);
+
+  --jcn-admin-button-bg: #f0f2f5;
+
+  --jcn-admin-success: #168258;
+  --jcn-admin-danger: #c73636;
+
+  --jcn-admin-active: #fff3d4;
+
 }
 
 
-/* =========================================
-   03. PAGE BACKGROUND
-========================================= */
+/* ==========================================================
+   03. EXISTING ADMIN CSS VARIABLES
+========================================================== */
 
-html[data-account-theme="light"] body,
-html[data-account-theme="light"] body.dashboard-body {
-  background: var(--bg);
-  color: var(--text);
+:root[data-account-theme] {
+
+  --background: var(--jcn-admin-bg);
+  --bg: var(--jcn-admin-bg);
+
+  --panel: var(--jcn-admin-card);
+  --panel-bg: var(--jcn-admin-card);
+  --panel-light: var(--jcn-admin-surface-hover);
+
+  --card: var(--jcn-admin-card);
+  --input-bg: var(--jcn-admin-input);
+
+  --text: var(--jcn-admin-text);
+  --muted: var(--jcn-admin-muted);
+
+  --gold: var(--jcn-admin-gold-text);
+  --gold-hover: var(--jcn-admin-gold-hover);
+
+  --gold-dark: #936a12;
+
+  --gold-gradient:
+    linear-gradient(135deg, #f4c542, #d6a51d);
+
+  --border: var(--jcn-admin-border);
+
+  --success: var(--jcn-admin-success);
+  --danger: var(--jcn-admin-danger);
+
 }
 
 
-/* =========================================
-   04. ADMIN NAVIGATION
-========================================= */
+/* ==========================================================
+   04. BASE PAGE STYLES
+========================================================== */
 
-html[data-account-theme="light"] .dashboard-nav,
-html[data-account-theme="light"] .admin-navbar,
-html[data-account-theme="light"] .admin-header,
-html[data-account-theme="light"] .topbar {
-  background: var(--panel-bg);
-  color: var(--text);
+body {
 
-  border-color: var(--border);
-  box-shadow: var(--theme-shadow);
+  background-color: var(--jcn-admin-bg);
+
+  color: var(--jcn-admin-text);
+
 }
 
-html[data-account-theme="light"] .navbar-brand,
-html[data-account-theme="light"] .navbar .nav-link {
-  color: var(--text) !important;
+body,
+header,
+nav,
+main,
+aside,
+section,
+button,
+input,
+select,
+textarea {
+
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease;
+
 }
 
-html[data-account-theme="light"] .navbar .nav-link:hover,
-html[data-account-theme="light"] .navbar .nav-link.active {
-  color: var(--gold) !important;
+:root[data-account-theme="light"] body,
+:root[data-account-theme="light"] body.dashboard-body {
+
+  background: var(--jcn-admin-bg) !important;
+
+  color: var(--jcn-admin-text) !important;
+
 }
 
-html[data-account-theme="light"] .navbar-toggler {
-  color: var(--text);
+
+/* ==========================================================
+   05. ADMIN NAVIGATION
+========================================================== */
+
+:root[data-account-theme="light"]
+:is(
+  .dashboard-nav,
+  .admin-navbar,
+  .navbar,
+  .admin-header,
+  .topbar
+) {
+
+  background: var(--jcn-admin-navbar) !important;
+
+  color: var(--jcn-admin-text);
+
+  border-color: var(--jcn-admin-border) !important;
+
+  box-shadow: var(--jcn-admin-shadow);
+
+}
+
+:root[data-account-theme="light"] .navbar-brand,
+:root[data-account-theme="light"] .nav-link {
+
+  color: var(--jcn-admin-text) !important;
+
+}
+
+:root[data-account-theme="light"] .nav-link:hover,
+:root[data-account-theme="light"] .nav-link.active {
+
+  color: var(--jcn-admin-gold-text) !important;
+
 }
 
 
-/* =========================================
-   05. ADMIN SIDEBAR
-========================================= */
+/* ==========================================================
+   06. ADMIN SIDEBAR
+========================================================== */
 
-html[data-account-theme="light"] .admin-sidebar,
-html[data-account-theme="light"] .sidebar {
-  background: var(--panel-bg);
-  color: var(--text);
-  border-color: var(--border);
+:root[data-account-theme="light"]
+:is(.sidebar, .admin-sidebar, .side-nav) {
+
+  background: var(--jcn-admin-card) !important;
+
+  color: var(--jcn-admin-text);
+
+  border-color: var(--jcn-admin-border);
+
 }
 
-html[data-account-theme="light"] .dashboard-menu {
+:root[data-account-theme="light"] .dashboard-menu {
+
   background: transparent;
+
 }
 
-html[data-account-theme="light"]
+:root[data-account-theme="light"]
 .dashboard-menu .list-group-item {
-  background: transparent;
-  color: var(--text);
-  border-color: var(--border);
+
+  background: transparent !important;
+
+  color: var(--jcn-admin-text) !important;
+
 }
 
-html[data-account-theme="light"]
+:root[data-account-theme="light"]
 .dashboard-menu .list-group-item:hover {
-  background: var(--theme-hover);
-  color: var(--gold);
+
+  background: var(--jcn-admin-gold-soft) !important;
+
+  color: var(--jcn-admin-gold-text) !important;
+
 }
 
-html[data-account-theme="light"]
+:root[data-account-theme="light"]
 .dashboard-menu .list-group-item.active-menu,
 
-html[data-account-theme="light"]
+:root[data-account-theme="light"]
 .dashboard-menu .list-group-item[aria-current="page"] {
-  background: var(--theme-active);
-  color: var(--gold);
+
+  background: var(--jcn-admin-active) !important;
+
+  color: var(--jcn-admin-gold-text) !important;
+
 }
 
-html[data-account-theme="light"] .sidebar a {
-  color: var(--text);
+:root[data-account-theme="light"] .sidebar a {
+
+  color: var(--jcn-admin-text-secondary);
+
 }
 
-html[data-account-theme="light"] .sidebar a:hover,
-html[data-account-theme="light"] .sidebar a.active {
-  background: var(--theme-active);
-  color: var(--gold);
-}
+:root[data-account-theme="light"] .sidebar a.active,
+:root[data-account-theme="light"] .sidebar a:hover {
 
+  background: var(--jcn-admin-active);
 
-/* =========================================
-   06. DASHBOARD CARDS AND PANELS
-========================================= */
+  color: var(--jcn-admin-gold-text);
 
-html[data-account-theme="light"] .dashboard-card,
-html[data-account-theme="light"] .stat-card,
-html[data-account-theme="light"] .summary-card,
-html[data-account-theme="light"] .report-card,
-html[data-account-theme="light"] .chart-card,
-html[data-account-theme="light"] .setting-panel,
-html[data-account-theme="light"] .account-card,
-html[data-account-theme="light"] .content-card,
-html[data-account-theme="light"] .table-card,
-html[data-account-theme="light"] .card {
-  background: var(--panel-bg);
-  color: var(--text);
-
-  border-color: var(--border);
-  box-shadow: var(--theme-shadow);
-}
-
-html[data-account-theme="light"] .card-header,
-html[data-account-theme="light"] .card-footer {
-  background: var(--panel-light);
-  color: var(--text);
-  border-color: var(--border);
 }
 
 
-/* =========================================
-   07. HEADINGS AND TEXT COLORS
-========================================= */
+/* ==========================================================
+   07. ADMIN CARDS AND PANELS
+========================================================== */
 
-html[data-account-theme="light"] h1,
-html[data-account-theme="light"] h2,
-html[data-account-theme="light"] h3,
-html[data-account-theme="light"] h4,
-html[data-account-theme="light"] h5,
-html[data-account-theme="light"] h6 {
-  color: var(--text);
+:root[data-account-theme="light"]
+:is(
+  .dashboard-card,
+  .stat-card,
+  .stats-card,
+  .summary-card,
+  .report-card,
+  .chart-card,
+  .setting-panel,
+  .account-card,
+  .content-card,
+  .table-card,
+  .announcement-card,
+  .customer-card,
+  .staff-card,
+  .card
+) {
+
+  background: var(--jcn-admin-card) !important;
+
+  background-image: none !important;
+
+  color: var(--jcn-admin-text);
+
+  border-color: var(--jcn-admin-border) !important;
+
+  box-shadow: var(--jcn-admin-shadow);
+
 }
 
-html[data-account-theme="light"] .text-light,
-html[data-account-theme="light"] .text-white {
-  color: var(--text) !important;
-}
+:root[data-account-theme="light"]
+:is(.card-header, .card-footer, .panel, .inner-panel) {
 
-html[data-account-theme="light"] .text-muted,
-html[data-account-theme="light"] .setting-help,
-html[data-account-theme="light"] .subtitle {
-  color: var(--muted) !important;
-}
+  background: var(--jcn-admin-surface);
 
-html[data-account-theme="light"] .text-gold {
-  color: var(--gold) !important;
-}
+  color: var(--jcn-admin-text);
 
-html[data-account-theme="light"] .border-gold {
-  border-color: var(--gold) !important;
+  border-color: var(--jcn-admin-border);
+
 }
 
 
-/* =========================================
-   08. FORM INPUTS
-========================================= */
+/* ==========================================================
+   08. TEXT COLORS
+========================================================== */
 
-html[data-account-theme="light"] input:not(
+:root[data-account-theme="light"]
+:is(h1, h2, h3, h4, h5, h6) {
+
+  color: var(--jcn-admin-text);
+
+}
+
+:root[data-account-theme="light"]
+:is(.text-light, .text-white) {
+
+  color: var(--jcn-admin-text) !important;
+
+}
+
+:root[data-account-theme="light"]
+:is(
+  .text-muted,
+  .muted,
+  .subtitle,
+  .setting-help,
+  .card-description,
+  .stat-label
+) {
+
+  color: var(--jcn-admin-muted) !important;
+
+}
+
+:root[data-account-theme="light"] .text-gold {
+
+  color: var(--jcn-admin-gold-text) !important;
+
+}
+
+:root[data-account-theme="light"] .border-gold {
+
+  border-color: var(--jcn-admin-border-gold) !important;
+
+}
+
+
+/* ==========================================================
+   09. FORM INPUTS
+========================================================== */
+
+:root[data-account-theme="light"]
+input:not(
   [type="checkbox"],
   [type="radio"],
   [type="range"],
   [type="color"],
-  [type="file"]
+  [type="file"],
+  [type="submit"],
+  [type="button"]
 ),
 
-html[data-account-theme="light"] select,
-html[data-account-theme="light"] textarea,
-html[data-account-theme="light"] .form-control,
-html[data-account-theme="light"] .form-select {
-  background: var(--input-bg);
-  color: var(--text);
-  border-color: #cccccc;
+:root[data-account-theme="light"] select,
+
+:root[data-account-theme="light"] textarea {
+
+  background: var(--jcn-admin-input);
+
+  color: var(--jcn-admin-text);
+
+  border-color: var(--jcn-admin-border);
+
 }
 
-html[data-account-theme="light"] label,
-html[data-account-theme="light"] .input-group-custom label {
-  color: var(--text);
+:root[data-account-theme="light"] label,
+
+:root[data-account-theme="light"]
+.input-group-custom label {
+
+  color: var(--jcn-admin-text-secondary);
+
 }
 
-html[data-account-theme="light"] input::placeholder,
-html[data-account-theme="light"] textarea::placeholder {
-  color: #888888;
+:root[data-account-theme="light"] input::placeholder,
+
+:root[data-account-theme="light"] textarea::placeholder {
+
+  color: var(--jcn-admin-muted);
+
 }
 
-html[data-account-theme="light"] input:focus,
-html[data-account-theme="light"] select:focus,
-html[data-account-theme="light"] textarea:focus {
-  color: var(--text);
-  border-color: var(--gold);
+:root[data-account-theme="light"] select option {
 
-  box-shadow: 0 0 0 3px rgba(146, 102, 0, 0.12);
+  background: var(--jcn-admin-card);
+
+  color: var(--jcn-admin-text);
+
 }
 
-html[data-account-theme="light"] select option {
-  background: #ffffff;
-  color: #202020;
-}
+:root[data-account-theme="light"]
+:is(
+  .form-control:disabled,
+  .form-select:disabled,
+  .input-group-custom input:disabled,
+  .input-group-custom textarea:disabled,
+  .input-group-custom select:disabled
+) {
 
-html[data-account-theme="light"] .form-control:disabled,
-html[data-account-theme="light"] .form-select:disabled,
+  background: var(--jcn-admin-bg-secondary);
 
-html[data-account-theme="light"]
-.input-group-custom input:disabled,
+  color: var(--jcn-admin-muted);
 
-html[data-account-theme="light"]
-.input-group-custom select:disabled {
-  background: #eeeeee;
-  color: #777777;
-  border-color: #dddddd;
-}
+  border-color: var(--jcn-admin-border);
 
-
-/* =========================================
-   09. SEARCH AND FILTER COMPONENTS
-========================================= */
-
-html[data-account-theme="light"] .search-box,
-html[data-account-theme="light"] .search-container,
-html[data-account-theme="light"] .filter-box,
-html[data-account-theme="light"] .filter-container,
-html[data-account-theme="light"] .input-group-text {
-  background: var(--input-bg);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-html[data-account-theme="light"] .search-box i,
-html[data-account-theme="light"] .search-container i {
-  color: var(--muted);
 }
 
 
-/* =========================================
-   10. TABLES
-========================================= */
+/* ==========================================================
+   10. SEARCH AND FILTERS
+========================================================== */
 
-html[data-account-theme="light"] .table {
-  --bs-table-color: #202020;
-  --bs-table-bg: #ffffff;
-  --bs-table-border-color: #dddddd;
+:root[data-account-theme="light"]
+:is(
+  .search-box,
+  .search-container,
+  .filter-box,
+  .filter-container,
+  .input-group-text
+) {
 
-  --bs-table-striped-color: #202020;
-  --bs-table-striped-bg: #f7f7f7;
+  background: var(--jcn-admin-card) !important;
 
-  --bs-table-hover-color: #202020;
-  --bs-table-hover-bg: #fff8e6;
+  color: var(--jcn-admin-text);
 
-  --bs-table-active-color: #202020;
-  --bs-table-active-bg: #fff0bf;
-}
+  border-color: var(--jcn-admin-border);
 
-html[data-account-theme="light"] table {
-  background: var(--panel-bg);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-html[data-account-theme="light"] thead,
-html[data-account-theme="light"] thead th {
-  background: #f0f0f0;
-  color: var(--text);
-}
-
-html[data-account-theme="light"] tbody td {
-  color: var(--text);
-  border-color: var(--border);
-}
-
-html[data-account-theme="light"] tbody tr:hover {
-  background: var(--theme-hover);
 }
 
 
-/* =========================================
-   11. BUTTONS
-========================================= */
+/* ==========================================================
+   11. ADMIN TABLES
+========================================================== */
 
-html[data-account-theme="light"] .btn-gold,
-html[data-account-theme="light"] .premium-logout-btn,
-html[data-account-theme="light"] .logout-confirm-btn {
+:root[data-account-theme="light"] .table {
+
+  --bs-table-bg: var(--jcn-admin-card);
+
+  --bs-table-color: var(--jcn-admin-text);
+
+  --bs-table-border-color:
+    var(--jcn-admin-border);
+
+  --bs-table-striped-bg:
+    var(--jcn-admin-bg-secondary);
+
+  --bs-table-striped-color:
+    var(--jcn-admin-text);
+
+  --bs-table-hover-bg:
+    var(--jcn-admin-surface-hover);
+
+  --bs-table-hover-color:
+    var(--jcn-admin-text);
+
+}
+
+:root[data-account-theme="light"] table {
+
+  background: var(--jcn-admin-card);
+
+  color: var(--jcn-admin-text);
+
+}
+
+:root[data-account-theme="light"] thead th {
+
+  background: var(--jcn-admin-bg-secondary) !important;
+
+  color: var(--jcn-admin-text) !important;
+
+  border-color: var(--jcn-admin-border);
+
+}
+
+:root[data-account-theme="light"] tbody td {
+
+  color: var(--jcn-admin-text);
+
+  border-color: var(--jcn-admin-border);
+
+}
+
+:root[data-account-theme="light"] tbody tr:hover {
+
+  background: var(--jcn-admin-surface-hover);
+
+}
+
+
+/* ==========================================================
+   12. GOLD BUTTONS
+========================================================== */
+
+:root[data-account-theme="light"]
+:is(
+  .btn-gold,
+  .premium-logout-btn,
+  .logout-confirm-btn
+) {
+
   background: var(--gold-gradient);
+
   color: #111111;
 
   border-color: transparent;
+
 }
 
-html[data-account-theme="light"] .btn-outline-warning {
-  --bs-btn-color: #926600;
-  --bs-btn-border-color: #926600;
+:root[data-account-theme="light"] .btn-outline-warning {
 
-  --bs-btn-hover-color: #795400;
-  --bs-btn-hover-bg: #fff0bf;
-  --bs-btn-hover-border-color: #926600;
+  --bs-btn-color: #936a12;
 
-  color: var(--gold);
-  border-color: var(--gold);
-}
+  --bs-btn-border-color: #c49a35;
 
-html[data-account-theme="light"] .btn-outline-warning:hover {
-  background: var(--theme-active);
-  color: var(--gold-dark);
-}
+  --bs-btn-hover-color: #936a12;
 
-html[data-account-theme="light"] .btn-secondary {
-  background: #e5e7eb;
-  color: #333333;
-  border-color: #dddddd;
+  --bs-btn-hover-bg: #fff3d4;
+
+  --bs-btn-hover-border-color: #c49a35;
+
+  color: var(--jcn-admin-gold-text);
+
+  border-color: var(--jcn-admin-gold);
+
 }
 
 
-/* =========================================
-   12. DROPDOWN MENUS
-========================================= */
+/* ==========================================================
+   13. DROPDOWN AND PAGINATION
+========================================================== */
 
-html[data-account-theme="light"] .dropdown-menu {
-  background: var(--panel-bg);
-  border-color: var(--border);
-  box-shadow: var(--theme-shadow);
+:root[data-account-theme="light"] .dropdown-menu,
+
+:root[data-account-theme="light"] .page-link {
+
+  background: var(--jcn-admin-card);
+
+  color: var(--jcn-admin-text);
+
+  border-color: var(--jcn-admin-border);
+
 }
 
-html[data-account-theme="light"] .dropdown-item {
-  color: var(--text);
+:root[data-account-theme="light"] .dropdown-item {
+
+  color: var(--jcn-admin-text);
+
 }
 
-html[data-account-theme="light"] .dropdown-item:hover {
-  background: var(--theme-hover);
-  color: var(--gold);
+:root[data-account-theme="light"] .dropdown-item:hover,
+
+:root[data-account-theme="light"] .page-link:hover {
+
+  background: var(--jcn-admin-surface-hover);
+
+  color: var(--jcn-admin-gold-text);
+
 }
 
-html[data-account-theme="light"] .dropdown-divider {
-  border-color: var(--border);
-}
+:root[data-account-theme="light"]
+.page-item.active .page-link {
 
+  background: var(--jcn-admin-active);
 
-/* =========================================
-   13. PAGINATION
-========================================= */
+  color: var(--jcn-admin-gold-text);
 
-html[data-account-theme="light"] .page-link {
-  background: var(--panel-bg);
-  color: var(--text);
-  border-color: var(--border);
-}
+  border-color: var(--jcn-admin-gold);
 
-html[data-account-theme="light"] .page-link:hover {
-  background: var(--theme-hover);
-  color: var(--gold);
-}
-
-html[data-account-theme="light"] .page-item.active .page-link {
-  background: var(--theme-active);
-  color: var(--gold);
-  border-color: var(--gold);
-}
-
-html[data-account-theme="light"] .page-item.disabled .page-link {
-  background: #eeeeee;
-  color: #999999;
 }
 
 
-/* =========================================
-   14. MODALS
-========================================= */
+/* ==========================================================
+   14. ADMIN MODALS
+========================================================== */
 
-html[data-account-theme="light"] .modal-content {
-  background: var(--panel-bg);
-  color: var(--text);
+:root[data-account-theme="light"]
+:is(.modal-content, .logout-modal) {
 
-  border-color: var(--border);
-  box-shadow: var(--theme-shadow);
+  background: var(--jcn-admin-card) !important;
+
+  background-image: none !important;
+
+  color: var(--jcn-admin-text);
+
+  border-color: var(--jcn-admin-border);
+
 }
 
-html[data-account-theme="light"] .modal-header,
-html[data-account-theme="light"] .modal-footer {
-  border-color: var(--border);
+:root[data-account-theme="light"]
+:is(.modal-header, .modal-footer) {
+
+  border-color: var(--jcn-admin-border);
+
 }
 
-html[data-account-theme="light"] .modal-title {
-  color: var(--text);
+:root[data-account-theme="light"] .logout-modal h3 {
+
+  color: var(--jcn-admin-text) !important;
+
 }
 
-html[data-account-theme="light"] .btn-close {
-  filter: none;
+:root[data-account-theme="light"] .logout-modal p {
+
+  color: var(--jcn-admin-muted) !important;
+
 }
 
+:root[data-account-theme="light"] .logout-cancel-btn {
 
-/* =========================================
-   15. LOGOUT MODAL
-========================================= */
-
-html[data-account-theme="light"] .logout-modal {
-  background: #ffffff;
-  color: var(--text);
-
-  border-color: #dddddd;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
-}
-
-html[data-account-theme="light"] .logout-modal h3 {
-  color: var(--text);
-}
-
-html[data-account-theme="light"] .logout-modal p {
-  color: var(--muted);
-}
-
-html[data-account-theme="light"] .logout-cancel-btn {
   background: transparent;
-  color: var(--gold);
-  border-color: var(--gold);
+
+  color: var(--jcn-admin-gold-text);
+
+  border-color: var(--jcn-admin-gold);
+
 }
 
-html[data-account-theme="light"] .logout-cancel-btn:hover {
-  background: var(--theme-hover);
-}
+:root[data-account-theme="light"] .logout-cancel-btn:hover {
 
+  background: var(--jcn-admin-active);
 
-/* =========================================
-   16. ADMIN ACCOUNT SETTINGS
-========================================= */
-
-html[data-account-theme="light"] .account-row {
-  color: var(--text);
-}
-
-html[data-account-theme="light"] .account-row:hover {
-  background: var(--theme-hover);
-}
-
-html[data-account-theme="light"] .account-avatar,
-html[data-account-theme="light"] .account-icon {
-  background: var(--theme-active);
-  color: var(--gold);
-}
-
-html[data-account-theme="light"] .account-notice,
-html[data-account-theme="light"] .setting-toggle,
-html[data-account-theme="light"] .theme-save-info {
-  background: var(--input-bg);
-  color: var(--muted);
-  border-color: var(--border);
-}
-
-html[data-account-theme="light"] .account-back {
-  color: var(--gold);
 }
 
 
-/* =========================================
-   17. APPEARANCE OPTIONS
-========================================= */
+/* ==========================================================
+   15. ADMIN ACCOUNT SETTINGS
+========================================================== */
 
-html[data-account-theme="light"] .theme-option {
-  background: var(--panel-bg);
-  color: var(--text);
-  border-color: var(--border);
+:root[data-account-theme="light"] .account-row {
+
+  color: var(--jcn-admin-text);
+
 }
 
-html[data-account-theme="light"] .theme-option.active {
-  background: #fffaf0;
-  border-color: var(--gold);
+:root[data-account-theme="light"] .account-row:hover {
+
+  background: var(--jcn-admin-gold-soft);
+
 }
 
-html[data-account-theme="light"] .theme-option:hover {
-  border-color: var(--gold);
+:root[data-account-theme="light"]
+:is(.account-avatar, .account-icon) {
+
+  background: var(--jcn-admin-active);
+
+  color: var(--jcn-admin-gold-text);
+
 }
 
-html[data-account-theme="light"]
+:root[data-account-theme="light"]
+:is(
+  .account-notice,
+  .setting-toggle,
+  .theme-save-info
+) {
+
+  background: var(--jcn-admin-bg-secondary);
+
+  color: var(--jcn-admin-muted);
+
+  border-color: var(--jcn-admin-border);
+
+}
+
+:root[data-account-theme="light"] .account-back {
+
+  color: var(--jcn-admin-gold-text);
+
+}
+
+
+/* ==========================================================
+   16. APPEARANCE PREFERENCE BUTTONS
+========================================================== */
+
+.theme-options {
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+}
+
+.theme-option {
+
+  background: var(--jcn-admin-card);
+
+  color: var(--jcn-admin-text);
+
+  border: 2px solid var(--jcn-admin-border);
+
+  border-radius: 14px;
+
+  cursor: pointer;
+
+}
+
+.theme-option:hover {
+
+  border-color: var(--jcn-admin-gold);
+
+}
+
+.theme-option.active,
+
+.theme-option[aria-pressed="true"] {
+
+  background: var(--jcn-admin-gold-soft);
+
+  border-color: var(--jcn-admin-gold);
+
+}
+
+.theme-option strong {
+
+  color: var(--jcn-admin-text);
+
+}
+
+.theme-option small {
+
+  color: var(--jcn-admin-muted);
+
+}
+
+.theme-option-header i {
+
+  color: var(--jcn-admin-gold-text);
+
+}
+
+.theme-option.active .theme-indicator {
+
+  background: var(--jcn-admin-gold);
+
+  border-color: var(--jcn-admin-gold);
+
+}
+
 .theme-option.active .theme-indicator::after {
-  color: #ffffff;
+
+  content: "✓";
+
+  color: #111111;
+
+  font-weight: 800;
+
 }
 
 
-/* =========================================
-   18. STATUS AND MESSAGES
-========================================= */
+/* ==========================================================
+   17. OPTIONAL CUSTOMER-STYLE SLIDING SWITCH
+========================================================== */
 
-html[data-account-theme="light"] .settings-status.success,
-html[data-account-theme="light"] .settings-message.success {
-  background: #ecfdf3;
-  color: var(--success);
-  border-color: #a7e5bc;
+.jcn-admin-theme-switch-wrap {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
 }
 
-html[data-account-theme="light"] .settings-status.error,
-html[data-account-theme="light"] .settings-message.error {
-  background: #fff1f1;
-  color: var(--danger);
-  border-color: #f5b5b5;
+.jcn-admin-theme-switch-wrap > i {
+
+  color: var(--jcn-admin-muted);
+
+  font-size: 24px;
+
 }
 
-html[data-account-theme="light"] .settings-message.info {
-  background: var(--theme-hover);
-  color: var(--gold);
-  border-color: var(--border);
+.jcn-admin-theme-switch {
+
+  position: relative;
+
+  display: inline-block;
+
+  width: 94px;
+
+  min-width: 94px;
+
+  height: 44px;
+
+  padding: 4px;
+
+  border: 1px solid #50586a;
+
+  border-radius: 999px;
+
+  background: #343b4f;
+
+  cursor: pointer;
+
+  appearance: none;
+
 }
 
+.jcn-admin-theme-thumb {
 
-/* =========================================
-   19. SWEETALERT POPUPS
-========================================= */
+  position: absolute;
 
-html[data-account-theme="light"] .swal2-popup,
-html[data-account-theme="light"] .jcn-popup {
-  background: #ffffff !important;
-  color: #202020 !important;
-  border-color: #dddddd;
-}
+  top: 4px;
 
-html[data-account-theme="light"] .swal2-title,
-html[data-account-theme="light"] .jcn-title {
-  color: #202020 !important;
-}
+  left: 4px;
 
-html[data-account-theme="light"] .swal2-html-container {
-  color: #626262 !important;
-}
+  width: 34px;
 
-html[data-account-theme="light"] .swal2-input,
-html[data-account-theme="light"] .swal2-textarea {
-  background: var(--input-bg);
-  color: var(--text);
-  border-color: var(--border);
-}
+  height: 34px;
 
+  border-radius: 50%;
 
-/* =========================================
-   20. SCROLLBAR
-========================================= */
+  background: #a6b0c7;
 
-html[data-account-theme="light"] {
-  scrollbar-color: #c5c5c5 #f3f4f6;
-}
+  transform: translateX(50px);
 
-html[data-account-theme="dark"] {
-  scrollbar-color: #514426 #111111;
-}
-
-
-/* =========================================
-   21. SMOOTH THEME TRANSITION
-========================================= */
-
-body,
-.dashboard-nav,
-.dashboard-card,
-.dashboard-menu .list-group-item,
-.stat-card,
-.summary-card,
-.account-row,
-.modal-content,
-.logout-modal,
-input,
-select,
-textarea {
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.25s ease,
+    background-color 0.25s ease;
+
+  pointer-events: none;
+
+}
+
+:root[data-account-theme="dark"]
+.jcn-admin-theme-switch-wrap .fa-moon {
+
+  color: #f4c542;
+
+}
+
+:root[data-account-theme="light"]
+.jcn-admin-theme-switch {
+
+  background: #d9dee7;
+
+  border-color: #aeb5c2;
+
+}
+
+:root[data-account-theme="light"]
+.jcn-admin-theme-thumb {
+
+  background: #ffffff;
+
+  transform: translateX(0);
+
+}
+
+:root[data-account-theme="light"]
+.jcn-admin-theme-switch-wrap .fa-sun {
+
+  color: #c49a35;
+
+}
+
+.jcn-admin-theme-switch:focus-visible {
+
+  outline: 2px solid var(--jcn-admin-gold);
+
+  outline-offset: 3px;
+
 }
 
 
-/* =========================================
-   22. REDUCED MOTION
-========================================= */
+/* ==========================================================
+   18. SWEETALERT POPUPS
+========================================================== */
+
+:root[data-account-theme="light"]
+:is(.swal2-popup, .jcn-popup) {
+
+  background: var(--jcn-admin-card) !important;
+
+  color: var(--jcn-admin-text) !important;
+
+  border-color: var(--jcn-admin-border);
+
+}
+
+:root[data-account-theme="light"]
+:is(.swal2-title, .jcn-title) {
+
+  color: var(--jcn-admin-text) !important;
+
+}
+
+:root[data-account-theme="light"]
+.swal2-html-container {
+
+  color: var(--jcn-admin-muted) !important;
+
+}
+
+
+/* ==========================================================
+   19. STATUS MESSAGES
+========================================================== */
+
+.settings-message.success {
+
+  color: var(--jcn-admin-success);
+
+}
+
+.settings-message.error {
+
+  color: var(--jcn-admin-danger);
+
+}
+
+:root[data-account-theme="light"]
+.settings-message.success {
+
+  background: #ecfdf3;
+
+  border-color: #a7e5bc;
+
+}
+
+:root[data-account-theme="light"]
+.settings-message.error {
+
+  background: #fff1f1;
+
+  border-color: #f5b5b5;
+
+}
+
+
+/* ==========================================================
+   20. RESPONSIVE DESIGN
+========================================================== */
+
+@media (max-width: 576px) {
+
+  .theme-options {
+
+    gap: 10px;
+
+  }
+
+  .theme-option {
+
+    padding: 12px;
+
+  }
+
+  .jcn-admin-theme-switch-wrap {
+
+    gap: 10px;
+
+  }
+
+}
+
+@media (max-width: 350px) {
+
+  .theme-options {
+
+    grid-template-columns: 1fr;
+
+  }
+
+}
+
+
+/* ==========================================================
+   21. ACCESSIBILITY
+========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
 
   body,
-  .dashboard-nav,
-  .dashboard-card,
-  .dashboard-menu .list-group-item,
-  .stat-card,
-  .summary-card,
-  .account-row,
-  .modal-content,
-  .logout-modal,
+  header,
+  nav,
+  main,
+  aside,
+  section,
+  button,
   input,
   select,
-  textarea {
+  textarea,
+  .jcn-admin-theme-thumb {
+
     transition: none !important;
+
   }
 
 }

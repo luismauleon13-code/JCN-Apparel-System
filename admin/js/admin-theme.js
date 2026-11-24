@@ -1,274 +1,275 @@
-/* =========================================
-   JCN GLOBAL ADMIN THEME CONTROLLER
-========================================= */
+/* ==========================================================
+   JCN APPAREL PRINTING SERVICES
+   ADMIN DARK / LIGHT THEME
+
+   Theme selection is available ONLY in Admin Preferences.
+   Saved preference applies to every connected Admin page.
+========================================================== */
 
 (() => {
 
-  /* =========================================
+  /* ==========================================================
      01. THEME CONFIGURATION
-  ========================================= */
+  ========================================================== */
 
-  const THEME_KEY = "jcnAdminAccountTheme";
+  const JCN_ADMIN_THEME_KEY = "jcnAdminAccountTheme";
+  const JCN_ADMIN_DEFAULT_THEME = "dark";
 
-  const DEFAULT_THEME = "dark";
-
-  const VALID_THEMES = [
-    "dark",
-    "light"
-  ];
+  let jcnAdminCurrentTheme = JCN_ADMIN_DEFAULT_THEME;
+  let jcnAdminThemeEventsInitialized = false;
 
 
-  /* =========================================
+  /* ==========================================================
      02. VALIDATE THEME
-  ========================================= */
+  ========================================================== */
 
-  function normalizeTheme(value) {
+  function jcnAdminValidateTheme(theme) {
 
-    return VALID_THEMES.includes(value)
-      ? value
-      : DEFAULT_THEME;
+    return theme === "light" || theme === "dark"
+      ? theme
+      : JCN_ADMIN_DEFAULT_THEME;
 
   }
 
 
-  /* =========================================
+  /* ==========================================================
      03. GET SAVED THEME
-  ========================================= */
+  ========================================================== */
 
-  function getTheme() {
+  function jcnAdminGetSavedTheme() {
 
     try {
 
-      const savedTheme =
-        localStorage.getItem(THEME_KEY);
-
-      return normalizeTheme(savedTheme);
+      return jcnAdminValidateTheme(
+        localStorage.getItem(JCN_ADMIN_THEME_KEY)
+      );
 
     } catch (error) {
 
-      console.error(
-        "Unable to retrieve admin theme:",
+      console.warn(
+        "JCN Admin theme preference unavailable:",
         error
       );
 
-      return DEFAULT_THEME;
+      return JCN_ADMIN_DEFAULT_THEME;
 
     }
 
   }
 
 
-  /* =========================================
-     04. UPDATE THEME CONTROLS
-  ========================================= */
+  /* ==========================================================
+     04. SAVE THEME PREFERENCE
+  ========================================================== */
 
-  function updateThemeControls(theme) {
+  function jcnAdminSaveTheme(theme) {
 
-    /* UPDATE THEME SELECT */
+    localStorage.setItem(
+      JCN_ADMIN_THEME_KEY,
+      jcnAdminValidateTheme(theme)
+    );
+
+  }
+
+
+  /* ==========================================================
+     05. UPDATE THEME CONTROLS
+  ========================================================== */
+
+  function jcnAdminUpdateThemeControls() {
+
+    const isLight =
+      jcnAdminCurrentTheme === "light";
+
+
+    /* EXISTING ADMIN PREFERENCES BUTTONS */
+
+    document.querySelectorAll(
+      "[data-theme-value]"
+    ).forEach(button => {
+
+      const selected =
+        button.dataset.themeValue === jcnAdminCurrentTheme;
+
+      button.classList.toggle(
+        "active",
+        selected
+      );
+
+      button.setAttribute(
+        "aria-pressed",
+        String(selected)
+      );
+
+    });
+
+
+    /* OPTIONAL ADMIN THEME CHOICE BUTTONS */
+
+    document.querySelectorAll(
+      "[data-jcn-admin-theme-choice]"
+    ).forEach(button => {
+
+      const selected =
+        button.dataset.jcnAdminThemeChoice ===
+        jcnAdminCurrentTheme;
+
+      button.classList.toggle(
+        "active",
+        selected
+      );
+
+      button.setAttribute(
+        "aria-pressed",
+        String(selected)
+      );
+
+    });
+
+
+    /* OPTIONAL SLIDING SWITCH */
+
+    document.querySelectorAll(
+      ".jcn-admin-theme-switch"
+    ).forEach(button => {
+
+      button.setAttribute(
+        "role",
+        "switch"
+      );
+
+      button.setAttribute(
+        "aria-checked",
+        String(isLight)
+      );
+
+      button.setAttribute(
+        "aria-label",
+        isLight
+          ? "Switch to Dark Mode"
+          : "Switch to Light Mode"
+      );
+
+      button.title = isLight
+        ? "Switch to Dark Mode"
+        : "Switch to Light Mode";
+
+    });
+
+
+    /* CURRENT THEME LABEL */
+
+    document.querySelectorAll(
+      "[data-jcn-admin-current-theme]"
+    ).forEach(element => {
+
+      element.textContent = isLight
+        ? "Light Mode"
+        : "Dark Mode";
+
+    });
+
+
+    /* EXISTING HIDDEN THEME SELECT */
 
     const themeSelect =
       document.getElementById("accountTheme");
 
     if (themeSelect) {
 
-      themeSelect.value = theme;
+      themeSelect.value =
+        jcnAdminCurrentTheme;
 
     }
-
-
-    /* UPDATE THEME BUTTONS */
-
-    const themeButtons =
-      document.querySelectorAll(
-        ".theme-option[data-theme-value]"
-      );
-
-    themeButtons.forEach(button => {
-
-      const isActive =
-        button.dataset.themeValue === theme;
-
-      button.classList.toggle(
-        "active",
-        isActive
-      );
-
-      button.setAttribute(
-        "aria-pressed",
-        String(isActive)
-      );
-
-    });
 
   }
 
 
-  /* =========================================
-     05. APPLY THEME
-  ========================================= */
+  /* ==========================================================
+     06. APPLY GLOBAL ADMIN THEME
+  ========================================================== */
 
-  function applyTheme(value) {
+  function jcnAdminSetTheme(theme, save = true) {
 
-    const theme = normalizeTheme(value);
+    const validTheme =
+      jcnAdminValidateTheme(theme);
+
+    const changed =
+      validTheme !== jcnAdminCurrentTheme;
+
+
+    /* SAVE BEFORE APPLYING */
+
+    if (save) {
+
+      jcnAdminSaveTheme(validTheme);
+
+    }
+
+
+    /* UPDATE CURRENT THEME */
+
+    jcnAdminCurrentTheme = validTheme;
 
     const root = document.documentElement;
 
 
-    /* GLOBAL JCN THEME ATTRIBUTE */
+    /* CUSTOMER-STYLE THEME ATTRIBUTE */
+
+    root.setAttribute(
+      "data-theme",
+      validTheme
+    );
+
+
+    /* EXISTING ADMIN CSS COMPATIBILITY */
 
     root.setAttribute(
       "data-account-theme",
-      theme
+      validTheme
     );
 
 
-    /* BOOTSTRAP 5.3 THEME SUPPORT */
+    /* BOOTSTRAP THEME SUPPORT */
 
     root.setAttribute(
       "data-bs-theme",
-      theme
+      validTheme
     );
 
 
-    /* UPDATE SETTINGS CONTROLS */
+    /* BROWSER COLOR SCHEME */
 
-    updateThemeControls(theme);
-
-
-    /* RETURN ACTIVE THEME */
-
-    return theme;
-
-  }
+    root.style.colorScheme = validTheme;
 
 
-  /* =========================================
-     06. SAVE AND APPLY THEME
-  ========================================= */
+    /* UPDATE THEME BUTTONS */
 
-  function setTheme(value) {
+    jcnAdminUpdateThemeControls();
 
-    const theme = normalizeTheme(value);
 
-    try {
+    /* NOTIFY OTHER ADMIN COMPONENTS */
 
-      localStorage.setItem(
-        THEME_KEY,
-        theme
+    if (changed) {
+
+      document.dispatchEvent(
+
+        new CustomEvent("jcn:admin-themechange", {
+
+          detail: {
+            theme: validTheme
+          }
+
+        })
+
       );
-
-    } catch (error) {
-
-      console.error(
-        "Unable to save admin theme:",
-        error
-      );
-
-      throw error;
-
-    }
-
-
-    /* APPLY SELECTED THEME */
-
-    applyTheme(theme);
-
-
-    /* DISPATCH GLOBAL THEME EVENT */
-
-    window.dispatchEvent(
-
-      new CustomEvent("jcn:admin-theme-changed", {
-
-        detail: {
-          theme: theme
-        }
-
-      })
-
-    );
-
-    return theme;
-
-  }
-
-
-  /* =========================================
-     07. TOGGLE THEME
-  ========================================= */
-
-  function toggleTheme() {
-
-    const currentTheme = getTheme();
-
-    const nextTheme =
-      currentTheme === "dark"
-        ? "light"
-        : "dark";
-
-    return setTheme(nextTheme);
-
-  }
-
-
-  /* =========================================
-     08. RESET DEFAULT THEME
-  ========================================= */
-
-  function resetTheme() {
-
-    return setTheme(DEFAULT_THEME);
-
-  }
-
-
-  /* =========================================
-     09. GLOBAL THEME ACCESS
-  ========================================= */
-
-  window.JCNAdminTheme = {
-
-    getTheme,
-
-    applyTheme,
-
-    setTheme,
-
-    toggleTheme,
-
-    resetTheme
-
-  };
-
-
-  /* =========================================
-     10. APPLY THEME BEFORE PAGE RENDER
-  ========================================= */
-
-  applyTheme(getTheme());
-
-
-  /* =========================================
-     11. SYNCHRONIZE MULTIPLE BROWSER TABS
-  ========================================= */
-
-  window.addEventListener("storage", event => {
-
-    if (
-
-      event.key === THEME_KEY ||
-      event.key === null
-
-    ) {
-
-      const theme = applyTheme(getTheme());
 
       window.dispatchEvent(
 
         new CustomEvent("jcn:admin-theme-changed", {
 
           detail: {
-            theme: theme
+            theme: validTheme
           }
 
         })
@@ -277,36 +278,331 @@
 
     }
 
-  });
-
-
-  /* =========================================
-     12. RESTORE THEME ON PAGE NAVIGATION
-  ========================================= */
-
-  window.addEventListener("pageshow", () => {
-
-    applyTheme(getTheme());
-
-  });
-
-
-  /* =========================================
-     13. INITIALIZE GLOBAL THEME
-  ========================================= */
-
-  function initTheme() {
-
-    const savedTheme = getTheme();
-
-    applyTheme(savedTheme);
+    return validTheme;
 
   }
 
 
-  /* =========================================
-     14. DOM READY
-  ========================================= */
+  /* ==========================================================
+     07. TOGGLE THEME
+  ========================================================== */
+
+  function jcnAdminToggleTheme() {
+
+    const nextTheme =
+      jcnAdminCurrentTheme === "dark"
+        ? "light"
+        : "dark";
+
+    return jcnAdminSetTheme(nextTheme);
+
+  }
+
+
+  /* ==========================================================
+     08. GET CURRENT THEME
+  ========================================================== */
+
+  function jcnAdminGetTheme() {
+
+    return jcnAdminCurrentTheme;
+
+  }
+
+
+  /* ==========================================================
+     09. THEME PREFERENCE MESSAGE
+  ========================================================== */
+
+  function jcnAdminShowThemeMessage(
+    message,
+    type = "success"
+  ) {
+
+    const messageBox =
+      document.getElementById("settingsMessage");
+
+    if (!messageBox) return;
+
+    messageBox.textContent = message;
+
+    messageBox.className =
+      `settings-message ${type}`;
+
+  }
+
+
+  /* ==========================================================
+     10. CHANGE THEME FROM PREFERENCES
+  ========================================================== */
+
+  function jcnAdminChangeTheme(theme) {
+
+    if (theme !== "dark" && theme !== "light") {
+      return;
+    }
+
+    try {
+
+      const activeTheme =
+        jcnAdminSetTheme(theme);
+
+      jcnAdminShowThemeMessage(
+
+        `${activeTheme === "light"
+          ? "Light"
+          : "Dark"} mode activated.`
+
+      );
+
+    } catch (error) {
+
+      jcnAdminSetTheme(
+        jcnAdminCurrentTheme,
+        false
+      );
+
+      jcnAdminShowThemeMessage(
+        "Unable to save theme preference.",
+        "error"
+      );
+
+      console.error(
+        "JCN Admin theme error:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     11. LOAD INITIAL THEME
+
+     Applies immediately when loaded inside <head>.
+  ========================================================== */
+
+  function jcnAdminLoadInitialTheme() {
+
+    const savedTheme =
+      jcnAdminGetSavedTheme();
+
+    jcnAdminSetTheme(
+      savedTheme,
+      false
+    );
+
+  }
+
+  jcnAdminLoadInitialTheme();
+
+
+  /* ==========================================================
+     12. INITIALIZE THEME BUTTON EVENTS
+
+     Similar to Customer Theme:
+     - Delegated event listeners
+     - No automatic toggle creation
+     - Supports dynamically inserted theme buttons
+  ========================================================== */
+
+  function jcnAdminInitializeThemeButtons() {
+
+    if (jcnAdminThemeEventsInitialized) {
+      return;
+    }
+
+    jcnAdminThemeEventsInitialized = true;
+
+
+    /* GLOBAL CLICK EVENT */
+
+    document.addEventListener("click", event => {
+
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+
+      /* EXISTING ADMIN THEME CARDS */
+
+      const themeChoice = event.target.closest(
+        "#panel-preferences [data-theme-value]"
+      );
+
+      if (themeChoice) {
+
+        jcnAdminChangeTheme(
+          themeChoice.dataset.themeValue
+        );
+
+        return;
+
+      }
+
+
+      /* OPTIONAL THEME CHOICE */
+
+      const choice = event.target.closest(
+        "[data-jcn-admin-theme-choice]"
+      );
+
+      if (choice) {
+
+        jcnAdminChangeTheme(
+          choice.dataset.jcnAdminThemeChoice
+        );
+
+        return;
+
+      }
+
+
+      /* OPTIONAL SLIDING SWITCH */
+
+      const toggle = event.target.closest(
+        "[data-jcn-admin-theme-toggle]"
+      );
+
+      if (toggle) {
+
+        jcnAdminChangeTheme(
+
+          jcnAdminCurrentTheme === "dark"
+            ? "light"
+            : "dark"
+
+        );
+
+      }
+
+    });
+
+
+    /* DROPDOWN COMPATIBILITY */
+
+    document.addEventListener("change", event => {
+
+      if (
+        event.target instanceof Element &&
+        event.target.id === "accountTheme"
+      ) {
+
+        jcnAdminChangeTheme(
+          event.target.value
+        );
+
+      }
+
+    });
+
+
+    /* UPDATE INITIAL BUTTON INDICATORS */
+
+    jcnAdminUpdateThemeControls();
+
+    console.log(
+      "[JCN Admin Theme] Initialized:",
+      jcnAdminCurrentTheme
+    );
+
+  }
+
+
+  /* ==========================================================
+     13. SYNCHRONIZE MULTIPLE BROWSER TABS
+  ========================================================== */
+
+  window.addEventListener("storage", event => {
+
+    if (
+
+      event.storageArea === localStorage &&
+
+      (
+        event.key === JCN_ADMIN_THEME_KEY ||
+        event.key === null
+      )
+
+    ) {
+
+      jcnAdminSetTheme(
+
+        jcnAdminGetSavedTheme(),
+
+        false
+
+      );
+
+    }
+
+  });
+
+
+  /* ==========================================================
+     14. RESTORE THEME ON PAGE NAVIGATION
+  ========================================================== */
+
+  window.addEventListener("pageshow", () => {
+
+    jcnAdminSetTheme(
+
+      jcnAdminGetSavedTheme(),
+
+      false
+
+    );
+
+  });
+
+
+  /* ==========================================================
+     15. GLOBAL ADMIN THEME ACCESS
+  ========================================================== */
+
+  window.JCNAdminTheme = {
+
+    set: jcnAdminSetTheme,
+
+    toggle: jcnAdminToggleTheme,
+
+    get: jcnAdminGetTheme,
+
+    refresh: jcnAdminUpdateThemeControls,
+
+
+    /* BACKWARD COMPATIBILITY */
+
+    setTheme: jcnAdminSetTheme,
+
+    getTheme: jcnAdminGetTheme,
+
+    applyTheme: theme => {
+
+      return jcnAdminSetTheme(
+        theme,
+        false
+      );
+
+    },
+
+    toggleTheme: jcnAdminToggleTheme,
+
+    resetTheme: () => {
+
+      return jcnAdminSetTheme(
+        JCN_ADMIN_DEFAULT_THEME
+      );
+
+    }
+
+  };
+
+
+  /* ==========================================================
+     16. DOM READY
+  ========================================================== */
 
   if (document.readyState === "loading") {
 
@@ -314,17 +610,15 @@
 
       "DOMContentLoaded",
 
-      initTheme,
+      jcnAdminInitializeThemeButtons,
 
-      {
-        once: true
-      }
+      { once: true }
 
     );
 
   } else {
 
-    initTheme();
+    jcnAdminInitializeThemeButtons();
 
   }
 
