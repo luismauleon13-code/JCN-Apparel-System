@@ -2124,10 +2124,18 @@ app.post("/api/orders", async (req, res) => {
       customer_name,
       customer_email,
       customer_phone,
+      shipping_address,
       total_amount,
       payment_method,
       items
     } = req.body;
+
+    if (typeof shipping_address !== "string" || !shipping_address.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Shipping address is required."
+      });
+    }
 
     if (
       !Array.isArray(items) ||
@@ -2151,6 +2159,7 @@ app.post("/api/orders", async (req, res) => {
           customer_name,
           customer_email,
           customer_phone,
+          shipping_address: shipping_address.trim(),
           total_amount,
           payment_method,
           items
