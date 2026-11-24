@@ -1,11 +1,13 @@
 /* ==========================================================
    JCN APPAREL PRINTING SERVICES
-   MANAGE STAFF
-   GLOBAL DARK AND LIGHT MODE COMPATIBLE
+   ADMIN - MANAGE STAFF
+   GLOBAL DARK AND LIGHT MODE
+   UNIFIED CENTERED LOGOUT MODAL
 ========================================================== */
 
+
 /* ==========================================================
-   01. DEFAULT DARK THEME
+   01. DARK MODE VARIABLES
 ========================================================== */
 
 :root {
@@ -71,11 +73,24 @@
 
   --ms-gold-gradient:
     linear-gradient(135deg, #f4c542, #d4a72c);
+
+  /* LOGOUT THEME */
+
+  --ms-logout-bg: #161616;
+  --ms-logout-text: #ffffff;
+  --ms-logout-muted: #b8b8b8;
+
+  --ms-logout-border: rgba(244, 197, 66, 0.28);
+
+  --ms-logout-cancel: #f4c542;
+  --ms-logout-hover: rgba(244, 197, 66, 0.12);
+
+  --ms-logout-overlay: rgba(0, 0, 0, 0.76);
 }
 
 
 /* ==========================================================
-   02. LIGHT THEME
+   02. LIGHT MODE VARIABLES
 ========================================================== */
 
 :root[data-account-theme="light"] {
@@ -128,6 +143,17 @@
     0 20px 60px rgba(15, 23, 42, 0.18);
 
   --ms-backdrop: rgba(15, 23, 42, 0.48);
+
+  /* LIGHT MODE LOGOUT */
+
+  --ms-logout-bg: #ffffff;
+  --ms-logout-text: #20242b;
+  --ms-logout-muted: #626b78;
+
+  --ms-logout-border: #dce0e6;
+
+  --ms-logout-cancel: #936a12;
+  --ms-logout-hover: #fff3d4;
 }
 
 
@@ -169,10 +195,11 @@ button {
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
+.hidden,
 [hidden] {
   display: none !important;
 }
@@ -182,17 +209,18 @@ button:disabled {
   outline-offset: 3px;
 }
 
-.staff-wrapper {
-  width: 100%;
-  max-width: 1400px;
-}
-
 .text-gold {
   color: var(--ms-gold-text) !important;
 }
 
+.text-muted,
 .muted {
-  color: var(--ms-muted);
+  color: var(--ms-muted) !important;
+}
+
+.staff-wrapper {
+  width: 100%;
+  max-width: 1400px;
 }
 
 
@@ -208,6 +236,7 @@ button:disabled {
 .dashboard-nav,
 .dashboard-card {
   background: var(--ms-card-bg);
+  color: var(--ms-text);
 
   border: 1px solid var(--ms-border);
   border-radius: 16px;
@@ -217,11 +246,12 @@ button:disabled {
 
 
 /* ==========================================================
-   05. ADMIN NAVIGATION
+   05. ADMIN TOP NAVIGATION
 ========================================================== */
 
 .dashboard-nav {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -245,14 +275,19 @@ button:disabled {
   text-decoration: none;
 }
 
+.dashboard-nav .brand:hover {
+  color: var(--ms-text);
+}
+
 .dashboard-nav .brand i {
   color: var(--ms-gold-text);
 }
 
 .dashboard-nav .top-menu {
   display: flex;
-  flex-wrap: wrap;
+
   align-items: center;
+  flex-wrap: wrap;
 
   gap: 26px;
 }
@@ -274,7 +309,9 @@ button:disabled {
 }
 
 
-/* OLD STAFF NAVBAR COMPATIBILITY */
+/* ==========================================================
+   06. OLD STAFF NAVBAR COMPATIBILITY
+========================================================== */
 
 .staff-navbar {
   background: var(--ms-card-bg);
@@ -319,6 +356,7 @@ button:disabled {
   height: 2px;
 
   border-radius: 20px;
+
   background: var(--ms-gold);
 }
 
@@ -332,11 +370,12 @@ button:disabled {
 
 
 /* ==========================================================
-   06. GENERAL BUTTONS
+   07. GENERAL BUTTONS
 ========================================================== */
 
 .btn {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
@@ -359,6 +398,7 @@ button:disabled {
 .btn-gold,
 .dashboard-nav .btn-gold {
   background: var(--ms-gold-gradient);
+
   color: #16120a;
 
   border: none;
@@ -369,16 +409,18 @@ button:disabled {
 .btn-gold:hover,
 .dashboard-nav .btn-gold:hover {
   background: var(--ms-gold-hover);
+
   color: #16120a;
 }
 
 
 /* ==========================================================
-   07. MAIN PAGE HEADING
+   08. MAIN PAGE HEADING
 ========================================================== */
 
 .dashboard-wrapper .page-heading {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -424,20 +466,20 @@ button:disabled {
 
 .dashboard-wrapper .admin-badge {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  gap: 6px;
   flex-shrink: 0;
 
+  gap: 6px;
   padding: 5px 10px;
 
   background: var(--ms-icon-bg);
+  color: var(--ms-gold-text);
 
   border: 1px solid var(--ms-icon-border);
   border-radius: 20px;
-
-  color: var(--ms-gold-text);
 
   font-size: 11px;
   font-weight: 700;
@@ -447,7 +489,7 @@ button:disabled {
 
 
 /* ==========================================================
-   08. ADMIN MAIN LAYOUT
+   09. DASHBOARD MAIN LAYOUT
 ========================================================== */
 
 .dashboard-layout {
@@ -461,7 +503,7 @@ button:disabled {
 
 
 /* ==========================================================
-   09. ADMIN SIDEBAR
+   10. ADMIN SIDEBAR
 ========================================================== */
 
 .dashboard-layout .sidebar {
@@ -482,6 +524,7 @@ button:disabled {
 
 .dashboard-layout .sidebar h2 {
   display: flex;
+
   align-items: center;
 
   gap: 10px;
@@ -528,17 +571,20 @@ button:disabled {
 
 .dashboard-menu a:hover {
   background: var(--ms-hover);
+
   color: var(--ms-gold-text);
 }
 
-.dashboard-menu a.active {
+.dashboard-menu a.active,
+.dashboard-menu a.active-menu {
   background: var(--ms-active);
+
   color: var(--ms-gold-text);
 }
 
 
 /* ==========================================================
-   10. STAFF DIRECTORY HEADER
+   11. STAFF DIRECTORY HEADER
 ========================================================== */
 
 .staff-main {
@@ -563,6 +609,7 @@ button:disabled {
 
 .staff-main .page-header .row {
   width: auto;
+
   margin-left: 0;
   margin-right: 0;
 }
@@ -607,18 +654,20 @@ button:disabled {
 
 .staff-main .page-header .col-lg-4 {
   display: flex;
+
   align-items: center;
   justify-content: flex-end;
 }
 
 
 /* ==========================================================
-   11. ADD STAFF BUTTON
+   12. ADD STAFF BUTTON
 ========================================================== */
 
 .btn-add-staff,
 .staff-main .btn-add-staff {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
@@ -629,11 +678,12 @@ button:disabled {
 
   padding: 11px 18px;
 
-  border: 0;
-  border-radius: 10px;
-
   background: var(--ms-gold-gradient);
+
   color: #171717;
+
+  border: none;
+  border-radius: 10px;
 
   font-size: 13px;
   font-weight: 800;
@@ -662,11 +712,12 @@ button:disabled {
 
 
 /* ==========================================================
-   12. STAFF SUMMARY CARDS
+   13. STAFF SUMMARY CARDS
 ========================================================== */
 
 .summary-card {
   display: flex;
+
   align-items: center;
 
   min-height: 100px;
@@ -694,6 +745,7 @@ button:disabled {
 
 .summary-icon {
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -724,19 +776,20 @@ button:disabled {
 .summary-card h3 {
   margin: 0;
 
-  color: var(--ms-text);
+  color: var(--ms-gold-text);
 
   font-size: 23px;
   font-weight: 800;
 }
 
-:root[data-account-theme="dark"] .summary-card h3 {
-  color: var(--ms-gold);
+:root[data-account-theme="light"]
+.summary-card h3 {
+  color: var(--ms-text);
 }
 
 
 /* ==========================================================
-   13. STAFF ACCOUNTS PANEL
+   14. STAFF ACCOUNTS PANEL
 ========================================================== */
 
 .staff-panel {
@@ -752,6 +805,7 @@ button:disabled {
 
 .staff-panel-header {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
 
@@ -782,11 +836,12 @@ button:disabled {
 
 
 /* ==========================================================
-   14. SEARCH AND FILTERS
+   15. STAFF SEARCH AND FILTERS
 ========================================================== */
 
 .staff-tools {
   display: flex;
+
   align-items: center;
   flex-wrap: wrap;
 
@@ -795,6 +850,7 @@ button:disabled {
 
 .search-box {
   display: flex;
+
   align-items: center;
 
   min-width: 230px;
@@ -811,16 +867,19 @@ button:disabled {
 
 .search-box i {
   color: var(--ms-muted);
+
   font-size: 13px;
 }
 
 .search-box input {
   width: 100%;
+  min-width: 0;
 
   border: none;
   outline: none;
 
   background: transparent;
+
   color: var(--ms-text);
 
   font-size: 13px;
@@ -839,11 +898,12 @@ button:disabled {
 
   padding: 0 35px 0 13px;
 
+  background-color: var(--ms-input);
+
+  color: var(--ms-text);
+
   border: 1px solid var(--ms-input-border);
   border-radius: 9px;
-
-  background-color: var(--ms-input);
-  color: var(--ms-text);
 
   outline: none;
 
@@ -856,25 +916,35 @@ button:disabled {
 
 .staff-filter option {
   background: var(--ms-card);
+
   color: var(--ms-text);
 }
 
 
 /* ==========================================================
-   15. STAFF TABLE
+   16. STAFF TABLE
 ========================================================== */
 
 .table-responsive {
   width: 100%;
+
   overflow-x: auto;
 }
 
 .staff-table {
+  --bs-table-bg: var(--ms-table-row);
+  --bs-table-color: var(--ms-text);
+  --bs-table-border-color: var(--ms-divider);
+  --bs-table-hover-bg: var(--ms-table-hover);
+
   width: 100%;
+
+  margin-bottom: 0;
 
   border-collapse: collapse;
 
   background: var(--ms-card);
+
   color: var(--ms-text);
 }
 
@@ -886,6 +956,7 @@ button:disabled {
   padding: 15px 12px;
 
   background: var(--ms-table-header);
+
   color: var(--ms-muted);
 
   border-bottom: 1px solid var(--ms-divider);
@@ -895,6 +966,7 @@ button:disabled {
   letter-spacing: 0.7px;
 
   text-transform: uppercase;
+
   white-space: nowrap;
 }
 
@@ -902,11 +974,13 @@ button:disabled {
   padding: 15px 12px;
 
   background: var(--ms-table-row);
+
   color: var(--ms-text-secondary);
 
   border-bottom: 1px solid var(--ms-divider);
 
   font-size: 13px;
+
   vertical-align: middle;
 }
 
@@ -920,11 +994,12 @@ button:disabled {
 
 
 /* ==========================================================
-   16. STAFF PROFILE
+   17. STAFF PROFILE
 ========================================================== */
 
 .staff-profile {
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -932,6 +1007,7 @@ button:disabled {
 
 .staff-avatar {
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -951,7 +1027,12 @@ button:disabled {
   font-weight: 800;
 }
 
-.staff-name {
+.staff-details {
+  min-width: 0;
+}
+
+.staff-name,
+.staff-details strong {
   display: block;
 
   margin-bottom: 2px;
@@ -961,22 +1042,30 @@ button:disabled {
   font-weight: 700;
 }
 
-.staff-email {
+.staff-email,
+.staff-details small {
   display: block;
 
   color: var(--ms-muted);
 
   font-size: 11px;
+
   overflow-wrap: anywhere;
+}
+
+.staff-username,
+.last-login {
+  color: var(--ms-text-secondary);
 }
 
 
 /* ==========================================================
-   17. ROLE BADGES
+   18. ROLE BADGES
 ========================================================== */
 
 .role-badge {
   display: inline-flex;
+
   align-items: center;
 
   padding: 6px 10px;
@@ -997,11 +1086,12 @@ button:disabled {
 
 
 /* ==========================================================
-   18. STATUS BADGES
+   19. STATUS BADGES
 ========================================================== */
 
 .status-badge {
   display: inline-flex;
+
   align-items: center;
 
   gap: 6px;
@@ -1013,6 +1103,17 @@ button:disabled {
   font-weight: 700;
 
   white-space: nowrap;
+}
+
+.status-dot {
+  display: inline-block;
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: currentColor;
 }
 
 .status-active {
@@ -1041,21 +1142,26 @@ button:disabled {
 
 
 /* ==========================================================
-   19. STAFF ACTION BUTTONS
+   20. STAFF ACTION BUTTONS
 ========================================================== */
 
 .staff-actions {
   display: flex;
+
   align-items: center;
   justify-content: center;
 
   gap: 7px;
 }
 
-.action-btn {
+.action-btn,
+.staff-action-btn {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
 
   width: 34px;
   height: 34px;
@@ -1064,6 +1170,7 @@ button:disabled {
   border-radius: 8px;
 
   background: var(--ms-button-bg);
+
   color: var(--ms-button-text);
 
   cursor: pointer;
@@ -1071,7 +1178,8 @@ button:disabled {
   transition: 0.2s ease;
 }
 
-.action-btn:hover {
+.action-btn:hover,
+.staff-action-btn:hover {
   background: var(--ms-hover);
 
   border-color: var(--ms-gold);
@@ -1079,7 +1187,8 @@ button:disabled {
   color: var(--ms-gold-text);
 }
 
-.action-btn.delete:hover {
+.action-btn.delete:hover,
+.staff-action-btn.delete:hover {
   border-color: var(--ms-danger);
 
   color: var(--ms-danger);
@@ -1087,16 +1196,19 @@ button:disabled {
 
 
 /* ==========================================================
-   20. EMPTY TABLE
+   21. EMPTY STAFF TABLE
 ========================================================== */
 
-.empty-table {
+.empty-table,
+.staff-empty-state {
   padding: 65px 20px !important;
+
   text-align: center;
 }
 
 .empty-icon {
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -1108,19 +1220,22 @@ button:disabled {
   border-radius: 50%;
 
   background: var(--ms-icon-bg);
+
   color: var(--ms-gold-text);
 
   font-size: 24px;
 }
 
-.empty-table h4 {
+.empty-table h4,
+.staff-empty-state h5 {
   color: var(--ms-text);
 
   font-size: 17px;
   font-weight: 700;
 }
 
-.empty-table p {
+.empty-table p,
+.staff-empty-state p {
   max-width: 420px;
 
   margin: 7px auto 0;
@@ -1132,11 +1247,12 @@ button:disabled {
 
 
 /* ==========================================================
-   21. STAFF MODAL
+   22. ADD STAFF MODAL
 ========================================================== */
 
 .modal-backdrop.show {
   background: var(--ms-backdrop);
+
   opacity: 1;
 }
 
@@ -1173,6 +1289,7 @@ button:disabled {
 
 .staff-modal .modal-title {
   color: var(--ms-text);
+
   font-weight: 800;
 }
 
@@ -1184,6 +1301,7 @@ button:disabled {
   color: var(--ms-text);
 }
 
+.staff-modal .form-label,
 .form-label {
   margin-bottom: 8px;
 
@@ -1195,11 +1313,12 @@ button:disabled {
 
 
 /* ==========================================================
-   22. STAFF MODAL INPUT GROUPS
+   23. STAFF MODAL INPUT GROUPS
 ========================================================== */
 
 .input-group-custom {
   display: flex;
+
   align-items: center;
 
   min-height: 48px;
@@ -1246,6 +1365,7 @@ button:disabled {
   outline: none;
 
   background: transparent;
+
   color: var(--ms-text);
 
   font-size: 13px;
@@ -1257,6 +1377,7 @@ button:disabled {
 
 .input-group-custom select option {
   background: var(--ms-card);
+
   color: var(--ms-text);
 }
 
@@ -1270,9 +1391,28 @@ button:disabled {
   caret-color: var(--ms-text);
 }
 
+.input-group-custom button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: transparent;
+
+  border: none;
+
+  color: var(--ms-muted);
+}
+
+.input-group-custom button:hover {
+  color: var(--ms-gold-text);
+}
+
 
 /* ==========================================================
-   23. STAFF ACCESS INFORMATION
+   24. STAFF ACCESS INFORMATION
 ========================================================== */
 
 .account-note {
@@ -1315,7 +1455,7 @@ button:disabled {
 
 
 /* ==========================================================
-   24. MODAL CLOSE BUTTON
+   25. STAFF MODAL CLOSE BUTTON
 ========================================================== */
 
 .staff-modal .btn-close {
@@ -1328,10 +1468,7 @@ button:disabled {
   background-size: 12px;
   background-repeat: no-repeat;
   background-position: center;
-}
 
-:root[data-account-theme="dark"]
-.staff-modal .btn-close {
   filter: invert(1) grayscale(100%);
 }
 
@@ -1352,7 +1489,7 @@ button:disabled {
 
 
 /* ==========================================================
-   25. MODAL FOOTER
+   26. STAFF MODAL FOOTER
 ========================================================== */
 
 .staff-modal .modal-footer {
@@ -1377,6 +1514,7 @@ button:disabled {
 
 .btn-cancel {
   background: var(--ms-button-bg);
+
   color: var(--ms-button-text);
 
   border: 1px solid var(--ms-input-border);
@@ -1404,249 +1542,669 @@ button:disabled {
 
 .btn-create:hover {
   background: var(--ms-gold-hover);
+
   color: #171717;
 }
 
 
 /* ==========================================================
-   26. LOGOUT MODAL
+   27. UNIFIED LOGOUT MODAL
+   OLD CUSTOM DIV COMPATIBILITY
 ========================================================== */
 
-.custom-logout-modal {
-  position: fixed;
-  inset: 0;
+html body div#adminLogoutModal {
+  position: fixed !important;
 
-  z-index: 9999;
+  inset: 0 !important;
+
+  z-index: 999999;
 
   display: flex;
-  align-items: center;
-  justify-content: center;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  margin: 0 !important;
+  padding: 16px !important;
+
+  transform: none !important;
+
+  background: transparent !important;
+
+  border: none !important;
+  box-shadow: none !important;
 }
 
-.custom-logout-modal.hidden {
-  display: none;
+
+/* HIDDEN CUSTOM LOGOUT MODAL */
+
+html body #adminLogoutModal.hidden,
+html body #adminLogoutModal[hidden] {
+  display: none !important;
+  pointer-events: none !important;
 }
 
-.logout-backdrop {
+
+/* CUSTOM LOGOUT BACKDROP */
+
+html body #adminLogoutModal .logout-backdrop {
   position: absolute;
+
   inset: 0;
 
-  background: var(--ms-backdrop);
+  z-index: 1;
 
-  backdrop-filter: blur(4px);
+  background: var(--ms-logout-overlay) !important;
+
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
-.logout-box {
-  position: relative;
+
+/* ==========================================================
+   28. CUSTOM LOGOUT BOX
+========================================================== */
+
+html body #adminLogoutModal .logout-box {
+  position: relative !important;
 
   z-index: 2;
 
-  width: min(420px, calc(100% - 35px));
+  inset: auto !important;
 
-  padding: 30px;
+  transform: none !important;
 
-  text-align: center;
+  width: min(378px, 100%) !important;
+  max-width: 378px !important;
 
-  border-radius: 17px;
+  height: auto !important;
 
-  background: var(--ms-modal-bg);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
 
-  color: var(--ms-text);
+  margin: auto !important;
+  padding: 30px 27px !important;
 
-  border: 1px solid var(--ms-border);
+  background: var(--ms-logout-bg) !important;
+  background-image: none !important;
 
-  box-shadow: var(--ms-modal-shadow);
-}
+  color: var(--ms-logout-text) !important;
 
-.logout-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 1px solid var(--ms-logout-border) !important;
 
-  width: 60px;
-  height: 60px;
+  border-radius: 20px !important;
 
-  margin: 0 auto 15px;
+  box-shadow: var(--ms-modal-shadow) !important;
 
-  border-radius: 50%;
+  text-align: center !important;
 
-  background: var(--ms-icon-bg);
-  color: var(--ms-gold-text);
+  overflow-y: auto;
 
-  font-size: 23px;
-}
-
-.logout-box h4 {
-  margin-bottom: 10px;
-
-  color: var(--ms-text);
-
-  font-weight: 800;
-}
-
-.logout-box p {
-  color: var(--ms-muted);
-  font-size: 13px;
-}
-
-.logout-actions {
-  display: flex;
-  justify-content: center;
-
-  gap: 10px;
-
-  margin-top: 23px;
-}
-
-.confirm-logout,
-.cancel-logout {
-  padding: 11px 17px;
-
-  border-radius: 9px;
-
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.confirm-logout {
-  background: var(--ms-gold-gradient);
-
-  color: #171717;
-
-  border: none;
-}
-
-.cancel-logout {
-  background: var(--ms-button-bg);
-
-  color: var(--ms-button-text);
-
-  border: 1px solid var(--ms-input-border);
-}
-
-.cancel-logout:hover {
-  background: var(--ms-surface);
-  color: var(--ms-text);
+  box-sizing: border-box;
 }
 
 
 /* ==========================================================
-   27. EXACT GLOBAL LIGHT MODE OVERRIDES
-
-   Prevent old admin-theme.css rules from overriding
-   the Manage Staff theme.
+   29. NATIVE HTML LOGOUT DIALOG
+   PERFECT CENTER ALIGNMENT
 ========================================================== */
 
-/* NAVIGATION */
+html body dialog#adminLogoutModal.jcn-unified-logout {
+  position: fixed !important;
 
-:root[data-account-theme="light"]
-.dashboard-nav .brand,
+  inset: 0 !important;
 
-:root[data-account-theme="light"]
-.dashboard-nav .top-menu a {
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+
+  margin: auto !important;
+
+  transform: none !important;
+
+  width: min(378px, calc(100vw - 32px)) !important;
+
+  max-width: 378px !important;
+
+  height: fit-content !important;
+
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+
+  padding: 30px 27px !important;
+
+  background: var(--ms-logout-bg) !important;
+  background-image: none !important;
+
+  color: var(--ms-logout-text) !important;
+
+  border: 1px solid var(--ms-logout-border) !important;
+
+  border-radius: 20px !important;
+
+  box-shadow: var(--ms-modal-shadow) !important;
+
+  text-align: center !important;
+
+  box-sizing: border-box;
+
+  overflow-y: auto;
+
+  z-index: 10000;
+}
+
+
+/* NATIVE LOGOUT MODAL VISIBILITY */
+
+html body dialog#adminLogoutModal:not([open]) {
+  display: none !important;
+
+  pointer-events: none !important;
+}
+
+html body dialog#adminLogoutModal[open] {
+  display: block !important;
+
+  pointer-events: auto !important;
+}
+
+
+/* NATIVE LOGOUT BACKDROP */
+
+html body dialog#adminLogoutModal::backdrop {
+  background: var(--ms-logout-overlay) !important;
+
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+
+/* ==========================================================
+   30. CENTERED LOGOUT ICON
+========================================================== */
+
+html body #adminLogoutModal .logout-icon {
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex-shrink: 0;
+
+  width: 65px !important;
+  height: 65px !important;
+
+  margin: 0 auto 18px !important;
+
+  padding: 0 !important;
+
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a51b
+  ) !important;
+
+  color: #080808 !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  font-size: 25px !important;
+
+  box-shadow: none !important;
+}
+
+html body #adminLogoutModal .logout-icon i {
+  color: #080808 !important;
+
+  font-size: 25px !important;
+}
+
+
+/* ==========================================================
+   31. LOGOUT TITLE AND DESCRIPTION
+========================================================== */
+
+html body #adminLogoutModal :is(h2, h3, h4) {
+  margin: 0 0 8px !important;
+
+  color: var(--ms-logout-text) !important;
+
+  font-size: 23px !important;
+  font-weight: 800 !important;
+
+  line-height: 1.3;
+
+  text-align: center !important;
+}
+
+html body #adminLogoutModal p {
+  margin: 0 0 27px !important;
+
+  color: var(--ms-logout-muted) !important;
+
+  font-size: 14px !important;
+  line-height: 1.5;
+
+  white-space: normal !important;
+
+  text-align: center !important;
+}
+
+
+/* ==========================================================
+   32. LOGOUT BUTTON CONTAINER
+========================================================== */
+
+html body #adminLogoutModal .logout-actions {
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+
+  gap: 12px !important;
+
+  width: 100% !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+}
+
+
+/* SHARED LOGOUT BUTTON STYLES */
+
+html body #adminLogoutModal :is(
+  #adminConfirmLogout,
+  #adminCancelLogout,
+  .confirm-logout,
+  .cancel-logout,
+  .logout-confirm-btn,
+  .logout-cancel-btn
+) {
+  display: inline-flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex: 1 1 0 !important;
+
+  width: auto !important;
+  min-width: 0;
+
+  min-height: 46px;
+
+  height: auto;
+
+  margin: 0 !important;
+
+  padding: 12px 10px !important;
+
+  border-radius: 10px !important;
+
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1.4;
+
+  cursor: pointer;
+
+  transform: none !important;
+  box-shadow: none !important;
+
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+
+/* ==========================================================
+   33. CONFIRM LOGOUT BUTTON
+========================================================== */
+
+html body #adminLogoutModal :is(
+  #adminConfirmLogout,
+  .confirm-logout,
+  .logout-confirm-btn
+) {
+  order: 1 !important;
+
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a51b
+  ) !important;
+
+  color: #080808 !important;
+
+  border: 1px solid transparent !important;
+}
+
+html body #adminLogoutModal :is(
+  #adminConfirmLogout,
+  .confirm-logout,
+  .logout-confirm-btn
+):hover {
+  background: #e8b830 !important;
+
+  color: #080808 !important;
+
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
+/* ==========================================================
+   34. CANCEL LOGOUT BUTTON
+========================================================== */
+
+html body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .cancel-logout,
+  .logout-cancel-btn
+) {
+  order: 2 !important;
+
+  background: transparent !important;
+
+  color: var(--ms-logout-cancel) !important;
+
+  border: 1px solid #d4a51b !important;
+}
+
+html body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .cancel-logout,
+  .logout-cancel-btn
+):hover {
+  background: var(--ms-logout-hover) !important;
+
+  color: var(--ms-logout-cancel) !important;
+
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
+/* LOGOUT BUTTON DISABLED STATE */
+
+html body #adminLogoutModal button:disabled {
+  opacity: 0.55 !important;
+
+  cursor: not-allowed;
+}
+
+
+/* LOGOUT KEYBOARD ACCESSIBILITY */
+
+#adminLogoutModal button:focus-visible {
+  outline: 2px solid #c49a35;
+
+  outline-offset: 3px;
+}
+
+
+/* ==========================================================
+   35. EXACT LIGHT MODE OVERRIDES
+========================================================== */
+
+html[data-account-theme="light"] body {
+  background: #f6f7f9 !important;
+
+  color: #20242b !important;
+}
+
+
+/* DASHBOARD CARDS */
+
+html[data-account-theme="light"]
+body :is(
+  .dashboard-nav,
+  .dashboard-card,
+  .staff-navbar
+) {
+  background: #ffffff !important;
+  background-image: none !important;
+
+  color: var(--ms-text) !important;
+
+  border-color: var(--ms-border) !important;
+}
+
+
+/* TOP NAVIGATION */
+
+html[data-account-theme="light"]
+body .dashboard-nav .brand,
+
+html[data-account-theme="light"]
+body .dashboard-nav .top-menu a {
   color: var(--ms-text) !important;
 }
 
-:root[data-account-theme="light"]
-.dashboard-nav .top-menu a:hover,
+html[data-account-theme="light"]
+body .dashboard-nav .top-menu a:hover,
 
-:root[data-account-theme="light"]
-.dashboard-nav .top-menu a.active {
+html[data-account-theme="light"]
+body .dashboard-nav .top-menu a.active {
+  color: var(--ms-gold-text) !important;
+}
+
+
+/* SIDEBAR */
+
+html[data-account-theme="light"]
+body .dashboard-menu a {
+  color: var(--ms-text-secondary) !important;
+}
+
+html[data-account-theme="light"]
+body .dashboard-menu a:is(
+  .active,
+  .active-menu,
+  :hover
+) {
+  background: var(--ms-active) !important;
+
   color: var(--ms-gold-text) !important;
 }
 
 
 /* STAFF DIRECTORY */
 
-:root[data-account-theme="light"]
-.staff-main .page-header {
+html[data-account-theme="light"]
+body .staff-main .page-header {
   background: #ffffff !important;
   background-image: none !important;
 
   color: var(--ms-text) !important;
+
   border-color: var(--ms-border) !important;
 
   box-shadow: var(--ms-shadow) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-main .page-title {
+html[data-account-theme="light"]
+body .staff-main .page-title {
   color: var(--ms-text) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-main .page-eyebrow {
+html[data-account-theme="light"]
+body .staff-main .page-eyebrow {
   color: var(--ms-gold-text) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-main .page-description {
+html[data-account-theme="light"]
+body .staff-main .page-description {
   color: var(--ms-muted) !important;
 }
 
 
 /* SUMMARY CARDS */
 
-:root[data-account-theme="light"]
-.staff-main .summary-card {
+html[data-account-theme="light"]
+body .staff-main .summary-card {
   background: var(--ms-card) !important;
+  background-image: none !important;
+
   border-color: var(--ms-border) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-main .summary-card p {
+html[data-account-theme="light"]
+body .staff-main .summary-card p {
   color: var(--ms-muted) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-main .summary-card h3 {
+html[data-account-theme="light"]
+body .staff-main .summary-card h3 {
   color: var(--ms-text) !important;
 }
 
 
-/* STAFF PANEL */
+/* STAFF ACCOUNTS PANEL */
 
-:root[data-account-theme="light"]
-.staff-main .staff-panel,
+html[data-account-theme="light"]
+body .staff-main .staff-panel,
 
-:root[data-account-theme="light"]
-.staff-main .staff-panel-header {
+html[data-account-theme="light"]
+body .staff-main .staff-panel-header {
   background: var(--ms-card) !important;
+  background-image: none !important;
+
   border-color: var(--ms-border) !important;
 }
 
+html[data-account-theme="light"]
+body .staff-panel-header h3 {
+  color: var(--ms-text) !important;
+}
 
-/* MODAL INPUT WRAPPERS */
+html[data-account-theme="light"]
+body .staff-panel-header p {
+  color: var(--ms-muted) !important;
+}
 
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom {
+
+/* SEARCH AND FILTERS */
+
+html[data-account-theme="light"]
+body .staff-main :is(
+  .search-box,
+  .staff-filter
+) {
   background: var(--ms-input) !important;
+
+  color: var(--ms-text) !important;
 
   border-color: var(--ms-input-border) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom i {
-  background: transparent !important;
-
-  color: var(--ms-gold-text) !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom input,
-
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom select {
+html[data-account-theme="light"]
+body .search-box input {
   background: transparent !important;
 
   color: var(--ms-text) !important;
 
   border: none !important;
+
   box-shadow: none !important;
 }
 
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom:focus-within {
+
+/* STAFF TABLE */
+
+html[data-account-theme="light"]
+body .staff-table {
+  background: #ffffff !important;
+
+  color: var(--ms-text) !important;
+}
+
+html[data-account-theme="light"]
+body .staff-table th {
+  background: var(--ms-table-header) !important;
+
+  color: var(--ms-muted) !important;
+
+  border-color: var(--ms-divider) !important;
+}
+
+html[data-account-theme="light"]
+body .staff-table td {
+  background: var(--ms-table-row) !important;
+
+  color: var(--ms-text-secondary) !important;
+
+  border-color: var(--ms-divider) !important;
+}
+
+html[data-account-theme="light"]
+body .staff-table tbody tr:hover td {
+  background: var(--ms-table-hover) !important;
+}
+
+
+/* STAFF MODAL BACKGROUNDS */
+
+html[data-account-theme="light"]
+body .staff-modal,
+
+html[data-account-theme="light"]
+body .staff-modal :is(
+  .modal-header,
+  .modal-body,
+  .modal-footer
+) {
+  background: #ffffff !important;
+  background-image: none !important;
+
+  color: var(--ms-text) !important;
+
+  border-color: var(--ms-border) !important;
+}
+
+
+/* STAFF MODAL INPUT WRAPPERS */
+
+html[data-account-theme="light"]
+body .staff-modal .input-group-custom {
+  background: var(--ms-input) !important;
+
+  border-color: var(--ms-input-border) !important;
+}
+
+html[data-account-theme="light"]
+body .staff-modal .input-group-custom i {
+  background: transparent !important;
+
+  color: var(--ms-gold-text) !important;
+}
+
+html[data-account-theme="light"]
+body .staff-modal .input-group-custom input,
+
+html[data-account-theme="light"]
+body .staff-modal .input-group-custom select {
+  background: transparent !important;
+
+  color: var(--ms-text) !important;
+
+  border: none !important;
+
+  box-shadow: none !important;
+}
+
+html[data-account-theme="light"]
+body .staff-modal .input-group-custom:focus-within {
   border-color: #c49a35 !important;
 
   box-shadow:
@@ -1654,68 +2212,72 @@ button:disabled {
 }
 
 
-/* ACCOUNT NOTE */
+/* STAFF ACCOUNT NOTE */
 
-:root[data-account-theme="light"]
-.staff-modal .account-note {
+html[data-account-theme="light"]
+body .staff-modal .account-note {
   background: var(--ms-note-bg) !important;
 
   border-color: var(--ms-icon-border) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-modal .account-note strong {
+html[data-account-theme="light"]
+body .staff-modal .account-note strong {
   color: var(--ms-gold-text) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-modal .account-note p {
+html[data-account-theme="light"]
+body .staff-modal .account-note p {
   color: var(--ms-muted) !important;
 }
 
 
-/* MODAL BUTTONS */
+/* STAFF MODAL BUTTONS */
 
-:root[data-account-theme="light"]
-.staff-modal .btn-cancel {
+html[data-account-theme="light"]
+body .staff-modal .btn-cancel {
   background: var(--ms-button-bg) !important;
+
   color: var(--ms-button-text) !important;
 
   border-color: var(--ms-border) !important;
 }
 
-:root[data-account-theme="light"]
-.staff-modal .btn-create,
+html[data-account-theme="light"]
+body .staff-modal .btn-create,
 
-:root[data-account-theme="light"]
-.staff-main .btn-add-staff {
+html[data-account-theme="light"]
+body .staff-main .btn-add-staff {
   background: var(--ms-gold-gradient) !important;
 
   color: #171717 !important;
 }
 
 
-/* STATUS BADGES */
+/* LIGHT MODE STAFF STATUS */
 
-:root[data-account-theme="light"]
-.staff-table .status-active {
+html[data-account-theme="light"]
+body .staff-table .status-active {
   background: #eaf9f0 !important;
+
   color: #168258 !important;
 
   border-color: #bce8cf !important;
 }
 
-:root[data-account-theme="light"]
-.staff-table .status-inactive {
+html[data-account-theme="light"]
+body .staff-table .status-inactive {
   background: #edf0f4 !important;
+
   color: #626b78 !important;
 
   border-color: #dce0e6 !important;
 }
 
-:root[data-account-theme="light"]
-.staff-table .status-restricted {
+html[data-account-theme="light"]
+body .staff-table .status-restricted {
   background: #fff0f0 !important;
+
   color: #c73636 !important;
 
   border-color: #efc5c5 !important;
@@ -1723,7 +2285,164 @@ button:disabled {
 
 
 /* ==========================================================
-   28. SCROLLBAR
+   36. LIGHT MODE LOGOUT MODAL
+========================================================== */
+
+html[data-account-theme="light"]
+body dialog#adminLogoutModal.jcn-unified-logout,
+
+html[data-account-theme="light"]
+body #adminLogoutModal .logout-box {
+  background: #ffffff !important;
+  background-image: none !important;
+
+  color: #20242b !important;
+
+  border-color: #dce0e6 !important;
+
+  box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.18) !important;
+}
+
+html[data-account-theme="light"]
+body #adminLogoutModal :is(h2, h3, h4) {
+  color: #20242b !important;
+}
+
+html[data-account-theme="light"]
+body #adminLogoutModal p {
+  color: #626b78 !important;
+}
+
+html[data-account-theme="light"]
+body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .cancel-logout,
+  .logout-cancel-btn
+) {
+  background: #ffffff !important;
+
+  color: #936a12 !important;
+
+  border-color: #d4a51b !important;
+}
+
+html[data-account-theme="light"]
+body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .cancel-logout,
+  .logout-cancel-btn
+):hover {
+  background: #fff3d4 !important;
+
+  color: #936a12 !important;
+}
+
+
+/* ==========================================================
+   37. SWEETALERT2 MODALS
+   EDIT, STATUS, PASSWORD AND DELETE STAFF
+========================================================== */
+
+html[data-account-theme] body .swal2-popup {
+  background: var(--ms-card) !important;
+
+  color: var(--ms-text) !important;
+
+  border: 1px solid var(--ms-border);
+
+  border-radius: 20px;
+
+  box-shadow: var(--ms-modal-shadow);
+}
+
+html[data-account-theme] body .swal2-title {
+  color: var(--ms-text) !important;
+
+  font-weight: 750;
+}
+
+html[data-account-theme] body .swal2-html-container {
+  color: var(--ms-muted) !important;
+}
+
+html[data-account-theme]
+body .swal2-popup label {
+  display: block;
+
+  color: var(--ms-text-secondary) !important;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+html[data-account-theme]
+body .swal2-popup :is(
+  .swal2-input,
+  .swal2-select,
+  .swal2-textarea
+) {
+  background: var(--ms-input) !important;
+
+  color: var(--ms-text) !important;
+
+  border: 1px solid var(--ms-input-border) !important;
+
+  border-radius: 9px;
+}
+
+html[data-account-theme]
+body .swal2-popup :is(
+  .swal2-input,
+  .swal2-select,
+  .swal2-textarea
+):focus {
+  border-color: var(--ms-gold-text) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(196, 154, 53, 0.14);
+}
+
+html[data-account-theme]
+body .swal2-popup .swal2-input::placeholder {
+  color: var(--ms-muted);
+}
+
+html[data-account-theme]
+body .swal2-popup select option {
+  background: var(--ms-card);
+
+  color: var(--ms-text);
+}
+
+html[data-account-theme]
+body .swal2-popup .swal2-cancel {
+  background: var(--ms-button-bg) !important;
+
+  color: var(--ms-button-text) !important;
+
+  border: 1px solid var(--ms-input-border) !important;
+
+  border-radius: 9px;
+}
+
+html[data-account-theme]
+body .swal2-popup .swal2-confirm {
+  border-radius: 9px;
+
+  font-weight: 700;
+}
+
+html[data-account-theme]
+body .swal2-validation-message {
+  background: var(--ms-surface) !important;
+
+  color: var(--ms-danger) !important;
+}
+
+
+/* ==========================================================
+   38. SCROLLBAR
 ========================================================== */
 
 ::-webkit-scrollbar {
@@ -1737,12 +2456,13 @@ button:disabled {
 
 ::-webkit-scrollbar-thumb {
   background: #b9953b;
+
   border-radius: 10px;
 }
 
 
 /* ==========================================================
-   29. TABLET RESPONSIVE DESIGN
+   39. TABLET RESPONSIVE DESIGN
 ========================================================== */
 
 @media (max-width: 1000px) {
@@ -1755,7 +2475,12 @@ button:disabled {
     padding: 18px;
   }
 
+  .dashboard-nav .top-menu {
+    gap: 18px;
+  }
+
 }
+
 
 @media (max-width: 991px) {
 
@@ -1769,6 +2494,7 @@ button:disabled {
 
   .staff-panel-header {
     flex-direction: column;
+
     align-items: stretch;
   }
 
@@ -1782,6 +2508,7 @@ button:disabled {
 
   .staff-main .page-header .col-lg-4 {
     justify-content: flex-start;
+
     margin-top: 14px;
   }
 
@@ -1789,13 +2516,14 @@ button:disabled {
 
 
 /* ==========================================================
-   30. MOBILE RESPONSIVE DESIGN
+   40. MOBILE RESPONSIVE DESIGN
 ========================================================== */
 
 @media (max-width: 760px) {
 
   .dashboard-wrapper {
     width: calc(100% - 24px);
+
     margin: 12px auto;
   }
 
@@ -1813,6 +2541,7 @@ button:disabled {
     gap: 18px;
 
     border-top: 1px solid var(--ms-border);
+
     padding-top: 12px;
   }
 
@@ -1821,11 +2550,12 @@ button:disabled {
   }
 
   .dashboard-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .dashboard-menu {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
   .staff-main .page-header {
@@ -1834,12 +2564,15 @@ button:disabled {
 
   .staff-tools {
     flex-direction: column;
+
     align-items: stretch;
   }
 
   .search-box,
   .staff-filter {
     width: 100%;
+
+    min-width: 0;
   }
 
   .staff-table {
@@ -1859,7 +2592,7 @@ button:disabled {
 
 
 /* ==========================================================
-   31. SMALL MOBILE DEVICES
+   41. SMALL MOBILE DEVICES
 ========================================================== */
 
 @media (max-width: 480px) {
@@ -1873,16 +2606,43 @@ button:disabled {
     padding: 16px;
   }
 
-  .logout-actions {
-    flex-direction: column;
+  /* CENTERED MOBILE LOGOUT */
+
+  html body #adminLogoutModal .logout-box,
+
+  html body dialog#adminLogoutModal.jcn-unified-logout {
+    width: min(
+      378px,
+      calc(100vw - 32px)
+    ) !important;
+
+    padding: 25px 20px !important;
+
+    margin: auto !important;
   }
 
-  .confirm-logout,
-  .cancel-logout {
-    width: 100%;
+  html body #adminLogoutModal :is(h2, h3, h4) {
+    font-size: 21px !important;
+  }
+
+  html body #adminLogoutModal .logout-actions {
+    flex-direction: row !important;
+
+    flex-wrap: nowrap !important;
+
+    gap: 10px !important;
+  }
+
+  html body #adminLogoutModal .logout-actions button {
+    flex: 1 1 0 !important;
+
+    min-width: 0 !important;
+
+    width: auto !important;
   }
 
 }
+
 
 @media (max-width: 420px) {
 
@@ -1902,7 +2662,7 @@ button:disabled {
 
 
 /* ==========================================================
-   32. ACCESSIBILITY
+   42. REDUCED MOTION ACCESSIBILITY
 ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1911,6 +2671,11 @@ button:disabled {
   *::before,
   *::after {
     transition: none !important;
+  }
+
+  .summary-card:hover,
+  .btn-add-staff:hover {
+    transform: none;
   }
 
 }

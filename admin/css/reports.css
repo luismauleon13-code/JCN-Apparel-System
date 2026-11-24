@@ -1,95 +1,103 @@
 /* ==========================================================
    JCN APPAREL PRINTING SERVICES
-   ADMIN REPORTS
-   GLOBAL DARK AND LIGHT MODE COMPATIBLE
+   ADMIN - BUSINESS REPORTS
+   GLOBAL DARK AND LIGHT MODE
+   UNIFIED CENTERED LOGOUT MODAL
 ========================================================== */
 
+
 /* ==========================================================
-   01. DEFAULT DARK THEME
+   01. DARK MODE VARIABLES
 ========================================================== */
 
 :root {
   color-scheme: dark;
 
-  --rp-bg: #101010;
+  --rp-bg: #0c0c0d;
   --rp-card: #141414;
-  --rp-surface: #111111;
-  --rp-input: #171717;
+  --rp-surface: #191919;
 
-  --rp-text: #f4f4f4;
+  --rp-text: #ffffff;
   --rp-text-secondary: #dddddd;
   --rp-muted: #a8a8ad;
 
-  --rp-gold: #f2c14e;
-  --rp-gold-text: #f2c14e;
-  --rp-gold-hover: #ffcf60;
+  --rp-gold: #f4c542;
+  --rp-gold-text: #f4c542;
+  --rp-gold-dark: #c79b1b;
+  --rp-gold-hover: #ffda65;
 
-  --rp-border: rgba(242, 193, 78, 0.18);
-  --rp-inner-border: #292929;
+  --rp-border: rgba(244, 197, 66, 0.22);
   --rp-divider: #292929;
 
   --rp-success: #63dba0;
   --rp-danger: #ff8585;
+  --rp-info: #79b5ff;
 
-  --rp-active: rgba(242, 193, 78, 0.17);
-  --rp-hover: rgba(242, 193, 78, 0.08);
+  --rp-hover: rgba(244, 197, 66, 0.08);
+  --rp-active: rgba(244, 197, 66, 0.17);
 
-  --rp-badge-bg: rgba(242, 193, 78, 0.10);
-  --rp-badge-border: rgba(242, 193, 78, 0.35);
-
-  --rp-success-bg: rgba(99, 219, 160, 0.10);
-  --rp-success-border: rgba(99, 219, 160, 0.35);
-
-  --rp-status-bg: #171717;
-  --rp-status-border: #2b2b2b;
-
-  --rp-chart-label: #d8d8d8;
-  --rp-scroll-track: #191919;
-  --rp-scroll-thumb: #f2c14e;
-
-  --rp-table-header: #101010;
-  --rp-table-row: #111111;
-  --rp-table-hover: #19170f;
-
-  --rp-outline-bg: transparent;
-  --rp-outline-border: #494337;
-  --rp-outline-hover: rgba(242, 193, 78, 0.08);
+  --rp-badge-bg: rgba(244, 197, 66, 0.08);
+  --rp-badge-border: rgba(244, 197, 66, 0.30);
 
   --rp-page-bg:
     radial-gradient(
       circle at top right,
-      #222222 0,
+      #211c12 0,
       transparent 48%
     ),
-    #101010;
+    #0c0c0d;
 
   --rp-card-bg:
     linear-gradient(135deg, #151515, #0c0c0c);
 
-  --rp-summary-bg:
+  --rp-report-box-bg:
     linear-gradient(145deg, #171717, #0d0d0d);
 
-  --rp-bar-gradient:
-    linear-gradient(to top, #bd8d20, #f2c14e);
+  --rp-inner-bg: #111111;
+
+  --rp-status-bg: #171717;
+  --rp-status-border: #2b2b2b;
+
+  --rp-chart-bg: transparent;
+  --rp-chart-label: #d8d8d8;
+  --rp-scrollbar-bg: #191919;
+
+  --rp-table-header: #101010;
+  --rp-table-row: #141414;
+  --rp-table-hover: #1b180f;
+
+  --rp-button-bg: #242424;
+  --rp-button-text: #dddddd;
+  --rp-button-border: #404040;
 
   --rp-gold-gradient:
-    linear-gradient(135deg, #f4c542, #d4a72c);
+    linear-gradient(135deg, #f4c542, #d4a51b);
 
-  --rp-modal-bg: #161616;
-  --rp-modal-title: #f2c14e;
-  --rp-modal-border: rgba(242, 193, 78, 0.4);
-  --rp-backdrop: rgba(0, 0, 0, 0.75);
+  --rp-bar-gradient:
+    linear-gradient(to top, #bd8d20, #f4c542);
 
   --rp-shadow:
-    0 8px 28px rgba(0, 0, 0, 0.16);
+    0 8px 28px rgba(0, 0, 0, 0.20);
 
   --rp-modal-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.6);
+    0 24px 80px rgba(0, 0, 0, 0.60);
+
+  /* LOGOUT VARIABLES */
+
+  --rp-logout-bg: #161616;
+  --rp-logout-text: #ffffff;
+  --rp-logout-muted: #b8b8b8;
+  --rp-logout-border: rgba(244, 197, 66, 0.28);
+
+  --rp-logout-cancel: #f4c542;
+  --rp-logout-hover: rgba(244, 197, 66, 0.12);
+
+  --rp-logout-overlay: rgba(0, 0, 0, 0.76);
 }
 
 
 /* ==========================================================
-   02. LIGHT THEME
+   02. LIGHT MODE VARIABLES
 ========================================================== */
 
 :root[data-account-theme="light"] {
@@ -97,8 +105,7 @@
 
   --rp-bg: #f6f7f9;
   --rp-card: #ffffff;
-  --rp-surface: #ffffff;
-  --rp-input: #f8f9fb;
+  --rp-surface: #f0f2f5;
 
   --rp-text: #20242b;
   --rp-text-secondary: #434a55;
@@ -106,61 +113,63 @@
 
   --rp-gold: #f4c542;
   --rp-gold-text: #936a12;
+  --rp-gold-dark: #d4a51b;
   --rp-gold-hover: #e8b830;
 
   --rp-border: #dce0e6;
-  --rp-inner-border: #dce0e6;
   --rp-divider: #e1e4e8;
 
   --rp-success: #168258;
   --rp-danger: #c73636;
+  --rp-info: #2563b5;
 
-  --rp-active: #fff3d4;
   --rp-hover: #fff9eb;
+  --rp-active: #fff3d4;
 
   --rp-badge-bg: #fff7e3;
   --rp-badge-border: #efddb0;
 
-  --rp-success-bg: #eaf9f0;
-  --rp-success-border: #bce8cf;
+  --rp-page-bg: #f6f7f9;
+  --rp-card-bg: #ffffff;
+
+  --rp-report-box-bg: #ffffff;
+  --rp-inner-bg: #ffffff;
 
   --rp-status-bg: #f8f9fb;
   --rp-status-border: #dce0e6;
 
+  --rp-chart-bg: transparent;
   --rp-chart-label: #626b78;
-  --rp-scroll-track: #edf0f4;
-  --rp-scroll-thumb: #c49a35;
+  --rp-scrollbar-bg: #edf0f4;
 
   --rp-table-header: #edf0f4;
   --rp-table-row: #ffffff;
   --rp-table-hover: #fffaf0;
 
-  --rp-outline-bg: #f0f2f5;
-  --rp-outline-border: #dce0e6;
-  --rp-outline-hover: #e2e5e9;
-
-  --rp-page-bg: #f6f7f9;
-  --rp-card-bg: #ffffff;
-  --rp-summary-bg: #ffffff;
-
-  --rp-bar-gradient:
-    linear-gradient(to top, #c49a35, #f4c542);
-
-  --rp-modal-bg: #ffffff;
-  --rp-modal-title: #20242b;
-  --rp-modal-border: #dce0e6;
-  --rp-backdrop: rgba(15, 23, 42, 0.48);
+  --rp-button-bg: #f0f2f5;
+  --rp-button-text: #434a55;
+  --rp-button-border: #dce0e6;
 
   --rp-shadow:
     0 8px 28px rgba(35, 40, 50, 0.07);
 
   --rp-modal-shadow:
     0 20px 60px rgba(15, 23, 42, 0.18);
+
+  /* LIGHT MODE LOGOUT */
+
+  --rp-logout-bg: #ffffff;
+  --rp-logout-text: #20242b;
+  --rp-logout-muted: #626b78;
+  --rp-logout-border: #dce0e6;
+
+  --rp-logout-cancel: #936a12;
+  --rp-logout-hover: #fff3d4;
 }
 
 
 /* ==========================================================
-   03. RESET AND BASE STYLES
+   03. RESET AND GENERAL STYLES
 ========================================================== */
 
 * {
@@ -184,27 +193,39 @@ a {
   text-decoration: none;
 }
 
-button {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 :focus-visible {
   outline: 2px solid var(--rp-gold-text);
-  outline-offset: 4px;
+  outline-offset: 3px;
 }
 
-[hidden],
-.hidden {
+.hidden,
+[hidden] {
   display: none !important;
 }
 
+.text-gold {
+  color: var(--rp-gold-text) !important;
+}
+
+.text-muted,
 .muted {
-  color: var(--rp-muted);
+  color: var(--rp-muted) !important;
 }
 
 
@@ -220,6 +241,7 @@ button:disabled {
 .dashboard-nav,
 .dashboard-card {
   background: var(--rp-card-bg);
+  color: var(--rp-text);
 
   border: 1px solid var(--rp-border);
   border-radius: 16px;
@@ -229,16 +251,18 @@ button:disabled {
 
 
 /* ==========================================================
-   05. TOP NAVIGATION
+   05. ADMIN TOP NAVIGATION
 ========================================================== */
 
 .dashboard-nav {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
 
   gap: 20px;
+
   padding: 16px 22px;
   margin-bottom: 20px;
 }
@@ -261,16 +285,15 @@ button:disabled {
   color: var(--rp-text);
 }
 
-.brand i,
-.sidebar h2 i,
-.text-gold {
+.dashboard-nav .brand i {
   color: var(--rp-gold-text);
 }
 
 .dashboard-nav .top-menu {
   display: flex;
-  flex-wrap: wrap;
+
   align-items: center;
+  flex-wrap: wrap;
 
   gap: 26px;
 }
@@ -281,14 +304,14 @@ button:disabled {
   color: var(--rp-text);
 
   font-weight: 600;
+
   text-decoration: none;
 
   transition: color 0.2s ease;
 }
 
 .dashboard-nav .top-menu a:hover,
-.dashboard-nav .top-menu a.active,
-.dashboard-nav .top-menu a.active-menu {
+.dashboard-nav .top-menu a.active {
   color: var(--rp-gold-text);
 }
 
@@ -299,11 +322,13 @@ button:disabled {
 
 .page-heading {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
 
   gap: 16px;
+
   padding: 24px;
   margin-bottom: 22px;
 }
@@ -338,19 +363,17 @@ h2 {
 }
 
 h3 {
-  margin: 0 0 16px;
+  margin: 0 0 12px;
 
   color: var(--rp-text);
 
   font-size: 17px;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 .page-heading .muted,
 .section-heading .muted {
   margin: 5px 0 0;
-
-  color: var(--rp-muted);
 }
 
 
@@ -360,16 +383,21 @@ h3 {
 
 .admin-badge {
   display: inline-flex;
+
   align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
 
   gap: 6px;
-  padding: 5px 10px;
 
-  border: 1px solid var(--rp-badge-border);
-  border-radius: 20px;
+  padding: 5px 10px;
 
   background: var(--rp-badge-bg);
   color: var(--rp-gold-text);
+
+  border: 1px solid var(--rp-badge-border);
+  border-radius: 20px;
 
   font-size: 11px;
   font-weight: 700;
@@ -379,7 +407,7 @@ h3 {
 
 
 /* ==========================================================
-   08. DASHBOARD LAYOUT
+   08. DASHBOARD MAIN LAYOUT
 ========================================================== */
 
 .dashboard-layout {
@@ -388,6 +416,7 @@ h3 {
   grid-template-columns: 265px minmax(0, 1fr);
 
   align-items: start;
+
   gap: 20px;
 }
 
@@ -403,24 +432,31 @@ h3 {
 
 .sidebar h2 {
   display: flex;
+
   align-items: center;
 
   gap: 10px;
-  margin-bottom: 20px;
 
-  color: var(--rp-text);
+  margin-bottom: 20px;
+}
+
+.sidebar h2 i {
+  color: var(--rp-gold-text);
 }
 
 .dashboard-menu {
   display: grid;
+
   gap: 6px;
 }
 
 .dashboard-menu a {
   display: flex;
+
   align-items: center;
 
   gap: 12px;
+
   padding: 12px;
 
   border-radius: 10px;
@@ -429,71 +465,51 @@ h3 {
 
   font-weight: 600;
 
+  text-decoration: none;
+
   transition:
     background 0.2s,
     color 0.2s;
 }
 
-.dashboard-menu i {
+.dashboard-menu a i {
   width: 18px;
+
   text-align: center;
 }
 
 .dashboard-menu a:hover {
   background: var(--rp-hover);
+
   color: var(--rp-gold-text);
 }
 
 .dashboard-menu a.active,
-.dashboard-menu .active-menu {
+.dashboard-menu a.active-menu {
   background: var(--rp-active);
+
   color: var(--rp-gold-text);
 }
 
 
 /* ==========================================================
-   10. REPORTS MAIN PANEL
-========================================================== */
-
-.reports-panel {
-  min-width: 0;
-
-  background: var(--rp-card-bg);
-  color: var(--rp-text);
-
-  border-color: var(--rp-border);
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.section-heading h2 {
-  color: var(--rp-text);
-}
-
-
-/* ==========================================================
-   11. BUTTONS
+   10. GENERAL BUTTONS
 ========================================================== */
 
 .btn {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
   gap: 8px;
+
   padding: 10px 16px;
 
   border: 1px solid transparent;
   border-radius: 9px;
 
+  font-size: 13px;
   font-weight: 700;
 
   cursor: pointer;
@@ -504,14 +520,12 @@ h3 {
     color 0.2s;
 }
 
-
-/* GOLD BUTTON */
-
 .btn-gold {
   background: var(--rp-gold-gradient);
-  border-color: transparent;
 
   color: #16120a;
+
+  border: 1px solid transparent;
 }
 
 .btn-gold:hover,
@@ -521,28 +535,99 @@ h3 {
   color: #16120a;
 }
 
-
-/* OUTLINE BUTTON */
-
 .btn-outline {
-  background: var(--rp-outline-bg);
+  background: var(--rp-button-bg);
 
-  border-color: var(--rp-outline-border);
+  color: var(--rp-button-text);
 
-  color: var(--rp-text);
+  border: 1px solid var(--rp-button-border);
 }
 
 .btn-outline:hover {
-  background: var(--rp-outline-hover);
+  background: var(--rp-hover);
 
-  border-color: var(--rp-gold-text);
+  color: var(--rp-gold-text);
 
-  color: var(--rp-text);
+  border-color: var(--rp-gold);
 }
 
 
 /* ==========================================================
-   12. PERFORMANCE OVERVIEW SUMMARY
+   11. REPORTS MAIN PANEL
+========================================================== */
+
+.reports-panel {
+  min-width: 0;
+
+  background: var(--rp-card-bg);
+
+  color: var(--rp-text);
+}
+
+.section-heading {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  gap: 16px;
+
+  margin-bottom: 24px;
+}
+
+.section-heading h2 {
+  color: var(--rp-text);
+
+  font-size: 20px;
+  font-weight: 750;
+}
+
+
+/* ==========================================================
+   12. EXPORT REPORT BUTTON
+========================================================== */
+
+#exportReportBtn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 10px 18px;
+
+  background: var(--rp-gold-gradient);
+
+  color: #111111;
+
+  border: none;
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+#exportReportBtn:hover:not(:disabled) {
+  background: var(--rp-gold-hover);
+
+  color: #111111;
+}
+
+#exportReportBtn:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* ==========================================================
+   13. PERFORMANCE OVERVIEW SUMMARY CARDS
 ========================================================== */
 
 .report-summary {
@@ -551,26 +636,31 @@ h3 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
   gap: 14px;
+
   margin-bottom: 24px;
 }
 
 .report-box {
   min-width: 0;
 
+  min-height: 145px;
+
   padding: 22px 16px;
+
+  background: var(--rp-report-box-bg);
+
+  color: var(--rp-text);
 
   border: 1px solid var(--rp-border);
   border-radius: 14px;
 
-  background: var(--rp-summary-bg);
+  box-shadow: var(--rp-shadow);
 
   text-align: center;
 
-  box-shadow: var(--rp-shadow);
-
   transition:
-    transform 0.2s,
-    border-color 0.2s;
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .report-box:hover {
@@ -578,9 +668,6 @@ h3 {
 
   border-color: var(--rp-gold);
 }
-
-
-/* REPORT ICONS */
 
 .report-box i {
   display: inline-block;
@@ -592,19 +679,14 @@ h3 {
   font-size: 24px;
 }
 
-
-/* REPORT LABELS */
-
 .report-box p {
   margin: 0 0 8px;
 
   color: var(--rp-muted);
 
   font-size: 13px;
+  font-weight: 500;
 }
-
-
-/* REPORT VALUES */
 
 .report-box h4 {
   margin: 0;
@@ -612,19 +694,16 @@ h3 {
   color: var(--rp-gold-text);
 
   font-size: clamp(20px, 2vw, 28px);
-  font-weight: 750;
+  font-weight: 800;
+
+  line-height: 1.3;
 
   overflow-wrap: anywhere;
 }
 
-:root[data-account-theme="light"]
-.report-box h4 {
-  color: var(--rp-text);
-}
-
 
 /* ==========================================================
-   13. REPORT DETAILS LAYOUT
+   14. REPORT DETAILS LAYOUT
 ========================================================== */
 
 .report-details {
@@ -637,49 +716,54 @@ h3 {
   gap: 20px;
 }
 
-
-/* MONTHLY SALES AND ORDER STATUS CONTAINERS */
-
 .inner-card {
   min-width: 0;
 
   padding: 22px;
 
-  border: 1px solid var(--rp-inner-border);
-  border-radius: 14px;
-
-  background: var(--rp-surface);
+  background: var(--rp-inner-bg);
 
   color: var(--rp-text);
+
+  border: 1px solid var(--rp-divider);
+  border-radius: 14px;
 
   box-shadow: var(--rp-shadow);
 }
 
 .inner-card h3 {
+  margin: 0 0 12px;
+
   color: var(--rp-text);
+
+  font-size: 17px;
+  font-weight: 750;
 }
 
-.inner-card .muted {
+.inner-card .small {
   color: var(--rp-muted);
+
+  font-size: 12px;
 }
 
 
 /* ==========================================================
-   14. MONTHLY SALES CHART SCROLLBAR
+   15. MONTHLY SALES CHART SCROLL CONTAINER
 ========================================================== */
 
 .sales-chart-scroll {
   width: 100%;
 
   overflow-x: auto;
+  overflow-y: hidden;
 
   padding: 30px 0 18px;
 
   background: transparent;
 
   scrollbar-color:
-    var(--rp-scroll-thumb)
-    var(--rp-scroll-track);
+    var(--rp-gold)
+    var(--rp-scrollbar-bg);
 
   scrollbar-width: thin;
 }
@@ -689,57 +773,67 @@ h3 {
 }
 
 .sales-chart-scroll::-webkit-scrollbar-track {
-  background: var(--rp-scroll-track);
+  background: var(--rp-scrollbar-bg);
 
   border-radius: 20px;
 }
 
 .sales-chart-scroll::-webkit-scrollbar-thumb {
-  background: var(--rp-scroll-thumb);
+  background: var(--rp-gold);
 
   border-radius: 20px;
 }
 
 
 /* ==========================================================
-   15. MONTHLY SALES CHART
-
-   Existing dynamic chart heights are preserved.
+   16. MONTHLY SALES CHART
 ========================================================== */
 
 .sales-chart {
   display: flex;
-  flex-direction: row;
 
+  flex-direction: row;
   align-items: flex-end;
   justify-content: flex-start;
 
   gap: 30px;
 
   width: max-content;
+
   min-width: 920px;
 
   height: 230px;
 
   padding: 20px 25px 35px;
 
-  background: transparent;
+  background: var(--rp-chart-bg);
+
+  border: none;
+
+  box-shadow: none;
 }
 
 
-/* CHART BARS */
+/* ==========================================================
+   17. MONTHLY SALES CHART BARS
+
+   Bar heights are controlled by reports.js.
+========================================================== */
 
 .sales-chart .bar {
   position: relative;
 
   flex: 0 0 45px;
+
   width: 45px;
 
   min-height: 0;
 
-  border-radius: 7px 7px 0 0;
-
   background: var(--rp-bar-gradient);
+
+  border: none;
+
+  border-radius: 7px 7px 0 0;
 
   transition: filter 0.2s ease;
 }
@@ -749,7 +843,7 @@ h3 {
 }
 
 
-/* MONTH LABELS */
+/* MONTH LABEL */
 
 .sales-chart .bar span {
   position: absolute;
@@ -762,19 +856,18 @@ h3 {
   color: var(--rp-chart-label);
 
   font-size: 12px;
+  font-weight: 600;
 
   white-space: nowrap;
 }
 
 
-/* CHART AMOUNT LABELS */
+/* SALES AMOUNT LABEL */
 
-.sales-chart .bar .bar-value,
 .sales-chart .bar-value {
   position: absolute;
 
   top: -23px;
-  bottom: auto;
   left: 50%;
 
   transform: translateX(-50%);
@@ -782,29 +875,36 @@ h3 {
   color: var(--rp-gold-text);
 
   font-size: 10px;
+  font-weight: 700;
 
   white-space: nowrap;
 }
 
 
 /* ==========================================================
-   16. ORDER STATUS
+   18. ORDER STATUS ROWS
 ========================================================== */
 
 .status-row {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
 
   gap: 12px;
-  padding: 14px;
 
-  margin-bottom: 12px;
+  min-height: 49px;
+
+  padding: 12px 14px;
+
+  margin-bottom: 10px;
 
   background: var(--rp-status-bg);
 
   border: 1px solid var(--rp-status-border);
-  border-radius: 10px;
+  border-radius: 9px;
+
+  color: var(--rp-text);
 }
 
 .status-row:last-child {
@@ -813,41 +913,37 @@ h3 {
 
 .status-row span {
   color: var(--rp-muted);
+
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .status-row strong {
   color: var(--rp-gold-text);
 
-  font-weight: 700;
-}
-
-.status-row:hover {
-  border-color: var(--rp-gold);
+  font-size: 15px;
+  font-weight: 800;
 }
 
 
 /* ==========================================================
-   17. RECENT REPORT SUMMARY
+   19. RECENT REPORT SUMMARY
 ========================================================== */
 
 .report-history {
-  margin-top: 24px;
+  margin-top: 20px;
 
-  background: var(--rp-surface);
-
-  color: var(--rp-text);
-
-  border-color: var(--rp-inner-border);
+  background: var(--rp-inner-bg);
 }
 
 .report-history h3 {
+  margin-bottom: 18px;
+
   color: var(--rp-text);
+
+  font-size: 17px;
+  font-weight: 750;
 }
-
-
-/* ==========================================================
-   18. REPORT TABLE
-========================================================== */
 
 .table-responsive {
   width: 100%;
@@ -855,116 +951,95 @@ h3 {
   overflow-x: auto;
 }
 
+
+/* ==========================================================
+   20. REPORT TABLE
+========================================================== */
+
 .report-table {
   --bs-table-bg: var(--rp-table-row);
   --bs-table-color: var(--rp-text);
   --bs-table-border-color: var(--rp-divider);
-
-  --bs-table-striped-bg: var(--rp-table-row);
-  --bs-table-striped-color: var(--rp-text);
-
   --bs-table-hover-bg: var(--rp-table-hover);
   --bs-table-hover-color: var(--rp-text);
 
   width: 100%;
+
   margin-bottom: 0;
+
+  border-collapse: collapse;
 
   background: var(--rp-table-row);
 
   color: var(--rp-text);
 }
 
-
-/* TABLE HEADER */
-
-.report-table thead {
-  background: var(--rp-table-header);
-}
-
-.report-table th {
-  padding: 15px 12px;
+.report-table thead th {
+  padding: 14px 12px;
 
   background: var(--rp-table-header);
+
   color: var(--rp-gold-text);
 
-  border-color: var(--rp-divider);
+  border-bottom: 1px solid var(--rp-divider);
 
   font-size: 11px;
-  font-weight: 650;
-  letter-spacing: 0.6px;
+  font-weight: 700;
 
   text-transform: uppercase;
+
+  letter-spacing: 0.5px;
 
   white-space: nowrap;
 }
 
-
-/* TABLE ROWS */
-
-.report-table td {
-  padding: 16px 12px;
+.report-table tbody td {
+  padding: 15px 12px;
 
   background: var(--rp-table-row);
 
-  color: var(--rp-text);
+  color: var(--rp-text-secondary);
 
-  border-color: var(--rp-divider);
+  border-bottom: 1px solid var(--rp-divider);
 
   font-size: 13px;
 
-  overflow-wrap: anywhere;
+  vertical-align: middle;
 }
 
 .report-table tbody tr:hover td {
   background: var(--rp-table-hover);
 }
 
-
-/* EMPTY TABLE */
-
-.report-table .empty {
-  padding: 30px;
-
-  color: var(--rp-muted);
-
-  text-align: center;
+.report-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 
 /* ==========================================================
-   19. REPORT STATUS BADGES
+   21. REPORT TABLE STATUS BADGES
 ========================================================== */
 
+.status-badge,
 .badge-success,
-.badge-warning,
-.status-badge {
-  display: inline-block;
+.badge-warning {
+  display: inline-flex;
 
-  padding: 5px 10px;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+
+  padding: 6px 10px;
 
   border-radius: 20px;
 
   font-size: 11px;
-  font-weight: 650;
+  font-weight: 700;
 
   white-space: nowrap;
 }
 
-
-/* COMPLETED */
-
-.badge-success {
-  background: var(--rp-success-bg);
-
-  color: var(--rp-success);
-
-  border: 1px solid var(--rp-success-border);
-}
-
-
-/* PREPARING AND OTHER DEFAULT STATUS */
-
-.badge-warning,
 .status-badge {
   background: var(--rp-badge-bg);
 
@@ -974,338 +1049,757 @@ h3 {
 }
 
 
+/* COMPLETED / DELIVERED */
+
+.badge-success {
+  background: rgba(99, 219, 160, 0.10);
+
+  color: var(--rp-success);
+
+  border: 1px solid rgba(99, 219, 160, 0.25);
+}
+
+
+/* PROCESSING / PREPARING */
+
+.badge-warning,
+.badge-pending {
+  background: var(--rp-badge-bg);
+
+  color: var(--rp-gold-text);
+
+  border: 1px solid var(--rp-badge-border);
+}
+
+
+/* SHIPPING / DELIVERY */
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.10);
+
+  color: var(--rp-info);
+
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+
+/* CANCELLED */
+
+.badge-danger {
+  background: rgba(255, 133, 133, 0.10);
+
+  color: var(--rp-danger);
+
+  border: 1px solid rgba(255, 133, 133, 0.25);
+}
+
+
 /* ==========================================================
-   20. LOGOUT MODAL
+   22. EMPTY AND ERROR STATES
 ========================================================== */
 
-body.modal-open {
-  overflow: hidden;
+.empty,
+.report-table .empty {
+  padding: 35px 16px;
+
+  color: var(--rp-muted);
+
+  text-align: center;
+
+  font-size: 13px;
 }
 
-#adminLogoutModal {
-  position: fixed;
-  inset: 0;
+.error,
+.report-table .empty.error {
+  color: var(--rp-danger);
+}
 
-  z-index: 10000;
+.empty i {
+  margin-right: 6px;
+
+  color: var(--rp-gold-text);
+}
+
+
+/* ==========================================================
+   23. CUSTOM LOGOUT MODAL COMPATIBILITY
+
+   Supports the previous DIV-based logout modal.
+========================================================== */
+
+html body div#adminLogoutModal {
+  position: fixed !important;
+
+  inset: 0 !important;
 
   display: flex;
-  align-items: center;
-  justify-content: center;
 
-  padding: 16px;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  margin: 0 !important;
+  padding: 16px !important;
+
+  transform: none !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  box-shadow: none !important;
+
+  z-index: 999999;
 }
 
 
-/* LOGOUT BACKDROP */
+/* HIDDEN CUSTOM LOGOUT */
 
-.logout-backdrop {
+html body #adminLogoutModal.hidden,
+html body #adminLogoutModal[hidden] {
+  display: none !important;
+
+  pointer-events: none !important;
+}
+
+
+/* CUSTOM LOGOUT BACKDROP */
+
+html body #adminLogoutModal .logout-backdrop {
   position: absolute;
+
   inset: 0;
 
-  background: var(--rp-backdrop);
+  z-index: 1;
+
+  background: var(--rp-logout-overlay) !important;
+
+  backdrop-filter: blur(3px);
+
+  -webkit-backdrop-filter: blur(3px);
 }
 
 
-/* LOGOUT CONTAINER */
+/* ==========================================================
+   24. CUSTOM LOGOUT BOX
+========================================================== */
 
-.logout-box {
-  position: relative;
+html body #adminLogoutModal .logout-box {
+  position: relative !important;
 
-  width: min(460px, 100%);
+  z-index: 2;
+
+  inset: auto !important;
+
+  transform: none !important;
+
+  width: min(378px, 100%) !important;
+  max-width: 378px !important;
+
+  height: auto !important;
+
   max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+
+  margin: auto !important;
+
+  padding: 30px 27px !important;
+
+  background: var(--rp-logout-bg) !important;
+  background-image: none !important;
+
+  color: var(--rp-logout-text) !important;
+
+  border: 1px solid var(--rp-logout-border) !important;
+  border-radius: 20px !important;
+
+  box-shadow: var(--rp-modal-shadow) !important;
+
+  text-align: center !important;
 
   overflow-y: auto;
 
-  padding: 28px;
-
-  background: var(--rp-modal-bg);
-
-  color: var(--rp-text);
-
-  border: 1px solid var(--rp-modal-border);
-  border-radius: 18px;
-
-  box-shadow: var(--rp-modal-shadow);
-}
-
-
-/* LOGOUT TITLE */
-
-.logout-box h2 {
-  margin-bottom: 12px;
-
-  color: var(--rp-modal-title);
-}
-
-
-/* LOGOUT DESCRIPTION */
-
-.logout-box p {
-  margin-bottom: 24px;
-
-  color: var(--rp-muted);
-}
-
-
-/* LOGOUT ACTIONS */
-
-.logout-actions {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-
-  gap: 10px;
-}
-
-.logout-box .btn-outline {
-  background: var(--rp-outline-bg);
-
-  color: var(--rp-text);
-
-  border-color: var(--rp-outline-border);
-}
-
-.logout-box .btn-outline:hover {
-  background: var(--rp-outline-hover);
+  box-sizing: border-box;
 }
 
 
 /* ==========================================================
-   21. EXACT LIGHT MODE OVERRIDES
+   25. UNIFIED NATIVE LOGOUT DIALOG
 
-   Prevent conflicts with existing admin-theme.css.
+   Compatible with updated reports.js and reports.html.
+   Centered horizontally and vertically.
 ========================================================== */
+
+html body dialog#adminLogoutModal.jcn-unified-logout {
+  position: fixed !important;
+
+  inset: 0 !important;
+
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+
+  margin: auto !important;
+
+  transform: none !important;
+
+  width: min(378px, calc(100vw - 32px)) !important;
+  max-width: 378px !important;
+
+  height: fit-content !important;
+
+  max-height: calc(100vh - 32px) !important;
+  max-height: calc(100dvh - 32px) !important;
+
+  min-height: 0 !important;
+
+  padding: 30px 27px !important;
+
+  background: var(--rp-logout-bg) !important;
+  background-image: none !important;
+
+  color: var(--rp-logout-text) !important;
+
+  border: 1px solid var(--rp-logout-border) !important;
+
+  border-radius: 20px !important;
+
+  box-shadow: var(--rp-modal-shadow) !important;
+
+  text-align: center !important;
+
+  overflow-y: auto;
+
+  box-sizing: border-box;
+
+  z-index: 10000;
+}
+
+
+/* ==========================================================
+   26. NATIVE LOGOUT VISIBILITY
+
+   Prevents closed dialog from blocking page clicks.
+========================================================== */
+
+html body dialog#adminLogoutModal.jcn-unified-logout:not([open]) {
+  display: none !important;
+
+  visibility: hidden !important;
+
+  pointer-events: none !important;
+}
+
+html body dialog#adminLogoutModal.jcn-unified-logout[open] {
+  display: block !important;
+
+  visibility: visible !important;
+
+  opacity: 1 !important;
+
+  pointer-events: auto !important;
+}
+
+
+/* NATIVE DIALOG BACKDROP */
+
+html body dialog#adminLogoutModal::backdrop {
+  background: var(--rp-logout-overlay) !important;
+
+  backdrop-filter: blur(3px);
+
+  -webkit-backdrop-filter: blur(3px);
+}
+
+
+/* ==========================================================
+   27. CENTERED LOGOUT ICON
+========================================================== */
+
+html body #adminLogoutModal .logout-icon {
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex-shrink: 0;
+
+  width: 65px !important;
+  height: 65px !important;
+
+  margin: 0 auto 18px !important;
+  padding: 0 !important;
+
+  background: var(--rp-gold-gradient) !important;
+
+  color: #080808 !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  font-size: 25px !important;
+
+  box-shadow: none !important;
+}
+
+html body #adminLogoutModal .logout-icon i {
+  color: #080808 !important;
+
+  font-size: 25px !important;
+}
+
+
+/* ==========================================================
+   28. LOGOUT TITLE AND DESCRIPTION
+========================================================== */
+
+html body #adminLogoutModal :is(h2, h3, h4) {
+  margin: 0 0 8px !important;
+
+  color: var(--rp-logout-text) !important;
+
+  font-size: 23px !important;
+  font-weight: 800 !important;
+
+  line-height: 1.3;
+
+  text-align: center !important;
+}
+
+html body #adminLogoutModal p {
+  margin: 0 0 27px !important;
+
+  color: var(--rp-logout-muted) !important;
+
+  font-size: 14px !important;
+
+  line-height: 1.5;
+
+  white-space: normal !important;
+
+  text-align: center !important;
+}
+
+
+/* ==========================================================
+   29. LOGOUT BUTTON CONTAINER
+========================================================== */
+
+html body #adminLogoutModal .logout-actions {
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+
+  gap: 12px !important;
+
+  width: 100% !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+}
+
+
+/* SHARED BUTTON STYLE */
+
+html body #adminLogoutModal :is(
+  #adminConfirmLogout,
+  #adminCancelLogout,
+  .logout-confirm-btn,
+  .logout-cancel-btn,
+  .confirm-logout,
+  .cancel-logout
+) {
+  display: inline-flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex: 1 1 0 !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+
+  min-height: 46px;
+
+  height: auto !important;
+
+  margin: 0 !important;
+
+  padding: 12px 10px !important;
+
+  border-radius: 10px !important;
+
+  font-size: 13px !important;
+  font-weight: 800 !important;
+
+  line-height: 1.4;
+
+  cursor: pointer;
+
+  transform: none !important;
+
+  box-shadow: none !important;
+
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+
+/* ==========================================================
+   30. CONFIRM LOGOUT BUTTON
+========================================================== */
+
+html body #adminLogoutModal :is(
+  #adminConfirmLogout,
+  .logout-confirm-btn,
+  .confirm-logout
+) {
+  order: 1 !important;
+
+  background: var(--rp-gold-gradient) !important;
+
+  color: #080808 !important;
+
+  border: 1px solid transparent !important;
+}
+
+html body #adminLogoutModal :is(
+  #adminConfirmLogout,
+  .logout-confirm-btn,
+  .confirm-logout
+):hover {
+  background: #e8b830 !important;
+
+  color: #080808 !important;
+
+  transform: none !important;
+
+  box-shadow: none !important;
+}
+
+
+/* ==========================================================
+   31. CANCEL LOGOUT BUTTON
+========================================================== */
+
+html body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .logout-cancel-btn,
+  .cancel-logout
+) {
+  order: 2 !important;
+
+  background: transparent !important;
+
+  color: var(--rp-logout-cancel) !important;
+
+  border: 1px solid #d4a51b !important;
+}
+
+html body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .logout-cancel-btn,
+  .cancel-logout
+):hover {
+  background: var(--rp-logout-hover) !important;
+
+  color: var(--rp-logout-cancel) !important;
+
+  transform: none !important;
+
+  box-shadow: none !important;
+}
+
+html body #adminLogoutModal button:disabled {
+  opacity: 0.55 !important;
+
+  cursor: not-allowed;
+}
+
+#adminLogoutModal button:focus-visible {
+  outline: 2px solid #c49a35;
+
+  outline-offset: 3px;
+}
+
+
+/* ==========================================================
+   32. EXACT LIGHT MODE OVERRIDES
+
+   Prevent conflicts with older admin-theme.css rules.
+========================================================== */
+
+html[data-account-theme="light"] body.dashboard-body {
+  background: #f6f7f9 !important;
+
+  color: #20242b !important;
+}
+
+
+/* MAIN DASHBOARD CARDS */
+
+html[data-account-theme="light"]
+body.dashboard-body :is(
+  .dashboard-nav,
+  .dashboard-card,
+  .reports-panel
+) {
+  background: #ffffff !important;
+  background-image: none !important;
+
+  color: #20242b !important;
+
+  border-color: #dce0e6 !important;
+}
 
 
 /* TOP NAVIGATION */
 
-:root[data-account-theme="light"]
-.dashboard-nav .brand,
+html[data-account-theme="light"]
+body.dashboard-body .dashboard-nav .brand,
 
-:root[data-account-theme="light"]
-.dashboard-nav .top-menu a {
-  color: var(--rp-text) !important;
+html[data-account-theme="light"]
+body.dashboard-body .dashboard-nav .top-menu a {
+  color: #20242b !important;
 }
 
-:root[data-account-theme="light"]
-.dashboard-nav .top-menu a:hover,
+html[data-account-theme="light"]
+body.dashboard-body .dashboard-nav .top-menu a:hover,
 
-:root[data-account-theme="light"]
-.dashboard-nav .top-menu a.active,
-
-:root[data-account-theme="light"]
-.dashboard-nav .top-menu a.active-menu {
-  color: var(--rp-gold-text) !important;
+html[data-account-theme="light"]
+body.dashboard-body .dashboard-nav .top-menu a.active {
+  color: #936a12 !important;
 }
 
 
-/* PERFORMANCE OVERVIEW CONTAINER */
+/* SIDEBAR */
 
-:root[data-account-theme="light"]
-.reports-panel {
-  background: var(--rp-card) !important;
+html[data-account-theme="light"]
+body.dashboard-body .dashboard-menu a {
+  color: #434a55 !important;
+}
+
+html[data-account-theme="light"]
+body.dashboard-body .dashboard-menu a:is(
+  .active,
+  .active-menu,
+  :hover
+) {
+  background: #fff3d4 !important;
+
+  color: #936a12 !important;
+}
+
+
+/* ==========================================================
+   33. LIGHT MODE PERFORMANCE OVERVIEW
+========================================================== */
+
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-box {
+  background: #ffffff !important;
 
   background-image: none !important;
 
-  color: var(--rp-text) !important;
+  color: #20242b !important;
 
-  border-color: var(--rp-border) !important;
+  border: 1px solid #dce0e6 !important;
+
+  box-shadow:
+    0 4px 15px rgba(35, 40, 50, 0.05);
+}
+
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-box i {
+  color: #936a12 !important;
+}
+
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-box p {
+  color: #626b78 !important;
+}
+
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-box h4 {
+  color: #936a12 !important;
 }
 
 
-/* REPORT SUMMARY BOXES */
+/* ==========================================================
+   34. LIGHT MODE INNER REPORT CARDS
+========================================================== */
 
-:root[data-account-theme="light"]
-.reports-panel .report-box {
-  background: var(--rp-card) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .inner-card {
+  background: #ffffff !important;
 
   background-image: none !important;
 
-  color: var(--rp-text) !important;
+  color: #20242b !important;
 
-  border-color: var(--rp-border) !important;
+  border: 1px solid #dce0e6 !important;
+
+  box-shadow:
+    0 4px 15px rgba(35, 40, 50, 0.04);
 }
 
-:root[data-account-theme="light"]
-.reports-panel .report-box i {
-  color: var(--rp-gold-text) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .inner-card h3 {
+  color: #20242b !important;
 }
 
-:root[data-account-theme="light"]
-.reports-panel .report-box p {
-  color: var(--rp-muted) !important;
-}
-
-:root[data-account-theme="light"]
-.reports-panel .report-box h4 {
-  color: var(--rp-text) !important;
-}
-
-
-/* CHART AND STATUS CONTAINERS */
-
-:root[data-account-theme="light"]
-.reports-panel .inner-card,
-
-:root[data-account-theme="light"]
-.reports-panel .report-history {
-  background: var(--rp-card) !important;
-
-  background-image: none !important;
-
-  color: var(--rp-text) !important;
-
-  border-color: var(--rp-inner-border) !important;
-}
-
-:root[data-account-theme="light"]
-.reports-panel .inner-card h3,
-
-:root[data-account-theme="light"]
-.reports-panel .report-history h3 {
-  color: var(--rp-text) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .inner-card .muted {
+  color: #626b78 !important;
 }
 
 
-/* SALES CHART BACKGROUND */
+/* ==========================================================
+   35. LIGHT MODE MONTHLY SALES CHART
+========================================================== */
 
-:root[data-account-theme="light"]
-.reports-panel .sales-chart,
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .sales-chart-scroll {
+  background: transparent !important;
 
-:root[data-account-theme="light"]
-.reports-panel .sales-chart-scroll {
+  border: none !important;
+}
+
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .sales-chart {
   background: transparent !important;
 
   background-image: none !important;
 
-  color: var(--rp-text) !important;
+  color: #20242b !important;
 
   border: none !important;
 
   box-shadow: none !important;
 }
 
-
-/* CHART BARS */
-
-:root[data-account-theme="light"]
-.reports-panel .sales-chart .bar {
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .sales-chart .bar {
   background: var(--rp-bar-gradient) !important;
+
+  border: none !important;
 }
 
-
-/* CHART MONTH LABELS */
-
-:root[data-account-theme="light"]
-.reports-panel .sales-chart .bar span {
-  color: var(--rp-chart-label) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .sales-chart .bar span {
+  color: #626b78 !important;
 }
 
-
-/* CHART VALUES */
-
-:root[data-account-theme="light"]
-.reports-panel .sales-chart .bar .bar-value,
-
-:root[data-account-theme="light"]
-.reports-panel .sales-chart .bar-value {
-  color: var(--rp-gold-text) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .sales-chart .bar-value {
+  color: #936a12 !important;
 }
 
-
-/* CHART SCROLLBAR */
-
-:root[data-account-theme="light"]
-.reports-panel .sales-chart-scroll {
-  scrollbar-color: #c49a35 #edf0f4;
-}
-
-:root[data-account-theme="light"]
-.sales-chart-scroll::-webkit-scrollbar-track {
+html[data-account-theme="light"]
+body .sales-chart-scroll::-webkit-scrollbar-track {
   background: #edf0f4 !important;
 }
 
-:root[data-account-theme="light"]
-.sales-chart-scroll::-webkit-scrollbar-thumb {
+html[data-account-theme="light"]
+body .sales-chart-scroll::-webkit-scrollbar-thumb {
   background: #c49a35 !important;
 }
 
 
-/* ORDER STATUS */
+/* ==========================================================
+   36. LIGHT MODE ORDER STATUS
+========================================================== */
 
-:root[data-account-theme="light"]
-.reports-panel .status-row {
-  background: var(--rp-status-bg) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .status-row {
+  background: #f8f9fb !important;
 
-  color: var(--rp-text) !important;
+  background-image: none !important;
 
-  border-color: var(--rp-status-border) !important;
+  color: #20242b !important;
+
+  border: 1px solid #dce0e6 !important;
 }
 
-:root[data-account-theme="light"]
-.reports-panel .status-row span {
-  color: var(--rp-muted) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .status-row span {
+  color: #626b78 !important;
 }
 
-:root[data-account-theme="light"]
-.reports-panel .status-row strong {
-  color: var(--rp-gold-text) !important;
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .status-row strong {
+  color: #936a12 !important;
 }
 
 
-/* REPORT TABLE */
+/* ==========================================================
+   37. LIGHT MODE RECENT REPORT SUMMARY
+========================================================== */
 
-:root[data-account-theme="light"]
-.report-table {
-  --bs-table-bg: #ffffff;
-  --bs-table-color: #30343b;
-  --bs-table-border-color: #e1e4e8;
-
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-history {
   background: #ffffff !important;
 
-  color: #30343b !important;
-}
+  background-image: none !important;
 
-:root[data-account-theme="light"]
-.reports-panel .report-table th {
-  background: #edf0f4 !important;
-
-  color: #30343b !important;
+  color: #20242b !important;
 
   border-color: #dce0e6 !important;
 }
 
-:root[data-account-theme="light"]
-.reports-panel .report-table td {
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-table {
+  --bs-table-bg: #ffffff;
+  --bs-table-color: #20242b;
+  --bs-table-border-color: #e1e4e8;
+
   background: #ffffff !important;
 
-  color: #30343b !important;
+  color: #20242b !important;
+}
+
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-table thead th {
+  background: #edf0f4 !important;
+
+  color: #434a55 !important;
+
+  border-color: #dce0e6 !important;
+}
+
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-table tbody td {
+  background: #ffffff !important;
+
+  color: #434a55 !important;
 
   border-color: #e1e4e8 !important;
 }
 
-:root[data-account-theme="light"]
-.reports-panel .report-table tbody tr:hover td {
+html[data-account-theme="light"]
+body.dashboard-body .reports-panel .report-table tbody tr:hover td {
   background: #fffaf0 !important;
 }
 
 
-/* REPORT STATUS BADGES */
+/* ==========================================================
+   38. LIGHT MODE STATUS BADGES
+========================================================== */
 
-:root[data-account-theme="light"]
-.report-table .badge-success {
-  background: #eaf9f0 !important;
-
-  color: #168258 !important;
-
-  border-color: #bce8cf !important;
-}
-
-:root[data-account-theme="light"]
-.report-table :is(
-  .badge-warning,
-  .status-badge
-):not(.badge-success) {
+html[data-account-theme="light"]
+body .report-table .status-badge {
   background: #fff7e3 !important;
 
   color: #936a12 !important;
@@ -1313,28 +1807,55 @@ body.modal-open {
   border-color: #efddb0 !important;
 }
 
+html[data-account-theme="light"]
+body .report-table .badge-success {
+  background: #eaf9f0 !important;
 
-/* EXPORT REPORT BUTTON */
+  color: #168258 !important;
 
-:root[data-account-theme="light"]
-.reports-panel .btn-gold {
-  background: var(--rp-gold-gradient) !important;
-
-  color: #171717 !important;
-
-  border-color: #c49a35 !important;
+  border-color: #bce8cf !important;
 }
 
-:root[data-account-theme="light"]
-.reports-panel .btn-gold:hover {
-  background: #e8b830 !important;
+html[data-account-theme="light"]
+body .report-table :is(
+  .badge-warning,
+  .badge-pending
+) {
+  background: #fff7e3 !important;
+
+  color: #936a12 !important;
+
+  border-color: #efddb0 !important;
+}
+
+html[data-account-theme="light"]
+body .report-table .badge-info {
+  background: #edf5ff !important;
+
+  color: #2563b5 !important;
+
+  border-color: #bfd7f7 !important;
+}
+
+html[data-account-theme="light"]
+body .report-table .badge-danger {
+  background: #fff0f0 !important;
+
+  color: #c73636 !important;
+
+  border-color: #efc5c5 !important;
 }
 
 
-/* LOGOUT MODAL */
+/* ==========================================================
+   39. LIGHT MODE LOGOUT MODAL
+========================================================== */
 
-:root[data-account-theme="light"]
-#adminLogoutModal .logout-box {
+html[data-account-theme="light"]
+body dialog#adminLogoutModal.jcn-unified-logout,
+
+html[data-account-theme="light"]
+body #adminLogoutModal .logout-box {
   background: #ffffff !important;
 
   background-image: none !important;
@@ -1343,53 +1864,119 @@ body.modal-open {
 
   border-color: #dce0e6 !important;
 
-  box-shadow: var(--rp-modal-shadow) !important;
+  box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.18) !important;
 }
 
-:root[data-account-theme="light"]
-#adminLogoutModal .logout-box h2 {
+html[data-account-theme="light"]
+body #adminLogoutModal :is(h2, h3, h4) {
   color: #20242b !important;
 }
 
-:root[data-account-theme="light"]
-#adminLogoutModal .logout-box p {
+html[data-account-theme="light"]
+body #adminLogoutModal p {
   color: #626b78 !important;
 }
 
-:root[data-account-theme="light"]
-#adminLogoutModal .logout-backdrop {
-  background: rgba(15, 23, 42, 0.48) !important;
+html[data-account-theme="light"]
+body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .logout-cancel-btn,
+  .cancel-logout
+) {
+  background: #ffffff !important;
+
+  color: #936a12 !important;
+
+  border-color: #d4a51b !important;
 }
 
-:root[data-account-theme="light"]
-#adminLogoutModal .btn-outline {
-  background: #f0f2f5 !important;
+html[data-account-theme="light"]
+body #adminLogoutModal :is(
+  #adminCancelLogout,
+  .logout-cancel-btn,
+  .cancel-logout
+):hover {
+  background: #fff3d4 !important;
 
-  color: #434a55 !important;
-
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-#adminLogoutModal .btn-outline:hover {
-  background: #e2e5e9 !important;
-
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-#adminLogoutModal .btn-gold {
-  background: var(--rp-gold-gradient) !important;
-
-  color: #171717 !important;
+  color: #936a12 !important;
 }
 
 
 /* ==========================================================
-   22. RESPONSIVE - LARGE TABLETS
+   40. SWEETALERT2 NOTIFICATIONS
+
+   Export success, warning and error messages.
 ========================================================== */
 
-@media (max-width: 1150px) {
+html[data-account-theme] body .swal2-popup {
+  background: var(--rp-card) !important;
+
+  color: var(--rp-text) !important;
+
+  border: 1px solid var(--rp-border);
+
+  border-radius: 20px;
+
+  box-shadow: var(--rp-modal-shadow);
+}
+
+html[data-account-theme] body .swal2-title {
+  color: var(--rp-text) !important;
+
+  font-weight: 750;
+}
+
+html[data-account-theme] body .swal2-html-container {
+  color: var(--rp-muted) !important;
+}
+
+html[data-account-theme] body .swal2-confirm {
+  background: var(--rp-gold-gradient) !important;
+
+  color: #111111 !important;
+
+  border-radius: 9px;
+
+  font-weight: 700;
+}
+
+html[data-account-theme] body .swal2-cancel {
+  background: var(--rp-button-bg) !important;
+
+  color: var(--rp-button-text) !important;
+
+  border: 1px solid var(--rp-button-border);
+
+  border-radius: 9px;
+}
+
+
+/* ==========================================================
+   41. GENERAL SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--rp-scrollbar-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b9953b;
+
+  border-radius: 10px;
+}
+
+
+/* ==========================================================
+   42. DESKTOP AND TABLET RESPONSIVE
+========================================================== */
+
+@media (max-width: 1200px) {
 
   .report-summary {
     grid-template-columns:
@@ -1403,15 +1990,10 @@ body.modal-open {
 }
 
 
-/* ==========================================================
-   23. RESPONSIVE - TABLETS
-========================================================== */
-
 @media (max-width: 1000px) {
 
   .dashboard-layout {
-    grid-template-columns:
-      220px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 
   .sidebar,
@@ -1423,11 +2005,15 @@ body.modal-open {
     gap: 18px;
   }
 
+  .inner-card {
+    padding: 18px;
+  }
+
 }
 
 
 /* ==========================================================
-   24. RESPONSIVE - MOBILE
+   43. MOBILE RESPONSIVE
 ========================================================== */
 
 @media (max-width: 760px) {
@@ -1449,6 +2035,8 @@ body.modal-open {
 
     justify-content: center;
 
+    gap: 18px;
+
     padding-top: 12px;
 
     border-top: 1px solid var(--rp-border);
@@ -1467,20 +2055,116 @@ body.modal-open {
     padding: 20px;
   }
 
-  .inner-card {
+  .reports-panel {
     padding: 18px;
   }
 
+  .section-heading {
+    align-items: flex-start;
+  }
+
+  .report-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+  }
+
+  .report-box {
+    min-height: 130px;
+
+    padding: 18px 12px;
+  }
+
+  .report-box h4 {
+    font-size: 22px;
+  }
+
+  .report-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .report-table {
-    min-width: 620px;
+    min-width: 650px;
+  }
+
+  .inner-card {
+    padding: 18px;
   }
 
 }
 
 
 /* ==========================================================
-   25. RESPONSIVE - SMALL MOBILE
+   44. SMALL MOBILE DEVICES
 ========================================================== */
+
+@media (max-width: 480px) {
+
+  .section-heading {
+    flex-direction: column;
+  }
+
+  #exportReportBtn {
+    width: 100%;
+  }
+
+  .report-box {
+    min-height: 125px;
+  }
+
+  .report-box i {
+    font-size: 22px;
+  }
+
+  .report-box p {
+    font-size: 12px;
+  }
+
+  .report-box h4 {
+    font-size: 20px;
+  }
+
+  .status-row {
+    padding: 10px 12px;
+  }
+
+  /* CENTERED MOBILE LOGOUT */
+
+  html body #adminLogoutModal .logout-box,
+
+  html body dialog#adminLogoutModal.jcn-unified-logout {
+    width: min(
+      378px,
+      calc(100vw - 32px)
+    ) !important;
+
+    padding: 25px 20px !important;
+
+    margin: auto !important;
+  }
+
+  html body #adminLogoutModal :is(h2, h3, h4) {
+    font-size: 21px !important;
+  }
+
+  html body #adminLogoutModal .logout-actions {
+    flex-direction: row !important;
+
+    flex-wrap: nowrap !important;
+
+    gap: 10px !important;
+  }
+
+  html body #adminLogoutModal .logout-actions button {
+    flex: 1 1 0 !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+}
+
 
 @media (max-width: 420px) {
 
@@ -1489,42 +2173,22 @@ body.modal-open {
   }
 
   .dashboard-menu {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .report-summary {
-    gap: 10px;
-  }
-
-  .report-box {
-    padding: 18px 10px;
-  }
-
-  .report-box h4 {
-    font-size: 20px;
-  }
-
-  .report-box p {
-    font-size: 12px;
-  }
-
-  .report-box i {
-    font-size: 20px;
+  .reports-panel {
+    padding: 14px;
   }
 
   .inner-card {
     padding: 14px;
   }
 
-  .logout-actions .btn {
-    flex: 1;
-  }
-
 }
 
 
 /* ==========================================================
-   26. ACCESSIBILITY
+   45. REDUCED MOTION ACCESSIBILITY
 ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1532,7 +2196,8 @@ body.modal-open {
   .btn,
   .dashboard-menu a,
   .report-box,
-  .sales-chart .bar {
+  .sales-chart .bar,
+  #adminLogoutModal button {
     transition: none !important;
   }
 
