@@ -2893,593 +2893,350 @@ div:has(> div > :is(h1, h2, h3)):has(> button#addStaffBtn) {
 }
 
 /* ==========================================================
-   JCN MANAGE STAFF - FINAL LIGHT MODE FIX
-   Based on actual manage-staff.css selectors
+   JCN APPAREL PRINTING SERVICES
+   UNIFIED ADMIN LOGOUT MODAL
+   ALL ADMIN MODULES
 ========================================================== */
 
+/* 01. DARK MODE */
 
-/* ==========================================================
-   01. STAFF DIRECTORY HEADER
-========================================================== */
+:root {
+  --jcn-logout-bg: #161616;
+  --jcn-logout-text: #ffffff;
+  --jcn-logout-muted: #b8b8b8;
+  --jcn-logout-border: rgba(244, 197, 66, 0.28);
 
-:root[data-account-theme="light"]
-.staff-main .page-header {
-  background: #ffffff !important;
-  background-image: none !important;
-  color: #20242b !important;
-  border-color: #dce0e6 !important;
-  box-shadow: 0 8px 28px rgba(35, 40, 50, 0.07) !important;
-}
+  --jcn-logout-cancel-text: #f4c542;
+  --jcn-logout-cancel-bg: transparent;
+  --jcn-logout-cancel-hover: #302817;
 
-:root[data-account-theme="light"]
-.staff-main .page-title {
-  color: #20242b !important;
-}
+  --jcn-logout-overlay: rgba(0, 0, 0, 0.76);
 
-:root[data-account-theme="light"]
-.staff-main .page-eyebrow {
-  color: #936a12 !important;
-}
+  --jcn-logout-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.50);
 
-:root[data-account-theme="light"]
-.staff-main .page-description {
-  color: #626b78 !important;
+  --jcn-logout-gold:
+    linear-gradient(135deg, #f4c542, #d4a51b);
 }
 
 
-/* ==========================================================
-   02. ADD STAFF ACCOUNT BUTTON
-========================================================== */
+/* 02. LIGHT MODE */
 
-:root[data-account-theme="light"]
-.staff-main .btn-add-staff {
-  background: linear-gradient(
-    135deg,
-    #f4c542,
-    #d4a72c
-  ) !important;
+:root[data-account-theme="light"] {
+  --jcn-logout-bg: #ffffff;
+  --jcn-logout-text: #20242b;
+  --jcn-logout-muted: #626b78;
+  --jcn-logout-border: #dce0e6;
 
-  color: #171717 !important;
-  border-color: #c49a35 !important;
-}
+  --jcn-logout-cancel-text: #936a12;
+  --jcn-logout-cancel-bg: #ffffff;
+  --jcn-logout-cancel-hover: #fff3d4;
 
-:root[data-account-theme="light"]
-.staff-main .btn-add-staff:hover {
-  background: #e8b830 !important;
-  color: #171717 !important;
+  --jcn-logout-overlay: rgba(0, 0, 0, 0.76);
+
+  --jcn-logout-shadow:
+    0 15px 45px rgba(0, 0, 0, 0.16);
 }
 
 
-/* ==========================================================
-   03. SUMMARY CARDS
-========================================================== */
+/* 03. LOGOUT OVERLAY */
 
-:root[data-account-theme="light"]
-.staff-main .summary-card {
-  background: #ffffff !important;
-  background-image: none !important;
-  border-color: #dce0e6 !important;
-  box-shadow: 0 5px 18px rgba(35, 40, 50, 0.06);
+html[data-account-theme] body #adminLogoutModal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 10000;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 16px;
 }
 
-:root[data-account-theme="light"]
-.staff-main .summary-card p {
-  color: #626b78 !important;
-}
+/* Preserve existing modal visibility */
 
-:root[data-account-theme="light"]
-.staff-main .summary-card h3 {
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .summary-icon {
-  background: #fff7e3 !important;
-  color: #936a12 !important;
-  border-color: #efddb0 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .summary-card:hover {
-  border-color: #c49a35 !important;
+#adminLogoutModal.hidden,
+#adminLogoutModal[hidden] {
+  display: none !important;
 }
 
 
-/* ==========================================================
-   04. STAFF ACCOUNTS PANEL
-========================================================== */
+/* 04. BACKDROP */
 
-:root[data-account-theme="light"]
-.staff-main .staff-panel {
-  background: #ffffff !important;
-  background-image: none !important;
-  border-color: #dce0e6 !important;
-  box-shadow: 0 8px 28px rgba(35, 40, 50, 0.07);
-}
-
-:root[data-account-theme="light"]
-.staff-main .staff-panel-header {
-  background: #ffffff !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .staff-panel-header h3 {
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .staff-panel-header p {
-  color: #626b78 !important;
-}
-
-
-/* ==========================================================
-   05. SEARCH AND FILTER
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-main .search-box {
-  background: #ffffff !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .search-box i {
-  color: #626b78 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .search-box input {
-  background: transparent !important;
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .search-box input::placeholder {
-  color: #707986 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .staff-filter {
-  background-color: #ffffff !important;
-  color: #20242b !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .search-box:focus-within,
-
-:root[data-account-theme="light"]
-.staff-main .staff-filter:focus {
-  border-color: #c49a35 !important;
-}
-
-
-/* ==========================================================
-   06. STAFF TABLE
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-main .staff-table {
-  background: #ffffff !important;
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .staff-table thead,
-
-:root[data-account-theme="light"]
-.staff-main .staff-table th {
-  background: #edf0f4 !important;
-  color: #30343b !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .staff-table td {
-  background: #ffffff !important;
-  color: #434a55 !important;
-  border-color: #e1e4e8 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-main .staff-table tbody tr:hover td {
-  background: #fffaf0 !important;
-}
-
-
-/* ==========================================================
-   07. STAFF PROFILE
-========================================================== */
-
-:root[data-account-theme="light"] .staff-avatar {
-  background: #fff7e3 !important;
-  color: #936a12 !important;
-  border-color: #efddb0 !important;
-}
-
-:root[data-account-theme="light"] .staff-name {
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"] .staff-email {
-  color: #626b78 !important;
-}
-
-
-/* ==========================================================
-   08. STAFF ROLE AND STATUS
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-table .role-badge {
-  background: #fff7e3 !important;
-  color: #936a12 !important;
-  border-color: #efddb0 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-table .status-active {
-  background: #eaf9f0 !important;
-  color: #168258 !important;
-  border-color: #bce8cf !important;
-}
-
-:root[data-account-theme="light"]
-.staff-table .status-inactive {
-  background: #edf0f4 !important;
-  color: #626b78 !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-table .status-restricted {
-  background: #fff0f0 !important;
-  color: #c73636 !important;
-  border-color: #efc5c5 !important;
-}
-
-
-/* ==========================================================
-   09. STAFF ACTION BUTTONS
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-actions .action-btn {
-  background: #f6f7f9 !important;
-  color: #434a55 !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-actions .action-btn:hover {
-  background: #fff3d4 !important;
-  color: #936a12 !important;
-  border-color: #c49a35 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-actions .action-btn.delete {
-  background: #fff0f0 !important;
-  color: #c73636 !important;
-  border-color: #efc5c5 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-actions .action-btn.delete:hover {
-  background: #dc3545 !important;
-  color: #ffffff !important;
-  border-color: #dc3545 !important;
-}
-
-
-/* ==========================================================
-   10. EMPTY TABLE
-========================================================== */
-
-:root[data-account-theme="light"]
-.empty-table h4 {
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-.empty-table p {
-  color: #626b78 !important;
-}
-
-:root[data-account-theme="light"]
-.empty-icon {
-  background: #fff3d4 !important;
-  color: #936a12 !important;
-}
-
-
-/* ==========================================================
-   11. ADD / EDIT STAFF MODAL
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-modal {
-  background: #ffffff !important;
-  background-image: none !important;
-  color: #20242b !important;
-  border-color: #dce0e6 !important;
-
-  box-shadow:
-    0 20px 60px rgba(15, 23, 42, 0.18) !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal :is(
-  .modal-header,
-  .modal-body,
-  .modal-footer
+html[data-account-theme] body :is(
+  .logout-backdrop,
+  .logout-modal-overlay
 ) {
-  background: #ffffff !important;
-  border-color: #dce0e6 !important;
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .modal-title {
-  color: #20242b !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .modal-eyebrow {
-  color: #936a12 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .form-label {
-  color: #434a55 !important;
+  background: var(--jcn-logout-overlay) !important;
+  backdrop-filter: blur(3px);
 }
 
 
-/* ==========================================================
-   12. INPUT GROUP CUSTOM
+/* 05. UNIFIED MODAL CONTAINER */
 
-   Exact selector causing the black input wrappers.
-========================================================== */
+html[data-account-theme] body :is(
+  .logout-box,
+  .logout-modal,
+  .logout-modal-content,
+  #adminLogoutModal .modal-content
+) {
+  position: relative;
 
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom {
-  background: #f8f9fb !important;
+  width: min(378px, calc(100vw - 32px)) !important;
+
+  max-width: 378px !important;
+  max-height: calc(100vh - 32px);
+
+  padding: 30px 27px !important;
+
+  background: var(--jcn-logout-bg) !important;
   background-image: none !important;
 
-  color: #20242b !important;
+  color: var(--jcn-logout-text) !important;
 
-  border: 1px solid #dce0e6 !important;
+  border: 1px solid
+    var(--jcn-logout-border) !important;
 
-  box-shadow: none !important;
+  border-radius: 20px !important;
+
+  box-shadow: var(--jcn-logout-shadow) !important;
+
+  text-align: center !important;
+  overflow-y: auto;
 }
 
 
-/* INPUT ICONS */
+/* 06. LOGOUT ICON */
 
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom i {
-  background: transparent !important;
-  color: #936a12 !important;
-  opacity: 1 !important;
-}
+html[data-account-theme] body :is(
+  .logout-icon,
+  .logout-modal-icon,
+  .logout-icon-box
+) {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 
+  width: 65px !important;
+  height: 65px !important;
 
-/* INPUT AND SELECT */
+  margin: 0 auto 18px !important;
 
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom :is(input, select) {
-  background: transparent !important;
-  color: #20242b !important;
+  background: var(--jcn-logout-gold) !important;
 
   border: none !important;
-  outline: none;
+  border-radius: 50% !important;
+
+  color: #080808 !important;
+  font-size: 25px !important;
+}
+
+html[data-account-theme] body :is(
+  .logout-icon,
+  .logout-modal-icon,
+  .logout-icon-box
+) i {
+  color: #080808 !important;
+  font-size: 25px !important;
+}
+
+
+/* 07. LOGOUT TITLE */
+
+html[data-account-theme] body :is(
+  .logout-box,
+  .logout-modal,
+  .logout-modal-content,
+  #adminLogoutModal .modal-content
+) :is(h2, h3, h4, .logout-title, .modal-title) {
+  margin: 0 0 8px !important;
+
+  color: var(--jcn-logout-text) !important;
+
+  font-size: 23px !important;
+  font-weight: 800 !important;
+  line-height: 1.3;
+
+  text-align: center !important;
+}
+
+
+/* 08. LOGOUT DESCRIPTION */
+
+html[data-account-theme] body :is(
+  .logout-box,
+  .logout-modal,
+  .logout-modal-content,
+  #adminLogoutModal .modal-content
+) :is(p, .logout-description) {
+  margin: 0 0 27px !important;
+
+  color: var(--jcn-logout-muted) !important;
+
+  font-size: 14px !important;
+  line-height: 1.5;
+
+  text-align: center !important;
+}
+
+
+/* 09. LOGOUT BUTTON CONTAINER */
+
+html[data-account-theme] body :is(
+  .logout-actions,
+  .logout-modal-actions,
+  .logout-buttons,
+  .logout-modal-buttons,
+  #adminLogoutModal .modal-actions,
+  #adminLogoutModal .modal-footer
+) {
+  display: flex !important;
+
+  align-items: center;
+  justify-content: center !important;
+
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+
+  gap: 12px !important;
+
+  width: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+  border: none !important;
+}
+
+
+/* 10. CONFIRM LOGOUT BUTTON */
+
+html[data-account-theme] body :is(
+  .logout-confirm-btn,
+  .confirm-logout,
+  .logout-confirm,
+  #adminConfirmLogout,
+  #adminLogoutModal .btn-gold
+) {
+  order: 1;
+
+  display: inline-flex !important;
+
+  align-items: center;
+  justify-content: center;
+
+  flex: 1 1 0;
+
+  min-width: 0;
+  min-height: 46px;
+
+  padding: 12px 10px !important;
+
+  background: var(--jcn-logout-gold) !important;
+
+  color: #080808 !important;
+
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+
+  font-size: 13px !important;
+  font-weight: 800 !important;
+
+  cursor: pointer;
 
   box-shadow: none !important;
 }
 
-
-/* PLACEHOLDER */
-
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom input::placeholder {
-  color: #707986 !important;
-}
-
-
-/* SELECT OPTIONS */
-
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom select option {
-  background: #ffffff !important;
-  color: #20242b !important;
-}
-
-
-/* INPUT GROUP FOCUS */
-
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom:focus-within {
-  background: #ffffff !important;
-  border-color: #c49a35 !important;
-
-  box-shadow:
-    0 0 0 3px rgba(196, 154, 53, 0.14) !important;
-}
-
-
-/* AUTOFILL COLOR */
-
-:root[data-account-theme="light"]
-.staff-modal .input-group-custom input:-webkit-autofill {
-  -webkit-box-shadow:
-    0 0 0 1000px #f8f9fb inset !important;
-
-  -webkit-text-fill-color: #20242b !important;
-  caret-color: #20242b;
-}
-
-
-/* ==========================================================
-   13. STAFF ACCESS INFORMATION
-
-   Actual selector: .account-note
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-modal .account-note {
-  background: #fff9eb !important;
-  border-color: #efddb0 !important;
-  color: #434a55 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .account-note > i {
-  color: #936a12 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .account-note strong {
-  color: #936a12 !important;
-  opacity: 1 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .account-note p {
-  color: #626b78 !important;
-  opacity: 1 !important;
-}
-
-
-/* ==========================================================
-   14. MODAL CLOSE BUTTON
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-modal .btn-close {
-  --bs-btn-close-opacity: 1;
-  --bs-btn-close-hover-opacity: 1;
-  --bs-btn-close-filter: none;
-
-  background-color: #edf0f4 !important;
-
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='%23434a55' stroke-width='2' stroke-linecap='round' d='M3 3l10 10M13 3L3 13'/%3E%3C/svg%3E") !important;
-
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  background-size: 12px !important;
-
-  filter: none !important;
-  opacity: 1 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .btn-close:hover {
-  background-color: #dce0e6 !important;
-}
-
-
-/* ==========================================================
-   15. MODAL CANCEL BUTTON
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-modal .btn-cancel {
-  background: #f0f2f5 !important;
-  background-image: none !important;
-
-  color: #434a55 !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .btn-cancel:hover {
-  background: #e2e5e9 !important;
-  color: #20242b !important;
-  border-color: #b8c0cc !important;
-}
-
-
-/* ==========================================================
-   16. CREATE STAFF ACCOUNT BUTTON
-========================================================== */
-
-:root[data-account-theme="light"]
-.staff-modal .btn-create {
-  background: linear-gradient(
-    135deg,
-    #f4c542,
-    #d4a72c
-  ) !important;
-
-  color: #171717 !important;
-  border-color: #c49a35 !important;
-}
-
-:root[data-account-theme="light"]
-.staff-modal .btn-create:hover {
+html[data-account-theme] body :is(
+  .logout-confirm-btn,
+  .confirm-logout,
+  .logout-confirm,
+  #adminConfirmLogout,
+  #adminLogoutModal .btn-gold
+):hover {
   background: #e8b830 !important;
-  color: #171717 !important;
+  color: #080808 !important;
 }
 
 
-/* ==========================================================
-   17. MANAGE STAFF LOGOUT MODAL
-========================================================== */
+/* 11. CANCEL BUTTON */
 
-:root[data-account-theme="light"]
-.custom-logout-modal .logout-box {
-  background: #ffffff !important;
-  background-image: none !important;
+html[data-account-theme] body :is(
+  .logout-cancel-btn,
+  .cancel-logout,
+  .logout-cancel,
+  #adminCancelLogout,
+  #adminLogoutModal .btn-outline,
+  #adminLogoutModal .btn-cancel
+) {
+  order: 2;
 
-  color: #20242b !important;
-  border-color: #dce0e6 !important;
+  display: inline-flex !important;
 
-  box-shadow:
-    0 20px 60px rgba(15, 23, 42, 0.18) !important;
+  align-items: center;
+  justify-content: center;
+
+  flex: 1 1 0;
+
+  min-width: 0;
+  min-height: 46px;
+
+  padding: 12px 10px !important;
+
+  background: var(--jcn-logout-cancel-bg) !important;
+
+  color: var(--jcn-logout-cancel-text) !important;
+
+  border: 1px solid #d4a51b !important;
+  border-radius: 10px !important;
+
+  font-size: 13px !important;
+  font-weight: 800 !important;
+
+  cursor: pointer;
+
+  box-shadow: none !important;
 }
 
-:root[data-account-theme="light"]
-.custom-logout-modal .logout-icon {
-  background: #fff3d4 !important;
-  color: #936a12 !important;
+html[data-account-theme] body :is(
+  .logout-cancel-btn,
+  .cancel-logout,
+  .logout-cancel,
+  #adminCancelLogout,
+  #adminLogoutModal .btn-outline,
+  #adminLogoutModal .btn-cancel
+):hover {
+  background: var(--jcn-logout-cancel-hover) !important;
 }
 
-:root[data-account-theme="light"]
-.custom-logout-modal .logout-box h4 {
-  color: #20242b !important;
+
+/* 12. MOBILE RESPONSIVE */
+
+@media (max-width: 420px) {
+
+  html[data-account-theme] body :is(
+    .logout-box,
+    .logout-modal,
+    .logout-modal-content,
+    #adminLogoutModal .modal-content
+  ) {
+    padding: 25px 20px !important;
+  }
+
+  html[data-account-theme] body :is(
+    .logout-box,
+    .logout-modal,
+    .logout-modal-content
+  ) :is(h2, h3, h4) {
+    font-size: 21px !important;
+  }
+
 }
 
-:root[data-account-theme="light"]
-.custom-logout-modal .logout-box p {
-  color: #626b78 !important;
-}
 
-:root[data-account-theme="light"]
-.custom-logout-modal .logout-backdrop {
-  background: rgba(15, 23, 42, 0.48) !important;
-}
+/* 13. KEYBOARD ACCESSIBILITY */
 
-:root[data-account-theme="light"]
-.custom-logout-modal .cancel-logout {
-  background: #f0f2f5 !important;
-  color: #434a55 !important;
-  border-color: #dce0e6 !important;
-}
-
-:root[data-account-theme="light"]
-.custom-logout-modal .cancel-logout:hover {
-  background: #e2e5e9 !important;
-}
-
-:root[data-account-theme="light"]
-.custom-logout-modal .confirm-logout {
-  background: linear-gradient(
-    135deg,
-    #f4c542,
-    #d4a72c
-  ) !important;
-
-  color: #171717 !important;
+#adminLogoutModal button:focus-visible {
+  outline: 2px solid #c49a35;
+  outline-offset: 3px;
 }
