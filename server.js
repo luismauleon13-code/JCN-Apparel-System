@@ -4734,6 +4734,9 @@ app.patch("/api/customer/orders/:id/complete", async (req, res) => {
 // =========================================================
 // PAYPAL LIVE PAYMENT — VERIFIED CAPTURE AND RETURN
 // =========================================================
+const PAYPAL_PAYABLE_STATUSES = ["Pending", "Pending Payment"];
+const PAYPAL_UNPAID_STATUSES = ["Unpaid", "Pending"];
+
 const PAYPAL_LIVE_URL = "https://api-m.paypal.com";
 const PAYPAL_BACKEND_URL = String(JCN_SITE_URL).replace(/\/$/, "");
 const PAYPAL_CUSTOMER_URL = String(process.env.JCN_CUSTOMER_URL || JCN_SITE_URL).replace(/\/$/, "");
@@ -4829,8 +4832,9 @@ function verifyPayPalDetails(details, order, paypalId) {
 async function createPayPalOrder(systemOrderId, customerId, redirectMode = false) {
   const order = await getPayPalSystemOrder(systemOrderId);
   ensurePayPalOrderOwner(order, customerId);
-  if (order.payment_method !== "PayPal" || order.payment_status === "Paid" || order.status !== "Pending") {
-    throw new Error("This order cannot be paid.");
+  if (order.payment_method !== "PayPal" || !PAYPAL_UNPAID_STATUSES.includes(order.payment_status) || !PAYPAL_PAYABLE_STATUSES.includes(order.status)) {
+    console.warn("PAYPAL ORDER NOT PAYABLE", { orderId: order.id, status: order.status, paymentStatus: order.payment_status, paymentMethod: order.payment_method });
+    throw new Error("This order cannot be paid. Check its order and payment status.");
   }
   const amount = paypalAmount(order);
   if (order.paypal_order_id || order.paypal_capture_id) {
@@ -4853,8 +4857,8 @@ async function createPayPalOrder(systemOrderId, customerId, redirectMode = false
   });
   if (!paypal.id) throw new Error("No PayPal order ID returned.");
   const { data: linked, error } = await supabase.from("orders").update({ paypal_order_id: paypal.id })
-    .eq("id", order.id).eq("status", "Pending").eq("payment_method", "PayPal")
-    .is("paypal_order_id", null).is("paypal_capture_id", null).neq("payment_status", "Paid")
+    .eq("id", order.id).in("status", PAYPAL_PAYABLE_STATUSES).eq("payment_method", "PayPal")
+    .is("paypal_order_id", null).is("paypal_capture_id", null).in("payment_status", PAYPAL_UNPAID_STATUSES)
     .select("id").maybeSingle();
   if (error) throw error;
   if (!linked) throw new Error("Payment link not saved. Check the order before trying again.");
@@ -4907,7 +4911,7 @@ async function capturePayPalOrder(systemOrderId, paypalOrderId, customerId = nul
   let unit = verifyPayPalDetails(details, order, paypalOrderId);
   // Never capture a legacy underpriced approval or a cancelled order.
   if (details.status === "APPROVED" && !unit.payments?.captures?.length) {
-    if (order.status !== "Pending" || order.paypal_capture_id || order.payment_status === "Paid" ||
+    if (!PAYPAL_PAYABLE_STATUSES.includes(order.status) || order.paypal_capture_id || !PAYPAL_UNPAID_STATUSES.includes(order.payment_status) ||
         unit.amount.value !== expected) {
       throw new Error("Payment requires review; no new capture attempted.");
     }
@@ -4936,7 +4940,7 @@ async function capturePayPalOrder(systemOrderId, paypalOrderId, customerId = nul
   if (order.payment_status === "Paid" && order.paypal_capture_id === capture.id && fullPayment) {
     return paypalResult(order, capture, !["Cancelled", "Canceled"].includes(order.status));
   }
-  if (!fullPayment || order.status !== "Pending" || order.payment_status === "Refunded") {
+  if (!fullPayment || !PAYPAL_PAYABLE_STATUSES.includes(order.status) || !PAYPAL_UNPAID_STATUSES.includes(order.payment_status)) {
     // Store verified legacy receipt, but never fulfil an underpaid or closed order.
     if (!order.paypal_capture_id && order.payment_status !== "Paid" && order.payment_status !== "Refunded") {
       const { error } = await supabase.from("orders").update({ paypal_capture_id: capture.id })
@@ -4947,7 +4951,7 @@ async function capturePayPalOrder(systemOrderId, paypalOrderId, customerId = nul
   }
   let update = supabase.from("orders").update({
     paypal_capture_id: capture.id, payment_status: "Paid", status: "Processing"
-  }).eq("id", order.id).eq("paypal_order_id", paypalOrderId).eq("status", "Pending")
+  }).eq("id", order.id).eq("paypal_order_id", paypalOrderId).in("status", PAYPAL_PAYABLE_STATUSES)
     .eq("payment_method", "PayPal").eq("total_amount", order.total_amount)
     .in("payment_status", ["Unpaid", "Pending"]);
   update = order.paypal_capture_id ? update.eq("paypal_capture_id", capture.id) : update.is("paypal_capture_id", null);
