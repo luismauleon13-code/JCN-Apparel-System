@@ -4731,30 +4731,20 @@ app.patch("/api/customer/orders/:id/complete", async (req, res) => {
 });
 
 
- const paypalJwt = require("jsonwebtoken");
+// =========================================================
+// PAYPAL LIVE PAYMENT — VERIFIED CAPTURE AND RETURN
+// =========================================================
 const PAYPAL_LIVE_URL = "https://api-m.paypal.com";
-const PAYPAL_TEST_AMOUNT = "1.00";
 const PAYPAL_BACKEND_URL = String(JCN_SITE_URL).replace(/\/$/, "");
 const PAYPAL_CUSTOMER_URL = String(process.env.JCN_CUSTOMER_URL || JCN_SITE_URL).replace(/\/$/, "");
 const PAYPAL_CHECKOUT_PAGE = `${PAYPAL_CUSTOMER_URL}/customer/html/customer-checkout.html`;
+const PAYPAL_ORDERS_PAGE = `${PAYPAL_CUSTOMER_URL}/customer/html/customer-orders.html`;
 
-// Change JWT_SECRET / decoded.id if your existing customer login
-// uses a different signing key or JWT payload.
-async function requirePayPalCustomer(req, res, next) {
-  try {
-    const authorization = req.headers.authorization || "";
-    const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : null;
-    if (!token || !process.env.JWT_SECRET) {
-      return res.status(401).json({ success: false, message: "Customer login required / JWT configuration missing." });
-    }
-    const decoded = paypalJwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id || decoded.user_id || decoded.userId;
-    if (!userId) return res.status(401).json({ success: false, message: "Invalid customer token." });
-    req.paypalCustomerId = String(userId);
-    next();
-  } catch (error) {
-    return res.status(401).json({ success: false, message: "Customer session invalid or expired." });
-  }
+function requirePayPalCustomer(req, res, next) {
+  return verifyCustomerToken(req, res, () => {
+    req.paypalCustomerId = String(req.customer.id);
+    return next();
+  });
 }
 
 async function getPayPalAccessToken() {
@@ -4793,7 +4783,7 @@ async function paypalLiveRequest(path, options = {}) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    console.error("PAYPAL LIVE API ERROR", response.status, data);
+    console.error("PAYPAL LIVE API ERROR", response.status, data.name, data.debug_id, data.details?.[0]?.issue);
     throw new Error(data.details?.[0]?.description || data.message || "PayPal request failed.");
   }
   return data;
@@ -4814,212 +4804,195 @@ function ensurePayPalOrderOwner(order, userId) {
   }
 }
 
-function isFullOnePesoPayment(order) {
-  // ONLY a real ₱1 order may become Paid / Processing.
-  // Do not mark ₱499+ orders fully paid for a ₱1 test transaction.
-  return Number(order.total_amount) === 1;
+function paypalAmount(order) {
+  const amount = Number(order.total_amount);
+  if (!Number.isFinite(amount) || amount <= 0 || !Number.isSafeInteger(Math.round(amount * 100))) {
+    throw new Error("Invalid stored order total.");
+  }
+  const formatted = amount.toFixed(2);
+  if (process.env.PAYPAL_TEST_MODE === "true" && formatted !== "1.00") {
+    throw new Error("Test mode requires a real PHP 1.00 order. No payment was created.");
+  }
+  return formatted;
 }
 
-async function createPayPalTestOrder(systemOrderId, customerId, redirectMode = false) {
+function verifyPayPalDetails(details, order, paypalId) {
+  const unit = details.purchase_units?.[0];
+  if (details.id !== paypalId || details.intent !== "CAPTURE" ||
+      details.purchase_units?.length !== 1 || unit?.reference_id !== String(order.id) ||
+      unit?.amount?.currency_code !== "PHP") {
+    throw new Error("PayPal order reference or currency mismatch.");
+  }
+  return unit;
+}
+
+async function createPayPalOrder(systemOrderId, customerId, redirectMode = false) {
   const order = await getPayPalSystemOrder(systemOrderId);
   ensurePayPalOrderOwner(order, customerId);
-  if (order.payment_status === "Paid") throw new Error("Order is already paid.");
-  if (["Cancelled", "Canceled", "Completed"].includes(order.status)) {
+  if (order.payment_method !== "PayPal" || order.payment_status === "Paid" || order.status !== "Pending") {
     throw new Error("This order cannot be paid.");
   }
-  if (order.payment_method && order.payment_method !== "PayPal") {
-    throw new Error("This is not a PayPal order.");
+  const amount = paypalAmount(order);
+  if (order.paypal_order_id || order.paypal_capture_id) {
+    throw new Error("Existing payment attempt. Check or reconcile it before paying again.");
   }
-  if (order.paypal_order_id) {
-    throw new Error("Existing PayPal payment attempt found. Reconcile it before starting another; do not pay twice.");
-  }
-
   const payload = {
     intent: "CAPTURE",
-    purchase_units: [{
-      reference_id: String(order.id),
-      description: "JCN Apparel LIVE ₱1 TEST",
-      amount: { currency_code: "PHP", value: PAYPAL_TEST_AMOUNT }
-    }]
+    purchase_units: [{ reference_id: String(order.id), description: "JCN Apparel Order", amount: { currency_code: "PHP", value: amount } }]
   };
   if (redirectMode) {
-    payload.payment_source = {
-      paypal: {
-        experience_context: {
-          brand_name: "JCN Apparel",
-          user_action: "PAY_NOW",
-          shipping_preference: "NO_SHIPPING",
-          return_url: `${PAYPAL_BACKEND_URL}/api/paypal/success?system_order_id=${encodeURIComponent(order.id)}`,
-          cancel_url: `${PAYPAL_BACKEND_URL}/api/paypal/cancel?system_order_id=${encodeURIComponent(order.id)}`
-        }
-      }
-    };
+    payload.payment_source = { paypal: { experience_context: {
+      brand_name: "JCN Apparel", user_action: "PAY_NOW", shipping_preference: "NO_SHIPPING",
+      return_url: `${PAYPAL_BACKEND_URL}/api/paypal/success?system_order_id=${encodeURIComponent(order.id)}`,
+      cancel_url: `${PAYPAL_BACKEND_URL}/api/paypal/cancel?system_order_id=${encodeURIComponent(order.id)}`
+    } } };
   }
-
   const paypal = await paypalLiveRequest("/v2/checkout/orders", {
-    method: "POST",
-    body: payload,
-    requestId: `jcn-test-create-${order.id}`
+    method: "POST", body: payload,
+    requestId: require("crypto").createHash("sha256").update(`jcn-create-${order.id}`).digest("hex").slice(0, 38)
   });
   if (!paypal.id) throw new Error("No PayPal order ID returned.");
-
-  const { data: linked, error } = await supabase.from("orders").update({
-    paypal_order_id: paypal.id,
-    payment_method: "PayPal",
-    payment_status: "Unpaid",
-    status: "Pending"
-  }).eq("id", order.id)
-    .is("paypal_order_id", null)
-    .neq("payment_status", "Paid")
+  const { data: linked, error } = await supabase.from("orders").update({ paypal_order_id: paypal.id })
+    .eq("id", order.id).eq("status", "Pending").eq("payment_method", "PayPal")
+    .is("paypal_order_id", null).is("paypal_capture_id", null).neq("payment_status", "Paid")
     .select("id").maybeSingle();
   if (error) throw error;
-  if (!linked) throw new Error("Could not link PayPal order; check status before retrying.");
-  return { ...paypal, success: true, actual_amount: PAYPAL_TEST_AMOUNT };
+  if (!linked) throw new Error("Payment link not saved. Check the order before trying again.");
+  return { ...paypal, success: true, actual_amount: amount };
 }
 
 app.post("/api/paypal/create-order", requirePayPalCustomer, async (req, res) => {
   try {
-    return res.json(await createPayPalTestOrder(req.body?.system_order_id, req.paypalCustomerId));
+    return res.json(await createPayPalOrder(req.body?.system_order_id, req.paypalCustomerId));
   } catch (error) {
-    console.error("PAYPAL CREATE:", error);
+    console.error("PAYPAL CREATE:", error.message);
     return res.status(400).json({ success: false, message: error.message });
   }
 });
 
 app.post("/api/paypal/create-redirect-order", requirePayPalCustomer, async (req, res) => {
   try {
-    const data = await createPayPalTestOrder(req.body?.system_order_id, req.paypalCustomerId, true);
+    const data = await createPayPalOrder(req.body?.system_order_id, req.paypalCustomerId, true);
     const link = data.links?.find(x => x.rel === "payer-action" || x.rel === "approve");
     if (!link?.href) throw new Error("PayPal approval URL missing.");
-    return res.json({ success: true, paypal_order_id: data.id, approve_url: link.href, actual_amount: PAYPAL_TEST_AMOUNT });
+    return res.json({ success: true, paypal_order_id: data.id, approve_url: link.href, actual_amount: data.actual_amount });
   } catch (error) {
-    console.error("PAYPAL REDIRECT CREATE:", error);
+    console.error("PAYPAL REDIRECT CREATE:", error.message);
     return res.status(400).json({ success: false, message: error.message });
   }
 });
 
-async function capturePayPalTestOrder(systemOrderId, paypalOrderId, customerId = null) {
+function paypalResult(order, capture, fullPayment) {
+  return {
+    success: fullPayment,
+    payment_status: order.payment_status,
+    status: order.status,
+    order_number: order.order_number || order.id,
+    amount: capture.amount.value,
+    paypal_capture_id: capture.id,
+    reconciliation_required: !fullPayment,
+    message: fullPayment ? "Payment verified." : "Payment received but requires reconciliation. Do not pay again."
+  };
+}
+
+async function capturePayPalOrder(systemOrderId, paypalOrderId, customerId = null) {
   const order = await getPayPalSystemOrder(systemOrderId);
   if (customerId) ensurePayPalOrderOwner(order, customerId);
-  if (order.paypal_order_id !== paypalOrderId) throw new Error("PayPal order ID mismatch.");
-  if (["Cancelled", "Canceled"].includes(order.status)) throw new Error("Order is cancelled.");
-
-  // A saved capture ID means this test has already been captured.
-  // Re-read its current state; never capture it again.
-  if (order.paypal_capture_id) {
-    return {
-      success: true,
-      already_captured: true,
-      test_payment: true,
-      payment_status: order.payment_status,
-      status: order.status,
-      order_number: order.order_number,
-      paypal_capture_id: order.paypal_capture_id
-    };
+  if (order.payment_method !== "PayPal" || order.paypal_order_id !== paypalOrderId) {
+    throw new Error("PayPal order ID mismatch.");
   }
-
-  const details = await paypalLiveRequest(`/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`);
-  const unit = details.purchase_units?.[0];
-  if (
-    details.id !== paypalOrderId ||
-    details.intent !== "CAPTURE" ||
-    details.purchase_units?.length !== 1 ||
-    unit?.reference_id !== String(order.id) ||
-    unit?.amount?.currency_code !== "PHP" ||
-    unit?.amount?.value !== PAYPAL_TEST_AMOUNT
-  ) throw new Error("PayPal order reference or ₱1 amount mismatch.");
-
-  let result = details;
-  if (details.status !== "COMPLETED") {
-    if (details.status !== "APPROVED") {
-      throw new Error(`PayPal order not approved (status: ${details.status}).`);
+  const expected = Number(order.total_amount).toFixed(2);
+  const apiPath = `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`;
+  let details = await paypalLiveRequest(apiPath);
+  let unit = verifyPayPalDetails(details, order, paypalOrderId);
+  // Never capture a legacy underpriced approval or a cancelled order.
+  if (details.status === "APPROVED" && !unit.payments?.captures?.length) {
+    if (order.status !== "Pending" || order.paypal_capture_id || order.payment_status === "Paid" ||
+        unit.amount.value !== expected) {
+      throw new Error("Payment requires review; no new capture attempted.");
     }
-    result = await paypalLiveRequest(
-      `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`,
-      {
-        method: "POST",
-        body: {},
-        requestId: `jcn-test-capture-${paypalOrderId}`
-      }
-    );
+    try {
+      await paypalLiveRequest(`${apiPath}/capture`, {
+        method: "POST", body: {},
+        requestId: require("crypto").createHash("sha256").update(`jcn-capture-${paypalOrderId}`).digest("hex").slice(0, 38)
+      });
+    } catch (error) {
+      console.error("PAYPAL CAPTURE RESPONSE UNCERTAIN:", error.message);
+    }
+    // Read authoritative state even after a timeout or duplicate capture response.
+    details = await paypalLiveRequest(apiPath);
+    unit = verifyPayPalDetails(details, order, paypalOrderId);
   }
-
-  const capture = result.purchase_units?.[0]?.payments?.captures
-    ?.find(x => x.status === "COMPLETED");
-  if (
-    result.status !== "COMPLETED" || !capture?.id ||
-    capture.amount?.currency_code !== "PHP" ||
-    capture.amount?.value !== PAYPAL_TEST_AMOUNT
-  ) throw new Error("PayPal ₱1 capture has not completed.");
-
-  const fullPayment = isFullOnePesoPayment(order);
-  const { data: updated, error } = await supabase.from("orders").update({
-    paypal_order_id: paypalOrderId,
-    paypal_capture_id: capture.id,
-    payment_method: "PayPal",
-    payment_status: fullPayment ? "Paid" : "Unpaid",
-    status: fullPayment ? "Processing" : "Pending"
-  }).eq("id", order.id)
-    .eq("paypal_order_id", paypalOrderId)
-    .is("paypal_capture_id", null)
-    .neq("payment_status", "Paid")
-    .select("*").maybeSingle();
-
-  if (error || !updated) {
-    // Capture already happened, so NEVER ask customer to pay again here.
-    throw new Error(`PayPal already captured ₱1 (capture ${capture.id}), but the system needs reconciliation. Do not pay again.`);
+  const captures = unit.payments?.captures || [];
+  const capture = captures.length === 1 ? captures[0] : null;
+  if (details.status !== "COMPLETED" || capture?.status !== "COMPLETED" || !capture.id ||
+      capture.amount?.currency_code !== "PHP" || capture.amount.value !== unit.amount.value) {
+    throw new Error("Payment not verified as completed. Do not pay again until checked.");
   }
-
-  return {
-    success: true,
-    test_payment: true,
-    message: fullPayment
-      ? "₱1 order fully paid; now Processing."
-      : "₱1 LIVE test captured. Full order balance remains unpaid.",
-    order_number: updated.order_number,
-    payment_status: updated.payment_status,
-    status: updated.status,
-    amount: PAYPAL_TEST_AMOUNT,
-    paypal_capture_id: capture.id
-  };
+  if (order.paypal_capture_id && order.paypal_capture_id !== capture.id) {
+    throw new Error("Stored capture mismatch. Manual reconciliation required.");
+  }
+  const fullPayment = capture.amount.value === expected && Number(order.total_amount) > 0;
+  if (order.payment_status === "Paid" && order.paypal_capture_id === capture.id && fullPayment) {
+    return paypalResult(order, capture, !["Cancelled", "Canceled"].includes(order.status));
+  }
+  if (!fullPayment || order.status !== "Pending" || order.payment_status === "Refunded") {
+    // Store verified legacy receipt, but never fulfil an underpaid or closed order.
+    if (!order.paypal_capture_id && order.payment_status !== "Paid" && order.payment_status !== "Refunded") {
+      const { error } = await supabase.from("orders").update({ paypal_capture_id: capture.id })
+        .eq("id", order.id).eq("paypal_order_id", paypalOrderId).is("paypal_capture_id", null);
+      if (error) console.error("PAYPAL RECEIPT SAVE:", error.code, error.message);
+    }
+    return paypalResult(order, capture, false);
+  }
+  let update = supabase.from("orders").update({
+    paypal_capture_id: capture.id, payment_status: "Paid", status: "Processing"
+  }).eq("id", order.id).eq("paypal_order_id", paypalOrderId).eq("status", "Pending")
+    .eq("payment_method", "PayPal").eq("total_amount", order.total_amount)
+    .in("payment_status", ["Unpaid", "Pending"]);
+  update = order.paypal_capture_id ? update.eq("paypal_capture_id", capture.id) : update.is("paypal_capture_id", null);
+  const { data: updated, error } = await update.select("*").maybeSingle();
+  if (error) console.error("PAYPAL DATABASE UPDATE:", error.code, error.message, error.details);
+  if (!updated) {
+    const current = await getPayPalSystemOrder(order.id);
+    if (current.payment_status === "Paid" && current.paypal_capture_id === capture.id && !["Cancelled", "Canceled"].includes(current.status)) {
+      return paypalResult(current, capture, true);
+    }
+    throw new Error("Payment captured but database update needs review. Do not pay again.");
+  }
+  return paypalResult(updated, capture, true);
 }
 
 app.post("/api/paypal/capture-order", requirePayPalCustomer, async (req, res) => {
   try {
     const systemOrderId = req.body?.system_order_id;
     const paypalOrderId = req.body?.paypal_order_id || req.body?.orderID || req.body?.orderId || req.body?.token;
-    if (!systemOrderId || !paypalOrderId) {
-      return res.status(400).json({ success: false, message: "Missing system order ID or PayPal order ID." });
-    }
-    return res.json(await capturePayPalTestOrder(systemOrderId, paypalOrderId, req.paypalCustomerId));
+    if (!systemOrderId || !paypalOrderId) return res.status(400).json({ success: false, message: "Missing payment reference." });
+    const result = await capturePayPalOrder(systemOrderId, paypalOrderId, req.paypalCustomerId);
+    return res.status(result.success ? 200 : 409).json(result);
   } catch (error) {
-    console.error("PAYPAL CAPTURE:", error);
-    return res.status(400).json({ success: false, message: error.message });
+    console.error("PAYPAL CAPTURE:", error.message);
+    return res.status(409).json({ success: false, reconciliation_required: true, message: "Payment could not be confirmed. Check My Orders before paying again." });
   }
 });
 
 app.get("/api/paypal/success", async (req, res) => {
+  res.set("Cache-Control", "no-store");
+  const { token, system_order_id } = req.query;
   try {
-    const { token, system_order_id } = req.query;
-    if (!token || !system_order_id) return res.redirect(`${PAYPAL_CHECKOUT_PAGE}?payment=missing`);
-    const result = await capturePayPalTestOrder(system_order_id, token);
-    const payment = result.payment_status === "Paid" ? "success" : "test_success";
-    return res.redirect(
-      `${PAYPAL_CHECKOUT_PAGE}?payment=${payment}&order_number=${encodeURIComponent(result.order_number)}`
-    );
+    if (typeof token !== "string" || typeof system_order_id !== "string") throw new Error("Missing payment reference.");
+    const result = await capturePayPalOrder(system_order_id, token);
+    const query = new URLSearchParams({ payment: result.success ? "success" : "review", order_id: system_order_id, order_number: String(result.order_number) });
+    return res.redirect(303, `${PAYPAL_ORDERS_PAGE}?${query}`);
   } catch (error) {
-    console.error("PAYPAL RETURN:", error);
-    return res.redirect(`${PAYPAL_CHECKOUT_PAGE}?payment=error`);
+    console.error("PAYPAL RETURN:", error.message);
+    return res.redirect(303, `${PAYPAL_ORDERS_PAGE}?payment=review`);
   }
 });
 
 app.get("/api/paypal/cancel", (req, res) => {
-  const orderId = req.query?.system_order_id || "";
-  return res.redirect(
-    `${PAYPAL_CHECKOUT_PAGE}?paypal=cancelled&order_id=${encodeURIComponent(orderId)}`
-  );
+  return res.redirect(303, `${PAYPAL_CHECKOUT_PAGE}?paypal=cancelled&order_id=${encodeURIComponent(req.query?.system_order_id || "")}`);
 });
-
 
 
 /* ============================================
