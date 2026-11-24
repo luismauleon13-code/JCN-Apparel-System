@@ -16,7 +16,12 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <!-- SETTINGS CSS -->
-  <link rel="stylesheet" href="../css/settings.css">
+<link rel="stylesheet" href="../css/settings.css">
+
+<!-- GLOBAL ADMIN THEME -->
+<link rel="stylesheet" href="../css/admin-theme.css">
+<script src="../js/admin-theme.js"></script>
+
 </head>
 
 <body class="dashboard-body">
@@ -683,55 +688,137 @@
             </section>
 
             <!-- =====================================
-                 PREFERENCES
-            ====================================== -->
+     PREFERENCES
+====================================== -->
 
-            <section class="account-section"
-              id="panel-preferences"
-              hidden>
+<section class="account-section"
+  id="panel-preferences"
+  hidden>
 
-              <button type="button"
-                class="account-back"
-                data-back>
+  <!-- BACK BUTTON -->
+  <button type="button"
+    class="account-back"
+    data-back>
 
-                <i class="fa-solid fa-arrow-left"></i>
-                Back to account
+    <i class="fa-solid fa-arrow-left"></i>
+    Back to account
 
-              </button>
+  </button>
 
-              <h2 tabindex="-1">Preferences</h2>
+  <!-- SECTION HEADER -->
+  <h2 tabindex="-1">Preferences</h2>
 
-              <p class="setting-help">
-                Customize your theme and notifications.
-              </p>
+  <p class="setting-help">
+    Customize your administrator preferences.
+  </p>
 
-              <div class="input-group-custom">
+  <!-- APPEARANCE SETTINGS -->
+  <div class="appearance-container">
 
-                <label for="accountTheme">
-                  Appearance
-                </label>
+    <h3>
+      <i class="fa-solid fa-palette"></i>
+      Appearance
+    </h3>
 
-                <select id="accountTheme">
+    <p class="setting-help">
+      Choose your preferred interface theme.
+    </p>
 
-                  <option value="dark">
-                    Dark Mode
-                  </option>
+    <div class="theme-options">
 
-                  <option value="light">
-                    Light Mode
-                  </option>
+      <!-- DARK MODE -->
+      <button type="button"
+        class="theme-option"
+        data-theme-value="dark"
+        aria-pressed="false">
 
-                </select>
+        <div class="theme-option-header">
 
-              </div>
+          <i class="fa-solid fa-moon"></i>
 
-              <p class="setting-help">
-                Theme applies to this settings page on this browser.
-                Other admin pages and notification preferences
-                require integration.
-              </p>
+          <span class="theme-indicator"></span>
 
-            </section>
+        </div>
+
+        <!-- DARK THEME PREVIEW -->
+        <div class="theme-preview dark-preview">
+
+          <div class="preview-navbar"></div>
+
+          <div class="preview-content">
+
+            <div class="preview-sidebar"></div>
+            <div class="preview-main"></div>
+
+          </div>
+
+        </div>
+
+        <strong>Dark Mode</strong>
+
+        <small>Classic black and gold</small>
+
+      </button>
+
+      <!-- LIGHT MODE -->
+      <button type="button"
+        class="theme-option"
+        data-theme-value="light"
+        aria-pressed="false">
+
+        <div class="theme-option-header">
+
+          <i class="fa-solid fa-sun"></i>
+
+          <span class="theme-indicator"></span>
+
+        </div>
+
+        <!-- LIGHT THEME PREVIEW -->
+        <div class="theme-preview light-preview">
+
+          <div class="preview-navbar"></div>
+
+          <div class="preview-content">
+
+            <div class="preview-sidebar"></div>
+            <div class="preview-main"></div>
+
+          </div>
+
+        </div>
+
+        <strong>Light Mode</strong>
+
+        <small>Clean and bright</small>
+
+      </button>
+
+    </div>
+
+    <!-- THEME VALUE FOR JAVASCRIPT -->
+    <select id="accountTheme" hidden>
+
+      <option value="dark">Dark Mode</option>
+      <option value="light">Light Mode</option>
+
+    </select>
+
+    <!-- SAVE INFORMATION -->
+    <div class="theme-save-info">
+
+      <i class="fa-solid fa-circle-info"></i>
+
+      <span>
+        Your theme preference is automatically saved
+        and applied across all connected admin modules.
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
 
           </div>
 

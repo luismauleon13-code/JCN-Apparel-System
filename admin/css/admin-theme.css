@@ -1,0 +1,671 @@
+/* =========================================
+   JCN GLOBAL ADMIN THEME
+========================================= */
+
+
+/* =========================================
+   01. DARK MODE VARIABLES
+========================================= */
+
+html[data-account-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0c0c0c;
+  --background: #0c0c0c;
+
+  --panel: #141414;
+  --panel-bg: #141414;
+  --panel-light: #1b1b1b;
+  --input-bg: #101010;
+
+  --text: #ffffff;
+  --muted: #b8b8b8;
+
+  --gold: #f4c542;
+  --gold-hover: #ffda65;
+  --gold-dark: #c79b1b;
+
+  --gold-gradient: linear-gradient(
+    135deg,
+    #f4c542,
+    #d6a51d
+  );
+
+  --border: rgba(244, 197, 66, 0.25);
+
+  --success: #72f2b4;
+  --danger: #ff8b8b;
+  --warning: #f4c542;
+
+  --theme-hover: rgba(244, 197, 66, 0.08);
+  --theme-active: rgba(244, 197, 66, 0.18);
+
+  --theme-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+
+/* =========================================
+   02. LIGHT MODE VARIABLES
+========================================= */
+
+html[data-account-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f3f4f6;
+  --background: #f3f4f6;
+
+  --panel: #ffffff;
+  --panel-bg: #ffffff;
+  --panel-light: #f8f9fa;
+  --input-bg: #f7f7f7;
+
+  --text: #202020;
+  --muted: #626262;
+
+  --gold: #926600;
+  --gold-hover: #b98500;
+  --gold-dark: #795400;
+
+  --gold-gradient: linear-gradient(
+    135deg,
+    #f4c542,
+    #d6a51d
+  );
+
+  --border: #dedede;
+
+  --success: #16834d;
+  --danger: #c62828;
+  --warning: #926600;
+
+  --theme-hover: #fff8e6;
+  --theme-active: #fff0bf;
+
+  --theme-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================
+   03. PAGE BACKGROUND
+========================================= */
+
+html[data-account-theme="light"] body,
+html[data-account-theme="light"] body.dashboard-body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+
+/* =========================================
+   04. ADMIN NAVIGATION
+========================================= */
+
+html[data-account-theme="light"] .dashboard-nav,
+html[data-account-theme="light"] .admin-navbar,
+html[data-account-theme="light"] .admin-header,
+html[data-account-theme="light"] .topbar {
+  background: var(--panel-bg);
+  color: var(--text);
+
+  border-color: var(--border);
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-account-theme="light"] .navbar-brand,
+html[data-account-theme="light"] .navbar .nav-link {
+  color: var(--text) !important;
+}
+
+html[data-account-theme="light"] .navbar .nav-link:hover,
+html[data-account-theme="light"] .navbar .nav-link.active {
+  color: var(--gold) !important;
+}
+
+html[data-account-theme="light"] .navbar-toggler {
+  color: var(--text);
+}
+
+
+/* =========================================
+   05. ADMIN SIDEBAR
+========================================= */
+
+html[data-account-theme="light"] .admin-sidebar,
+html[data-account-theme="light"] .sidebar {
+  background: var(--panel-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] .dashboard-menu {
+  background: transparent;
+}
+
+html[data-account-theme="light"]
+.dashboard-menu .list-group-item {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"]
+.dashboard-menu .list-group-item:hover {
+  background: var(--theme-hover);
+  color: var(--gold);
+}
+
+html[data-account-theme="light"]
+.dashboard-menu .list-group-item.active-menu,
+
+html[data-account-theme="light"]
+.dashboard-menu .list-group-item[aria-current="page"] {
+  background: var(--theme-active);
+  color: var(--gold);
+}
+
+html[data-account-theme="light"] .sidebar a {
+  color: var(--text);
+}
+
+html[data-account-theme="light"] .sidebar a:hover,
+html[data-account-theme="light"] .sidebar a.active {
+  background: var(--theme-active);
+  color: var(--gold);
+}
+
+
+/* =========================================
+   06. DASHBOARD CARDS AND PANELS
+========================================= */
+
+html[data-account-theme="light"] .dashboard-card,
+html[data-account-theme="light"] .stat-card,
+html[data-account-theme="light"] .summary-card,
+html[data-account-theme="light"] .report-card,
+html[data-account-theme="light"] .chart-card,
+html[data-account-theme="light"] .setting-panel,
+html[data-account-theme="light"] .account-card,
+html[data-account-theme="light"] .content-card,
+html[data-account-theme="light"] .table-card,
+html[data-account-theme="light"] .card {
+  background: var(--panel-bg);
+  color: var(--text);
+
+  border-color: var(--border);
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-account-theme="light"] .card-header,
+html[data-account-theme="light"] .card-footer {
+  background: var(--panel-light);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+
+/* =========================================
+   07. HEADINGS AND TEXT COLORS
+========================================= */
+
+html[data-account-theme="light"] h1,
+html[data-account-theme="light"] h2,
+html[data-account-theme="light"] h3,
+html[data-account-theme="light"] h4,
+html[data-account-theme="light"] h5,
+html[data-account-theme="light"] h6 {
+  color: var(--text);
+}
+
+html[data-account-theme="light"] .text-light,
+html[data-account-theme="light"] .text-white {
+  color: var(--text) !important;
+}
+
+html[data-account-theme="light"] .text-muted,
+html[data-account-theme="light"] .setting-help,
+html[data-account-theme="light"] .subtitle {
+  color: var(--muted) !important;
+}
+
+html[data-account-theme="light"] .text-gold {
+  color: var(--gold) !important;
+}
+
+html[data-account-theme="light"] .border-gold {
+  border-color: var(--gold) !important;
+}
+
+
+/* =========================================
+   08. FORM INPUTS
+========================================= */
+
+html[data-account-theme="light"] input:not(
+  [type="checkbox"],
+  [type="radio"],
+  [type="range"],
+  [type="color"],
+  [type="file"]
+),
+
+html[data-account-theme="light"] select,
+html[data-account-theme="light"] textarea,
+html[data-account-theme="light"] .form-control,
+html[data-account-theme="light"] .form-select {
+  background: var(--input-bg);
+  color: var(--text);
+  border-color: #cccccc;
+}
+
+html[data-account-theme="light"] label,
+html[data-account-theme="light"] .input-group-custom label {
+  color: var(--text);
+}
+
+html[data-account-theme="light"] input::placeholder,
+html[data-account-theme="light"] textarea::placeholder {
+  color: #888888;
+}
+
+html[data-account-theme="light"] input:focus,
+html[data-account-theme="light"] select:focus,
+html[data-account-theme="light"] textarea:focus {
+  color: var(--text);
+  border-color: var(--gold);
+
+  box-shadow: 0 0 0 3px rgba(146, 102, 0, 0.12);
+}
+
+html[data-account-theme="light"] select option {
+  background: #ffffff;
+  color: #202020;
+}
+
+html[data-account-theme="light"] .form-control:disabled,
+html[data-account-theme="light"] .form-select:disabled,
+
+html[data-account-theme="light"]
+.input-group-custom input:disabled,
+
+html[data-account-theme="light"]
+.input-group-custom select:disabled {
+  background: #eeeeee;
+  color: #777777;
+  border-color: #dddddd;
+}
+
+
+/* =========================================
+   09. SEARCH AND FILTER COMPONENTS
+========================================= */
+
+html[data-account-theme="light"] .search-box,
+html[data-account-theme="light"] .search-container,
+html[data-account-theme="light"] .filter-box,
+html[data-account-theme="light"] .filter-container,
+html[data-account-theme="light"] .input-group-text {
+  background: var(--input-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] .search-box i,
+html[data-account-theme="light"] .search-container i {
+  color: var(--muted);
+}
+
+
+/* =========================================
+   10. TABLES
+========================================= */
+
+html[data-account-theme="light"] .table {
+  --bs-table-color: #202020;
+  --bs-table-bg: #ffffff;
+  --bs-table-border-color: #dddddd;
+
+  --bs-table-striped-color: #202020;
+  --bs-table-striped-bg: #f7f7f7;
+
+  --bs-table-hover-color: #202020;
+  --bs-table-hover-bg: #fff8e6;
+
+  --bs-table-active-color: #202020;
+  --bs-table-active-bg: #fff0bf;
+}
+
+html[data-account-theme="light"] table {
+  background: var(--panel-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] thead,
+html[data-account-theme="light"] thead th {
+  background: #f0f0f0;
+  color: var(--text);
+}
+
+html[data-account-theme="light"] tbody td {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] tbody tr:hover {
+  background: var(--theme-hover);
+}
+
+
+/* =========================================
+   11. BUTTONS
+========================================= */
+
+html[data-account-theme="light"] .btn-gold,
+html[data-account-theme="light"] .premium-logout-btn,
+html[data-account-theme="light"] .logout-confirm-btn {
+  background: var(--gold-gradient);
+  color: #111111;
+
+  border-color: transparent;
+}
+
+html[data-account-theme="light"] .btn-outline-warning {
+  --bs-btn-color: #926600;
+  --bs-btn-border-color: #926600;
+
+  --bs-btn-hover-color: #795400;
+  --bs-btn-hover-bg: #fff0bf;
+  --bs-btn-hover-border-color: #926600;
+
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+html[data-account-theme="light"] .btn-outline-warning:hover {
+  background: var(--theme-active);
+  color: var(--gold-dark);
+}
+
+html[data-account-theme="light"] .btn-secondary {
+  background: #e5e7eb;
+  color: #333333;
+  border-color: #dddddd;
+}
+
+
+/* =========================================
+   12. DROPDOWN MENUS
+========================================= */
+
+html[data-account-theme="light"] .dropdown-menu {
+  background: var(--panel-bg);
+  border-color: var(--border);
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-account-theme="light"] .dropdown-item {
+  color: var(--text);
+}
+
+html[data-account-theme="light"] .dropdown-item:hover {
+  background: var(--theme-hover);
+  color: var(--gold);
+}
+
+html[data-account-theme="light"] .dropdown-divider {
+  border-color: var(--border);
+}
+
+
+/* =========================================
+   13. PAGINATION
+========================================= */
+
+html[data-account-theme="light"] .page-link {
+  background: var(--panel-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] .page-link:hover {
+  background: var(--theme-hover);
+  color: var(--gold);
+}
+
+html[data-account-theme="light"] .page-item.active .page-link {
+  background: var(--theme-active);
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+html[data-account-theme="light"] .page-item.disabled .page-link {
+  background: #eeeeee;
+  color: #999999;
+}
+
+
+/* =========================================
+   14. MODALS
+========================================= */
+
+html[data-account-theme="light"] .modal-content {
+  background: var(--panel-bg);
+  color: var(--text);
+
+  border-color: var(--border);
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-account-theme="light"] .modal-header,
+html[data-account-theme="light"] .modal-footer {
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] .modal-title {
+  color: var(--text);
+}
+
+html[data-account-theme="light"] .btn-close {
+  filter: none;
+}
+
+
+/* =========================================
+   15. LOGOUT MODAL
+========================================= */
+
+html[data-account-theme="light"] .logout-modal {
+  background: #ffffff;
+  color: var(--text);
+
+  border-color: #dddddd;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+html[data-account-theme="light"] .logout-modal h3 {
+  color: var(--text);
+}
+
+html[data-account-theme="light"] .logout-modal p {
+  color: var(--muted);
+}
+
+html[data-account-theme="light"] .logout-cancel-btn {
+  background: transparent;
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+html[data-account-theme="light"] .logout-cancel-btn:hover {
+  background: var(--theme-hover);
+}
+
+
+/* =========================================
+   16. ADMIN ACCOUNT SETTINGS
+========================================= */
+
+html[data-account-theme="light"] .account-row {
+  color: var(--text);
+}
+
+html[data-account-theme="light"] .account-row:hover {
+  background: var(--theme-hover);
+}
+
+html[data-account-theme="light"] .account-avatar,
+html[data-account-theme="light"] .account-icon {
+  background: var(--theme-active);
+  color: var(--gold);
+}
+
+html[data-account-theme="light"] .account-notice,
+html[data-account-theme="light"] .setting-toggle,
+html[data-account-theme="light"] .theme-save-info {
+  background: var(--input-bg);
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] .account-back {
+  color: var(--gold);
+}
+
+
+/* =========================================
+   17. APPEARANCE OPTIONS
+========================================= */
+
+html[data-account-theme="light"] .theme-option {
+  background: var(--panel-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-account-theme="light"] .theme-option.active {
+  background: #fffaf0;
+  border-color: var(--gold);
+}
+
+html[data-account-theme="light"] .theme-option:hover {
+  border-color: var(--gold);
+}
+
+html[data-account-theme="light"]
+.theme-option.active .theme-indicator::after {
+  color: #ffffff;
+}
+
+
+/* =========================================
+   18. STATUS AND MESSAGES
+========================================= */
+
+html[data-account-theme="light"] .settings-status.success,
+html[data-account-theme="light"] .settings-message.success {
+  background: #ecfdf3;
+  color: var(--success);
+  border-color: #a7e5bc;
+}
+
+html[data-account-theme="light"] .settings-status.error,
+html[data-account-theme="light"] .settings-message.error {
+  background: #fff1f1;
+  color: var(--danger);
+  border-color: #f5b5b5;
+}
+
+html[data-account-theme="light"] .settings-message.info {
+  background: var(--theme-hover);
+  color: var(--gold);
+  border-color: var(--border);
+}
+
+
+/* =========================================
+   19. SWEETALERT POPUPS
+========================================= */
+
+html[data-account-theme="light"] .swal2-popup,
+html[data-account-theme="light"] .jcn-popup {
+  background: #ffffff !important;
+  color: #202020 !important;
+  border-color: #dddddd;
+}
+
+html[data-account-theme="light"] .swal2-title,
+html[data-account-theme="light"] .jcn-title {
+  color: #202020 !important;
+}
+
+html[data-account-theme="light"] .swal2-html-container {
+  color: #626262 !important;
+}
+
+html[data-account-theme="light"] .swal2-input,
+html[data-account-theme="light"] .swal2-textarea {
+  background: var(--input-bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+
+/* =========================================
+   20. SCROLLBAR
+========================================= */
+
+html[data-account-theme="light"] {
+  scrollbar-color: #c5c5c5 #f3f4f6;
+}
+
+html[data-account-theme="dark"] {
+  scrollbar-color: #514426 #111111;
+}
+
+
+/* =========================================
+   21. SMOOTH THEME TRANSITION
+========================================= */
+
+body,
+.dashboard-nav,
+.dashboard-card,
+.dashboard-menu .list-group-item,
+.stat-card,
+.summary-card,
+.account-row,
+.modal-content,
+.logout-modal,
+input,
+select,
+textarea {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* =========================================
+   22. REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  body,
+  .dashboard-nav,
+  .dashboard-card,
+  .dashboard-menu .list-group-item,
+  .stat-card,
+  .summary-card,
+  .account-row,
+  .modal-content,
+  .logout-modal,
+  input,
+  select,
+  textarea {
+    transition: none !important;
+  }
+
+}

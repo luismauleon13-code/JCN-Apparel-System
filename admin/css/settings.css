@@ -1114,3 +1114,437 @@ html[data-account-theme="light"] .logout-modal p {
   }
 
 }
+
+/* =========================================
+   ADMIN APPEARANCE SETTINGS
+========================================= */
+
+.appearance-container {
+  margin-top: 24px;
+}
+
+.appearance-container h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 5px;
+
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.appearance-container h3 i {
+  color: var(--gold);
+}
+
+
+/* =========================================
+   THEME OPTIONS LAYOUT
+========================================= */
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+  margin-top: 20px;
+}
+
+
+/* =========================================
+   THEME OPTION BUTTON
+========================================= */
+
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  padding: 18px;
+
+  background: var(--panel-bg);
+  color: var(--text);
+
+  border: 2px solid var(--border);
+  border-radius: 14px;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* HOVER EFFECT */
+
+.theme-option:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+
+/* ACTIVE THEME */
+
+.theme-option.active {
+  border-color: var(--gold);
+
+  background: rgba(244, 197, 66, 0.04);
+
+  box-shadow:
+    0 0 0 3px rgba(244, 197, 66, 0.12);
+}
+
+
+/* THEME TEXT */
+
+.theme-option strong {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.theme-option small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+
+/* =========================================
+   THEME OPTION HEADER
+========================================= */
+
+.theme-option-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-option-header i {
+  color: var(--gold);
+  font-size: 22px;
+}
+
+
+/* =========================================
+   SELECTED THEME INDICATOR
+========================================= */
+
+.theme-indicator {
+  display: grid;
+  place-items: center;
+
+  width: 20px;
+  height: 20px;
+
+  border: 2px solid var(--muted);
+  border-radius: 50%;
+}
+
+.theme-option.active .theme-indicator {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.theme-option.active .theme-indicator::after {
+  content: "✓";
+
+  color: #111111;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+/* =========================================
+   THEME PREVIEW
+========================================= */
+
+.theme-preview {
+  width: 100%;
+  height: 110px;
+  padding: 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  overflow: hidden;
+}
+
+.preview-navbar {
+  height: 16px;
+  margin-bottom: 8px;
+
+  border-radius: 4px;
+}
+
+.preview-content {
+  display: flex;
+  gap: 8px;
+
+  height: 60px;
+}
+
+.preview-sidebar {
+  width: 30%;
+
+  border-radius: 4px;
+}
+
+.preview-main {
+  flex: 1;
+
+  border-radius: 4px;
+}
+
+
+/* =========================================
+   DARK MODE PREVIEW
+========================================= */
+
+.dark-preview {
+  background: #101010;
+  border-color: #333333;
+}
+
+.dark-preview .preview-navbar {
+  background: #333333;
+}
+
+.dark-preview .preview-sidebar {
+  background: #292929;
+}
+
+.dark-preview .preview-main {
+  background: #222222;
+}
+
+
+/* =========================================
+   LIGHT MODE PREVIEW
+========================================= */
+
+.light-preview {
+  background: #ffffff;
+  border-color: #dddddd;
+}
+
+.light-preview .preview-navbar {
+  background: #dedede;
+}
+
+.light-preview .preview-sidebar {
+  background: #e8e8e8;
+}
+
+.light-preview .preview-main {
+  background: #f0f0f0;
+}
+
+
+/* =========================================
+   AUTOMATIC SAVE INFORMATION
+========================================= */
+
+.theme-save-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 20px;
+  padding: 14px;
+
+  background: var(--input-bg);
+  color: var(--muted);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.theme-save-info i {
+  flex-shrink: 0;
+
+  color: var(--gold);
+  font-size: 16px;
+}
+
+
+/* =========================================
+   LIGHT MODE - THEME OPTIONS
+========================================= */
+
+html[data-account-theme="light"] .theme-option {
+  background: #ffffff;
+  border-color: #dddddd;
+  color: #202020;
+}
+
+html[data-account-theme="light"] .theme-option:hover {
+  border-color: #926600;
+}
+
+html[data-account-theme="light"] .theme-option.active {
+  background: #fffaf0;
+  border-color: #926600;
+
+  box-shadow:
+    0 0 0 3px rgba(146, 102, 0, 0.10);
+}
+
+html[data-account-theme="light"]
+.theme-option.active .theme-indicator::after {
+  color: #ffffff;
+}
+
+
+/* =========================================
+   LIGHT MODE - ACCOUNT COMPONENTS
+========================================= */
+
+html[data-account-theme="light"] .account-avatar,
+html[data-account-theme="light"] .account-icon {
+  background: #fff0bf;
+  color: #926600;
+}
+
+html[data-account-theme="light"] .account-row:hover {
+  background: #fff8e6;
+}
+
+html[data-account-theme="light"] .account-notice {
+  background: #fafafa;
+  border-color: #dddddd;
+}
+
+html[data-account-theme="light"] .setting-toggle {
+  background: #f7f7f7;
+  border-color: #dddddd;
+}
+
+
+/* =========================================
+   LIGHT MODE - DISABLED FORM INPUTS
+========================================= */
+
+html[data-account-theme="light"]
+.input-group-custom input:disabled,
+
+html[data-account-theme="light"]
+.input-group-custom textarea:disabled,
+
+html[data-account-theme="light"]
+.input-group-custom select:disabled {
+  background: #eeeeee;
+  color: #777777;
+  border-color: #dddddd;
+}
+
+
+/* =========================================
+   LIGHT MODE - BUTTONS
+========================================= */
+
+html[data-account-theme="light"] .btn-outline-warning {
+  color: #926600;
+  border-color: #926600;
+}
+
+html[data-account-theme="light"] .btn-outline-warning:hover {
+  background: #fff0bf;
+  color: #926600;
+}
+
+
+/* =========================================
+   LIGHT MODE - STATUS MESSAGES
+========================================= */
+
+html[data-account-theme="light"] {
+  --success: #16834d;
+  --danger: #c62828;
+}
+
+html[data-account-theme="light"]
+.account-heading #settingsStatus.success {
+  color: var(--success);
+}
+
+html[data-account-theme="light"]
+.account-heading #settingsStatus.error {
+  color: var(--danger);
+}
+
+
+/* =========================================
+   LIGHT MODE - SWEETALERT
+========================================= */
+
+html[data-account-theme="light"] .jcn-popup {
+  background: #ffffff !important;
+  color: #202020 !important;
+  border-color: #dddddd;
+}
+
+html[data-account-theme="light"]
+.jcn-popup .swal2-html-container {
+  color: #626262;
+}
+
+
+/* =========================================
+   RESPONSIVE - TABLET AND MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+
+  .theme-options {
+    gap: 10px;
+  }
+
+  .theme-option {
+    padding: 12px;
+  }
+
+  .theme-preview {
+    height: 90px;
+  }
+
+  .preview-content {
+    height: 40px;
+  }
+
+  .theme-option strong {
+    font-size: 13px;
+  }
+
+  .theme-option small {
+    font-size: 11px;
+  }
+
+  .theme-option-header i {
+    font-size: 18px;
+  }
+
+  .theme-save-info {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+}
+
+@media (max-width: 350px) {
+
+  .theme-options {
+    grid-template-columns: 1fr;
+  }
+
+}
