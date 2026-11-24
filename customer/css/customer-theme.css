@@ -1468,7 +1468,83 @@ button, input, select, textarea {
 }
 
 
+/* ==========================================================
+   CUSTOMER GLOBAL THEME
+   LIGHT MODE SEARCH BAR FIX
+   DASHBOARD AND SHOP PRODUCTS
+========================================================== */
 
+html[data-theme="light"] body .search-box {
+  background: #ffffff !important;
+  background-image: none !important;
+
+  border: 1px solid #dce0e6 !important;
+  border-radius: 999px !important;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  box-shadow: none !important;
+}
+
+
+/* SEARCH INPUT */
+
+html[data-theme="light"] body .search-box input {
+  width: 100%;
+  min-width: 0;
+
+  background: transparent !important;
+  background-color: transparent !important;
+
+  color: #20242b !important;
+
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  font-size: 13px;
+}
+
+
+/* SEARCH PLACEHOLDER */
+
+html[data-theme="light"] body .search-box input::placeholder {
+  color: #707986 !important;
+  opacity: 1;
+}
+
+
+/* SEARCH ICON */
+
+html[data-theme="light"] body .search-box i {
+  background: transparent !important;
+
+  color: #c49a35 !important;
+
+  font-size: 15px;
+}
+
+
+/* SEARCH HOVER */
+
+html[data-theme="light"] body .search-box:hover {
+  border-color: #c9a557 !important;
+}
+
+
+/* SEARCH FOCUS */
+
+html[data-theme="light"] body .search-box:focus-within {
+  background: #ffffff !important;
+
+  border-color: #c49a35 !important;
+
+  box-shadow:
+    0 0 0 3px rgba(196, 154, 53, 0.12) !important;
+}
 
 
 
