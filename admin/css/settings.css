@@ -843,3 +843,274 @@ input[type="checkbox"]:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+/* ACCOUNT SETTINGS */
+/* =========================================
+   ADMIN ACCOUNT SETTINGS
+========================================= */
+
+.account-card {
+  max-width: 900px;
+  margin: auto;
+}
+
+/* =========================================
+   ACCOUNT HEADER
+========================================= */
+
+.account-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 0 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.account-heading h2,
+.account-section h2 {
+  font-size: 20px;
+  font-weight: 750;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.account-heading p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.account-heading #settingsStatus {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* =========================================
+   ACCOUNT AVATAR & ICONS
+========================================= */
+
+.account-avatar,
+.account-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  background: #1b1b1b;
+  color: var(--gold);
+}
+
+.account-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 26px;
+}
+
+.account-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 17px;
+}
+
+/* =========================================
+   ACCOUNT SETTINGS MENU
+========================================= */
+
+.account-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+  padding: 19px 4px;
+
+  background: transparent;
+  color: var(--text);
+
+  border: 0;
+  border-bottom: 1px solid var(--border);
+
+  text-align: left;
+}
+
+.account-row:hover {
+  background: rgba(244, 197, 66, 0.07);
+}
+
+/* ACCOUNT MENU TEXT */
+
+.account-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-copy strong,
+.account-copy small {
+  display: block;
+}
+
+.account-copy strong {
+  font-size: 15px;
+}
+
+.account-copy small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ACCOUNT MENU ARROW */
+
+.account-arrow {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* =========================================
+   ACCOUNT SECTION NAVIGATION
+========================================= */
+
+.account-back {
+  margin-bottom: 22px;
+  padding: 0;
+
+  background: none;
+  color: var(--gold);
+  border: 0;
+
+  font-weight: 700;
+}
+
+/* =========================================
+   ACCOUNT SECTION FORMS
+========================================= */
+
+.account-section fieldset {
+  min-width: 0;
+  border: 0;
+}
+
+.account-section .setting-help {
+  margin-top: 10px;
+}
+
+.account-section .settings-actions {
+  margin-top: 16px;
+}
+
+/* =========================================
+   ACCOUNT NOTICE
+========================================= */
+
+.account-notice {
+  margin-bottom: 20px;
+  padding: 15px;
+
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.account-notice i {
+  margin-right: 6px;
+  color: var(--gold);
+}
+
+/* =========================================
+   LIGHT MODE - THEME VARIABLES
+========================================= */
+
+html[data-account-theme="light"] {
+  color-scheme: light;
+
+  --text: #202020;
+  --muted: #626262;
+  --panel-bg: #ffffff;
+  --input-bg: #f7f7f7;
+  --border: #dedede;
+  --gold: #926600;
+}
+
+/* =========================================
+   LIGHT MODE - PAGE & CARDS
+========================================= */
+
+html[data-account-theme="light"] body.dashboard-body {
+  background: #f3f3f3;
+}
+
+html[data-account-theme="light"] .dashboard-card,
+html[data-account-theme="light"] .dashboard-nav,
+html[data-account-theme="light"] .logout-modal {
+  background: #ffffff;
+  box-shadow: none;
+}
+
+/* =========================================
+   LIGHT MODE - TEXT
+========================================= */
+
+html[data-account-theme="light"] .text-light {
+  color: #202020 !important;
+}
+
+html[data-account-theme="light"] .input-group-custom label {
+  color: #333333;
+}
+
+/* =========================================
+   LIGHT MODE - FORM INPUTS
+========================================= */
+
+html[data-account-theme="light"] .input-group-custom input,
+html[data-account-theme="light"] .input-group-custom select {
+  border-color: #cccccc;
+}
+
+html[data-account-theme="light"] .input-group-custom select option {
+  background: #ffffff;
+  color: #202020;
+}
+
+/* =========================================
+   LIGHT MODE - ACCOUNT ICONS
+========================================= */
+
+html[data-account-theme="light"] .account-avatar,
+html[data-account-theme="light"] .account-icon {
+  color: #f4c542;
+}
+
+/* =========================================
+   LIGHT MODE - LOGOUT MODAL
+========================================= */
+
+html[data-account-theme="light"] .logout-modal p {
+  color: #555555;
+}
+
+/* =========================================
+   RESPONSIVE - MOBILE DEVICES
+========================================= */
+
+@media (max-width: 576px) {
+
+  .account-card {
+    padding: 16px !important;
+  }
+
+  .account-row {
+    gap: 10px;
+    padding: 16px 0;
+  }
+
+  .account-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .account-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+}
