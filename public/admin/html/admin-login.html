@@ -20,7 +20,7 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   >
 
-  <!-- EXISTING ADMIN CSS -->
+  <!-- EXISTING JCN CSS -->
   <link rel="stylesheet" href="../css/style.css">
 
 </head>
@@ -30,10 +30,12 @@
   <!-- BACKGROUND OVERLAY -->
   <div class="auth-overlay" aria-hidden="true"></div>
 
+  <!-- LOGIN CONTAINER -->
   <main
     class="container min-vh-100 d-flex justify-content-center align-items-center py-4 position-relative"
   >
 
+    <!-- LOGIN CARD -->
     <div class="premium-auth-card p-4 p-md-5 w-100">
 
       <!-- HEADER -->
@@ -54,13 +56,12 @@
         </h1>
 
         <p class="premium-auth-subtitle mb-0">
-          Secure access for authorized administrators
-          and staff members.
+          Secure access for authorized administrators and staff.
         </p>
 
       </div>
 
-      <!-- MANAGEMENT LOGIN FORM -->
+      <!-- LOGIN FORM -->
       <form id="adminLoginForm" method="post">
 
         <!-- USERNAME -->
@@ -117,6 +118,7 @@
               required
             >
 
+            <!-- PASSWORD VISIBILITY -->
             <button
               type="button"
               class="password-eye-btn"
@@ -134,10 +136,16 @@
 
         </div>
 
+          <a
+    href="../../staff/html/staff-login.html"
+    class="gold-link small fw-semibold admin-login-link"
+  >
+    <i class="fa-solid fa-users-gear me-1" aria-hidden="true"></i>
+    Staff Login
+  </a>
+
         <!-- FORGOT PASSWORD -->
-        <div
-          class="d-flex justify-content-end align-items-center mb-3 auth-links-row"
-        >
+        <div class="d-flex justify-content-end mb-3">
 
           <a
             href="#resetModal"
@@ -168,14 +176,12 @@
               class="fa-solid fa-right-to-bracket me-2"
               aria-hidden="true"
             ></i>
-
             Sign In
-
           </button>
 
         </div>
 
-        <!-- BACK TO WEBSITE -->
+        <!-- BACK HOME -->
         <div class="text-center mt-3">
 
           <a
@@ -186,8 +192,7 @@
               class="fa-solid fa-arrow-left me-1"
               aria-hidden="true"
             ></i>
-
-            Back to Website
+            Back to Home
           </a>
 
         </div>
@@ -198,7 +203,7 @@
 
   </main>
 
-  <!-- PASSWORD RESET MODAL -->
+  <!-- ADMIN RESET PASSWORD MODAL -->
   <div
     id="resetModal"
     class="reset-modal hidden"
@@ -222,8 +227,7 @@
       <input
         type="email"
         id="resetEmail"
-        placeholder="Email address"
-        aria-label="Email address"
+        placeholder="Admin email"
         autocomplete="email"
       >
 
@@ -233,7 +237,6 @@
         id="resetOtp"
         class="hidden"
         placeholder="Enter OTP"
-        aria-label="One-time password"
         inputmode="numeric"
         autocomplete="one-time-code"
       >
@@ -244,7 +247,6 @@
         id="resetNewPassword"
         class="hidden"
         placeholder="New password"
-        aria-label="New password"
         autocomplete="new-password"
       >
 
@@ -253,19 +255,18 @@
         type="password"
         id="resetConfirmPassword"
         class="hidden"
-        placeholder="Confirm new password"
-        aria-label="Confirm new password"
+        placeholder="Confirm password"
         autocomplete="new-password"
       >
 
-      <!-- RESET MESSAGE -->
+      <!-- MESSAGE -->
       <p
         id="resetMessage"
         role="status"
         aria-live="polite"
       ></p>
 
-      <!-- ACTION BUTTONS -->
+      <!-- RESET ACTIONS -->
       <div class="reset-actions">
 
         <button
@@ -326,13 +327,11 @@
 
   </div>
 
-  
-<!-- EXISTING ADMIN FUNCTIONS -->
-<script src="../js/script.js"></script>
+  <!-- EXISTING SHARED FUNCTIONS -->
+  <script src="../js/script.js"></script>
 
-<!-- NEW MANAGEMENT LOGIN -->
-<script src="../js/management-login.js"></script>
-
+  <!-- MANAGEMENT LOGIN HANDLER -->
+  <script src="../js/management-login.js"></script>
 
 </body>
 </html>

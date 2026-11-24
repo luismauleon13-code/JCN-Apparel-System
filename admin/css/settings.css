@@ -1548,3 +1548,36 @@ html[data-account-theme="light"]
   }
 
 }
+
+/* =========================================
+   ADMIN THEME BUTTON INTERACTION FIX
+========================================= */
+
+#panel-preferences .theme-option:not(:disabled) {
+  position: relative;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 1;
+}
+
+#panel-preferences .theme-option > * {
+  pointer-events: none;
+}
+
+#panel-preferences .theme-option:hover {
+  border-color: var(--gold, #f4c542);
+  transform: translateY(-2px);
+}
+
+#panel-preferences .theme-option:active {
+  transform: scale(0.98);
+}
+
+#panel-preferences .theme-option.active {
+  border-color: var(--gold, #f4c542);
+}
+
+#panel-preferences .theme-option:focus-visible {
+  outline: 2px solid var(--gold, #f4c542);
+  outline-offset: 3px;
+}

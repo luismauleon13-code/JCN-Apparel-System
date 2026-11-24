@@ -843,3 +843,708 @@ input[type="checkbox"]:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+/* ACCOUNT SETTINGS */
+/* =========================================
+   ADMIN ACCOUNT SETTINGS
+========================================= */
+
+.account-card {
+  max-width: 900px;
+  margin: auto;
+}
+
+/* =========================================
+   ACCOUNT HEADER
+========================================= */
+
+.account-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 0 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.account-heading h2,
+.account-section h2 {
+  font-size: 20px;
+  font-weight: 750;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.account-heading p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.account-heading #settingsStatus {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* =========================================
+   ACCOUNT AVATAR & ICONS
+========================================= */
+
+.account-avatar,
+.account-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  background: #1b1b1b;
+  color: var(--gold);
+}
+
+.account-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 26px;
+}
+
+.account-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 17px;
+}
+
+/* =========================================
+   ACCOUNT SETTINGS MENU
+========================================= */
+
+.account-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+  padding: 19px 4px;
+
+  background: transparent;
+  color: var(--text);
+
+  border: 0;
+  border-bottom: 1px solid var(--border);
+
+  text-align: left;
+}
+
+.account-row:hover {
+  background: rgba(244, 197, 66, 0.07);
+}
+
+/* ACCOUNT MENU TEXT */
+
+.account-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-copy strong,
+.account-copy small {
+  display: block;
+}
+
+.account-copy strong {
+  font-size: 15px;
+}
+
+.account-copy small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ACCOUNT MENU ARROW */
+
+.account-arrow {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* =========================================
+   ACCOUNT SECTION NAVIGATION
+========================================= */
+
+.account-back {
+  margin-bottom: 22px;
+  padding: 0;
+
+  background: none;
+  color: var(--gold);
+  border: 0;
+
+  font-weight: 700;
+}
+
+/* =========================================
+   ACCOUNT SECTION FORMS
+========================================= */
+
+.account-section fieldset {
+  min-width: 0;
+  border: 0;
+}
+
+.account-section .setting-help {
+  margin-top: 10px;
+}
+
+.account-section .settings-actions {
+  margin-top: 16px;
+}
+
+/* =========================================
+   ACCOUNT NOTICE
+========================================= */
+
+.account-notice {
+  margin-bottom: 20px;
+  padding: 15px;
+
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.account-notice i {
+  margin-right: 6px;
+  color: var(--gold);
+}
+
+/* =========================================
+   LIGHT MODE - THEME VARIABLES
+========================================= */
+
+html[data-account-theme="light"] {
+  color-scheme: light;
+
+  --text: #202020;
+  --muted: #626262;
+  --panel-bg: #ffffff;
+  --input-bg: #f7f7f7;
+  --border: #dedede;
+  --gold: #926600;
+}
+
+/* =========================================
+   LIGHT MODE - PAGE & CARDS
+========================================= */
+
+html[data-account-theme="light"] body.dashboard-body {
+  background: #f3f3f3;
+}
+
+html[data-account-theme="light"] .dashboard-card,
+html[data-account-theme="light"] .dashboard-nav,
+html[data-account-theme="light"] .logout-modal {
+  background: #ffffff;
+  box-shadow: none;
+}
+
+/* =========================================
+   LIGHT MODE - TEXT
+========================================= */
+
+html[data-account-theme="light"] .text-light {
+  color: #202020 !important;
+}
+
+html[data-account-theme="light"] .input-group-custom label {
+  color: #333333;
+}
+
+/* =========================================
+   LIGHT MODE - FORM INPUTS
+========================================= */
+
+html[data-account-theme="light"] .input-group-custom input,
+html[data-account-theme="light"] .input-group-custom select {
+  border-color: #cccccc;
+}
+
+html[data-account-theme="light"] .input-group-custom select option {
+  background: #ffffff;
+  color: #202020;
+}
+
+/* =========================================
+   LIGHT MODE - ACCOUNT ICONS
+========================================= */
+
+html[data-account-theme="light"] .account-avatar,
+html[data-account-theme="light"] .account-icon {
+  color: #f4c542;
+}
+
+/* =========================================
+   LIGHT MODE - LOGOUT MODAL
+========================================= */
+
+html[data-account-theme="light"] .logout-modal p {
+  color: #555555;
+}
+
+/* =========================================
+   RESPONSIVE - MOBILE DEVICES
+========================================= */
+
+@media (max-width: 576px) {
+
+  .account-card {
+    padding: 16px !important;
+  }
+
+  .account-row {
+    gap: 10px;
+    padding: 16px 0;
+  }
+
+  .account-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .account-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+}
+
+/* =========================================
+   ADMIN APPEARANCE SETTINGS
+========================================= */
+
+.appearance-container {
+  margin-top: 24px;
+}
+
+.appearance-container h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 5px;
+
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.appearance-container h3 i {
+  color: var(--gold);
+}
+
+
+/* =========================================
+   THEME OPTIONS LAYOUT
+========================================= */
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+  margin-top: 20px;
+}
+
+
+/* =========================================
+   THEME OPTION BUTTON
+========================================= */
+
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  padding: 18px;
+
+  background: var(--panel-bg);
+  color: var(--text);
+
+  border: 2px solid var(--border);
+  border-radius: 14px;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* HOVER EFFECT */
+
+.theme-option:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+
+/* ACTIVE THEME */
+
+.theme-option.active {
+  border-color: var(--gold);
+
+  background: rgba(244, 197, 66, 0.04);
+
+  box-shadow:
+    0 0 0 3px rgba(244, 197, 66, 0.12);
+}
+
+
+/* THEME TEXT */
+
+.theme-option strong {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.theme-option small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+
+/* =========================================
+   THEME OPTION HEADER
+========================================= */
+
+.theme-option-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-option-header i {
+  color: var(--gold);
+  font-size: 22px;
+}
+
+
+/* =========================================
+   SELECTED THEME INDICATOR
+========================================= */
+
+.theme-indicator {
+  display: grid;
+  place-items: center;
+
+  width: 20px;
+  height: 20px;
+
+  border: 2px solid var(--muted);
+  border-radius: 50%;
+}
+
+.theme-option.active .theme-indicator {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.theme-option.active .theme-indicator::after {
+  content: "✓";
+
+  color: #111111;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+/* =========================================
+   THEME PREVIEW
+========================================= */
+
+.theme-preview {
+  width: 100%;
+  height: 110px;
+  padding: 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  overflow: hidden;
+}
+
+.preview-navbar {
+  height: 16px;
+  margin-bottom: 8px;
+
+  border-radius: 4px;
+}
+
+.preview-content {
+  display: flex;
+  gap: 8px;
+
+  height: 60px;
+}
+
+.preview-sidebar {
+  width: 30%;
+
+  border-radius: 4px;
+}
+
+.preview-main {
+  flex: 1;
+
+  border-radius: 4px;
+}
+
+
+/* =========================================
+   DARK MODE PREVIEW
+========================================= */
+
+.dark-preview {
+  background: #101010;
+  border-color: #333333;
+}
+
+.dark-preview .preview-navbar {
+  background: #333333;
+}
+
+.dark-preview .preview-sidebar {
+  background: #292929;
+}
+
+.dark-preview .preview-main {
+  background: #222222;
+}
+
+
+/* =========================================
+   LIGHT MODE PREVIEW
+========================================= */
+
+.light-preview {
+  background: #ffffff;
+  border-color: #dddddd;
+}
+
+.light-preview .preview-navbar {
+  background: #dedede;
+}
+
+.light-preview .preview-sidebar {
+  background: #e8e8e8;
+}
+
+.light-preview .preview-main {
+  background: #f0f0f0;
+}
+
+
+/* =========================================
+   AUTOMATIC SAVE INFORMATION
+========================================= */
+
+.theme-save-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 20px;
+  padding: 14px;
+
+  background: var(--input-bg);
+  color: var(--muted);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.theme-save-info i {
+  flex-shrink: 0;
+
+  color: var(--gold);
+  font-size: 16px;
+}
+
+
+/* =========================================
+   LIGHT MODE - THEME OPTIONS
+========================================= */
+
+html[data-account-theme="light"] .theme-option {
+  background: #ffffff;
+  border-color: #dddddd;
+  color: #202020;
+}
+
+html[data-account-theme="light"] .theme-option:hover {
+  border-color: #926600;
+}
+
+html[data-account-theme="light"] .theme-option.active {
+  background: #fffaf0;
+  border-color: #926600;
+
+  box-shadow:
+    0 0 0 3px rgba(146, 102, 0, 0.10);
+}
+
+html[data-account-theme="light"]
+.theme-option.active .theme-indicator::after {
+  color: #ffffff;
+}
+
+
+/* =========================================
+   LIGHT MODE - ACCOUNT COMPONENTS
+========================================= */
+
+html[data-account-theme="light"] .account-avatar,
+html[data-account-theme="light"] .account-icon {
+  background: #fff0bf;
+  color: #926600;
+}
+
+html[data-account-theme="light"] .account-row:hover {
+  background: #fff8e6;
+}
+
+html[data-account-theme="light"] .account-notice {
+  background: #fafafa;
+  border-color: #dddddd;
+}
+
+html[data-account-theme="light"] .setting-toggle {
+  background: #f7f7f7;
+  border-color: #dddddd;
+}
+
+
+/* =========================================
+   LIGHT MODE - DISABLED FORM INPUTS
+========================================= */
+
+html[data-account-theme="light"]
+.input-group-custom input:disabled,
+
+html[data-account-theme="light"]
+.input-group-custom textarea:disabled,
+
+html[data-account-theme="light"]
+.input-group-custom select:disabled {
+  background: #eeeeee;
+  color: #777777;
+  border-color: #dddddd;
+}
+
+
+/* =========================================
+   LIGHT MODE - BUTTONS
+========================================= */
+
+html[data-account-theme="light"] .btn-outline-warning {
+  color: #926600;
+  border-color: #926600;
+}
+
+html[data-account-theme="light"] .btn-outline-warning:hover {
+  background: #fff0bf;
+  color: #926600;
+}
+
+
+/* =========================================
+   LIGHT MODE - STATUS MESSAGES
+========================================= */
+
+html[data-account-theme="light"] {
+  --success: #16834d;
+  --danger: #c62828;
+}
+
+html[data-account-theme="light"]
+.account-heading #settingsStatus.success {
+  color: var(--success);
+}
+
+html[data-account-theme="light"]
+.account-heading #settingsStatus.error {
+  color: var(--danger);
+}
+
+
+/* =========================================
+   LIGHT MODE - SWEETALERT
+========================================= */
+
+html[data-account-theme="light"] .jcn-popup {
+  background: #ffffff !important;
+  color: #202020 !important;
+  border-color: #dddddd;
+}
+
+html[data-account-theme="light"]
+.jcn-popup .swal2-html-container {
+  color: #626262;
+}
+
+
+/* =========================================
+   RESPONSIVE - TABLET AND MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+
+  .theme-options {
+    gap: 10px;
+  }
+
+  .theme-option {
+    padding: 12px;
+  }
+
+  .theme-preview {
+    height: 90px;
+  }
+
+  .preview-content {
+    height: 40px;
+  }
+
+  .theme-option strong {
+    font-size: 13px;
+  }
+
+  .theme-option small {
+    font-size: 11px;
+  }
+
+  .theme-option-header i {
+    font-size: 18px;
+  }
+
+  .theme-save-info {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+}
+
+@media (max-width: 350px) {
+
+  .theme-options {
+    grid-template-columns: 1fr;
+  }
+
+}
