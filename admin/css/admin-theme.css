@@ -1021,3 +1021,1295 @@ input:not(
   }
 
 }
+
+/* =========================================
+   ADMIN REPORTS - LIGHT MODE FIX
+========================================= */
+
+/* REPORT CONTAINERS */
+
+:root[data-account-theme="light"] :is(
+  .report-card,
+  .reports-card,
+  .summary-card,
+  .stat-card,
+  .stats-card,
+  .kpi-card,
+  .chart-card,
+  .chart-container,
+  .sales-chart,
+  .status-card,
+  .status-panel,
+  .report-panel,
+  .report-table-card,
+  .report-table-container,
+  .recent-report-card
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border: 1px solid #e1e4e8 !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+
+/* REPORT HEADINGS */
+
+:root[data-account-theme="light"] :is(
+  .report-card,
+  .summary-card,
+  .stat-card,
+  .chart-card,
+  .status-card,
+  .report-panel
+) :is(h1, h2, h3, h4, h5, h6) {
+  color: #20242b !important;
+}
+
+
+/* STATISTIC VALUES */
+
+:root[data-account-theme="light"] :is(
+  .stat-value,
+  .stat-number,
+  .summary-value,
+  .summary-number,
+  .card-value,
+  .kpi-value,
+  .report-value
+) {
+  color: #20242b !important;
+}
+
+
+/* STATISTIC LABELS */
+
+:root[data-account-theme="light"] :is(
+  .stat-label,
+  .stat-title,
+  .summary-label,
+  .summary-title,
+  .chart-title,
+  .chart-label,
+  .chart-subtitle,
+  .report-subtitle,
+  .month-label
+) {
+  color: #626b78 !important;
+}
+
+
+/* GOLD ICONS */
+
+:root[data-account-theme="light"] :is(
+  .stat-card,
+  .summary-card,
+  .report-card,
+  .kpi-card
+) i {
+  color: #b88a18 !important;
+}
+
+
+/* MONTHLY SALES CHART */
+
+:root[data-account-theme="light"] :is(
+  .chart-wrapper,
+  .chart-scroll,
+  .chart-scroll-wrapper,
+  .chart-area,
+  .chart-content,
+  .monthly-chart,
+  .chart-bars
+) {
+  background: transparent !important;
+  color: #20242b !important;
+}
+
+
+/* CHART BAR COLORS */
+
+:root[data-account-theme="light"] :is(
+  .chart-bar,
+  .sales-bar,
+  .bar-fill
+) {
+  background: linear-gradient(
+    180deg,
+    #f4c542,
+    #c79b1b
+  ) !important;
+}
+
+
+/* CHART TEXT */
+
+:root[data-account-theme="light"] :is(
+  .bar-label,
+  .bar-value,
+  .bar-month,
+  .month-name,
+  .chart-month
+) {
+  color: #626b78 !important;
+}
+
+
+/* ORDER STATUS ROWS */
+
+:root[data-account-theme="light"] :is(
+  .status-row,
+  .status-item,
+  .order-status-row,
+  .order-status-item
+) {
+  background: #f8f9fb !important;
+  color: #30343b !important;
+  border: 1px solid #e1e4e8 !important;
+}
+
+
+/* ORDER STATUS COUNTS */
+
+:root[data-account-theme="light"] :is(
+  .status-count,
+  .status-value,
+  .status-number
+) {
+  color: #a67b12 !important;
+  font-weight: 600;
+}
+
+
+/* REPORT TABLE */
+
+:root[data-account-theme="light"] .table {
+  --bs-table-bg: #ffffff;
+  --bs-table-color: #30343b;
+  --bs-table-border-color: #e1e4e8;
+  --bs-table-hover-bg: #fff8e6;
+  --bs-table-striped-bg: #f8f9fb;
+  color: #30343b !important;
+}
+
+:root[data-account-theme="light"] .table thead th {
+  background: #eef0f4 !important;
+  color: #30343b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"] .table tbody td {
+  background: #ffffff !important;
+  color: #30343b !important;
+  border-color: #e1e4e8 !important;
+}
+
+:root[data-account-theme="light"] .table tbody tr:hover td {
+  background: #fff8e6 !important;
+}
+
+
+/* CHART SCROLLBAR */
+
+:root[data-account-theme="light"] ::-webkit-scrollbar-track {
+  background: #edf0f4;
+}
+
+:root[data-account-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #c49a35;
+  border-radius: 10px;
+}
+
+
+/* EXPORT REPORT BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .export-btn,
+  .btn-export,
+  #exportReport
+) {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
+  border: 1px solid #c49a35 !important;
+}
+
+/* =========================================
+   ADMIN ANNOUNCEMENTS - LIGHT MODE FIX
+========================================= */
+
+/* ANNOUNCEMENT CARDS */
+
+:root[data-account-theme="light"] :is(
+  .announcement-card,
+  .announcement-item,
+  .announcement-box,
+  .announcement-row,
+  .announcement-entry,
+  .history-item,
+  .history-card,
+  .history-entry,
+  .announcement-history-item
+) {
+  background: #f8f9fb !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* ANNOUNCEMENT TITLE */
+
+:root[data-account-theme="light"] :is(
+  .announcement-title,
+  .announcement-name,
+  .history-title,
+  .announcement-item h4,
+  .announcement-item h5,
+  .announcement-card h4,
+  .announcement-card h5
+) {
+  color: #20242b !important;
+}
+
+
+/* ANNOUNCEMENT DATE AND TIME */
+
+:root[data-account-theme="light"] :is(
+  .announcement-date,
+  .announcement-time,
+  .announcement-meta,
+  .history-date,
+  .history-time,
+  .history-meta,
+  .announcement-item small,
+  .announcement-card small
+) {
+  color: #626b78 !important;
+}
+
+
+/* ANNOUNCEMENT MESSAGE */
+
+:root[data-account-theme="light"] :is(
+  .announcement-message,
+  .announcement-description,
+  .announcement-text,
+  .history-message,
+  .history-description,
+  .announcement-item p,
+  .announcement-card p,
+  .history-item p
+) {
+  color: #434a55 !important;
+}
+
+
+/* ANNOUNCEMENT ICON */
+
+:root[data-account-theme="light"] :is(
+  .announcement-icon,
+  .history-icon,
+  .announcement-icon-box,
+  .history-icon-box
+) {
+  background: #fff3d4 !important;
+  color: #a67b12 !important;
+}
+
+
+/* DELETE BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .delete-btn,
+  .btn-delete,
+  .announcement-delete,
+  .delete-announcement,
+  .history-delete
+) {
+  background: #fff0f0 !important;
+  color: #dc3545 !important;
+  border: 1px solid #efc5c5 !important;
+}
+
+:root[data-account-theme="light"] :is(
+  .delete-btn,
+  .btn-delete,
+  .announcement-delete,
+  .delete-announcement,
+  .history-delete
+):hover {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+  border-color: #dc3545 !important;
+}
+
+
+/* ANNOUNCEMENT CARD HOVER */
+
+:root[data-account-theme="light"] :is(
+  .announcement-item,
+  .announcement-card,
+  .history-item,
+  .history-card
+):hover {
+  background: #fffdf5 !important;
+  border-color: #c49a35 !important;
+}
+
+/* ==========================================================
+   MANAGE STAFF - GLOBAL LIGHT MODE FIX
+========================================================== */
+
+/* STAFF DIRECTORY HEADER */
+
+:root[data-account-theme="light"] :is(
+  .staff-hero,
+  .staff-header,
+  .staff-banner,
+  .staff-directory,
+  .staff-directory-header,
+  .staff-page-header,
+  .staff-management-header,
+  .staff-overview,
+  .staff-hero-card
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+
+/* STAFF ACCOUNTS CONTAINER */
+
+:root[data-account-theme="light"] :is(
+  .staff-card,
+  .staff-panel,
+  .staff-table-card,
+  .staff-table-container,
+  .staff-table-wrapper,
+  .staff-accounts,
+  .staff-accounts-card,
+  .staff-section,
+  .staff-list-card
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* STAFF ACCOUNTS HEADER */
+
+:root[data-account-theme="light"] :is(
+  .staff-table-header,
+  .staff-card-header,
+  .staff-list-header,
+  .staff-panel-header,
+  .staff-accounts-header,
+  .table-header,
+  .table-toolbar,
+  .section-header,
+  .staff-toolbar
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* HEADINGS */
+
+:root[data-account-theme="light"] :is(
+  .staff-title,
+  .staff-heading,
+  .staff-name,
+  .staff-directory-title,
+  .staff-section-title,
+  .staff-header h1,
+  .staff-header h2,
+  .staff-hero h1,
+  .staff-hero h2,
+  .staff-table-header h2,
+  .staff-table-header h3
+) {
+  color: #20242b !important;
+}
+
+
+/* SUBTITLES AND DESCRIPTIONS */
+
+:root[data-account-theme="light"] :is(
+  .staff-subtitle,
+  .staff-description,
+  .staff-email,
+  .staff-meta,
+  .staff-header p,
+  .staff-hero p,
+  .staff-table-header p,
+  .staff-card-header p
+) {
+  color: #626b78 !important;
+}
+
+
+/* STAFF MANAGEMENT EYEBROW */
+
+:root[data-account-theme="light"] :is(
+  .staff-eyebrow,
+  .staff-label,
+  .eyebrow
+) {
+  color: #936a12 !important;
+}
+
+
+/* ==========================================================
+   STAFF STATISTICS CARDS
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-stat-card,
+  .staff-stat,
+  .stat-card,
+  .summary-card
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+
+/* STATISTICS LABELS */
+
+:root[data-account-theme="light"] :is(
+  .stat-label,
+  .stat-title,
+  .staff-stat-label,
+  .staff-stat-title,
+  .stat-info p,
+  .stat-content p
+) {
+  color: #626b78 !important;
+}
+
+
+/* STATISTICS VALUES */
+
+:root[data-account-theme="light"] :is(
+  .stat-value,
+  .stat-number,
+  .staff-stat-value,
+  .staff-stat-number,
+  .stat-info h3,
+  .stat-content h3
+) {
+  color: #20242b !important;
+}
+
+
+/* STATISTICS ICONS */
+
+:root[data-account-theme="light"] :is(
+  .stat-icon,
+  .staff-stat-icon,
+  .staff-avatar,
+  .staff-icon
+) {
+  background: #fff7e3 !important;
+  color: #a67b12 !important;
+  border-color: #f2dfab !important;
+}
+
+
+/* ==========================================================
+   SEARCH AND FILTERS
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-search,
+  .search-box,
+  .search-wrapper,
+  .staff-filter,
+  .filter-select
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"] :is(
+  .staff-search input,
+  .search-box input,
+  .staff-filter select,
+  .filter-select
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"] input::placeholder {
+  color: #707986;
+}
+
+
+/* ==========================================================
+   STAFF TABLE
+========================================================== */
+
+:root[data-account-theme="light"] .staff-table {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"] .staff-table thead th {
+  background: #edf0f4 !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"] .staff-table tbody td {
+  background: #ffffff !important;
+  color: #30343b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"] .staff-table tbody tr:hover td {
+  background: #fffaf0 !important;
+}
+
+
+/* ==========================================================
+   STAFF ROLE AND STATUS BADGES
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .role-badge,
+  .staff-role,
+  .staff-role-badge
+) {
+  background: #fff7e3 !important;
+  color: #936a12 !important;
+  border: 1px solid #f2dfab !important;
+}
+
+
+/* ACTIVE STATUS */
+
+:root[data-account-theme="light"] :is(
+  .status-active,
+  .badge-active,
+  .staff-status.active,
+  .status-badge.active
+) {
+  background: #eaf9f0 !important;
+  color: #168258 !important;
+  border: 1px solid #bce8cf !important;
+}
+
+
+/* INACTIVE STATUS */
+
+:root[data-account-theme="light"] :is(
+  .status-inactive,
+  .badge-inactive,
+  .staff-status.inactive,
+  .status-badge.inactive
+) {
+  background: #fff0f0 !important;
+  color: #c73636 !important;
+  border: 1px solid #efc5c5 !important;
+}
+
+
+/* ==========================================================
+   STAFF ACTION BUTTONS
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-actions button,
+  .action-buttons button,
+  .table-actions button,
+  .action-btn,
+  .staff-action-btn
+) {
+  background: #f6f7f9 !important;
+  color: #434a55 !important;
+  border: 1px solid #dce0e6 !important;
+  border-radius: 7px;
+}
+
+
+/* EDIT BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .edit-btn,
+  .btn-edit,
+  .action-edit
+) {
+  background: #edf4ff !important;
+  color: #2563eb !important;
+  border-color: #cbdcff !important;
+}
+
+
+/* RESTRICT OR DISABLE BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .restrict-btn,
+  .btn-restrict,
+  .disable-btn,
+  .action-restrict
+) {
+  background: #fff7e3 !important;
+  color: #a67b12 !important;
+  border-color: #f2dfab !important;
+}
+
+
+/* RESET PASSWORD BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .reset-btn,
+  .reset-password-btn,
+  .btn-reset,
+  .action-reset
+) {
+  background: #f2edff !important;
+  color: #7c3aed !important;
+  border-color: #ddd1fc !important;
+}
+
+
+/* DELETE BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .delete-btn,
+  .btn-delete,
+  .action-delete
+) {
+  background: #fff0f0 !important;
+  color: #dc3545 !important;
+  border-color: #efc5c5 !important;
+}
+
+
+/* ADD STAFF ACCOUNT BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .add-staff-btn,
+  .btn-add-staff,
+  #addStaffBtn,
+  #openAddStaffModal
+) {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
+  border: 1px solid #c49a35 !important;
+}
+
+/* ==========================================================
+   MANAGE STAFF - GLOBAL LIGHT MODE FIX
+========================================================== */
+
+/* STAFF DIRECTORY HEADER */
+
+:root[data-account-theme="light"] :is(
+  .staff-hero,
+  .staff-header,
+  .staff-banner,
+  .staff-directory,
+  .staff-directory-header,
+  .staff-page-header,
+  .staff-management-header,
+  .staff-overview,
+  .staff-hero-card
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+
+/* STAFF ACCOUNTS CONTAINER */
+
+:root[data-account-theme="light"] :is(
+  .staff-card,
+  .staff-panel,
+  .staff-table-card,
+  .staff-table-container,
+  .staff-table-wrapper,
+  .staff-accounts,
+  .staff-accounts-card,
+  .staff-section,
+  .staff-list-card
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* STAFF ACCOUNTS HEADER */
+
+:root[data-account-theme="light"] :is(
+  .staff-table-header,
+  .staff-card-header,
+  .staff-list-header,
+  .staff-panel-header,
+  .staff-accounts-header,
+  .table-header,
+  .table-toolbar,
+  .section-header,
+  .staff-toolbar
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* HEADINGS */
+
+:root[data-account-theme="light"] :is(
+  .staff-title,
+  .staff-heading,
+  .staff-name,
+  .staff-directory-title,
+  .staff-section-title,
+  .staff-header h1,
+  .staff-header h2,
+  .staff-hero h1,
+  .staff-hero h2,
+  .staff-table-header h2,
+  .staff-table-header h3
+) {
+  color: #20242b !important;
+}
+
+
+/* SUBTITLES AND DESCRIPTIONS */
+
+:root[data-account-theme="light"] :is(
+  .staff-subtitle,
+  .staff-description,
+  .staff-email,
+  .staff-meta,
+  .staff-header p,
+  .staff-hero p,
+  .staff-table-header p,
+  .staff-card-header p
+) {
+  color: #626b78 !important;
+}
+
+
+/* STAFF MANAGEMENT EYEBROW */
+
+:root[data-account-theme="light"] :is(
+  .staff-eyebrow,
+  .staff-label,
+  .eyebrow
+) {
+  color: #936a12 !important;
+}
+
+
+/* ==========================================================
+   STAFF STATISTICS CARDS
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-stat-card,
+  .staff-stat,
+  .stat-card,
+  .summary-card
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border: 1px solid #dce0e6 !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+
+/* STATISTICS LABELS */
+
+:root[data-account-theme="light"] :is(
+  .stat-label,
+  .stat-title,
+  .staff-stat-label,
+  .staff-stat-title,
+  .stat-info p,
+  .stat-content p
+) {
+  color: #626b78 !important;
+}
+
+
+/* STATISTICS VALUES */
+
+:root[data-account-theme="light"] :is(
+  .stat-value,
+  .stat-number,
+  .staff-stat-value,
+  .staff-stat-number,
+  .stat-info h3,
+  .stat-content h3
+) {
+  color: #20242b !important;
+}
+
+
+/* STATISTICS ICONS */
+
+:root[data-account-theme="light"] :is(
+  .stat-icon,
+  .staff-stat-icon,
+  .staff-avatar,
+  .staff-icon
+) {
+  background: #fff7e3 !important;
+  color: #a67b12 !important;
+  border-color: #f2dfab !important;
+}
+
+
+/* ==========================================================
+   SEARCH AND FILTERS
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-search,
+  .search-box,
+  .search-wrapper,
+  .staff-filter,
+  .filter-select
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"] :is(
+  .staff-search input,
+  .search-box input,
+  .staff-filter select,
+  .filter-select
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"] input::placeholder {
+  color: #707986;
+}
+
+
+/* ==========================================================
+   STAFF TABLE
+========================================================== */
+
+:root[data-account-theme="light"] .staff-table {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"] .staff-table thead th {
+  background: #edf0f4 !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"] .staff-table tbody td {
+  background: #ffffff !important;
+  color: #30343b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"] .staff-table tbody tr:hover td {
+  background: #fffaf0 !important;
+}
+
+
+/* ==========================================================
+   STAFF ROLE AND STATUS BADGES
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .role-badge,
+  .staff-role,
+  .staff-role-badge
+) {
+  background: #fff7e3 !important;
+  color: #936a12 !important;
+  border: 1px solid #f2dfab !important;
+}
+
+
+/* ACTIVE STATUS */
+
+:root[data-account-theme="light"] :is(
+  .status-active,
+  .badge-active,
+  .staff-status.active,
+  .status-badge.active
+) {
+  background: #eaf9f0 !important;
+  color: #168258 !important;
+  border: 1px solid #bce8cf !important;
+}
+
+
+/* INACTIVE STATUS */
+
+:root[data-account-theme="light"] :is(
+  .status-inactive,
+  .badge-inactive,
+  .staff-status.inactive,
+  .status-badge.inactive
+) {
+  background: #fff0f0 !important;
+  color: #c73636 !important;
+  border: 1px solid #efc5c5 !important;
+}
+
+
+/* ==========================================================
+   STAFF ACTION BUTTONS
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-actions button,
+  .action-buttons button,
+  .table-actions button,
+  .action-btn,
+  .staff-action-btn
+) {
+  background: #f6f7f9 !important;
+  color: #434a55 !important;
+  border: 1px solid #dce0e6 !important;
+  border-radius: 7px;
+}
+
+
+/* EDIT BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .edit-btn,
+  .btn-edit,
+  .action-edit
+) {
+  background: #edf4ff !important;
+  color: #2563eb !important;
+  border-color: #cbdcff !important;
+}
+
+
+/* RESTRICT OR DISABLE BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .restrict-btn,
+  .btn-restrict,
+  .disable-btn,
+  .action-restrict
+) {
+  background: #fff7e3 !important;
+  color: #a67b12 !important;
+  border-color: #f2dfab !important;
+}
+
+
+/* RESET PASSWORD BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .reset-btn,
+  .reset-password-btn,
+  .btn-reset,
+  .action-reset
+) {
+  background: #f2edff !important;
+  color: #7c3aed !important;
+  border-color: #ddd1fc !important;
+}
+
+
+/* DELETE BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .delete-btn,
+  .btn-delete,
+  .action-delete
+) {
+  background: #fff0f0 !important;
+  color: #dc3545 !important;
+  border-color: #efc5c5 !important;
+}
+
+
+/* ADD STAFF ACCOUNT BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .add-staff-btn,
+  .btn-add-staff,
+  #addStaffBtn,
+  #openAddStaffModal
+) {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
+  border: 1px solid #c49a35 !important;
+}
+
+/* ==========================================================
+   MANAGE STAFF - ADD STAFF MODAL LIGHT MODE
+========================================================== */
+
+/* MODAL BACKGROUND */
+
+:root[data-account-theme="light"] :is(
+  .staff-modal,
+  .staff-modal-content,
+  .staff-modal-box,
+  .modal-content
+) {
+  background: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* MODAL HEADER AND FOOTER */
+
+:root[data-account-theme="light"] :is(
+  .staff-modal-header,
+  .staff-modal-footer,
+  .modal-header,
+  .modal-footer
+) {
+  background: #ffffff !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* INPUT WRAPPERS */
+
+:root[data-account-theme="light"] :is(
+  .input-group,
+  .input-wrapper,
+  .input-wrap,
+  .input-icon-wrapper,
+  .input-with-icon,
+  .input-field,
+  .staff-input-group,
+  .staff-input-wrapper,
+  .field-wrapper,
+  .select-wrapper
+) {
+  background: #f8f9fb !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* INPUT ICONS */
+
+:root[data-account-theme="light"] :is(
+  .input-group-text,
+  .input-icon,
+  .field-icon,
+  .staff-input-icon,
+  .input-wrapper > i,
+  .input-wrap > i,
+  .input-with-icon > i,
+  .input-group > i
+) {
+  background: #f8f9fb !important;
+  color: #a67b12 !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* INPUT AND SELECT COLORS */
+
+:root[data-account-theme="light"] :is(
+  .staff-modal,
+  .staff-modal-content,
+  .modal-content
+) :is(input, select, textarea) {
+  background-color: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* INPUT FOCUS */
+
+:root[data-account-theme="light"] :is(
+  .input-group,
+  .input-wrapper,
+  .input-wrap,
+  .input-with-icon,
+  .staff-input-wrapper
+):focus-within {
+  border-color: #c49a35 !important;
+  box-shadow: 0 0 0 3px rgba(196, 154, 53, 0.12);
+}
+
+
+/* INPUT PLACEHOLDERS */
+
+:root[data-account-theme="light"] :is(
+  .staff-modal,
+  .staff-modal-content,
+  .modal-content
+) input::placeholder {
+  color: #707986 !important;
+}
+
+
+/* BROWSER AUTOFILL COLOR */
+
+:root[data-account-theme="light"] .modal-content
+input:-webkit-autofill {
+  -webkit-box-shadow:
+    0 0 0 1000px #ffffff inset !important;
+
+  -webkit-text-fill-color: #20242b !important;
+  caret-color: #20242b;
+}
+
+
+/* FORM LABELS */
+
+:root[data-account-theme="light"] :is(
+  .staff-modal,
+  .staff-modal-content,
+  .modal-content
+) label {
+  color: #434a55 !important;
+}
+
+
+/* STAFF ACCESS INFORMATION BOX */
+
+:root[data-account-theme="light"] :is(
+  .staff-access,
+  .staff-access-box,
+  .access-info,
+  .access-note,
+  .access-notice,
+  .info-box,
+  .info-note,
+  .form-note,
+  .staff-notice
+) {
+  background: #fff9eb !important;
+  color: #626b78 !important;
+  border-color: #efddb0 !important;
+}
+
+
+/* STAFF ACCESS TITLE */
+
+:root[data-account-theme="light"] :is(
+  .staff-access,
+  .staff-access-box,
+  .access-info,
+  .access-note,
+  .access-notice,
+  .info-box,
+  .info-note,
+  .form-note,
+  .staff-notice
+) :is(strong, b, h4, h5, h6) {
+  color: #936a12 !important;
+}
+
+
+/* STAFF ACCESS DESCRIPTION */
+
+:root[data-account-theme="light"] :is(
+  .staff-access,
+  .staff-access-box,
+  .access-info,
+  .access-note,
+  .info-box,
+  .info-note,
+  .form-note
+) :is(p, small, span) {
+  color: #626b78 !important;
+}
+
+
+/* CANCEL BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .staff-modal,
+  .staff-modal-content,
+  .modal-content
+) :is(
+  .btn-cancel,
+  .cancel-btn,
+  .modal-cancel,
+  .modal-cancel-btn,
+  .btn-secondary,
+  .btn-dark,
+  button[data-bs-dismiss="modal"]
+) {
+  background: #f0f2f5 !important;
+  color: #434a55 !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* CANCEL BUTTON HOVER */
+
+:root[data-account-theme="light"] :is(
+  .staff-modal,
+  .staff-modal-content,
+  .modal-content
+) :is(
+  .btn-cancel,
+  .cancel-btn,
+  .btn-secondary,
+  .btn-dark
+):hover {
+  background: #e2e5e9 !important;
+  color: #20242b !important;
+}
+
+
+/* CREATE STAFF ACCOUNT BUTTON */
+
+:root[data-account-theme="light"] :is(
+  .create-staff-btn,
+  .save-staff-btn,
+  .btn-create-staff,
+  #createStaffBtn,
+  #saveStaffBtn,
+  .modal-content button[type="submit"]
+) {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
+  border-color: #c49a35 !important;
+}
+
