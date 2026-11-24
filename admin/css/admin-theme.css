@@ -2892,3 +2892,79 @@ div:has(> div > :is(h1, h2, h3)):has(> button#addStaffBtn) {
   border-color: #c49a35 !important;
 }
 
+/* ==========================================================
+   MANAGE STAFF - DIRECTORY HEADER LIGHT MODE
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-hero,
+  .staff-header,
+  .staff-banner,
+  .staff-page-header,
+  .staff-directory-header,
+  .staff-intro,
+  .staff-top,
+  .staff-topbar,
+  .staff-heading-card,
+  .staff-header-card,
+  .staff-directory-card,
+  .staff-hero-panel,
+  .directory-hero,
+  .directory-header
+) {
+  background: var(--jcn-admin-card, #ffffff) !important;
+  background-image: none !important;
+  color: var(--jcn-admin-text, #20242b) !important;
+  border-color: var(--jcn-admin-border, #dce0e6) !important;
+  box-shadow: var(--jcn-admin-shadow);
+}
+
+/* STAFF DIRECTORY TITLE */
+
+:root[data-account-theme="light"] :is(
+  .staff-title,
+  .staff-heading,
+  .staff-hero h2,
+  .staff-header h2,
+  .staff-banner h2
+) {
+  color: #20242b !important;
+}
+
+/* STAFF MANAGEMENT LABEL */
+
+:root[data-account-theme="light"] :is(
+  .staff-eyebrow,
+  .staff-label,
+  .eyebrow
+) {
+  color: #936a12 !important;
+}
+
+/* STAFF DESCRIPTION */
+
+:root[data-account-theme="light"] :is(
+  .staff-subtitle,
+  .staff-description,
+  .staff-hero p,
+  .staff-header p
+) {
+  color: #626b78 !important;
+}
+
+/* ADD STAFF ACCOUNT BUTTON */
+
+:root[data-account-theme="light"] :is(
+  #addStaffBtn,
+  .add-staff-btn,
+  .btn-add-staff
+) {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
+  border-color: #c49a35 !important;
+}
