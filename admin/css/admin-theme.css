@@ -2891,3 +2891,325 @@ div:has(> div > :is(h1, h2, h3)):has(> button#addStaffBtn) {
   color: #171717 !important;
   border-color: #c49a35 !important;
 }
+
+/* ==========================================================
+   JCN MANAGE STAFF - LIGHT MODE FIX V2
+========================================================== */
+
+/* ==========================================================
+   01. STAFF DIRECTORY HEADER
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  .staff-hero,
+  .staff-banner,
+  .staff-header,
+  .staff-topbar,
+  .staff-intro,
+  .staff-heading,
+  .staff-directory,
+  .directory-header,
+  .staff-page-header,
+  .staff-hero-card,
+  .staff-content-header,
+  .management-header,
+  .management-hero,
+  .section-hero,
+  .page-banner,
+  .content-header
+) {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* DIRECTORY HEADER FALLBACK */
+
+:root[data-account-theme="light"]
+div:has(> div > :is(h1, h2, h3)):has(> button#addStaffBtn) {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #dce0e6 !important;
+}
+
+
+/* ==========================================================
+   02. ADD STAFF MODAL INPUT WRAPPERS
+========================================================== */
+
+:root[data-account-theme="light"] .modal-content :is(
+  .input-group,
+  .input-wrap,
+  .input-wrapper,
+  .input-shell,
+  .field-shell,
+  .field-wrap,
+  .field-control,
+  .field-input,
+  .input-control,
+  .icon-input,
+  .input-box,
+  .input-with-icon,
+  .staff-input,
+  .staff-input-group,
+  .select-wrap,
+  .select-wrapper
+) {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #dce0e6 !important;
+  color: #20242b !important;
+  box-shadow: none !important;
+}
+
+
+/* DETECT INPUT CONTAINERS WITH ICONS */
+
+:root[data-account-theme="light"]
+.modal-content div:has(> i):has(> input),
+
+:root[data-account-theme="light"]
+.modal-content div:has(> i):has(> select),
+
+:root[data-account-theme="light"]
+.modal-content div:has(> span > i):has(> input),
+
+:root[data-account-theme="light"]
+.modal-content div:has(> span > i):has(> select) {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #dce0e6 !important;
+  color: #20242b !important;
+}
+
+
+/* ==========================================================
+   03. INPUT ICONS
+========================================================== */
+
+:root[data-account-theme="light"]
+.modal-content :is(
+  .input-group-text,
+  .input-icon,
+  .field-icon,
+  .input-prefix,
+  .staff-input-icon,
+  .input-addon
+) {
+  background: #f8f9fb !important;
+  color: #936a12 !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.modal-content div:has(> input) > i,
+
+:root[data-account-theme="light"]
+.modal-content div:has(> select) > i,
+
+:root[data-account-theme="light"]
+.modal-content div:has(> input) > span > i,
+
+:root[data-account-theme="light"]
+.modal-content div:has(> select) > span > i {
+  background: transparent !important;
+  color: #936a12 !important;
+  opacity: 1 !important;
+}
+
+
+/* ==========================================================
+   04. INPUT FIELDS
+========================================================== */
+
+:root[data-account-theme="light"]
+.modal-content :is(input, select, textarea) {
+  background-color: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.modal-content input::placeholder {
+  color: #707986 !important;
+}
+
+:root[data-account-theme="light"]
+.modal-content :is(input, select, textarea):focus {
+  background-color: #ffffff !important;
+  color: #20242b !important;
+  border-color: #c49a35 !important;
+}
+
+:root[data-account-theme="light"]
+.modal-content select option {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+
+/* FORM LABELS */
+
+:root[data-account-theme="light"]
+.modal-content label {
+  color: #434a55 !important;
+}
+
+
+/* ==========================================================
+   05. STAFF ACCESS INFORMATION
+========================================================== */
+
+:root[data-account-theme="light"]
+.modal-content :is(
+  .staff-access,
+  .staff-access-box,
+  .staff-access-info,
+  .access-info,
+  .access-box,
+  .access-note,
+  .access-notice,
+  .role-info,
+  .role-notice,
+  .role-note,
+  .info-box,
+  .info-card,
+  .info-note,
+  .form-note,
+  .form-info,
+  .form-notice
+) {
+  background: #fff9eb !important;
+  color: #434a55 !important;
+  border-color: #efddb0 !important;
+}
+
+
+/* STAFF ACCESS TITLE */
+
+:root[data-account-theme="light"]
+.modal-content :is(
+  .staff-access,
+  .staff-access-box,
+  .access-info,
+  .access-box,
+  .access-note,
+  .role-info,
+  .role-notice,
+  .info-box,
+  .info-note,
+  .form-note,
+  .form-info
+) :is(strong, b, h4, h5, h6) {
+  color: #936a12 !important;
+  opacity: 1 !important;
+}
+
+
+/* FALLBACK FOR STAFF ACCESS TEXT */
+
+:root[data-account-theme="light"]
+.modal-content :is(strong, b) {
+  color: #30343b !important;
+}
+
+:root[data-account-theme="light"]
+.modal-content :is(p, small) {
+  color: #626b78 !important;
+}
+
+
+/* ==========================================================
+   06. MODAL CLOSE BUTTON
+========================================================== */
+
+:root[data-account-theme="light"]
+.modal-content :is(
+  .btn-close,
+  .modal-close,
+  .close-btn,
+  .close-modal,
+  .staff-modal-close
+) {
+  background-color: #edf0f4 !important;
+  color: #434a55 !important;
+  border-color: #dce0e6 !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+:root[data-account-theme="light"]
+.modal-content :is(
+  .modal-close,
+  .close-btn,
+  .close-modal,
+  .staff-modal-close
+) i {
+  color: #434a55 !important;
+  opacity: 1 !important;
+}
+
+
+/* BOOTSTRAP CLOSE ICON */
+
+:root[data-account-theme="light"]
+.modal-content .btn-close {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='%23434a55' stroke-width='2' stroke-linecap='round' d='M3 3l10 10M13 3L3 13'/%3E%3C/svg%3E") !important;
+
+  background-size: 12px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+
+/* ==========================================================
+   07. CANCEL BUTTON
+========================================================== */
+
+:root[data-account-theme="light"]
+.modal-footer :is(
+  .btn-dark,
+  .btn-secondary,
+  .btn-cancel,
+  .cancel-btn,
+  .modal-cancel,
+  .modal-cancel-btn,
+  button[data-bs-dismiss="modal"]
+) {
+  background: #f0f2f5 !important;
+  background-image: none !important;
+  color: #434a55 !important;
+  border: 1px solid #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.modal-footer button[data-bs-dismiss="modal"]:hover {
+  background: #e2e5e9 !important;
+  color: #20242b !important;
+}
+
+
+/* ==========================================================
+   08. GOLD ACTION BUTTONS
+========================================================== */
+
+:root[data-account-theme="light"] :is(
+  #addStaffBtn,
+  #createStaffBtn,
+  #saveStaffBtn,
+  .btn-add-staff,
+  .btn-create-staff,
+  .add-staff-btn,
+  .create-staff-btn
+) {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
+  border-color: #c49a35 !important;
+}
