@@ -2893,72 +2893,46 @@ div:has(> div > :is(h1, h2, h3)):has(> button#addStaffBtn) {
 }
 
 /* ==========================================================
-   MANAGE STAFF - DIRECTORY HEADER LIGHT MODE
+   JCN MANAGE STAFF - FINAL LIGHT MODE FIX
+   Based on actual manage-staff.css selectors
 ========================================================== */
 
-:root[data-account-theme="light"] :is(
-  .staff-hero,
-  .staff-header,
-  .staff-banner,
-  .staff-page-header,
-  .staff-directory-header,
-  .staff-intro,
-  .staff-top,
-  .staff-topbar,
-  .staff-heading-card,
-  .staff-header-card,
-  .staff-directory-card,
-  .staff-hero-panel,
-  .directory-hero,
-  .directory-header
-) {
-  background: var(--jcn-admin-card, #ffffff) !important;
+
+/* ==========================================================
+   01. STAFF DIRECTORY HEADER
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-main .page-header {
+  background: #ffffff !important;
   background-image: none !important;
-  color: var(--jcn-admin-text, #20242b) !important;
-  border-color: var(--jcn-admin-border, #dce0e6) !important;
-  box-shadow: var(--jcn-admin-shadow);
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+  box-shadow: 0 8px 28px rgba(35, 40, 50, 0.07) !important;
 }
 
-/* STAFF DIRECTORY TITLE */
-
-:root[data-account-theme="light"] :is(
-  .staff-title,
-  .staff-heading,
-  .staff-hero h2,
-  .staff-header h2,
-  .staff-banner h2
-) {
+:root[data-account-theme="light"]
+.staff-main .page-title {
   color: #20242b !important;
 }
 
-/* STAFF MANAGEMENT LABEL */
-
-:root[data-account-theme="light"] :is(
-  .staff-eyebrow,
-  .staff-label,
-  .eyebrow
-) {
+:root[data-account-theme="light"]
+.staff-main .page-eyebrow {
   color: #936a12 !important;
 }
 
-/* STAFF DESCRIPTION */
-
-:root[data-account-theme="light"] :is(
-  .staff-subtitle,
-  .staff-description,
-  .staff-hero p,
-  .staff-header p
-) {
+:root[data-account-theme="light"]
+.staff-main .page-description {
   color: #626b78 !important;
 }
 
-/* ADD STAFF ACCOUNT BUTTON */
 
-:root[data-account-theme="light"] :is(
-  #addStaffBtn,
-  .add-staff-btn,
-  .btn-add-staff
-) {
+/* ==========================================================
+   02. ADD STAFF ACCOUNT BUTTON
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-main .btn-add-staff {
   background: linear-gradient(
     135deg,
     #f4c542,
@@ -2967,4 +2941,545 @@ div:has(> div > :is(h1, h2, h3)):has(> button#addStaffBtn) {
 
   color: #171717 !important;
   border-color: #c49a35 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .btn-add-staff:hover {
+  background: #e8b830 !important;
+  color: #171717 !important;
+}
+
+
+/* ==========================================================
+   03. SUMMARY CARDS
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-main .summary-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #dce0e6 !important;
+  box-shadow: 0 5px 18px rgba(35, 40, 50, 0.06);
+}
+
+:root[data-account-theme="light"]
+.staff-main .summary-card p {
+  color: #626b78 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .summary-card h3 {
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .summary-icon {
+  background: #fff7e3 !important;
+  color: #936a12 !important;
+  border-color: #efddb0 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .summary-card:hover {
+  border-color: #c49a35 !important;
+}
+
+
+/* ==========================================================
+   04. STAFF ACCOUNTS PANEL
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-main .staff-panel {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #dce0e6 !important;
+  box-shadow: 0 8px 28px rgba(35, 40, 50, 0.07);
+}
+
+:root[data-account-theme="light"]
+.staff-main .staff-panel-header {
+  background: #ffffff !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .staff-panel-header h3 {
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .staff-panel-header p {
+  color: #626b78 !important;
+}
+
+
+/* ==========================================================
+   05. SEARCH AND FILTER
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-main .search-box {
+  background: #ffffff !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .search-box i {
+  color: #626b78 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .search-box input {
+  background: transparent !important;
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .search-box input::placeholder {
+  color: #707986 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .staff-filter {
+  background-color: #ffffff !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .search-box:focus-within,
+
+:root[data-account-theme="light"]
+.staff-main .staff-filter:focus {
+  border-color: #c49a35 !important;
+}
+
+
+/* ==========================================================
+   06. STAFF TABLE
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-main .staff-table {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .staff-table thead,
+
+:root[data-account-theme="light"]
+.staff-main .staff-table th {
+  background: #edf0f4 !important;
+  color: #30343b !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .staff-table td {
+  background: #ffffff !important;
+  color: #434a55 !important;
+  border-color: #e1e4e8 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-main .staff-table tbody tr:hover td {
+  background: #fffaf0 !important;
+}
+
+
+/* ==========================================================
+   07. STAFF PROFILE
+========================================================== */
+
+:root[data-account-theme="light"] .staff-avatar {
+  background: #fff7e3 !important;
+  color: #936a12 !important;
+  border-color: #efddb0 !important;
+}
+
+:root[data-account-theme="light"] .staff-name {
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"] .staff-email {
+  color: #626b78 !important;
+}
+
+
+/* ==========================================================
+   08. STAFF ROLE AND STATUS
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-table .role-badge {
+  background: #fff7e3 !important;
+  color: #936a12 !important;
+  border-color: #efddb0 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-table .status-active {
+  background: #eaf9f0 !important;
+  color: #168258 !important;
+  border-color: #bce8cf !important;
+}
+
+:root[data-account-theme="light"]
+.staff-table .status-inactive {
+  background: #edf0f4 !important;
+  color: #626b78 !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-table .status-restricted {
+  background: #fff0f0 !important;
+  color: #c73636 !important;
+  border-color: #efc5c5 !important;
+}
+
+
+/* ==========================================================
+   09. STAFF ACTION BUTTONS
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-actions .action-btn {
+  background: #f6f7f9 !important;
+  color: #434a55 !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-actions .action-btn:hover {
+  background: #fff3d4 !important;
+  color: #936a12 !important;
+  border-color: #c49a35 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-actions .action-btn.delete {
+  background: #fff0f0 !important;
+  color: #c73636 !important;
+  border-color: #efc5c5 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-actions .action-btn.delete:hover {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+  border-color: #dc3545 !important;
+}
+
+
+/* ==========================================================
+   10. EMPTY TABLE
+========================================================== */
+
+:root[data-account-theme="light"]
+.empty-table h4 {
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.empty-table p {
+  color: #626b78 !important;
+}
+
+:root[data-account-theme="light"]
+.empty-icon {
+  background: #fff3d4 !important;
+  color: #936a12 !important;
+}
+
+
+/* ==========================================================
+   11. ADD / EDIT STAFF MODAL
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-modal {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+
+  box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.18) !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal :is(
+  .modal-header,
+  .modal-body,
+  .modal-footer
+) {
+  background: #ffffff !important;
+  border-color: #dce0e6 !important;
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .modal-title {
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .modal-eyebrow {
+  color: #936a12 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .form-label {
+  color: #434a55 !important;
+}
+
+
+/* ==========================================================
+   12. INPUT GROUP CUSTOM
+
+   Exact selector causing the black input wrappers.
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom {
+  background: #f8f9fb !important;
+  background-image: none !important;
+
+  color: #20242b !important;
+
+  border: 1px solid #dce0e6 !important;
+
+  box-shadow: none !important;
+}
+
+
+/* INPUT ICONS */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom i {
+  background: transparent !important;
+  color: #936a12 !important;
+  opacity: 1 !important;
+}
+
+
+/* INPUT AND SELECT */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom :is(input, select) {
+  background: transparent !important;
+  color: #20242b !important;
+
+  border: none !important;
+  outline: none;
+
+  box-shadow: none !important;
+}
+
+
+/* PLACEHOLDER */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom input::placeholder {
+  color: #707986 !important;
+}
+
+
+/* SELECT OPTIONS */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom select option {
+  background: #ffffff !important;
+  color: #20242b !important;
+}
+
+
+/* INPUT GROUP FOCUS */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom:focus-within {
+  background: #ffffff !important;
+  border-color: #c49a35 !important;
+
+  box-shadow:
+    0 0 0 3px rgba(196, 154, 53, 0.14) !important;
+}
+
+
+/* AUTOFILL COLOR */
+
+:root[data-account-theme="light"]
+.staff-modal .input-group-custom input:-webkit-autofill {
+  -webkit-box-shadow:
+    0 0 0 1000px #f8f9fb inset !important;
+
+  -webkit-text-fill-color: #20242b !important;
+  caret-color: #20242b;
+}
+
+
+/* ==========================================================
+   13. STAFF ACCESS INFORMATION
+
+   Actual selector: .account-note
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-modal .account-note {
+  background: #fff9eb !important;
+  border-color: #efddb0 !important;
+  color: #434a55 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .account-note > i {
+  color: #936a12 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .account-note strong {
+  color: #936a12 !important;
+  opacity: 1 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .account-note p {
+  color: #626b78 !important;
+  opacity: 1 !important;
+}
+
+
+/* ==========================================================
+   14. MODAL CLOSE BUTTON
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-modal .btn-close {
+  --bs-btn-close-opacity: 1;
+  --bs-btn-close-hover-opacity: 1;
+  --bs-btn-close-filter: none;
+
+  background-color: #edf0f4 !important;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='%23434a55' stroke-width='2' stroke-linecap='round' d='M3 3l10 10M13 3L3 13'/%3E%3C/svg%3E") !important;
+
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 12px !important;
+
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .btn-close:hover {
+  background-color: #dce0e6 !important;
+}
+
+
+/* ==========================================================
+   15. MODAL CANCEL BUTTON
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-modal .btn-cancel {
+  background: #f0f2f5 !important;
+  background-image: none !important;
+
+  color: #434a55 !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .btn-cancel:hover {
+  background: #e2e5e9 !important;
+  color: #20242b !important;
+  border-color: #b8c0cc !important;
+}
+
+
+/* ==========================================================
+   16. CREATE STAFF ACCOUNT BUTTON
+========================================================== */
+
+:root[data-account-theme="light"]
+.staff-modal .btn-create {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
+  border-color: #c49a35 !important;
+}
+
+:root[data-account-theme="light"]
+.staff-modal .btn-create:hover {
+  background: #e8b830 !important;
+  color: #171717 !important;
+}
+
+
+/* ==========================================================
+   17. MANAGE STAFF LOGOUT MODAL
+========================================================== */
+
+:root[data-account-theme="light"]
+.custom-logout-modal .logout-box {
+  background: #ffffff !important;
+  background-image: none !important;
+
+  color: #20242b !important;
+  border-color: #dce0e6 !important;
+
+  box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.18) !important;
+}
+
+:root[data-account-theme="light"]
+.custom-logout-modal .logout-icon {
+  background: #fff3d4 !important;
+  color: #936a12 !important;
+}
+
+:root[data-account-theme="light"]
+.custom-logout-modal .logout-box h4 {
+  color: #20242b !important;
+}
+
+:root[data-account-theme="light"]
+.custom-logout-modal .logout-box p {
+  color: #626b78 !important;
+}
+
+:root[data-account-theme="light"]
+.custom-logout-modal .logout-backdrop {
+  background: rgba(15, 23, 42, 0.48) !important;
+}
+
+:root[data-account-theme="light"]
+.custom-logout-modal .cancel-logout {
+  background: #f0f2f5 !important;
+  color: #434a55 !important;
+  border-color: #dce0e6 !important;
+}
+
+:root[data-account-theme="light"]
+.custom-logout-modal .cancel-logout:hover {
+  background: #e2e5e9 !important;
+}
+
+:root[data-account-theme="light"]
+.custom-logout-modal .confirm-logout {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d4a72c
+  ) !important;
+
+  color: #171717 !important;
 }
