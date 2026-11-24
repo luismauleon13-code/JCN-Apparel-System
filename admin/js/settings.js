@@ -19,7 +19,6 @@
       : "/api/admin/settings");
 
   const LOGIN_URL = "admin-login.html";
-  const THEME_KEY = "jcnAdminAccountTheme";
 
   const $ = id => document.getElementById(id);
 
@@ -39,6 +38,12 @@
     "strong_password_required"
   ];
 
+  const ACCOUNT_KEYS = [
+    ...PROFILE_KEYS,
+    ...SECURITY_KEYS
+  ];
+
+  // Preserve existing system configurations.
   const ALLOWED_FIELDS = [
 
     // Shop Information
@@ -112,36 +117,30 @@
   }
 
   function showMessage(message, type = "info") {
-
     const messageBox = $("settingsMessage");
 
+    if (!messageBox) return;
+
     messageBox.textContent = message;
-
-    messageBox.className =
-      `settings-message ${type}`;
-
+    messageBox.className = `settings-message ${type}`;
   }
 
   function hideMessage() {
-
     const messageBox = $("settingsMessage");
 
+    if (!messageBox) return;
+
     messageBox.textContent = "";
-
-    messageBox.className =
-      "settings-message d-none";
-
+    messageBox.className = "settings-message d-none";
   }
 
   function setStatus(message, type = "") {
-
     const status = $("settingsStatus");
 
+    if (!status) return;
+
     status.textContent = message;
-
-    status.className =
-      `settings-status ${type}`.trim();
-
+    status.className = `settings-status ${type}`.trim();
   }
 
 
@@ -150,7 +149,6 @@
   ========================================= */
 
   function setBusy(value) {
-
     isBusy = value;
 
     const disabled =
@@ -162,7 +160,6 @@
     for (const group of ["profile", "security"]) {
 
       $(group + "Fields").disabled = disabled;
-
       $(group + "Save").disabled = disabled;
 
     }
@@ -178,18 +175,15 @@
       "aria-busy",
       String(value)
     );
-
   }
 
   function canEdit() {
-
     return (
       !isBusy &&
       Boolean(savedSettings) &&
       !accessBlocked &&
       !saveUnconfirmed
     );
-
   }
 
 
@@ -198,32 +192,22 @@
   ========================================= */
 
   function fillForm() {
-
     if (!savedSettings) return;
 
-    const keys = [
-      ...PROFILE_KEYS,
-      ...SECURITY_KEYS
-    ];
-
-    for (const key of keys) {
+    for (const key of ACCOUNT_KEYS) {
 
       const field = $(key);
 
       if (key === "strong_password_required") {
 
-        field.checked =
-          toBoolean(savedSettings[key]);
+        field.checked = toBoolean(savedSettings[key]);
 
       } else {
 
-        field.value =
-          savedSettings[key] ?? "";
+        field.value = savedSettings[key] ?? "";
 
       }
-
     }
-
   }
 
 
@@ -232,7 +216,6 @@
   ========================================= */
 
   function readForm(keys) {
-
     const values = {};
 
     for (const key of keys) {
@@ -252,11 +235,9 @@
         values[key] = field.value.trim();
 
       }
-
     }
 
     return values;
-
   }
 
   function normalizeValue(key, value) {
@@ -270,7 +251,6 @@
     }
 
     return String(value ?? "").trim();
-
   }
 
 
@@ -279,17 +259,11 @@
   ========================================= */
 
   function updateDirtyState() {
-
     if (!savedSettings) return;
 
-    const keys = [
-      ...PROFILE_KEYS,
-      ...SECURITY_KEYS
-    ];
+    const currentValues = readForm(ACCOUNT_KEYS);
 
-    const currentValues = readForm(keys);
-
-    hasUnsavedChanges = keys.some(key => {
+    hasUnsavedChanges = ACCOUNT_KEYS.some(key => {
 
       return (
         normalizeValue(key, currentValues[key]) !==
@@ -300,10 +274,7 @@
 
     if (saveUnconfirmed) {
 
-      setStatus(
-        "Save not confirmed",
-        "error"
-      );
+      setStatus("Save not confirmed", "error");
 
     } else if (hasUnsavedChanges) {
 
@@ -311,13 +282,9 @@
 
     } else {
 
-      setStatus(
-        "Settings loaded",
-        "success"
-      );
+      setStatus("Settings loaded", "success");
 
     }
-
   }
 
 
@@ -327,17 +294,17 @@
 
   function openPanel(key = null) {
 
-    if (isBusy) return;
+    if (isBusy && key !== "preferences") {
+      return;
+    }
 
     const selectedPanel = key
       ? $("panel-" + key)
       : null;
 
-    // Prevent invalid section navigation.
-
     if (key && !selectedPanel) return;
 
-    // Confirm unsaved changes.
+    /* CHECK UNSAVED CHANGES */
 
     if (
       hasUnsavedChanges &&
@@ -351,11 +318,13 @@
     fillForm();
     hideMessage();
 
-    // Show or hide account home.
+
+    /* SHOW OR HIDE ACCOUNT HOME */
 
     $("accountHome").hidden = Boolean(key);
 
-    // Display selected section.
+
+    /* DISPLAY SELECTED ACCOUNT SECTION */
 
     document.querySelectorAll(".account-section")
       .forEach(panel => {
@@ -364,15 +333,43 @@
 
       });
 
-    // Preferences can work without the Settings API.
 
-    if (key !== "preferences") {
+    /* CHECK PREFERENCES CONNECTION */
+
+    if (key === "preferences") {
+
+      if (!isGlobalThemeAvailable()) {
+
+        showMessage(
+          "Global Admin Theme is not connected. " +
+          "Check admin-theme.js in settings.html.",
+          "error"
+        );
+
+      } else {
+
+        window.JCNAdminTheme.applyTheme(
+          window.JCNAdminTheme.getTheme()
+        );
+
+      }
+
+    } else {
+
+      /* ACCOUNT API STATUS */
 
       if (saveUnconfirmed) {
 
         showMessage(
           "The previous save could not be verified. " +
           "Reload your account before making changes.",
+          "error"
+        );
+
+      } else if (accessBlocked) {
+
+        showMessage(
+          "Account access is unavailable. Please log in again.",
           "error"
         );
 
@@ -384,25 +381,16 @@
           "error"
         );
 
-      } else if (accessBlocked) {
-
-        showMessage(
-          "Account access is unavailable. Please log in again.",
-          "error"
-        );
-
       } else {
 
-        setStatus(
-          "Settings loaded",
-          "success"
-        );
+        setStatus("Settings loaded", "success");
 
       }
 
     }
 
-    // Accessibility focus.
+
+    /* ACCESSIBILITY FOCUS */
 
     if (selectedPanel) {
 
@@ -429,17 +417,14 @@
     const controller = new AbortController();
 
     const timeout = setTimeout(() => {
-
       controller.abort();
-
     }, 15000);
 
     try {
 
       /* ADMIN AUTHENTICATION */
 
-      const token =
-        localStorage.getItem("adminToken");
+      const token = localStorage.getItem("adminToken");
 
       if (!token) {
 
@@ -455,22 +440,16 @@
       /* REQUEST HEADERS */
 
       const headers = {
-
         Accept: "application/json",
-
         Authorization: `Bearer ${token}`
-
       };
 
       if (payload !== undefined) {
-
-        headers["Content-Type"] =
-          "application/json";
-
+        headers["Content-Type"] = "application/json";
       }
 
 
-      /* SEND API REQUEST */
+      /* SEND REQUEST */
 
       const response = await fetch(SETTINGS_API, {
 
@@ -482,9 +461,7 @@
         cache: "no-store",
 
         ...(payload !== undefined
-          ? {
-              body: JSON.stringify(payload)
-            }
+          ? { body: JSON.stringify(payload) }
           : {})
 
       });
@@ -550,7 +527,7 @@
       }
 
 
-      /* VALIDATE RESPONSE */
+      /* VALIDATE SERVER RESPONSE */
 
       if (
         !response.ok ||
@@ -558,11 +535,9 @@
       ) {
 
         throw new Error(
-
           typeof data?.message === "string"
             ? data.message
             : `Request failed (HTTP ${response.status}).`
-
         );
 
       }
@@ -576,8 +551,7 @@
       if (error.name === "AbortError") {
 
         throw new Error(
-          "Request timed out. Reload the account " +
-          "before trying again."
+          "Request timed out. Reload the account before trying again."
         );
 
       }
@@ -621,9 +595,7 @@
     }
 
     setBusy(true);
-
     setStatus("Connecting...");
-
     hideMessage();
 
     try {
@@ -788,7 +760,6 @@
     let writeAttempted = false;
 
     setBusy(true);
-
     setStatus("Saving...");
 
     try {
@@ -806,12 +777,11 @@
       }
 
 
-      /* PRESERVE EXISTING SYSTEM SETTINGS */
+      /* PRESERVE EXISTING SYSTEM CONFIGURATIONS */
 
       const payload = Object.fromEntries(
 
         ALLOWED_FIELDS
-
           .filter(key =>
 
             Object.prototype.hasOwnProperty.call(
@@ -820,12 +790,9 @@
             )
 
           )
-
           .map(key => [
-
             key,
             latest.settings[key]
-
           ])
 
       );
@@ -1002,138 +969,144 @@
 
 
   /* =========================================
-     14. GLOBAL ADMIN THEME PREFERENCES
+     14. GLOBAL ADMIN THEME INTEGRATION
+  ========================================= */
+
+  function isGlobalThemeAvailable() {
+
+    const controller = window.JCNAdminTheme;
+
+    return Boolean(
+
+      controller &&
+
+      typeof controller.getTheme === "function" &&
+
+      typeof controller.applyTheme === "function" &&
+
+      typeof controller.setTheme === "function"
+
+    );
+
+  }
+
+
+  /* =========================================
+     15. GLOBAL THEME PREFERENCES
   ========================================= */
 
   function setupTheme() {
 
     const themeSelect = $("accountTheme");
 
-    const themeButtons =
-      document.querySelectorAll(
-        ".theme-option[data-theme-value]"
+    const themeButtons = document.querySelectorAll(
+      ".theme-option[data-theme-value]"
+    );
+
+
+    /* -------------------------------------
+       CHECK GLOBAL CONTROLLER CONNECTION
+    ------------------------------------- */
+
+    if (!isGlobalThemeAvailable()) {
+
+      console.error(
+        "[JCN] Global Admin Theme controller is missing."
       );
-
-    if (!themeSelect) return;
-
-
-    /* -------------------------------------
-       GET SAVED THEME
-    ------------------------------------- */
-
-    function getTheme() {
-
-      try {
-
-        return localStorage.getItem(THEME_KEY) === "light"
-          ? "light"
-          : "dark";
-
-      } catch {
-
-        return "dark";
-
-      }
-
-    }
-
-
-    /* -------------------------------------
-       UPDATE ACTIVE THEME BUTTON
-    ------------------------------------- */
-
-    function updateThemeButtons(theme) {
 
       themeButtons.forEach(button => {
 
-        const isActive =
-          button.dataset.themeValue === theme;
-
-        button.classList.toggle(
-          "active",
-          isActive
-        );
-
-        button.setAttribute(
-          "aria-pressed",
-          String(isActive)
-        );
+        button.disabled = true;
 
       });
 
-      themeSelect.value = theme;
-
-    }
-
-
-    /* -------------------------------------
-       APPLY SELECTED THEME
-    ------------------------------------- */
-
-    function applyTheme(value) {
-
-      const theme = value === "light"
-        ? "light"
-        : "dark";
-
-      // Connect to the Global Admin Theme.
-
-      if (window.JCNAdminTheme) {
-
-        window.JCNAdminTheme.applyTheme(theme);
-
+      if (themeSelect) {
+        themeSelect.disabled = true;
       }
 
-      // Local fallback.
-
-      document.documentElement.setAttribute(
-        "data-account-theme",
-        theme
+      showMessage(
+        "Global Admin Theme is not connected. " +
+        "Check the admin-theme.js file.",
+        "error"
       );
 
-      updateThemeButtons(theme);
+      return;
 
+    }
+
+    const themeController = window.JCNAdminTheme;
+
+
+    /* -------------------------------------
+       ENABLE THEME CONTROLS
+    ------------------------------------- */
+
+    themeButtons.forEach(button => {
+
+      button.disabled = false;
+
+    });
+
+    if (themeSelect) {
+      themeSelect.disabled = false;
     }
 
 
     /* -------------------------------------
-       CHANGE AND SAVE THEME
+       LOAD SAVED GLOBAL THEME
     ------------------------------------- */
 
-    function changeTheme(value) {
+    const savedTheme = themeController.getTheme();
 
-      const theme = value === "light"
-        ? "light"
-        : "dark";
+    themeController.applyTheme(savedTheme);
+
+    console.log(
+      "[JCN] Global Admin Theme connected:",
+      savedTheme
+    );
+
+
+    /* -------------------------------------
+       CHANGE GLOBAL THEME
+    ------------------------------------- */
+
+    function changeTheme(theme) {
+
+      if (!["dark", "light"].includes(theme)) {
+        return;
+      }
 
       try {
 
-        if (window.JCNAdminTheme) {
+        // Global controller handles storage,
+        // document attributes and theme indicators.
 
-          window.JCNAdminTheme.setTheme(theme);
+        const activeTheme =
+          themeController.setTheme(theme);
 
-        } else {
 
-          localStorage.setItem(
-            THEME_KEY,
-            theme
-          );
-
-        }
-
-        applyTheme(theme);
+        /* SUCCESS MESSAGE */
 
         showMessage(
 
-          `${theme === "light" ? "Light" : "Dark"} mode activated.`,
+          `${activeTheme === "light" ? "Light" : "Dark"} mode activated.`,
 
           "success"
 
         );
 
+        console.log(
+          "[JCN] Global theme updated:",
+          activeTheme
+        );
+
       } catch (error) {
 
-        applyTheme(getTheme());
+        /* RESTORE PREVIOUS SAVED THEME */
+
+        themeController.applyTheme(
+          themeController.getTheme()
+        );
 
         showMessage(
           "Unable to save theme preference.",
@@ -1141,22 +1114,13 @@
         );
 
         console.error(
-          "Theme error:",
+          "[JCN] Global theme error:",
           error
         );
 
       }
 
     }
-
-
-    /* -------------------------------------
-       LOAD SAVED THEME
-    ------------------------------------- */
-
-    const savedTheme = getTheme();
-
-    applyTheme(savedTheme);
 
 
     /* -------------------------------------
@@ -1167,9 +1131,10 @@
 
       button.addEventListener("click", () => {
 
-        changeTheme(
-          button.dataset.themeValue
-        );
+        const selectedTheme =
+          button.dataset.themeValue;
+
+        changeTheme(selectedTheme);
 
       });
 
@@ -1180,35 +1145,24 @@
        DROPDOWN COMPATIBILITY
     ------------------------------------- */
 
-    themeSelect.addEventListener("change", () => {
+    if (themeSelect) {
 
-      changeTheme(themeSelect.value);
+      themeSelect.addEventListener("change", () => {
 
-    });
+        changeTheme(themeSelect.value);
 
+      });
 
-    /* -------------------------------------
-       SYNCHRONIZE THEME BETWEEN TABS
-    ------------------------------------- */
+    }
 
-    window.addEventListener("storage", event => {
-
-      if (
-        event.key === THEME_KEY ||
-        event.key === null
-      ) {
-
-        applyTheme(getTheme());
-
-      }
-
-    });
+    // Storage synchronization and theme restoration
+    // are handled exclusively by admin-theme.js.
 
   }
 
 
   /* =========================================
-     15. ADMIN LOGOUT MODAL
+     16. ADMIN LOGOUT MODAL
   ========================================= */
 
   function setupLogout() {
@@ -1226,7 +1180,6 @@
     );
 
     let previousOverflow = "";
-
     let previousInert = false;
 
 
@@ -1326,8 +1279,6 @@
 
     overlay.addEventListener("keydown", event => {
 
-      // Escape key.
-
       if (event.key === "Escape") {
 
         event.preventDefault();
@@ -1337,8 +1288,6 @@
         return;
 
       }
-
-      // Keyboard focus trap.
 
       if (event.key !== "Tab") return;
 
@@ -1408,7 +1357,7 @@
       }
 
 
-      /* CLEAR ADMIN SESSION */
+      /* CLEAR ADMIN SESSION ONLY */
 
       try {
 
@@ -1416,8 +1365,8 @@
 
         localStorage.removeItem("adminUser");
 
-        // Keep the selected theme after logout.
-        // Do not remove THEME_KEY.
+        // Do not use localStorage.clear().
+        // Preserve the saved global admin theme.
 
       } catch {
 
@@ -1450,10 +1399,11 @@
 
 
   /* =========================================
-     16. ACCOUNT EVENT LISTENERS
+     17. ACCOUNT EVENT LISTENERS
   ========================================= */
 
   function setupEvents() {
+
 
     /* OPEN ACCOUNT SECTIONS */
 
@@ -1565,7 +1515,7 @@
 
 
   /* =========================================
-     17. INITIALIZE ADMIN ACCOUNT SETTINGS
+     18. INITIALIZE ADMIN ACCOUNT SETTINGS
   ========================================= */
 
   function init() {
@@ -1595,9 +1545,6 @@
       "securityFields",
       "securitySave",
 
-      // Theme Preferences
-      "accountTheme",
-
       // Logout Modal
       "adminLogoutBtn",
       "adminLogoutModal",
@@ -1605,8 +1552,7 @@
       "adminCancelLogout",
 
       // Settings Fields
-      ...PROFILE_KEYS,
-      ...SECURITY_KEYS
+      ...ACCOUNT_KEYS
 
     ];
 
@@ -1622,31 +1568,30 @@
         missing
       );
 
-      if ($("settingsMessage")) {
+      showMessage(
 
-        showMessage(
+        "Settings HTML is incomplete. Missing: " +
+        missing.join(", "),
 
-          "Settings HTML is incomplete. Missing: " +
-          missing.join(", "),
+        "error"
 
-          "error"
-
-        );
-
-      }
+      );
 
       return;
 
     }
 
 
-    /* INITIALIZE FEATURES */
-
-    setupTheme();
+    /* INITIALIZE ACCOUNT FUNCTIONALITY */
 
     setupLogout();
 
     setupEvents();
+
+
+    /* INITIALIZE GLOBAL THEME */
+
+    setupTheme();
 
 
     /* LOAD SAVED ACCOUNT INFORMATION */
@@ -1657,7 +1602,7 @@
 
 
   /* =========================================
-     18. DOM READY
+     19. DOM READY
   ========================================= */
 
   if (document.readyState === "loading") {
