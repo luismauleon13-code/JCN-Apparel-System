@@ -731,6 +731,39 @@ app.post("/api/auth/register", async (req, res) => {
       });
     }
 
+    // Validate customer names before processing registration.
+    const validName = /^\p{L}[\p{L}\p{M} '’\-]*$/u;
+
+    if (
+      typeof firstName !== "string" ||
+      !validName.test(cleanFirstName) ||
+      (middleName != null && typeof middleName !== "string") ||
+      (cleanMiddleName && !validName.test(cleanMiddleName)) ||
+      typeof lastName !== "string" ||
+      !validName.test(cleanLastName)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Names must contain letters, spaces, hyphens or apostrophes only. Numbers are not allowed."
+      });
+    }
+
+    // Password must follow the same rules as the registration form.
+    const strongPassword =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,16}$/;
+
+    if (
+      typeof password !== "string" ||
+      cleanPassword.length < 8 ||
+      cleanPassword.length > 16 ||
+      !strongPassword.test(cleanPassword)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be 8 to 16 characters with uppercase, lowercase, number and special character."
+      });
+    }
+
     const storedOtp = otpStore[cleanEmail];
 
     if (!storedOtp) {
