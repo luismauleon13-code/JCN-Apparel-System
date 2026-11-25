@@ -796,7 +796,8 @@
           ? `Restore account access for ${name}?`
 
           : `Permanently delete ${name}'s account? ` +
-            "Customers with existing orders cannot be deleted.";
+  "Customers with ongoing orders cannot be deleted. " +
+  "Completed and cancelled order records will be preserved.";
 
 
     /* CONFIRM BUTTON TEXT */

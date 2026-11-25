@@ -3091,53 +3091,52 @@ app.delete("/api/admin/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { data, error } = await supabase
-      .from("customer_users")
-      .delete()
-      .eq("id", id)
-      .select();
+    const { data, error } = await supabase.rpc(
+      "delete_customer_without_active_orders",
+      { customer_id: String(id) }
+    );
 
     if (error) {
-      console.error("DELETE USER SUPABASE ERROR:", error);
-
-      if (
-        error.message.includes("foreign key constraint") ||
-        error.message.includes("orders_user_id_fkey")
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "This customer cannot be deleted because they have existing orders."
-        });
-      }
+      console.error("DELETE CUSTOMER ERROR:", error);
 
       return res.status(400).json({
         success: false,
-        message: "Failed to delete user. Please try again."
+        message: "Unable to delete customer. Check existing records."
       });
     }
 
-    if (!data || data.length === 0) {
+    if (data === "active_orders") {
+      return res.status(409).json({
+        success: false,
+        message: "This customer cannot be deleted because they still have ongoing orders."
+      });
+    }
+
+    if (data === "not_found") {
       return res.status(404).json({
         success: false,
-        message: "User not found or was not deleted."
+        message: "Customer account not found."
       });
+    }
+
+    if (data !== "deleted") {
+      throw new Error("Unexpected deletion result.");
     }
 
     return res.json({
       success: true,
-      message: "User deleted successfully."
+      message: "Customer account deleted successfully."
     });
+
   } catch (error) {
     console.error("DELETE USER ERROR:", error);
 
     return res.status(500).json({
       success: false,
-      message: "Server error while deleting user."
+      message: "Server error while deleting customer."
     });
   }
 });
-
 // =========================================================
 // PRODUCTS
 // Customer: read-only public access
