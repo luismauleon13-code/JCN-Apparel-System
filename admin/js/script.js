@@ -782,18 +782,52 @@
       }
 
       // =====================================================
-      // PHONE NUMBER VALIDATION
-      // =====================================================
+// PHONE NUMBER INPUT VALIDATION
+// NUMBERS ONLY - MAXIMUM 11 DIGITS
+// =====================================================
 
-      if (!/^09[0-9]{9}$/.test(registration.phone)) {
+if (fields.phone) {
 
-        showMessage(
-          messageElement,
-          "Enter an 11-digit phone number starting with 09."
-        );
+  fields.phone.type = "tel";
 
-        return;
-      }
+  fields.phone.inputMode = "numeric";
+
+  fields.phone.maxLength = 11;
+
+  fields.phone.minLength = 11;
+
+  fields.phone.autocomplete = "tel-national";
+
+  fields.phone.setAttribute("pattern", "09[0-9]{9}");
+
+  fields.phone.setAttribute(
+    "title",
+    "Enter an 11-digit phone number starting with 09."
+  );
+
+  function sanitizePhoneNumber() {
+
+    fields.phone.value = fields.phone.value
+      .replace(/[^0-9]/g, "")
+      .slice(0, 11);
+
+    fields.phone.setCustomValidity("");
+
+  }
+
+  fields.phone.addEventListener(
+    "input",
+    sanitizePhoneNumber
+  );
+
+  fields.phone.addEventListener(
+    "change",
+    sanitizePhoneNumber
+  );
+
+  sanitizePhoneNumber();
+
+}
 
       // =====================================================
       // PASSWORD LENGTH VALIDATION
