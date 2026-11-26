@@ -122,30 +122,37 @@
 
         </div>
 
-        <!-- PHONE NUMBER -->
+       <!-- PHONE NUMBER -->
 
-        <div class="premium-input-group mb-3">
+<div class="premium-input-group mb-3">
 
-          <label class="premium-label">
-            Phone Number
-          </label>
+  <label class="premium-label" for="registerPhone">
+    Phone Number
+  </label>
 
-          <div class="premium-input-wrap">
+  <div class="premium-input-wrap">
 
-            <i class="fa-solid fa-phone"></i>
+    <i class="fa-solid fa-phone"></i>
 
-            <input
-              type="tel"
-              class="form-control premium-input"
-              id="registerPhone"
-              placeholder="09XXXXXXXXX"
-              maxlength="11"
-              required
-            >
+    <input
+      type="tel"
+      class="form-control premium-input"
+      id="registerPhone"
+      name="phone"
+      placeholder="09XXXXXXXXX"
+      inputmode="numeric"
+      autocomplete="tel-national"
+      maxlength="11"
+      minlength="11"
+      pattern="09[0-9]{9}"
+      title="Enter an 11-digit phone number starting with 09."
+      oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
+      required
+    >
 
-          </div>
+  </div>
 
-        </div>
+</div>
 
         <!-- EMAIL ADDRESS -->
 
