@@ -3513,6 +3513,7 @@ input[type="tel"]::-webkit-outer-spin-button {
 }
 
 
+
 /* ==================================================
    JCN ADMIN DASHBOARD
    RECENT ACTIVITY & ACTIVITY HISTORY
@@ -3539,7 +3540,9 @@ input[type="tel"]::-webkit-outer-spin-button {
   font-size: 13px;
 }
 
-/* VIEW ALL BUTTON */
+/* ==================================================
+   VIEW ALL BUTTON
+================================================== */
 
 #viewAllActivityBtn {
   padding: 7px 14px;
@@ -3563,7 +3566,9 @@ input[type="tel"]::-webkit-outer-spin-button {
   cursor: not-allowed;
 }
 
-/* ACTIVITY LIST */
+/* ==================================================
+   ACTIVITY LIST
+================================================== */
 
 #recentActivity,
 #allActivityList {
@@ -3573,12 +3578,13 @@ input[type="tel"]::-webkit-outer-spin-button {
   min-width: 0;
 }
 
-/* ACTIVITY CARD */
+/* ACTIVITY CARDS */
 
 #recentActivity .activity-entry,
 #allActivityList .activity-entry {
   display: flex;
   align-items: flex-start;
+  flex-shrink: 0;
   gap: 12px;
   padding: 14px;
   margin: 0;
@@ -3592,7 +3598,9 @@ input[type="tel"]::-webkit-outer-spin-button {
   border-color: rgba(242, 193, 78, 0.4);
 }
 
-/* ACTIVITY ICON */
+/* ==================================================
+   ACTIVITY ICON
+================================================== */
 
 #recentActivity .activity-icon,
 #allActivityList .activity-icon {
@@ -3609,7 +3617,9 @@ input[type="tel"]::-webkit-outer-spin-button {
   font-size: 15px;
 }
 
-/* ACTIVITY CONTENT */
+/* ==================================================
+   ACTIVITY CONTENT
+================================================== */
 
 #recentActivity .activity-content,
 #allActivityList .activity-content {
@@ -3651,14 +3661,16 @@ input[type="tel"]::-webkit-outer-spin-button {
   overflow: hidden;
 }
 
-/* FULL MESSAGE IN HISTORY */
+/* FULL MESSAGE IN ACTIVITY HISTORY */
 
 #allActivityList .activity-message {
   display: block;
   white-space: pre-wrap;
 }
 
-/* ACTIVITY TIME AND DATE */
+/* ==================================================
+   ACTIVITY TIME AND DATE
+================================================== */
 
 #recentActivity .activity-date,
 #allActivityList .activity-date {
@@ -3672,11 +3684,15 @@ input[type="tel"]::-webkit-outer-spin-button {
 }
 
 #allActivityList .activity-date {
-  max-width: 120px;
+  width: 145px;
+  max-width: 145px;
   line-height: 1.5;
+  white-space: normal;
 }
 
-/* ACTIVITY COUNT */
+/* ==================================================
+   ACTIVITY COUNT
+================================================== */
 
 #recentActivityCount.activity-summary {
   text-align: center;
@@ -3724,6 +3740,7 @@ input[type="tel"]::-webkit-outer-spin-button {
 
 /* ==================================================
    ACTIVITY HISTORY MODAL
+   STABLE WIDTH AND HEIGHT
 ================================================== */
 
 #activityHistoryModal {
@@ -3731,54 +3748,98 @@ input[type="tel"]::-webkit-outer-spin-button {
   inset: 0;
   z-index: 1055;
   display: none;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
 }
+
+/* MODAL CONTAINER */
 
 #activityHistoryModal .modal-dialog {
-  width: calc(100% - 24px);
+  width: calc(100% - 32px);
   max-width: 780px;
-  margin-left: auto;
-  margin-right: auto;
+
+  height: calc(100% - 32px);
+  min-height: 0;
+
+  margin: 16px auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* FIXED MODAL SIZE */
+
 #activityHistoryModal .modal-content {
-  max-height: 85vh;
+  width: 100%;
+
+  height: min(620px, calc(100vh - 32px));
+  height: min(620px, calc(100dvh - 32px));
+
+  min-height: 0;
+  max-height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
   overflow: hidden;
+
   border-radius: 18px;
   border: 1px solid rgba(242, 193, 78, 0.3);
+
+  transform: none !important;
+
+  transition: none;
+}
+
+/* PREVENT MODAL MOVEMENT ON HOVER */
+
+#activityHistoryModal .modal-content:hover {
   transform: none !important;
 }
 
-/* MODAL HEADER */
+/* ==================================================
+   MODAL HEADER
+================================================== */
 
 #activityHistoryModal .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  min-height: 76px;
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(242, 193, 78, 0.12);
+
   flex-shrink: 0;
+
+  border-bottom: 1px solid rgba(242, 193, 78, 0.12);
 }
 
 #activityHistoryTitle {
   font-size: 20px;
   font-weight: 700;
+  margin: 0;
 }
 
-/* CLOSE ICON */
+/* ==================================================
+   MODAL CLOSE ICON
+================================================== */
 
 #activityHistoryModal .activity-close-btn {
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 34px;
   height: 34px;
+  flex-shrink: 0;
+
   border: 1px solid rgba(242, 193, 78, 0.2);
   background: transparent;
   border-radius: 8px;
+
   color: #d4af37;
   font-size: 17px;
+
   cursor: pointer;
   transition: 0.2s ease;
 }
@@ -3795,8 +3856,10 @@ input[type="tel"]::-webkit-outer-spin-button {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+
   gap: 8px;
   padding: 16px 24px;
+
   flex-shrink: 0;
 }
 
@@ -3804,16 +3867,25 @@ input[type="tel"]::-webkit-outer-spin-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 6px;
   padding: 8px 15px;
+
   background: transparent;
+
   border: 1px solid rgba(212, 175, 55, 0.4);
   border-radius: 8px;
+
   color: #d4af37;
   font-size: 12px;
   font-weight: 700;
+
   cursor: pointer;
-  transition: 0.2s ease;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 #activityFilters .activity-filter-btn:hover {
@@ -3827,21 +3899,30 @@ input[type="tel"]::-webkit-outer-spin-button {
 }
 
 /* ==================================================
-   SCROLLABLE MODAL CONTENT
+   SCROLLABLE MODAL BODY
+   ONLY THIS SECTION SCROLLS
 ================================================== */
 
 #activityHistoryModal .modal-body {
   display: block;
-  flex: 1 1 auto;
+
+  flex: 1 1 0;
   min-height: 0;
-  max-height: 50vh;
+  max-height: none;
+
   overflow-x: hidden;
   overflow-y: auto;
+
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
+
   padding: 10px 24px 20px;
+
   scrollbar-width: thin;
   scrollbar-color: #b99132 transparent;
 }
+
+/* SCROLLBAR */
 
 #activityHistoryModal .modal-body::-webkit-scrollbar {
   width: 6px;
@@ -3856,14 +3937,27 @@ input[type="tel"]::-webkit-outer-spin-button {
   border-radius: 10px;
 }
 
-/* MODAL FOOTER */
+#activityHistoryModal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #f2c14e;
+}
+
+/* ==================================================
+   STABLE MODAL FOOTER
+================================================== */
 
 #activityHistoryModal .modal-footer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
   gap: 12px;
   padding: 16px 24px;
+
+  min-height: 76px;
+  margin-top: auto;
+
   border-top: 1px solid rgba(242, 193, 78, 0.12);
+
   flex-shrink: 0;
 }
 
@@ -3901,16 +3995,40 @@ input[type="tel"]::-webkit-outer-spin-button {
   #recentActivity .activity-date,
   #allActivityList .activity-date {
     width: 100%;
+    min-width: 0;
     max-width: 100%;
     text-align: right;
     font-size: 10px;
   }
 
+  /* MOBILE MODAL CONTAINER */
+
+  #activityHistoryModal .modal-dialog {
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
+
+    height: calc(100% - 20px);
+    min-height: 0;
+
+    margin: 10px auto;
+  }
+
+  /* STABLE MOBILE MODAL SIZE */
+
   #activityHistoryModal .modal-content {
-    max-height: 90vh;
+    width: 100%;
+
+    height: min(620px, calc(100vh - 20px));
+    height: min(620px, calc(100dvh - 20px));
+
+    min-height: 0;
+    max-height: 100%;
+
+    border-radius: 14px;
   }
 
   #activityHistoryModal .modal-header {
+    min-height: 64px;
     padding: 16px;
   }
 
@@ -3929,11 +4047,24 @@ input[type="tel"]::-webkit-outer-spin-button {
   }
 
   #activityHistoryModal .modal-body {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+
     padding: 10px 16px 16px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
   }
 
   #activityHistoryModal .modal-footer {
+    min-height: 64px;
     padding: 12px 16px;
+  }
+
+  #activityHistoryCount {
+    font-size: 11px;
   }
 
 }
