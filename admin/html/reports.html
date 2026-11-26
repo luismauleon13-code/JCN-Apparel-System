@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,79 +47,6 @@
   <div class="dashboard-wrapper">
 
     <!-- =============================================
-         TOP NAVIGATION
-    ============================================== -->
-
-    <header class="dashboard-nav">
-
-      <a
-        class="brand"
-        href="admin-dashboard.html"
-      >
-
-        <i
-          class="fa-solid fa-user-shield"
-          aria-hidden="true"
-        ></i>
-
-        <span>Admin Dashboard</span>
-
-      </a>
-
-
-      <!-- NAVIGATION LINKS -->
-
-      <nav
-        class="top-menu"
-        aria-label="Main navigation"
-      >
-
-        <a href="admin-dashboard.html">
-          Overview
-        </a>
-
-        <a href="manage-user.html">
-          Customers
-        </a>
-
-        <a href="manage-staff.html">
-          Staff
-        </a>
-
-        <a
-          href="reports.html"
-          class="active"
-          aria-current="page"
-        >
-          Reports
-        </a>
-
-      </nav>
-
-
-      <!-- ADMIN LOGOUT BUTTON -->
-
-      <button
-        id="adminLogoutBtn"
-        class="btn btn-gold"
-        type="button"
-        aria-haspopup="dialog"
-        aria-controls="adminLogoutModal"
-      >
-
-        <i
-          class="fa-solid fa-right-from-bracket"
-          aria-hidden="true"
-        ></i>
-
-        Logout
-
-      </button>
-
-    </header>
-
-
-    <!-- =============================================
          PAGE HEADING
     ============================================== -->
 
@@ -151,13 +79,11 @@
 
     </section>
 
-
     <!-- =============================================
          DASHBOARD LAYOUT
     ============================================== -->
 
     <div class="dashboard-layout">
-
 
       <!-- =============================================
            ADMIN SIDEBAR
@@ -181,7 +107,6 @@
           aria-label="Admin menu"
         >
 
-
           <!-- OVERVIEW -->
 
           <a href="admin-dashboard.html">
@@ -194,7 +119,6 @@
             Overview
 
           </a>
-
 
           <!-- MANAGE CUSTOMERS -->
 
@@ -209,7 +133,6 @@
 
           </a>
 
-
           <!-- MANAGE STAFF -->
 
           <a href="manage-staff.html">
@@ -223,7 +146,6 @@
 
           </a>
 
-
           <!-- ANNOUNCEMENTS -->
 
           <a href="announcement.html">
@@ -236,7 +158,6 @@
             Announcements
 
           </a>
-
 
           <!-- REPORTS -->
 
@@ -255,7 +176,6 @@
 
           </a>
 
-
           <!-- SETTINGS -->
 
           <a href="settings.html">
@@ -269,17 +189,34 @@
 
           </a>
 
+          <!-- LOGOUT -->
+
+          <button
+            id="adminLogoutBtn"
+            class="btn btn-gold"
+            type="button"
+            aria-haspopup="dialog"
+            aria-controls="adminLogoutModal"
+          >
+
+            <i
+              class="fa-solid fa-right-from-bracket"
+              aria-hidden="true"
+            ></i>
+
+            Logout
+
+          </button>
+
         </nav>
 
       </aside>
-
 
       <!-- =============================================
            REPORTS MAIN CONTENT
       ============================================== -->
 
       <main class="dashboard-card reports-panel">
-
 
         <!-- PERFORMANCE OVERVIEW -->
 
@@ -294,7 +231,6 @@
             </p>
 
           </div>
-
 
           <!-- EXPORT REPORT BUTTON -->
 
@@ -316,13 +252,11 @@
 
         </div>
 
-
         <!-- =============================================
              REPORT SUMMARY CARDS
         ============================================== -->
 
         <div class="report-summary">
-
 
           <!-- TOTAL SALES -->
 
@@ -339,7 +273,6 @@
 
           </article>
 
-
           <!-- TOTAL ORDERS -->
 
           <article class="report-box">
@@ -355,7 +288,6 @@
 
           </article>
 
-
           <!-- TOTAL CUSTOMERS -->
 
           <article class="report-box">
@@ -370,7 +302,6 @@
             <h4 id="reportTotalUsers">—</h4>
 
           </article>
-
 
           <!-- DELIVERED ORDERS -->
 
@@ -389,13 +320,11 @@
 
         </div>
 
-
         <!-- =============================================
              REPORT DETAILS
         ============================================== -->
 
         <div class="report-details">
-
 
           <!-- MONTHLY SALES OVERVIEW -->
 
@@ -428,7 +357,6 @@
 
           </section>
 
-
           <!-- =============================================
                ORDER STATUS
           ============================================== -->
@@ -442,7 +370,6 @@
               Order Status
             </h3>
 
-
             <!-- PREPARING -->
 
             <div class="status-row">
@@ -454,7 +381,6 @@
               </strong>
 
             </div>
-
 
             <!-- TO DELIVER -->
 
@@ -468,7 +394,6 @@
 
             </div>
 
-
             <!-- COMPLETED -->
 
             <div class="status-row">
@@ -480,7 +405,6 @@
               </strong>
 
             </div>
-
 
             <!-- CANCELLED -->
 
@@ -497,7 +421,6 @@
           </section>
 
         </div>
-
 
         <!-- =============================================
              RECENT REPORT SUMMARY
@@ -544,7 +467,6 @@
 
               </thead>
 
-
               <!-- DYNAMIC REPORT DATA -->
 
               <tbody id="reportTable">
@@ -581,7 +503,6 @@
 
   </div>
 
-
   <!-- ==================================================
        UNIFIED ADMIN LOGOUT MODAL
 
@@ -598,7 +519,6 @@
     aria-describedby="adminLogoutDescription"
   >
 
-
     <!-- GOLD LOGOUT ICON -->
 
     <div class="logout-icon">
@@ -610,7 +530,6 @@
 
     </div>
 
-
     <!-- LOGOUT TITLE -->
 
     <h3 id="adminLogoutTitle">
@@ -618,7 +537,6 @@
       Confirm Admin Logout
 
     </h3>
-
 
     <!-- LOGOUT DESCRIPTION -->
 
@@ -628,11 +546,9 @@
 
     </p>
 
-
     <!-- LOGOUT BUTTONS -->
 
     <div class="logout-actions">
-
 
       <!-- CONFIRM LOGOUT -->
 
@@ -645,7 +561,6 @@
         Yes, Logout
 
       </button>
-
 
       <!-- CANCEL LOGOUT -->
 
@@ -664,11 +579,9 @@
 
   </dialog>
 
-
   <!-- ==================================================
        JAVASCRIPT LIBRARIES
   =================================================== -->
-
 
   <!-- BOOTSTRAP JS -->
 
@@ -676,13 +589,11 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
   ></script>
 
-
   <!-- SWEETALERT2 -->
 
   <script
     src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
   ></script>
-
 
   <!-- JSPDF -->
 
@@ -690,13 +601,11 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
   ></script>
 
-
   <!-- JSPDF AUTOTABLE -->
 
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"
   ></script>
-
 
   <!-- REPORTS JAVASCRIPT -->
 
