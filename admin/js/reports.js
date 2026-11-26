@@ -2503,16 +2503,60 @@ function showNotification(icon, title, message) {
         selectedReport.filename
       );
 
-      showNotification(
+      // REPORT EXPORTED NOTIFICATION
 
-        "success",
+if (window.Swal) {
 
-        "Report Exported",
+  window.Swal.fire({
 
-        `${selectedReport.title} has been generated ` +
-        `with ${selectedOrders.length} order records.`
+    title: "Report Exported",
 
-      );
+    html: `
+      <p class="jcn-export-description">
+        ${selectedReport.title} successfully exported.
+      </p>
+
+      <div class="jcn-export-records">
+
+        <span>
+          <i class="fa-solid fa-file-circle-check"></i>
+          Order records exported
+        </span>
+
+        <strong>${selectedOrders.length}</strong>
+
+      </div>
+    `,
+
+    iconHtml: '<i class="fa-solid fa-circle-check"></i>',
+
+    confirmButtonText: "Done",
+
+    buttonsStyling: false,
+
+    heightAuto: false,
+
+    allowOutsideClick: false,
+
+    customClass: {
+      popup: "jcn-export-success",
+      icon: "jcn-export-icon",
+      title: "jcn-export-title",
+      htmlContainer: "jcn-export-content",
+      confirmButton: "jcn-export-done"
+    }
+
+  });
+
+} else {
+
+  window.alert(
+    `Report Exported\n\n` +
+    `${selectedReport.title} successfully exported.\n` +
+    `Order records: ${selectedOrders.length}`
+  );
+
+}
 
     } catch (error) {
 

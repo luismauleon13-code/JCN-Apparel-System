@@ -1837,3 +1837,218 @@ html[data-account-theme="light"] body .swal2-container {
     transition: none !important;
   }
 }
+
+/* ==========================================================
+   JCN REPORT EXPORTED NOTIFICATION
+   COMPACT BLACK AND GOLD DESIGN
+========================================================== */
+
+/* NOTIFICATION MODAL */
+
+html body .swal2-popup.jcn-export-success {
+  width: min(365px, calc(100vw - 32px)) !important;
+  padding: 24px !important;
+
+  background: var(--rp-card) !important;
+  color: var(--rp-text) !important;
+
+  border: 1px solid var(--rp-border) !important;
+  border-radius: 16px !important;
+
+  box-shadow: var(--rp-modal-shadow) !important;
+
+  font-family: "Segoe UI", Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+/* GOLD SUCCESS ICON */
+
+html body .jcn-export-success .jcn-export-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+
+  width: 54px !important;
+  height: 54px !important;
+
+  margin: 0 auto 15px !important;
+  padding: 0 !important;
+
+  background: var(--rp-badge-bg) !important;
+  color: var(--rp-gold-text) !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  font-size: 14px !important;
+}
+
+.jcn-export-icon .swal2-icon-content {
+  font-size: 28px !important;
+  line-height: 1 !important;
+}
+
+.jcn-export-icon i {
+  color: var(--rp-gold-text) !important;
+}
+
+/* NOTIFICATION TITLE */
+
+html body .jcn-export-success .jcn-export-title {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: var(--rp-text) !important;
+
+  font-size: 21px !important;
+  font-weight: 750 !important;
+  line-height: 1.3 !important;
+}
+
+/* NOTIFICATION CONTENT */
+
+html body .jcn-export-success .jcn-export-content {
+  margin: 10px 0 0 !important;
+  padding: 0 !important;
+
+  color: var(--rp-muted) !important;
+
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+/* DESCRIPTION */
+
+.jcn-export-description {
+  margin: 0 0 16px;
+  padding: 0;
+
+  color: var(--rp-muted);
+  font-size: 13px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+/* EXPORTED RECORDS SUMMARY */
+
+.jcn-export-records {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  width: 100%;
+  padding: 12px;
+
+  background: var(--rp-badge-bg);
+  border: 1px solid var(--rp-border);
+  border-radius: 9px;
+}
+
+.jcn-export-records span {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: var(--rp-text);
+  font-size: 12px;
+  font-weight: 500;
+
+  text-align: left;
+}
+
+.jcn-export-records span i {
+  color: var(--rp-gold-text);
+  font-size: 15px;
+}
+
+.jcn-export-records strong {
+  color: var(--rp-gold-text);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* ACTION BUTTON CONTAINER */
+
+html body .jcn-export-success .swal2-actions {
+  width: 100% !important;
+
+  margin: 18px 0 0 !important;
+  padding: 0 !important;
+}
+
+/* DONE BUTTON */
+
+html body .jcn-export-success .jcn-export-done {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+
+  width: 100% !important;
+  min-height: 40px;
+
+  margin: 0 !important;
+  padding: 10px 16px !important;
+
+  background: var(--rp-gold-gradient) !important;
+  color: #111111 !important;
+
+  border: none !important;
+  border-radius: 8px !important;
+
+  font-size: 13px !important;
+  font-weight: 750 !important;
+
+  box-shadow: none !important;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+/* BUTTON HOVER */
+
+html body .jcn-export-success .jcn-export-done:hover {
+  background: var(--rp-gold-hover) !important;
+}
+
+/* KEYBOARD FOCUS */
+
+.jcn-export-done:focus-visible {
+  outline: 2px solid var(--rp-gold-text);
+  outline-offset: 3px;
+}
+
+/* MOBILE RESPONSIVE */
+
+@media (max-width: 480px) {
+
+  html body .swal2-popup.jcn-export-success {
+    padding: 20px !important;
+    border-radius: 14px !important;
+  }
+
+  html body .jcn-export-success .jcn-export-title {
+    font-size: 19px !important;
+  }
+
+  .jcn-export-records {
+    padding: 10px;
+  }
+
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .jcn-export-success,
+  .jcn-export-success * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+}
