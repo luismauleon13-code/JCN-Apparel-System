@@ -3,7 +3,7 @@
    JCN APPAREL PRINTING SERVICES
    ADMIN - BUSINESS REPORTS
    TODAY'S REPORTS & REPORT HISTORY
-   PDF EXPORT & UNIFIED LOGOUT
+   DATE RANGE PDF EXPORT & UNIFIED LOGOUT
 ========================================================== */
 
 (() => {
@@ -26,50 +26,37 @@
   let exporting = false;
   let initialized = false;
 
-
   // ========================================================
   // 02. ADMIN SESSION
   // ========================================================
 
   function clearAdminSession() {
-
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("admin");
 
     // Preserve existing theme preferences.
-
   }
 
   function redirectToLogin() {
-
     clearAdminSession();
-
     window.location.replace(LOGIN_PAGE);
-
   }
 
   function checkAdminSession() {
-
     if (!localStorage.getItem("adminToken")) {
-
       redirectToLogin();
-
       return false;
-
     }
 
     return true;
-
   }
-
 
   // ========================================================
   // 03. FORMAT CURRENCY
   // ========================================================
 
   function peso(value) {
-
     const amount = Number(value || 0);
 
     return `₱${(
@@ -78,11 +65,9 @@
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })}`;
-
   }
 
   function pesoPDF(value) {
-
     const amount = Number(value || 0);
 
     return `PHP ${(
@@ -91,41 +76,31 @@
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })}`;
-
   }
-
 
   // ========================================================
   // 04. SET ELEMENT TEXT
   // ========================================================
 
   function setText(id, value) {
-
     const element = $(id);
 
     if (element) {
-
       element.textContent = value;
-
     }
-
   }
-
 
   // ========================================================
   // 05. FORMAT DATE - PHILIPPINE TIME
   // ========================================================
 
   function displayDate(value, includeTime = false) {
-
     if (!value) return "N/A";
 
     const date = new Date(value);
 
     if (Number.isNaN(date.getTime())) {
-
       return "N/A";
-
     }
 
     const options = {
@@ -135,12 +110,40 @@
     return includeTime
       ? date.toLocaleString("en-PH", options)
       : date.toLocaleDateString("en-PH", options);
-
   }
 
+  // ========================================================
+  // 06. PDF DATE AND TIME FORMAT
+  // ========================================================
+
+  function displayPDFDate(value) {
+    if (!value) return "N/A";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "N/A";
+    }
+
+    const formattedDate = date.toLocaleDateString("en-GB", {
+      timeZone: REPORT_TIMEZONE,
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+
+    const formattedTime = date.toLocaleTimeString("en-US", {
+      timeZone: REPORT_TIMEZONE,
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    });
+
+    return `${formattedDate}\n${formattedTime}`;
+  }
 
   // ========================================================
-  // 06. TODAY'S DATE FORMATTER
+  // 07. TODAY'S DATE FORMATTER
   // ========================================================
 
   const reportDateFormatter = new Intl.DateTimeFormat(
@@ -154,69 +157,66 @@
   );
 
   function reportDateKey(value) {
-
     if (!value) return "";
 
     const date = new Date(value);
 
     if (Number.isNaN(date.getTime())) {
-
       return "";
-
     }
 
     return reportDateFormatter.format(date);
-
   }
 
-
   // ========================================================
-  // 07. UPDATE BUTTON STATES
+  // 08. UPDATE BUTTON STATES
   // ========================================================
 
   function updateControls() {
 
     const exportButton = $("exportReportBtn");
-
     const historyButton = $("viewAllReportsBtn");
 
     const logoutButton =
       $("adminLogoutBtn") || $("logoutBtn");
 
-    // EXPORT BUTTON
-
     if (exportButton) {
-
       exportButton.disabled =
         reportLoading ||
         exporting ||
         !reportLoaded ||
         reportOrders.length === 0;
-
     }
+
+    // EXPORT DROPDOWN OPTIONS
+
+    document
+      .querySelectorAll("[data-export-range]")
+      .forEach(button => {
+        button.disabled =
+          reportLoading ||
+          exporting ||
+          !reportLoaded ||
+          reportOrders.length === 0;
+      });
 
     // VIEW ALL REPORTS
 
     if (historyButton) {
-
       historyButton.disabled =
         reportLoading || !reportLoaded;
-
     }
 
     // LOGOUT BUTTON
 
     if (logoutButton) {
-
       logoutButton.disabled = exporting;
-
     }
 
   }
 
-
   // ========================================================
-  // 08. REPORT TABLE MESSAGE
+  // 09. REPORT TABLE MESSAGE
   // ========================================================
 
   function tableMessage(
@@ -241,14 +241,12 @@
     cell.textContent = message;
 
     row.append(cell);
-
     table.replaceChildren(row);
 
   }
 
-
   // ========================================================
-  // 09. REPORT STATUS BADGES
+  // 10. REPORT STATUS BADGES
   // ========================================================
 
   function getStatusClass(status) {
@@ -261,46 +259,34 @@
 
       case "completed":
       case "delivered":
-
         return "status-badge badge-success";
-
 
       case "cancelled":
       case "canceled":
-
         return "status-badge badge-danger";
-
 
       case "processing":
       case "preparing":
-
         return "status-badge badge-warning";
-
 
       case "to deliver":
       case "to ship":
       case "to receive":
-
         return "status-badge badge-info";
 
-
-      case "pending payment":
       case "pending":
-
+      case "pending payment":
         return "status-badge badge-pending";
 
-
       default:
-
         return "status-badge";
 
     }
 
   }
 
-
   // ========================================================
-  // 10. REPORT STATUS FILTER GROUPS
+  // 11. REPORT STATUS FILTER GROUPS
   // ========================================================
 
   function reportStatusGroup(order) {
@@ -312,17 +298,13 @@
     if (
       ["preparing", "processing"].includes(status)
     ) {
-
       return "preparing";
-
     }
 
     if (
       ["pending", "pending payment"].includes(status)
     ) {
-
       return "pending payment";
-
     }
 
     if (
@@ -332,34 +314,27 @@
         "to receive"
       ].includes(status)
     ) {
-
       return "to deliver";
-
     }
 
     if (
       ["completed", "delivered"].includes(status)
     ) {
-
       return "completed";
-
     }
 
     if (
       ["cancelled", "canceled"].includes(status)
     ) {
-
       return "cancelled";
-
     }
 
     return "other";
 
   }
 
-
   // ========================================================
-  // 11. SORT REPORTS - NEWEST FIRST
+  // 12. SORT REPORTS - NEWEST FIRST
   // ========================================================
 
   function sortedReportOrders() {
@@ -391,9 +366,8 @@
 
   }
 
-
   // ========================================================
-  // 12. RENDER REPORT TABLE ROWS
+  // 13. RENDER REPORT TABLE ROWS
   // ========================================================
 
   function renderReportRows(
@@ -405,8 +379,6 @@
     const table = $(tableId);
 
     if (!table) return;
-
-    // EMPTY TABLE
 
     if (!orders.length) {
 
@@ -428,21 +400,14 @@
       const row =
         document.createElement("tr");
 
-      // REPORT INFORMATION
-
       const values = [
 
         `#${String(order.id || "").slice(0, 8)}`,
-
         "Order Report",
-
         displayDate(order.created_at),
-
         peso(order.total_amount)
 
       ];
-
-      // CREATE TABLE CELLS
 
       values.forEach(value => {
 
@@ -454,8 +419,6 @@
         row.append(cell);
 
       });
-
-      // STATUS BADGE
 
       const statusCell =
         document.createElement("td");
@@ -470,7 +433,6 @@
         order.status || "N/A";
 
       statusCell.append(badge);
-
       row.append(statusCell);
 
       fragment.append(row);
@@ -481,17 +443,14 @@
 
   }
 
-
   // ========================================================
-  // 13. TODAY'S RECENT REPORT SUMMARY
+  // 14. TODAY'S RECENT REPORT SUMMARY
   // ========================================================
 
   function renderReportTable() {
 
     const today =
       reportDateKey(new Date());
-
-    // FILTER TODAY'S REPORTS
 
     const todayOrders =
       sortedReportOrders().filter(order => {
@@ -502,21 +461,13 @@
 
       });
 
-    // DISPLAY TODAY'S DATE
-
     setText(
       "todayReportDate",
       today
     );
 
-    // DISPLAY MAXIMUM OF THREE REPORTS
-
-    const visibleOrders = todayOrders.slice(
-      0,
-      TODAY_REPORT_LIMIT
-    );
-
-    // RENDER TODAY'S TABLE
+    const visibleOrders =
+      todayOrders.slice(0, TODAY_REPORT_LIMIT);
 
     renderReportRows(
       "reportTable",
@@ -524,16 +475,12 @@
       "No reports today."
     );
 
-    // DISPLAY TODAY'S REPORT COUNT
-
     if (todayOrders.length > 0) {
 
       setText(
         "todayReportCount",
-
         `Showing ${visibleOrders.length} ` +
         `of ${todayOrders.length} available reports today`
-
       );
 
     } else {
@@ -545,23 +492,18 @@
 
     }
 
-    // UPDATE COMPLETE REPORT HISTORY
-
     renderReportHistory();
 
   }
 
-
   // ========================================================
-  // 14. RENDER ALL AVAILABLE REPORT HISTORY
+  // 15. RENDER REPORT HISTORY
   // ========================================================
 
   function renderReportHistory() {
 
     const filter =
       $("reportHistoryFilter")?.value || "all";
-
-    // GET FILTERED REPORTS
 
     const filteredOrders =
       sortedReportOrders().filter(order => {
@@ -571,33 +513,21 @@
 
       });
 
-    // RENDER REPORT HISTORY TABLE
-
     renderReportRows(
-
       "allReportTable",
-
       filteredOrders,
-
       "No reports found in this category."
-
     );
 
-    // UPDATE REPORT HISTORY COUNT
-
     setText(
-
       "reportHistoryCount",
-
       `${filteredOrders.length} available reports`
-
     );
 
   }
 
-
   // ========================================================
-  // 15. MONTHLY SALES CHART
+  // 16. MONTHLY SALES CHART
   // ========================================================
 
   function renderMonthlySalesChart() {
@@ -610,30 +540,17 @@
 
     const months = [
 
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec"
+      "Jan", "Feb", "Mar",
+      "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep",
+      "Oct", "Nov", "Dec"
 
     ];
 
-    // PHILIPPINE MONTH FORMAT
-
     const monthFormatter =
       new Intl.DateTimeFormat("en-US", {
-
         timeZone: REPORT_TIMEZONE,
-
         month: "numeric"
-
       });
 
     // COMPLETED ORDER SALES ONLY
@@ -644,9 +561,7 @@
         order.status !== "Completed" ||
         !order.created_at
       ) {
-
         return;
-
       }
 
       const date =
@@ -659,9 +574,7 @@
         Number.isNaN(date.getTime()) ||
         !Number.isFinite(amount)
       ) {
-
         return;
-
       }
 
       const monthIndex =
@@ -671,8 +584,6 @@
 
     });
 
-    // MAXIMUM SALES VALUE
-
     const maxSales = Math.max(
       ...monthlySales,
       1
@@ -680,8 +591,6 @@
 
     const fragment =
       document.createDocumentFragment();
-
-    // GENERATE MONTHLY SALES BARS
 
     months.forEach((month, index) => {
 
@@ -700,8 +609,6 @@
       const percentage =
         (sales / maxSales) * 100;
 
-      // BAR DESIGN
-
       bar.className = "bar";
 
       bar.style.height =
@@ -717,17 +624,10 @@
         bar.title
       );
 
-      // SALES VALUE
-
       value.className = "bar-value";
-
       value.textContent = peso(sales);
 
-      // MONTH LABEL
-
       label.textContent = month;
-
-      // APPEND CHART COMPONENTS
 
       bar.append(value, label);
 
@@ -739,59 +639,43 @@
 
   }
 
-
   // ========================================================
-  // 16. RESET REPORT SUMMARY
+  // 17. RESET REPORT SUMMARY
   // ========================================================
 
   function resetReportSummary() {
 
     setText("reportTotalSales", peso(0));
-
     setText("reportTotalOrders", 0);
-
     setText("reportTotalUsers", 0);
-
     setText("reportDelivered", 0);
 
     setText("statusPreparing", 0);
-
     setText("statusToDeliver", 0);
-
     setText("statusCompleted", 0);
-
     setText("statusCancelled", 0);
 
   }
 
-
   // ========================================================
-  // 17. LOAD REPORT DATA
+  // 18. LOAD REPORT DATA
   // ========================================================
 
   async function loadReports() {
 
     if (!$("reportTable") || reportLoading) {
-
       return;
-
     }
 
     if (!checkAdminSession()) return;
 
     reportLoading = true;
-
     reportLoaded = false;
-
     reportOrders = [];
 
     updateControls();
 
-    // LOADING STATE
-
-    tableMessage(
-      "Loading report data..."
-    );
+    tableMessage("Loading report data...");
 
     setText(
       "todayReportCount",
@@ -816,8 +700,6 @@
 
     try {
 
-      // GET ADMIN TOKEN
-
       const token =
         localStorage.getItem("adminToken");
 
@@ -830,11 +712,8 @@
         cache: "no-store",
 
         headers: {
-
           Accept: "application/json",
-
           Authorization: `Bearer ${token}`
-
         }
 
       });
@@ -842,11 +721,8 @@
       // EXPIRED ADMIN SESSION
 
       if (response.status === 401) {
-
         redirectToLogin();
-
         return;
-
       }
 
       // PARSE RESPONSE
@@ -860,11 +736,8 @@
       } catch {
 
         throw new Error(
-
           "The server returned an unexpected response. " +
-
           "Check the reports API."
-
         );
 
       }
@@ -874,35 +747,26 @@
       if (response.status === 403) {
 
         throw new Error(
-
           data.message ||
-
           "You do not have permission to view reports."
-
         );
 
       }
 
-      // VALIDATE API RESPONSE
+      // VALIDATE RESPONSE
 
       if (!response.ok || !data.success) {
 
         throw new Error(
-
           data.message || "Cannot load reports."
-
         );
 
       }
 
-      // VALIDATE ORDER LIST
-
       if (!Array.isArray(data.orders)) {
 
         throw new Error(
-
           "The server did not return a valid order list."
-
         );
 
       }
@@ -911,102 +775,65 @@
 
       reportOrders = data.orders;
 
-      // ====================================================
       // PERFORMANCE OVERVIEW
-      // ====================================================
 
       setText(
-
         "reportTotalSales",
-
         peso(data.totalSales)
-
       );
 
       setText(
-
         "reportTotalOrders",
-
         data.totalOrders ?? 0
-
       );
 
       setText(
-
         "reportTotalUsers",
-
         data.totalUsers ?? 0
-
       );
 
       setText(
-
         "reportDelivered",
-
         data.delivered ?? 0
-
       );
 
-      // ====================================================
       // ORDER STATUS COUNTS
-      // ====================================================
 
       setText(
-
         "statusPreparing",
-
         data.statusCounts?.Preparing ?? 0
-
       );
 
       setText(
-
         "statusToDeliver",
-
         data.statusCounts?.["To Deliver"] ?? 0
-
       );
 
       setText(
-
         "statusCompleted",
-
         data.statusCounts?.Completed ?? 0
-
       );
 
       setText(
-
         "statusCancelled",
-
         data.statusCounts?.Cancelled ?? 0
-
       );
 
-      // RENDER TODAY'S REPORTS AND REPORT HISTORY
+      // RENDER REPORT MODULE
 
       renderReportTable();
-
-      // RENDER MONTHLY SALES CHART
-
       renderMonthlySalesChart();
-
-      // REPORT DATA LOADED SUCCESSFULLY
 
       reportLoaded = true;
 
     } catch (error) {
 
       console.error(
-
         "Reports loading error:",
-
         error
-
       );
 
       reportOrders = [];
-
       reportLoaded = false;
 
       resetReportSummary();
@@ -1014,9 +841,7 @@
       renderMonthlySalesChart();
 
       const errorMessage =
-
         `${error.message || "Cannot load reports."} ` +
-
         "Check the server and refresh this page.";
 
       tableMessage(
@@ -1030,15 +855,8 @@
         "allReportTable"
       );
 
-      setText(
-        "todayReportCount",
-        ""
-      );
-
-      setText(
-        "reportHistoryCount",
-        ""
-      );
+      setText("todayReportCount", "");
+      setText("reportHistoryCount", "");
 
     } finally {
 
@@ -1050,9 +868,8 @@
 
   }
 
-
   // ========================================================
-  // 18. GLOBAL NOTIFICATION
+  // 19. GLOBAL NOTIFICATION
   // ========================================================
 
   function showNotification(
@@ -1066,13 +883,10 @@
       return Swal.fire({
 
         icon,
-
         title,
-
         text: message,
 
         confirmButtonText: "OK",
-
         confirmButtonColor: "#f4c542"
 
       });
@@ -1083,26 +897,304 @@
 
   }
 
+  // ========================================================
+  // 20. EXPORT REPORT DATE RANGE
+  // TODAY / THIS WEEK / THIS MONTH / ALL
+  // ========================================================
+
+  function getExportReportData(range = "all") {
+
+    const PH_OFFSET =
+      8 * 60 * 60 * 1000;
+
+    const ONE_DAY =
+      24 * 60 * 60 * 1000;
+
+    const nowPH =
+      new Date(Date.now() + PH_OFFSET);
+
+    const todayStart = Date.UTC(
+
+      nowPH.getUTCFullYear(),
+      nowPH.getUTCMonth(),
+      nowPH.getUTCDate()
+
+    );
+
+    let start;
+    let end;
+    let title;
+
+    switch (range) {
+
+      // TODAY
+
+      case "today":
+
+        start = todayStart;
+        end = start + ONE_DAY;
+
+        title = "Daily Business Report";
+
+        break;
+
+      // THIS WEEK - MONDAY TO SUNDAY
+
+      case "week": {
+
+        const day =
+          nowPH.getUTCDay();
+
+        const daysSinceMonday =
+          (day + 6) % 7;
+
+        start =
+          todayStart - (daysSinceMonday * ONE_DAY);
+
+        end =
+          start + (7 * ONE_DAY);
+
+        title =
+          "Weekly Business Report";
+
+        break;
+
+      }
+
+      // THIS MONTH
+
+      case "month":
+
+        start = Date.UTC(
+
+          nowPH.getUTCFullYear(),
+          nowPH.getUTCMonth(),
+          1
+
+        );
+
+        end = Date.UTC(
+
+          nowPH.getUTCFullYear(),
+          nowPH.getUTCMonth() + 1,
+          1
+
+        );
+
+        title = "Monthly Business Report";
+
+        break;
+
+      // ALL REPORTS
+
+      default:
+
+        return {
+
+          orders: sortedReportOrders(),
+
+          title: "Full Business Report",
+
+          period: "All available records",
+
+          filename: "jcn-full-report.pdf"
+
+        };
+
+    }
+
+    // FILTER ORDERS USING PHILIPPINE TIME
+
+    const orders =
+      sortedReportOrders().filter(order => {
+
+        if (!order.created_at) return false;
+
+        const timestamp =
+          Date.parse(order.created_at);
+
+        if (!Number.isFinite(timestamp)) {
+          return false;
+        }
+
+        const orderDatePH =
+          timestamp + PH_OFFSET;
+
+        return (
+          orderDatePH >= start &&
+          orderDatePH < end
+        );
+
+      });
+
+    // FORMAT REPORT PERIOD
+
+    const formatter =
+      new Intl.DateTimeFormat("en-GB", {
+
+        timeZone: "UTC",
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+
+      });
+
+    const startDate =
+      formatter.format(new Date(start));
+
+    const endDate =
+      formatter.format(new Date(end - 1));
+
+    const period =
+      range === "today"
+        ? startDate
+        : `${startDate} - ${endDate}`;
+
+    // GENERATE FILE NAME
+
+    const fileDate =
+      new Date(start)
+        .toISOString()
+        .slice(0, 10);
+
+    return {
+
+      orders,
+
+      title,
+
+      period,
+
+      filename:
+        `jcn-${range}-report-${fileDate}.pdf`
+
+    };
+
+  }
 
   // ========================================================
-  // 19. EXPORT FULL REPORT TO PDF
+  // 21. FORMAT PDF CELL VALUES
   // ========================================================
 
-  function exportReport() {
+  function pdfText(value, fallback = "-") {
+
+    if (
+      value === undefined ||
+      value === null
+    ) {
+      return fallback;
+    }
+
+    const text =
+      String(value).trim();
+
+    return text || fallback;
+
+  }
+
+  // ========================================================
+  // 22. CALCULATE PDF REPORT SUMMARY
+  // ========================================================
+
+  function calculatePDFSummary(orders) {
+
+    const completedOrders =
+      orders.filter(order => {
+
+        return String(order.status || "")
+          .trim()
+          .toLowerCase() === "completed";
+
+      });
+
+    const cancelledOrders =
+      orders.filter(order => {
+
+        const status =
+          String(order.status || "")
+            .trim()
+            .toLowerCase();
+
+        return [
+          "cancelled",
+          "canceled"
+        ].includes(status);
+
+      });
+
+    const totalSales =
+      completedOrders.reduce((sum, order) => {
+
+        const amount =
+          Number(order.total_amount || 0);
+
+        return sum + (
+          Number.isFinite(amount)
+            ? amount
+            : 0
+        );
+
+      }, 0);
+
+    return {
+
+      totalSales,
+
+      totalOrders:
+        orders.length,
+
+      completedOrders:
+        completedOrders.length,
+
+      cancelledOrders:
+        cancelledOrders.length
+
+    };
+
+  }
+
+  // ========================================================
+  // 23. EXPORT REPORT TO PDF
+  // IMPROVED PROFESSIONAL PDF LAYOUT
+  // ========================================================
+
+  function exportReport(range = "all") {
 
     if (exporting) return;
 
-    // CHECK AVAILABLE REPORT DATA
+    // CHECK REPORT STATE
 
-    if (!reportLoaded || !reportOrders.length) {
+    if (!reportLoaded || reportLoading) {
+
+      showNotification(
+        "warning",
+        "Report Not Ready",
+        "Please wait until the report data is loaded."
+      );
+
+      return;
+
+    }
+
+    // GET SELECTED REPORT PERIOD
+
+    const selectedReport =
+      getExportReportData(range);
+
+    const selectedOrders =
+      selectedReport.orders;
+
+    // NO AVAILABLE DATA
+
+    if (!selectedOrders.length) {
 
       showNotification(
 
-        "warning",
+        "info",
 
         "No Report Data",
 
-        "No report data to export."
+        `No orders found for ${selectedReport.period}.`
 
       );
 
@@ -1134,142 +1226,456 @@
 
     try {
 
-      // INITIALIZE PDF
+      // ====================================================
+      // INITIALIZE A4 LANDSCAPE PDF
+      // ====================================================
 
-      const { jsPDF } = window.jspdf;
+      const { jsPDF } =
+        window.jspdf;
 
-      const doc = new jsPDF("landscape");
+      const doc = new jsPDF({
 
-      // CHECK AUTOTABLE LIBRARY
+        orientation: "landscape",
 
-      if (typeof doc.autoTable !== "function") {
+        unit: "mm",
+
+        format: "a4",
+
+        compress: true
+
+      });
+
+      if (
+        typeof doc.autoTable !== "function"
+      ) {
 
         throw new Error(
-
           "PDF table library not loaded. " +
-
           "Check the jsPDF AutoTable script."
-
         );
 
       }
 
-      // CALCULATE COMPLETED ORDER SALES
+      // PDF PAGE SIZE
 
-      const totalSales = reportOrders
+      const pageWidth =
+        doc.internal.pageSize.getWidth();
 
-        .filter(order =>
+      const pageHeight =
+        doc.internal.pageSize.getHeight();
 
-          order.status === "Completed"
+      const margin = 10;
 
-        )
+      const contentWidth =
+        pageWidth - (margin * 2);
 
-        .reduce((sum, order) => {
+      // REPORT SUMMARY
 
-          const amount = Number(
+      const summary =
+        calculatePDFSummary(selectedOrders);
 
-            order.total_amount || 0
+      // ====================================================
+      // DOCUMENT METADATA
+      // ====================================================
 
-          );
+      doc.setProperties({
 
-          return sum + (
+        title:
+          `JCN Apparel - ${selectedReport.title}`,
 
-            Number.isFinite(amount)
+        subject:
+          selectedReport.period,
 
-              ? amount
+        author:
+          "JCN Apparel Printing Services",
 
-              : 0
+        creator:
+          "JCN Admin Reports System"
 
-          );
+      });
 
-        }, 0);
+      // ====================================================
+      // PROFESSIONAL BLACK AND GOLD HEADER
+      // ====================================================
 
-      // PDF HEADER
+      doc.setFillColor(20, 20, 20);
 
-      doc.setFontSize(18);
+      doc.rect(
+        0,
+        0,
+        pageWidth,
+        30,
+        "F"
+      );
 
-      doc.setTextColor(20, 20, 20);
+      // GOLD ACCENT LINE
+
+      doc.setFillColor(244, 197, 66);
+
+      doc.rect(
+        0,
+        30,
+        pageWidth,
+        2,
+        "F"
+      );
+
+      // BUSINESS NAME
+
+      doc.setFont(
+        "helvetica",
+        "bold"
+      );
+
+      doc.setFontSize(19);
+
+      doc.setTextColor(
+        244,
+        197,
+        66
+      );
 
       doc.text(
 
-        "JCN Apparel Full Report",
+        "JCN APPAREL PRINTING SERVICES",
 
-        14,
+        margin,
 
-        15
+        13
 
       );
 
-      // PDF REPORT INFORMATION
+      // REPORT TITLE
 
-      doc.setFontSize(10);
+      doc.setFont(
+        "helvetica",
+        "normal"
+      );
+
+      doc.setFontSize(12);
+
+      doc.setTextColor(
+        255,
+        255,
+        255
+      );
 
       doc.text(
 
-        `Generated: ${displayDate(new Date(), true)} PHT`,
+        selectedReport.title,
 
-        14,
+        margin,
 
         23
 
       );
 
-      doc.text(
+      // ADMIN REPORT LABEL
 
-        `Completed Order Sales: ${pesoPDF(totalSales)}`,
-
-        14,
-
-        31
-
-      );
+      doc.setFontSize(9);
 
       doc.text(
 
-        `Orders included: ${reportOrders.length}`,
+        "ADMINISTRATIVE REPORT",
 
-        14,
+        pageWidth - margin,
 
-        38
+        23,
+
+        { align: "right" }
 
       );
 
       // ====================================================
-      // PREPARE ALL REPORT RECORDS
-      //
-      // PDF EXPORT IS NOT LIMITED TO TODAY'S REPORTS
-      // OR THE CURRENT REPORT HISTORY FILTER
+      // REPORT PERIOD INFORMATION
       // ====================================================
 
-      const rows = reportOrders.map(order => [
+      doc.setTextColor(
+        45,
+        45,
+        45
+      );
 
-        String(order.id || "").slice(0, 8),
+      doc.setFontSize(10);
 
-        order.customer_name || "Unknown",
+      doc.setFont(
+        "helvetica",
+        "bold"
+      );
 
-        order.customer_email || "",
+      doc.text(
+        "Report Period:",
+        margin,
+        40
+      );
 
-        order.customer_phone || "",
+      doc.setFont(
+        "helvetica",
+        "normal"
+      );
 
-        pesoPDF(order.total_amount),
+      doc.text(
 
-        order.payment_method || "",
+        selectedReport.period,
 
-        order.payment_status || "",
+        margin + 29,
 
-        order.status || "",
+        40
 
-        order.tracking_number || "",
+      );
 
-        displayDate(order.created_at, true)
+      // GENERATION DATE
+
+      doc.setFontSize(9);
+
+      doc.text(
+
+        `Generated: ${displayDate(new Date(), true)} PHT`,
+
+        pageWidth - margin,
+
+        40,
+
+        { align: "right" }
+
+      );
+
+      // ====================================================
+      // PDF SUMMARY CARDS
+      // ====================================================
+
+      const cardGap = 4;
+
+      const cardWidth =
+        (contentWidth - (cardGap * 3)) / 4;
+
+      const cardY = 46;
+
+      const cardHeight = 20;
+
+      const summaryCards = [
+
+        {
+          label: "Completed Order Sales",
+          value: pesoPDF(summary.totalSales)
+        },
+
+        {
+          label: "Total Orders",
+          value: String(summary.totalOrders)
+        },
+
+        {
+          label: "Completed Orders",
+          value: String(summary.completedOrders)
+        },
+
+        {
+          label: "Cancelled Orders",
+          value: String(summary.cancelledOrders)
+        }
+
+      ];
+
+      summaryCards.forEach((card, index) => {
+
+        const x =
+          margin + (index * (cardWidth + cardGap));
+
+        // CARD BACKGROUND
+
+        doc.setFillColor(
+          248,
+          248,
+          248
+        );
+
+        doc.setDrawColor(
+          220,
+          220,
+          220
+        );
+
+        doc.setLineWidth(0.2);
+
+        doc.roundedRect(
+
+          x,
+
+          cardY,
+
+          cardWidth,
+
+          cardHeight,
+
+          2,
+
+          2,
+
+          "FD"
+
+        );
+
+        // CARD LABEL
+
+        doc.setFont(
+          "helvetica",
+          "normal"
+        );
+
+        doc.setFontSize(9);
+
+        doc.setTextColor(
+          95,
+          95,
+          95
+        );
+
+        doc.text(
+
+          card.label,
+
+          x + 4,
+
+          cardY + 7
+
+        );
+
+        // CARD VALUE
+
+        doc.setFont(
+          "helvetica",
+          "bold"
+        );
+
+        doc.setFontSize(13);
+
+        doc.setTextColor(
+          35,
+          35,
+          35
+        );
+
+        doc.text(
+
+          card.value,
+
+          x + 4,
+
+          cardY + 15
+
+        );
+
+      });
+
+      // ====================================================
+      // REPORT TABLE TITLE
+      // ====================================================
+
+      doc.setFont(
+        "helvetica",
+        "bold"
+      );
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(
+        25,
+        25,
+        25
+      );
+
+      doc.text(
+
+        "ORDER TRANSACTION DETAILS",
+
+        margin,
+
+        74
+
+      );
+
+      // ====================================================
+      // PREPARE PDF TABLE DATA
+      // NO CUSTOMER ADDRESS
+      // ====================================================
+
+      const rows = selectedOrders.map(order => [
+
+        // ORDER ID
+
+        pdfText(
+          String(order.id || "").slice(0, 8)
+        ),
+
+        // CUSTOMER NAME
+
+        pdfText(
+          order.customer_name,
+          "Unknown"
+        ),
+
+        // EMAIL
+
+        pdfText(
+          order.customer_email
+        ),
+
+        // PHONE NUMBER
+
+        pdfText(
+          order.customer_phone
+        ),
+
+        // ORDER AMOUNT
+
+        pesoPDF(
+          order.total_amount
+        ),
+
+        // PAYMENT METHOD
+
+        pdfText(
+          order.payment_method
+        ),
+
+        // PAYMENT STATUS
+
+        pdfText(
+          order.payment_status
+        ),
+
+        // ORDER STATUS
+
+        pdfText(
+          order.status
+        ),
+
+        // TRACKING NUMBER
+
+        pdfText(
+          order.tracking_number
+        ),
+
+        // DATE AND TIME
+
+        displayPDFDate(
+          order.created_at
+        )
 
       ]);
 
-      // GENERATE PDF TABLE
+      // ====================================================
+      // GENERATE PROFESSIONAL PDF TABLE
+      // ====================================================
 
       doc.autoTable({
 
-        startY: 46,
+        startY: 79,
+
+        theme: "grid",
+
+        // TABLE HEADINGS
 
         head: [[
 
@@ -1297,45 +1703,455 @@
 
         body: rows,
 
+        // TABLE WIDTH
+
+        tableWidth: contentWidth,
+
+        // GENERAL CELL STYLING
+
         styles: {
+
+          font: "helvetica",
+
+          fontStyle: "normal",
 
           fontSize: 8,
 
+          textColor: [35, 35, 35],
+
           overflow: "linebreak",
 
-          cellPadding: 3
+          valign: "middle",
+
+          halign: "left",
+
+          cellPadding: {
+
+            top: 3,
+
+            right: 2,
+
+            bottom: 3,
+
+            left: 2
+
+          },
+
+          lineColor: [225, 225, 225],
+
+          lineWidth: 0.15
 
         },
+
+        // TABLE HEADERS
 
         headStyles: {
 
-          fillColor: [214, 165, 29],
+          fillColor: [218, 174, 40],
 
-          textColor: [0, 0, 0],
+          textColor: [15, 15, 15],
 
-          fontStyle: "bold"
+          fontStyle: "bold",
+
+          fontSize: 8.5,
+
+          valign: "middle",
+
+          halign: "left",
+
+          minCellHeight: 11,
+
+          cellPadding: {
+
+            top: 3,
+
+            right: 2,
+
+            bottom: 3,
+
+            left: 2
+
+          }
 
         },
+
+        // TABLE BODY
+
+        bodyStyles: {
+
+          fillColor: [255, 255, 255]
+
+        },
+
+        // ALTERNATING ROW COLORS
 
         alternateRowStyles: {
 
-          fillColor: [247, 247, 247]
+          fillColor: [246, 247, 248]
 
         },
 
+        // ==================================================
+        // FIXED COLUMN WIDTHS
+        // TOTAL WIDTH: 277 MM
+        // A4 LANDSCAPE: 297 MM
+        // LEFT AND RIGHT MARGINS: 10 MM
+        // ==================================================
+
+        columnStyles: {
+
+          // ORDER ID
+          0: {
+            cellWidth: 19,
+            fontStyle: "bold"
+          },
+
+          // CUSTOMER NAME
+          1: {
+            cellWidth: 32
+          },
+
+          // EMAIL ADDRESS
+          2: {
+            cellWidth: 48,
+            fontSize: 7.5
+          },
+
+          // PHONE NUMBER
+          3: {
+            cellWidth: 28
+          },
+
+          // AMOUNT
+          4: {
+            cellWidth: 25,
+            halign: "right",
+            fontStyle: "bold"
+          },
+
+          // PAYMENT METHOD
+          5: {
+            cellWidth: 18
+          },
+
+          // PAYMENT STATUS
+          6: {
+            cellWidth: 20
+          },
+
+          // ORDER STATUS
+          7: {
+            cellWidth: 27
+          },
+
+          // TRACKING NUMBER
+          8: {
+            cellWidth: 32,
+            fontSize: 7.5
+          },
+
+          // DATE AND TIME
+          9: {
+            cellWidth: 28,
+            fontSize: 7.5
+          }
+
+        },
+
+        // PAGE MARGINS
+
         margin: {
 
-          left: 14,
+          top: 18,
 
-          right: 14
+          bottom: 20,
+
+          left: margin,
+
+          right: margin
+
+        },
+
+        // KEEP TABLE HEADER ON EVERY PAGE
+
+        showHead: "everyPage",
+
+        pageBreak: "auto",
+
+        rowPageBreak: "avoid",
+
+        // ==================================================
+        // PDF CELL COLOR FORMATTING
+        // ==================================================
+
+        didParseCell(data) {
+
+          if (data.section !== "body") {
+            return;
+          }
+
+          const columnIndex =
+            data.column.index;
+
+          const value =
+            String(data.cell.raw || "")
+              .trim()
+              .toLowerCase();
+
+          // PAYMENT STATUS COLORS
+
+          if (columnIndex === 6) {
+
+            if (value === "paid") {
+
+              data.cell.styles.textColor =
+                [25, 130, 75];
+
+              data.cell.styles.fontStyle =
+                "bold";
+
+            } else if (
+
+              [
+                "pending",
+                "unpaid",
+                "pending payment"
+              ].includes(value)
+
+            ) {
+
+              data.cell.styles.textColor =
+                [155, 110, 15];
+
+            } else if (
+
+              [
+                "failed",
+                "cancelled",
+                "canceled"
+              ].includes(value)
+
+            ) {
+
+              data.cell.styles.textColor =
+                [180, 45, 45];
+
+            }
+
+          }
+
+          // ORDER STATUS COLORS
+
+          if (columnIndex === 7) {
+
+            data.cell.styles.fontStyle =
+              "bold";
+
+            if (
+
+              [
+                "completed",
+                "delivered"
+              ].includes(value)
+
+            ) {
+
+              data.cell.styles.textColor =
+                [25, 130, 75];
+
+            } else if (
+
+              [
+                "cancelled",
+                "canceled"
+              ].includes(value)
+
+            ) {
+
+              data.cell.styles.textColor =
+                [185, 45, 45];
+
+            } else if (
+
+              [
+                "preparing",
+                "processing",
+                "pending",
+                "pending payment"
+              ].includes(value)
+
+            ) {
+
+              data.cell.styles.textColor =
+                [155, 110, 15];
+
+            } else if (
+
+              [
+                "to deliver",
+                "to ship",
+                "to receive"
+              ].includes(value)
+
+            ) {
+
+              data.cell.styles.textColor =
+                [40, 90, 175];
+
+            }
+
+          }
 
         }
 
       });
 
-      // SAVE PDF REPORT
+      // ====================================================
+      // AUTOMATIC PAGE FOOTER AND PAGE NUMBERS
+      // ====================================================
 
-      doc.save("jcn-full-report.pdf");
+      const totalPages =
+        doc.internal.getNumberOfPages();
+
+      for (
+
+        let page = 1;
+
+        page <= totalPages;
+
+        page++
+
+      ) {
+
+        doc.setPage(page);
+
+        // SECOND AND NEXT PAGE HEADER
+
+        if (page > 1) {
+
+          doc.setFont(
+            "helvetica",
+            "bold"
+          );
+
+          doc.setFontSize(9);
+
+          doc.setTextColor(
+            50,
+            50,
+            50
+          );
+
+          doc.text(
+
+            "JCN APPAREL PRINTING SERVICES",
+
+            margin,
+
+            10
+
+          );
+
+          doc.setFont(
+            "helvetica",
+            "normal"
+          );
+
+          doc.text(
+
+            selectedReport.title,
+
+            pageWidth - margin,
+
+            10,
+
+            { align: "right" }
+
+          );
+
+        }
+
+        // FOOTER DIVIDER
+
+        doc.setDrawColor(
+          218,
+          174,
+          40
+        );
+
+        doc.setLineWidth(0.35);
+
+        doc.line(
+
+          margin,
+
+          pageHeight - 15,
+
+          pageWidth - margin,
+
+          pageHeight - 15
+
+        );
+
+        // FOOTER TEXT
+
+        doc.setFont(
+          "helvetica",
+          "normal"
+        );
+
+        doc.setFontSize(8);
+
+        doc.setTextColor(
+          110,
+          110,
+          110
+        );
+
+        doc.text(
+
+          "JCN Apparel Printing Services | Confidential",
+
+          margin,
+
+          pageHeight - 8
+
+        );
+
+        // PAGE NUMBER
+
+        doc.text(
+
+          `Page ${page} of ${totalPages}`,
+
+          pageWidth - margin,
+
+          pageHeight - 8,
+
+          { align: "right" }
+
+        );
+
+      }
+
+      // ====================================================
+      // SAVE FILTERED PDF REPORT
+      // ====================================================
+
+      doc.save(
+        selectedReport.filename
+      );
+
+      showNotification(
+
+        "success",
+
+        "Report Exported",
+
+        `${selectedReport.title} has been generated ` +
+        `with ${selectedOrders.length} order records.`
+
+      );
 
     } catch (error) {
 
@@ -1354,7 +2170,6 @@
         "Export Failed",
 
         error.message ||
-
         "Unable to export the report."
 
       );
@@ -1369,25 +2184,20 @@
 
   }
 
-
   // ========================================================
-  // 20. UNIFIED ADMIN LOGOUT MODAL
+  // 24. UNIFIED ADMIN LOGOUT MODAL
   // ========================================================
 
   function setupAdminLogout() {
 
     const logoutButton =
-
       $("adminLogoutBtn") ||
-
       $("logoutBtn");
 
     if (!logoutButton) {
 
       console.warn(
-
         "[JCN Admin] Logout button was not found."
-
       );
 
       return;
@@ -1399,12 +2209,11 @@
     if (
       logoutButton.dataset.jcnLogoutReady === "true"
     ) {
-
       return;
-
     }
 
-    let modal = $("adminLogoutModal");
+    let modal =
+      $("adminLogoutModal");
 
     // CREATE NATIVE HTML DIALOG IF NEEDED
 
@@ -1413,7 +2222,8 @@
       const newModal =
         document.createElement("dialog");
 
-      newModal.id = "adminLogoutModal";
+      newModal.id =
+        "adminLogoutModal";
 
       if (modal) {
 
@@ -1431,39 +2241,31 @@
 
     // APPLY UNIFIED LOGOUT CLASS
 
-    modal.id = "adminLogoutModal";
+    modal.id =
+      "adminLogoutModal";
 
-    modal.className = "jcn-unified-logout";
+    modal.className =
+      "jcn-unified-logout";
 
     modal.removeAttribute("hidden");
-
     modal.removeAttribute("aria-hidden");
-
     modal.removeAttribute("style");
 
     modal.setAttribute(
-
       "aria-labelledby",
-
       "adminLogoutTitle"
-
     );
 
     modal.setAttribute(
-
       "aria-describedby",
-
       "adminLogoutDescription"
-
     );
 
     if (modal.open) {
-
       modal.close();
-
     }
 
-    // STANDARD LOGOUT HTML
+    // LOGOUT MODAL HTML
 
     modal.innerHTML = `
 
@@ -1515,8 +2317,6 @@
 
     `;
 
-    // LOGOUT ELEMENTS
-
     const confirmButton =
       $("adminConfirmLogout");
 
@@ -1524,28 +2324,23 @@
       $("adminCancelLogout");
 
     let previousOverflow = "";
-
     let loggingOut = false;
-
     let outsidePress = false;
 
-
-    // ======================================================
     // OPEN LOGOUT MODAL
-    // ======================================================
 
     function openLogoutModal(event) {
 
       event.preventDefault();
 
       if (
+
         modal.open ||
         loggingOut ||
         exporting
+
       ) {
-
         return;
-
       }
 
       previousOverflow =
@@ -1560,27 +2355,19 @@
 
     }
 
-
-    // ======================================================
     // CLOSE LOGOUT MODAL
-    // ======================================================
 
     function closeLogoutModal() {
 
       if (loggingOut) return;
 
       if (modal.open) {
-
         modal.close();
-
       }
 
     }
 
-
-    // ======================================================
     // DETECT OUTSIDE CLICK
-    // ======================================================
 
     function isOutsideModal(event) {
 
@@ -1594,11 +2381,8 @@
         (
 
           event.clientX < rect.left ||
-
           event.clientX > rect.right ||
-
           event.clientY < rect.top ||
-
           event.clientY > rect.bottom
 
         )
@@ -1607,41 +2391,24 @@
 
     }
 
-
-    // ======================================================
-    // LOGOUT BUTTON EVENT
-    // ======================================================
+    // LOGOUT BUTTON
 
     logoutButton.addEventListener(
-
       "click",
-
       openLogoutModal
-
     );
 
-
-    // ======================================================
-    // CANCEL LOGOUT BUTTON
-    // ======================================================
+    // CANCEL BUTTON
 
     cancelButton.addEventListener(
-
       "click",
-
       closeLogoutModal
-
     );
 
-
-    // ======================================================
     // ESCAPE KEY SUPPORT
-    // ======================================================
 
     modal.addEventListener(
-
       "cancel",
-
       event => {
 
         event.preventDefault();
@@ -1649,31 +2416,22 @@
         closeLogoutModal();
 
       }
-
     );
 
-
-    // ======================================================
     // OUTSIDE CLICK SUPPORT
-    // ======================================================
 
     modal.addEventListener(
-
       "pointerdown",
-
       event => {
 
         outsidePress =
           isOutsideModal(event);
 
       }
-
     );
 
     modal.addEventListener(
-
       "click",
-
       event => {
 
         if (
@@ -1688,18 +2446,12 @@
         outsidePress = false;
 
       }
-
     );
 
-
-    // ======================================================
     // RESTORE PAGE AFTER CLOSING
-    // ======================================================
 
     modal.addEventListener(
-
       "close",
-
       () => {
 
         document.body.style.overflow =
@@ -1710,7 +2462,6 @@
         if (!loggingOut) {
 
           confirmButton.disabled = false;
-
           cancelButton.disabled = false;
 
           logoutButton.focus();
@@ -1718,46 +2469,31 @@
         }
 
       }
-
     );
 
-
-    // ======================================================
     // CONFIRM ADMIN LOGOUT
-    // ======================================================
 
     confirmButton.addEventListener(
-
       "click",
-
       () => {
 
         if (loggingOut || exporting) {
-
           return;
-
         }
 
         loggingOut = true;
 
         confirmButton.disabled = true;
-
         cancelButton.disabled = true;
 
         try {
 
-          // REMOVE ADMIN SESSION ONLY
-
           clearAdminSession();
 
-          // PRESERVE ADMIN AND CUSTOMER THEMES
-
-          // REDIRECT TO ADMIN LOGIN
+          // PRESERVE THEME PREFERENCES
 
           window.location.replace(
-
             LOGIN_PAGE
-
           );
 
         } catch (error) {
@@ -1765,52 +2501,40 @@
           loggingOut = false;
 
           confirmButton.disabled = false;
-
           cancelButton.disabled = false;
 
           console.error(
-
             "ADMIN LOGOUT ERROR:",
-
             error
-
           );
 
           window.alert(
-
             "Unable to clear the admin session. " +
-
             "Please try again."
-
           );
 
         }
 
       }
-
     );
-
-    // MARK LOGOUT AS INITIALIZED
 
     logoutButton.dataset.jcnLogoutReady =
       "true";
 
     console.log(
-
       "[JCN Admin] Unified logout initialized."
-
     );
 
   }
 
-
   // ========================================================
-  // 21. REPORT HISTORY SCROLL RESET
+  // 25. REPORT HISTORY SCROLL RESET
   // ========================================================
 
   function resetReportHistoryScroll() {
 
-    const modal = $("reportHistoryModal");
+    const modal =
+      $("reportHistoryModal");
 
     const body =
       modal?.querySelector(".modal-body");
@@ -1819,20 +2543,19 @@
 
       body.scrollTop = 0;
 
+      body.scrollLeft = 0;
+
     }
 
   }
 
-
   // ========================================================
-  // 22. REPORT EVENTS
+  // 26. REPORT EVENTS
   // ========================================================
 
   function setupReportEvents() {
 
-    // ======================================================
     // REPORT HISTORY STATUS FILTER
-    // ======================================================
 
     $("reportHistoryFilter")?.addEventListener(
 
@@ -1848,18 +2571,13 @@
 
     );
 
-
-    // ======================================================
     // OPEN REPORT HISTORY MODAL
-    // ======================================================
 
     $("reportHistoryModal")?.addEventListener(
 
       "show.bs.modal",
 
       () => {
-
-        // RESET FILTER TO ALL
 
         const filter =
           $("reportHistoryFilter");
@@ -1870,11 +2588,7 @@
 
         }
 
-        // UPDATE TODAY'S TABLE AND REPORT HISTORY
-
         renderReportTable();
-
-        // RESET SCROLL POSITION
 
         resetReportHistoryScroll();
 
@@ -1882,10 +2596,7 @@
 
     );
 
-
-    // ======================================================
     // MODAL SHOWN
-    // ======================================================
 
     $("reportHistoryModal")?.addEventListener(
 
@@ -1899,23 +2610,67 @@
 
     );
 
-
     // ======================================================
-    // EXPORT REPORT
+    // EXPORT REPORT DROPDOWN OPTIONS
+    // TODAY / WEEK / MONTH / ALL
     // ======================================================
 
-    $("exportReportBtn")?.addEventListener(
+    document
 
-      "click",
+      .querySelectorAll("[data-export-range]")
 
-      exportReport
+      .forEach(button => {
 
-    );
+        button.addEventListener(
 
+          "click",
 
-    // ======================================================
+          () => {
+
+            if (
+
+              exporting ||
+
+              reportLoading ||
+
+              !reportLoaded
+
+            ) {
+              return;
+            }
+
+            const range =
+              button.dataset.exportRange;
+
+            // CLOSE DROPDOWN BEFORE EXPORTING
+
+            const exportButton =
+              $("exportReportBtn");
+
+            if (
+              exportButton &&
+              window.bootstrap?.Dropdown
+            ) {
+
+              const dropdown =
+                window.bootstrap.Dropdown
+                  .getInstance(exportButton);
+
+              dropdown?.hide();
+
+            }
+
+            // GENERATE SELECTED REPORT
+
+            exportReport(range);
+
+          }
+
+        );
+
+      });
+
     // OPTIONAL REFRESH REPORT BUTTON
-    // ======================================================
 
     $("refreshReports")?.addEventListener(
 
@@ -1923,7 +2678,10 @@
 
       () => {
 
-        if (!reportLoading && !exporting) {
+        if (
+          !reportLoading &&
+          !exporting
+        ) {
 
           loadReports();
 
@@ -1935,9 +2693,8 @@
 
   }
 
-
   // ========================================================
-  // 23. INITIALIZE ADMIN REPORTS
+  // 27. INITIALIZE ADMIN REPORTS
   // ========================================================
 
   function init() {
@@ -1982,9 +2739,8 @@
 
   }
 
-
   // ========================================================
-  // 24. DOM READY
+  // 28. DOM READY
   // ========================================================
 
   if (document.readyState === "loading") {

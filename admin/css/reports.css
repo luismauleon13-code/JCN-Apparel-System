@@ -4414,55 +4414,6 @@ html[data-account-theme] body .swal2-cancel {
 
 }
 
-/* ==================================================
-   FIX REPORT HISTORY HEADER & CLOSE BUTTON
-================================================== */
-
-#reportHistoryModal .modal-header {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  width: 100%;
-  gap: 12px;
-}
-
-#reportHistoryModal #reportHistoryTitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  margin: 0;
-}
-
-#reportHistoryModal .report-history-close {
-  position: static !important;
-  margin-left: auto !important;
-  margin-right: 0 !important;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-
-  border: 1px solid var(--rp-badge-border);
-  border-radius: 8px;
-
-  background: transparent;
-  color: var(--rp-gold-text);
-
-  font-size: 17px;
-  cursor: pointer;
-}
-
-#reportHistoryModal .report-history-close:hover {
-  background: var(--rp-hover);
-  border-color: var(--rp-gold);
-}
-
 /* 46. RECENT REPORT SUMMARY AND STABLE REPORT HISTORY */
 .report-history-heading, .report-today-heading {
   display: flex;
