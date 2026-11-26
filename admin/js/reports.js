@@ -903,35 +903,42 @@
   }
 
   // ========================================================
-  // 19. GLOBAL NOTIFICATION
-  // ========================================================
+// 19. JCN PREMIUM GLOBAL NOTIFICATION
+// ========================================================
 
-  function showNotification(
-    icon,
-    title,
-    message
-  ) {
+function showNotification(icon, title, message) {
 
-    if (window.Swal) {
+  if (window.Swal) {
 
-      return Swal.fire({
+    return window.Swal.fire({
 
-        icon,
-        title,
-        text: message,
+      icon: icon,
 
-        confirmButtonText: "OK",
-        confirmButtonColor: "#f4c542"
+      title: title,
 
-      });
+      text: message,
 
-    }
+      confirmButtonText: "OK",
 
-    window.alert(
-      `${title}\n\n${message}`
-    );
+      buttonsStyling: false,
+
+      heightAuto: false,
+
+      allowOutsideClick: false,
+
+      allowEscapeKey: true,
+
+      customClass: {
+        popup: "jcn-report-alert"
+      }
+
+    });
 
   }
+
+  window.alert(`${title}\n\n${message}`);
+
+}
 
   // ========================================================
   // 20. EXPORT REPORT DATE RANGE
