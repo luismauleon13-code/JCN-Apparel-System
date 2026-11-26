@@ -3,8 +3,13 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>JCN | Reports</title>
 
@@ -21,10 +26,17 @@
   >
 
   <!-- REPORTS CSS -->
-  <link rel="stylesheet" href="../css/reports.css?v=15">
+  <link
+    rel="stylesheet"
+    href="../css/reports.css?v=16"
+  >
 
   <!-- GLOBAL ADMIN THEME -->
-  <link rel="stylesheet" href="../css/admin-theme.css?v=13">
+  <link
+    rel="stylesheet"
+    href="../css/admin-theme.css?v=13"
+  >
+
   <script src="../js/admin-theme.js?v=13"></script>
 
 </head>
@@ -89,7 +101,10 @@
 
         </h2>
 
-        <nav class="dashboard-menu" aria-label="Admin menu">
+        <nav
+          class="dashboard-menu"
+          aria-label="Admin menu"
+        >
 
           <!-- OVERVIEW -->
 
@@ -222,6 +237,8 @@
 
           <div class="dropdown report-export-dropdown">
 
+            <!-- MAIN EXPORT BUTTON -->
+
             <button
               id="exportReportBtn"
               class="btn btn-gold dropdown-toggle"
@@ -247,14 +264,17 @@
               aria-labelledby="exportReportBtn"
             >
 
-              <!-- TODAY -->
+              <!-- PER DAY -->
 
               <li>
 
                 <button
+                  id="exportPerDayBtn"
                   class="dropdown-item"
                   type="button"
-                  data-export-range="today"
+                  aria-haspopup="dialog"
+                  aria-controls="dailyReportModal"
+                  disabled
                 >
 
                   <i
@@ -262,7 +282,7 @@
                     aria-hidden="true"
                   ></i>
 
-                  Today
+                  Per Day
 
                 </button>
 
@@ -273,9 +293,11 @@
               <li>
 
                 <button
+                  id="exportWeekBtn"
                   class="dropdown-item"
                   type="button"
                   data-export-range="week"
+                  disabled
                 >
 
                   <i
@@ -294,9 +316,11 @@
               <li>
 
                 <button
+                  id="exportMonthBtn"
                   class="dropdown-item"
                   type="button"
                   data-export-range="month"
+                  disabled
                 >
 
                   <i
@@ -305,33 +329,6 @@
                   ></i>
 
                   This Month
-
-                </button>
-
-              </li>
-
-              <!-- DIVIDER -->
-
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-
-              <!-- ALL REPORTS -->
-
-              <li>
-
-                <button
-                  class="dropdown-item"
-                  type="button"
-                  data-export-range="all"
-                >
-
-                  <i
-                    class="fa-solid fa-file-lines"
-                    aria-hidden="true"
-                  ></i>
-
-                  All Reports
 
                 </button>
 
@@ -582,9 +579,13 @@
                 <tr>
 
                   <th scope="col">Report ID</th>
+
                   <th scope="col">Type</th>
+
                   <th scope="col">Date</th>
+
                   <th scope="col">Amount</th>
+
                   <th scope="col">Status</th>
 
                 </tr>
@@ -597,7 +598,10 @@
 
                 <tr>
 
-                  <td colspan="5" class="empty">
+                  <td
+                    colspan="5"
+                    class="empty"
+                  >
 
                     <i
                       class="fa-solid fa-spinner fa-spin"
@@ -633,6 +637,211 @@
   </div>
 
   <!-- ==================================================
+       DAILY REPORT DATE SELECTION MODAL
+       NEW EXPORT PER DAY FUNCTIONALITY
+  =================================================== -->
+
+  <div
+    id="dailyReportModal"
+    class="modal fade daily-report-modal"
+    tabindex="-1"
+    aria-labelledby="dailyReportTitle"
+    aria-describedby="dailyReportDescription"
+    aria-hidden="true"
+  >
+
+    <div class="modal-dialog modal-dialog-centered">
+
+      <div class="modal-content">
+
+        <!-- =============================================
+             DAILY REPORT MODAL HEADER
+        ============================================== -->
+
+        <div class="modal-header d-flex align-items-center justify-content-between">
+
+          <h2
+            id="dailyReportTitle"
+            class="me-auto mb-0"
+          >
+
+            <i
+              class="fa-solid fa-calendar-day text-gold"
+              aria-hidden="true"
+            ></i>
+
+            Daily Report
+
+          </h2>
+
+          <!-- CLOSE BUTTON -->
+
+          <button
+            type="button"
+            class="daily-report-close ms-auto"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          >
+
+            <i
+              class="fa-solid fa-xmark"
+              aria-hidden="true"
+            ></i>
+
+          </button>
+
+        </div>
+
+        <!-- =============================================
+             DAILY REPORT FORM
+        ============================================== -->
+
+        <form id="dailyReportForm">
+
+          <div class="modal-body">
+
+            <!-- DAILY REPORT DESCRIPTION -->
+
+            <p
+              id="dailyReportDescription"
+              class="muted daily-report-description"
+            >
+
+              Select a specific date to generate and export
+              the corresponding business report.
+
+            </p>
+
+            <!-- DATE FIELD -->
+
+            <div class="daily-report-field">
+
+              <label for="dailyReportDate">
+
+                <i
+                  class="fa-solid fa-calendar-days text-gold"
+                  aria-hidden="true"
+                ></i>
+
+                Select Report Date
+
+              </label>
+
+              <input
+                id="dailyReportDate"
+                name="reportDate"
+                class="form-control daily-report-date"
+                type="date"
+                aria-describedby="dailyReportDateHelp"
+                required
+              >
+
+              <small
+                id="dailyReportDateHelp"
+                class="muted daily-report-note"
+              >
+
+                Dates are based on Philippine Standard Time.
+
+              </small>
+
+            </div>
+
+            <!-- SELECTED DATE REPORT SUMMARY -->
+
+            <div
+              id="dailyReportSummary"
+              class="daily-report-summary"
+              aria-live="polite"
+              hidden
+            >
+
+              <!-- TOTAL ORDERS -->
+
+              <div class="daily-report-summary-row">
+
+                <span>Available Orders</span>
+
+                <strong id="dailyReportOrders">
+                  0
+                </strong>
+
+              </div>
+
+              <!-- TOTAL SALES -->
+
+              <div class="daily-report-summary-row">
+
+                <span>Completed Order Sales</span>
+
+                <strong id="dailyReportSales">
+                  ₱0.00
+                </strong>
+
+              </div>
+
+            </div>
+
+            <!-- DATE VALIDATION MESSAGE -->
+
+            <p
+              id="dailyReportMessage"
+              class="daily-report-message"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></p>
+
+          </div>
+
+          <!-- =============================================
+               DAILY REPORT MODAL FOOTER
+          ============================================== -->
+
+          <div class="modal-footer daily-report-actions">
+
+            <!-- CANCEL -->
+
+            <button
+              id="cancelDailyReportBtn"
+              class="btn btn-outline daily-report-cancel"
+              type="button"
+              data-bs-dismiss="modal"
+            >
+
+              Cancel
+
+            </button>
+
+            <!-- CONFIRM EXPORT -->
+
+            <button
+              id="confirmDailyReportBtn"
+              class="btn btn-gold daily-report-export"
+              type="submit"
+              disabled
+            >
+
+              <i
+                class="fa-solid fa-file-pdf"
+                aria-hidden="true"
+              ></i>
+
+              Export PDF
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==================================================
        REPORT HISTORY MODAL
   =================================================== -->
 
@@ -654,7 +863,10 @@
 
         <div class="modal-header d-flex align-items-center justify-content-between">
 
-          <h2 id="reportHistoryTitle" class="me-auto mb-0">
+          <h2
+            id="reportHistoryTitle"
+            class="me-auto mb-0"
+          >
 
             <i
               class="fa-solid fa-clock-rotate-left text-gold"
@@ -745,9 +957,13 @@
               <tr>
 
                 <th scope="col">Report ID</th>
+
                 <th scope="col">Type</th>
+
                 <th scope="col">Date</th>
+
                 <th scope="col">Amount</th>
+
                 <th scope="col">Status</th>
 
               </tr>
@@ -885,7 +1101,7 @@
 
   <!-- REPORTS JAVASCRIPT -->
 
-  <script src="../js/reports.js?v=15"></script>
+  <script src="../js/reports.js?v=16"></script>
 
 </body>
 

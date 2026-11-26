@@ -1,9 +1,12 @@
 
 /* ==========================================================
    JCN APPAREL PRINTING SERVICES
-   ADMIN - BUSINESS REPORTS
-   TODAY'S REPORTS & REPORT HISTORY
-   DATE RANGE PDF EXPORT & UNIFIED LOGOUT
+   ADMIN - BUSINESS REPORTS VERSION 16
+
+   PER DAY / THIS WEEK / THIS MONTH
+   DAILY REPORT DATE SELECTION
+   PROFESSIONAL PDF EXPORT
+   REPORT HISTORY & UNIFIED LOGOUT
 ========================================================== */
 
 (() => {
@@ -34,8 +37,6 @@
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("admin");
-
-    // Preserve existing theme preferences.
   }
 
   function redirectToLogin() {
@@ -53,7 +54,7 @@
   }
 
   // ========================================================
-  // 03. FORMAT CURRENCY
+  // 03. CURRENCY FORMATTERS
   // ========================================================
 
   function peso(value) {
@@ -79,7 +80,7 @@
   }
 
   // ========================================================
-  // 04. SET ELEMENT TEXT
+  // 04. DOM HELPER
   // ========================================================
 
   function setText(id, value) {
@@ -91,7 +92,7 @@
   }
 
   // ========================================================
-  // 05. FORMAT DATE - PHILIPPINE TIME
+  // 05. DATE FORMATTERS
   // ========================================================
 
   function displayDate(value, includeTime = false) {
@@ -111,10 +112,6 @@
       ? date.toLocaleString("en-PH", options)
       : date.toLocaleDateString("en-PH", options);
   }
-
-  // ========================================================
-  // 06. PDF DATE AND TIME FORMAT
-  // ========================================================
 
   function displayPDFDate(value) {
     if (!value) return "N/A";
@@ -143,7 +140,7 @@
   }
 
   // ========================================================
-  // 07. TODAY'S DATE FORMATTER
+  // 06. PHILIPPINE DATE FORMAT
   // ========================================================
 
   const reportDateFormatter = new Intl.DateTimeFormat(
@@ -168,6 +165,50 @@
     return reportDateFormatter.format(date);
   }
 
+  // ISO FORMAT: YYYY-MM-DD
+
+  function phDateISO(value = new Date()) {
+    const date = new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+      return "";
+    }
+
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: REPORT_TIMEZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(date);
+
+    const part = type =>
+      parts.find(p => p.type === type)?.value;
+
+    return `${part("year")}-${part("month")}-${part("day")}`;
+  }
+
+  // ========================================================
+  // 07. DAILY DATE VALIDATION
+  // ========================================================
+
+  function validDailyDate(value) {
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) {
+      return false;
+    }
+
+    const date = new Date(
+      `${value}T00:00:00+08:00`
+    );
+
+    return (
+      Number.isFinite(date.getTime()) &&
+      phDateISO(date) === value &&
+      value <= phDateISO()
+    );
+
+  }
+
   // ========================================================
   // 08. UPDATE BUTTON STATES
   // ========================================================
@@ -180,24 +221,25 @@
     const logoutButton =
       $("adminLogoutBtn") || $("logoutBtn");
 
+    const unavailable =
+      reportLoading ||
+      exporting ||
+      !reportLoaded;
+
+    // EXPORT BUTTON
+
     if (exportButton) {
-      exportButton.disabled =
-        reportLoading ||
-        exporting ||
-        !reportLoaded ||
-        reportOrders.length === 0;
+      exportButton.disabled = unavailable;
     }
 
-    // EXPORT DROPDOWN OPTIONS
+    // EXPORT OPTIONS
 
     document
-      .querySelectorAll("[data-export-range]")
+      .querySelectorAll(
+        "[data-export-range], #exportPerDayBtn"
+      )
       .forEach(button => {
-        button.disabled =
-          reportLoading ||
-          exporting ||
-          !reportLoaded ||
-          reportOrders.length === 0;
+        button.disabled = unavailable;
       });
 
     // VIEW ALL REPORTS
@@ -207,16 +249,20 @@
         reportLoading || !reportLoaded;
     }
 
-    // LOGOUT BUTTON
+    // LOGOUT
 
     if (logoutButton) {
       logoutButton.disabled = exporting;
     }
 
+    // DAILY REPORT SUMMARY
+
+    updateDailyReportSummary();
+
   }
 
   // ========================================================
-  // 09. REPORT TABLE MESSAGE
+  // 09. TABLE MESSAGES
   // ========================================================
 
   function tableMessage(
@@ -308,11 +354,8 @@
     }
 
     if (
-      [
-        "to deliver",
-        "to ship",
-        "to receive"
-      ].includes(status)
+      ["to deliver", "to ship", "to receive"]
+        .includes(status)
     ) {
       return "to deliver";
     }
@@ -334,7 +377,8 @@
   }
 
   // ========================================================
-  // 12. SORT REPORTS - NEWEST FIRST
+  // 12. SORT REPORT ORDERS
+  // NEWEST FIRST
   // ========================================================
 
   function sortedReportOrders() {
@@ -420,6 +464,8 @@
 
       });
 
+      // STATUS BADGE
+
       const statusCell =
         document.createElement("td");
 
@@ -461,10 +507,9 @@
 
       });
 
-    setText(
-      "todayReportDate",
-      today
-    );
+    setText("todayReportDate", today);
+
+    // MAXIMUM THREE REPORTS
 
     const visibleOrders =
       todayOrders.slice(0, TODAY_REPORT_LIMIT);
@@ -479,16 +524,13 @@
 
       setText(
         "todayReportCount",
-        `Showing ${visibleOrders.length} ` +
-        `of ${todayOrders.length} available reports today`
+        `Showing ${visibleOrders.length} of ` +
+        `${todayOrders.length} available reports today`
       );
 
     } else {
 
-      setText(
-        "todayReportCount",
-        ""
-      );
+      setText("todayReportCount", "");
 
     }
 
@@ -497,7 +539,7 @@
   }
 
   // ========================================================
-  // 15. RENDER REPORT HISTORY
+  // 15. REPORT HISTORY
   // ========================================================
 
   function renderReportHistory() {
@@ -527,7 +569,7 @@
   }
 
   // ========================================================
-  // 16. MONTHLY SALES CHART
+  // 16. MONTHLY SALES OVERVIEW
   // ========================================================
 
   function renderMonthlySalesChart() {
@@ -552,8 +594,6 @@
         timeZone: REPORT_TIMEZONE,
         month: "numeric"
       });
-
-    // COMPLETED ORDER SALES ONLY
 
     reportOrders.forEach(order => {
 
@@ -630,7 +670,6 @@
       label.textContent = month;
 
       bar.append(value, label);
-
       fragment.append(bar);
 
     });
@@ -663,7 +702,10 @@
 
   async function loadReports() {
 
-    if (!$("reportTable") || reportLoading) {
+    if (
+      !$("reportTable") ||
+      reportLoading
+    ) {
       return;
     }
 
@@ -677,10 +719,7 @@
 
     tableMessage("Loading report data...");
 
-    setText(
-      "todayReportCount",
-      ""
-    );
+    setText("todayReportCount", "");
 
     setText(
       "todayReportDate",
@@ -693,39 +732,36 @@
       "allReportTable"
     );
 
-    setText(
-      "reportHistoryCount",
-      ""
-    );
+    setText("reportHistoryCount", "");
 
     try {
 
       const token =
         localStorage.getItem("adminToken");
 
-      // SEND API REQUEST
-
       const response = await fetch(REPORTS_API, {
 
         method: "GET",
-
         cache: "no-store",
 
         headers: {
+
           Accept: "application/json",
+
           Authorization: `Bearer ${token}`
+
         }
 
       });
 
-      // EXPIRED ADMIN SESSION
+      // SESSION EXPIRED
 
       if (response.status === 401) {
+
         redirectToLogin();
         return;
-      }
 
-      // PARSE RESPONSE
+      }
 
       let data;
 
@@ -742,7 +778,7 @@
 
       }
 
-      // CHECK ADMIN PERMISSION
+      // ADMIN PERMISSION
 
       if (response.status === 403) {
 
@@ -753,12 +789,13 @@
 
       }
 
-      // VALIDATE RESPONSE
+      // RESPONSE VALIDATION
 
       if (!response.ok || !data.success) {
 
         throw new Error(
-          data.message || "Cannot load reports."
+          data.message ||
+          "Cannot load reports."
         );
 
       }
@@ -770,8 +807,6 @@
         );
 
       }
-
-      // SAVE ALL ORDER RECORDS
 
       reportOrders = data.orders;
 
@@ -797,7 +832,7 @@
         data.delivered ?? 0
       );
 
-      // ORDER STATUS COUNTS
+      // ORDER STATUS
 
       setText(
         "statusPreparing",
@@ -819,7 +854,7 @@
         data.statusCounts?.Cancelled ?? 0
       );
 
-      // RENDER REPORT MODULE
+      // RENDER REPORT COMPONENTS
 
       renderReportTable();
       renderMonthlySalesChart();
@@ -837,7 +872,6 @@
       reportLoaded = false;
 
       resetReportSummary();
-
       renderMonthlySalesChart();
 
       const errorMessage =
@@ -893,33 +927,32 @@
 
     }
 
-    window.alert(`${title}\n\n${message}`);
+    window.alert(
+      `${title}\n\n${message}`
+    );
 
   }
 
   // ========================================================
   // 20. EXPORT REPORT DATE RANGE
-  // TODAY / THIS WEEK / THIS MONTH / ALL
+  // PER DAY / THIS WEEK / THIS MONTH
   // ========================================================
 
-  function getExportReportData(range = "all") {
+  function getExportReportData(
+    range,
+    selectedDate = ""
+  ) {
 
-    const PH_OFFSET =
-      8 * 60 * 60 * 1000;
+    const DAY = 86400000;
 
-    const ONE_DAY =
-      24 * 60 * 60 * 1000;
+    const today =
+      phDateISO();
 
-    const nowPH =
-      new Date(Date.now() + PH_OFFSET);
+    const todayStart =
+      Date.parse(`${today}T00:00:00+08:00`);
 
-    const todayStart = Date.UTC(
-
-      nowPH.getUTCFullYear(),
-      nowPH.getUTCMonth(),
-      nowPH.getUTCDate()
-
-    );
+    const localCalendar =
+      new Date(`${today}T00:00:00Z`);
 
     let start;
     let end;
@@ -927,12 +960,19 @@
 
     switch (range) {
 
-      // TODAY
+      // PER DAY
 
-      case "today":
+      case "day":
 
-        start = todayStart;
-        end = start + ONE_DAY;
+        if (!validDailyDate(selectedDate)) {
+          return null;
+        }
+
+        start = Date.parse(
+          `${selectedDate}T00:00:00+08:00`
+        );
+
+        end = start + DAY;
 
         title = "Daily Business Report";
 
@@ -942,17 +982,14 @@
 
       case "week": {
 
-        const day =
-          nowPH.getUTCDay();
-
         const daysSinceMonday =
-          (day + 6) % 7;
+          (localCalendar.getUTCDay() + 6) % 7;
 
         start =
-          todayStart - (daysSinceMonday * ONE_DAY);
+          todayStart - daysSinceMonday * DAY;
 
         end =
-          start + (7 * ONE_DAY);
+          start + 7 * DAY;
 
         title =
           "Weekly Business Report";
@@ -963,66 +1000,51 @@
 
       // THIS MONTH
 
-      case "month":
+      case "month": {
 
-        start = Date.UTC(
+        const year =
+          localCalendar.getUTCFullYear();
 
-          nowPH.getUTCFullYear(),
-          nowPH.getUTCMonth(),
-          1
+        const month =
+          localCalendar.getUTCMonth();
 
-        );
+        start =
+          Date.UTC(year, month, 1) -
+          8 * 3600000;
 
-        end = Date.UTC(
+        end =
+          Date.UTC(year, month + 1, 1) -
+          8 * 3600000;
 
-          nowPH.getUTCFullYear(),
-          nowPH.getUTCMonth() + 1,
-          1
-
-        );
-
-        title = "Monthly Business Report";
+        title =
+          "Monthly Business Report";
 
         break;
 
-      // ALL REPORTS
+      }
 
       default:
 
-        return {
-
-          orders: sortedReportOrders(),
-
-          title: "Full Business Report",
-
-          period: "All available records",
-
-          filename: "jcn-full-report.pdf"
-
-        };
+        return null;
 
     }
 
-    // FILTER ORDERS USING PHILIPPINE TIME
+    // FILTER ORDERS
 
     const orders =
       sortedReportOrders().filter(order => {
 
-        if (!order.created_at) return false;
-
         const timestamp =
           Date.parse(order.created_at);
 
-        if (!Number.isFinite(timestamp)) {
-          return false;
-        }
-
-        const orderDatePH =
-          timestamp + PH_OFFSET;
-
         return (
-          orderDatePH >= start &&
-          orderDatePH < end
+
+          Number.isFinite(timestamp) &&
+
+          timestamp >= start &&
+
+          timestamp < end
+
         );
 
       });
@@ -1032,30 +1054,20 @@
     const formatter =
       new Intl.DateTimeFormat("en-GB", {
 
-        timeZone: "UTC",
+        timeZone: REPORT_TIMEZONE,
+
         year: "numeric",
         month: "short",
-        day: "numeric"
+        day: "2-digit"
 
       });
 
-    const startDate =
-      formatter.format(new Date(start));
+    const period = range === "day"
 
-    const endDate =
-      formatter.format(new Date(end - 1));
+      ? formatter.format(start)
 
-    const period =
-      range === "today"
-        ? startDate
-        : `${startDate} - ${endDate}`;
-
-    // GENERATE FILE NAME
-
-    const fileDate =
-      new Date(start)
-        .toISOString()
-        .slice(0, 10);
+      : `${formatter.format(start)} - ` +
+        `${formatter.format(end - 1)}`;
 
     return {
 
@@ -1066,34 +1078,14 @@
       period,
 
       filename:
-        `jcn-${range}-report-${fileDate}.pdf`
+        `jcn-${range}-report-${phDateISO(start)}.pdf`
 
     };
 
   }
 
   // ========================================================
-  // 21. FORMAT PDF CELL VALUES
-  // ========================================================
-
-  function pdfText(value, fallback = "-") {
-
-    if (
-      value === undefined ||
-      value === null
-    ) {
-      return fallback;
-    }
-
-    const text =
-      String(value).trim();
-
-    return text || fallback;
-
-  }
-
-  // ========================================================
-  // 22. CALCULATE PDF REPORT SUMMARY
+  // 21. CALCULATE PDF REPORT SUMMARY
   // ========================================================
 
   function calculatePDFSummary(orders) {
@@ -1154,11 +1146,347 @@
   }
 
   // ========================================================
-  // 23. EXPORT REPORT TO PDF
-  // IMPROVED PROFESSIONAL PDF LAYOUT
+  // 22. UPDATE DAILY REPORT SUMMARY
   // ========================================================
 
-  function exportReport(range = "all") {
+  function updateDailyReportSummary() {
+
+    const input =
+      $("dailyReportDate");
+
+    const summaryBox =
+      $("dailyReportSummary");
+
+    const message =
+      $("dailyReportMessage");
+
+    const confirm =
+      $("confirmDailyReportBtn");
+
+    if (
+      !input ||
+      !summaryBox ||
+      !message ||
+      !confirm
+    ) {
+      return;
+    }
+
+    const data = getExportReportData(
+      "day",
+      input.value
+    );
+
+    const ready =
+
+      reportLoaded &&
+
+      !reportLoading &&
+
+      !exporting;
+
+    // SUMMARY VISIBILITY
+
+    summaryBox.hidden =
+      !data || !reportLoaded;
+
+    // EXPORT BUTTON VALIDATION
+
+    confirm.disabled =
+      !ready ||
+      !data ||
+      !data.orders.length;
+
+    // UPDATE DAILY REPORT COUNTS
+
+    if (data && reportLoaded) {
+
+      const summary =
+        calculatePDFSummary(data.orders);
+
+      setText(
+        "dailyReportOrders",
+        summary.totalOrders
+      );
+
+      setText(
+        "dailyReportSales",
+        peso(summary.totalSales)
+      );
+
+    } else {
+
+      setText(
+        "dailyReportOrders",
+        0
+      );
+
+      setText(
+        "dailyReportSales",
+        peso(0)
+      );
+
+    }
+
+    // VALIDATION MESSAGES
+
+    if (!data) {
+
+      message.textContent =
+        "Select a valid date, not later than today.";
+
+    } else if (
+      !reportLoaded ||
+      reportLoading
+    ) {
+
+      message.textContent =
+        "Report data is not ready.";
+
+    } else if (!data.orders.length) {
+
+      message.textContent =
+        "No orders found for this date.";
+
+    } else {
+
+      message.textContent = "";
+
+    }
+
+    message.hidden =
+      !message.textContent;
+
+  }
+
+  // ========================================================
+  // 23. CLOSE EXPORT DROPDOWN
+  // ========================================================
+
+  function closeExportDropdown() {
+
+    const exportButton =
+      $("exportReportBtn");
+
+    if (
+      exportButton &&
+      window.bootstrap?.Dropdown
+    ) {
+
+      const dropdown =
+        window.bootstrap.Dropdown
+          .getInstance(exportButton);
+
+      dropdown?.hide();
+
+    }
+
+  }
+
+  // ========================================================
+  // 24. SETUP DAILY REPORT MODAL
+  // ========================================================
+
+  function setupDailyReport() {
+
+    const modal =
+      $("dailyReportModal");
+
+    const input =
+      $("dailyReportDate");
+
+    const form =
+      $("dailyReportForm");
+
+    if (!modal || !input || !form) {
+      return;
+    }
+
+    // OPEN DAILY REPORT MODAL
+
+    $("exportPerDayBtn")?.addEventListener(
+      "click",
+      () => {
+
+        if (
+          !reportLoaded ||
+          reportLoading ||
+          exporting
+        ) {
+          return;
+        }
+
+        if (!window.bootstrap?.Modal) {
+
+          showNotification(
+            "error",
+            "Modal Unavailable",
+            "Check the Bootstrap script."
+          );
+
+          return;
+
+        }
+
+        closeExportDropdown();
+
+        window.bootstrap.Modal
+          .getOrCreateInstance(modal)
+          .show();
+
+      }
+    );
+
+    // DEFAULT DATE AND MAXIMUM DATE
+
+    modal.addEventListener(
+      "show.bs.modal",
+      () => {
+
+        input.max = phDateISO();
+
+        input.value = input.max;
+
+        updateDailyReportSummary();
+
+      }
+    );
+
+    // FOCUS DATE INPUT
+
+    modal.addEventListener(
+      "shown.bs.modal",
+      () => {
+
+        input.focus();
+
+      }
+    );
+
+    // UPDATE SUMMARY ON DATE CHANGE
+
+    input.addEventListener(
+      "input",
+      updateDailyReportSummary
+    );
+
+    input.addEventListener(
+      "change",
+      updateDailyReportSummary
+    );
+
+    // EXPORT SELECTED DAILY REPORT
+
+    form.addEventListener(
+      "submit",
+      event => {
+
+        event.preventDefault();
+
+        updateDailyReportSummary();
+
+        const confirm =
+          $("confirmDailyReportBtn");
+
+        if (
+          !confirm ||
+          confirm.disabled ||
+          exporting ||
+          reportLoading ||
+          !reportLoaded
+        ) {
+          return;
+        }
+
+        const selectedDate =
+          input.value;
+
+        if (!validDailyDate(selectedDate)) {
+
+          updateDailyReportSummary();
+
+          return;
+
+        }
+
+        const modalInstance =
+          window.bootstrap?.Modal
+            ?.getInstance(modal);
+
+        if (!modalInstance) {
+          return;
+        }
+
+        confirm.disabled = true;
+
+        // GENERATE PDF AFTER MODAL CLOSES
+
+        modal.addEventListener(
+
+          "hidden.bs.modal",
+
+          () => {
+
+            exportReport(
+              "day",
+              selectedDate
+            );
+
+          },
+
+          { once: true }
+
+        );
+
+        modalInstance.hide();
+
+      }
+    );
+
+    // RESTORE FOCUS
+
+    modal.addEventListener(
+      "hidden.bs.modal",
+      () => {
+
+        $("exportReportBtn")?.focus();
+
+      }
+    );
+
+  }
+
+  // ========================================================
+  // 25. FORMAT PDF CELL VALUES
+  // ========================================================
+
+  function pdfText(
+    value,
+    fallback = "-"
+  ) {
+
+    if (
+      value === undefined ||
+      value === null
+    ) {
+      return fallback;
+    }
+
+    const text =
+      String(value).trim();
+
+    return text || fallback;
+
+  }
+
+  // ========================================================
+  // 26. EXPORT REPORT TO PDF
+  // ========================================================
+
+  function exportReport(
+    range,
+    selectedDate = ""
+  ) {
 
     if (exporting) return;
 
@@ -1167,24 +1495,47 @@
     if (!reportLoaded || reportLoading) {
 
       showNotification(
+
         "warning",
+
         "Report Not Ready",
+
         "Please wait until the report data is loaded."
+
       );
 
       return;
 
     }
 
-    // GET SELECTED REPORT PERIOD
+    // SELECTED REPORT DATA
 
     const selectedReport =
-      getExportReportData(range);
+      getExportReportData(
+        range,
+        selectedDate
+      );
+
+    if (!selectedReport) {
+
+      showNotification(
+
+        "warning",
+
+        "Invalid Report Date",
+
+        "Please select a valid report period."
+
+      );
+
+      return;
+
+    }
 
     const selectedOrders =
       selectedReport.orders;
 
-    // NO AVAILABLE DATA
+    // EMPTY REPORT VALIDATION
 
     if (!selectedOrders.length) {
 
@@ -1202,7 +1553,7 @@
 
     }
 
-    // CHECK PDF LIBRARY
+    // PDF LIBRARY VALIDATION
 
     if (!window.jspdf?.jsPDF) {
 
@@ -1227,7 +1578,7 @@
     try {
 
       // ====================================================
-      // INITIALIZE A4 LANDSCAPE PDF
+      // A4 LANDSCAPE DOCUMENT
       // ====================================================
 
       const { jsPDF } =
@@ -1250,13 +1601,16 @@
       ) {
 
         throw new Error(
+
           "PDF table library not loaded. " +
+
           "Check the jsPDF AutoTable script."
+
         );
 
       }
 
-      // PDF PAGE SIZE
+      // PAGE SIZE
 
       const pageWidth =
         doc.internal.pageSize.getWidth();
@@ -1267,9 +1621,7 @@
       const margin = 10;
 
       const contentWidth =
-        pageWidth - (margin * 2);
-
-      // REPORT SUMMARY
+        pageWidth - margin * 2;
 
       const summary =
         calculatePDFSummary(selectedOrders);
@@ -1304,17 +1656,17 @@
         0,
         0,
         pageWidth,
-        30,
+        28,
         "F"
       );
 
-      // GOLD ACCENT LINE
+      // GOLD ACCENT
 
       doc.setFillColor(244, 197, 66);
 
       doc.rect(
         0,
-        30,
+        28,
         pageWidth,
         2,
         "F"
@@ -1327,7 +1679,7 @@
         "bold"
       );
 
-      doc.setFontSize(19);
+      doc.setFontSize(18);
 
       doc.setTextColor(
         244,
@@ -1341,7 +1693,7 @@
 
         margin,
 
-        13
+        12
 
       );
 
@@ -1366,11 +1718,9 @@
 
         margin,
 
-        23
+        22
 
       );
-
-      // ADMIN REPORT LABEL
 
       doc.setFontSize(9);
 
@@ -1380,7 +1730,7 @@
 
         pageWidth - margin,
 
-        23,
+        22,
 
         { align: "right" }
 
@@ -1406,7 +1756,7 @@
       doc.text(
         "Report Period:",
         margin,
-        40
+        38
       );
 
       doc.setFont(
@@ -1420,7 +1770,7 @@
 
         margin + 29,
 
-        40
+        38
 
       );
 
@@ -1434,24 +1784,24 @@
 
         pageWidth - margin,
 
-        40,
+        38,
 
         { align: "right" }
 
       );
 
       // ====================================================
-      // PDF SUMMARY CARDS
+      // COMPACT PDF SUMMARY CARDS
       // ====================================================
 
       const cardGap = 4;
 
       const cardWidth =
-        (contentWidth - (cardGap * 3)) / 4;
+        (contentWidth - cardGap * 3) / 4;
 
-      const cardY = 46;
+      const cardY = 44;
 
-      const cardHeight = 20;
+      const cardHeight = 18;
 
       const summaryCards = [
 
@@ -1480,7 +1830,7 @@
       summaryCards.forEach((card, index) => {
 
         const x =
-          margin + (index * (cardWidth + cardGap));
+          margin + index * (cardWidth + cardGap);
 
         // CARD BACKGROUND
 
@@ -1523,7 +1873,7 @@
           "normal"
         );
 
-        doc.setFontSize(9);
+        doc.setFontSize(8.5);
 
         doc.setTextColor(
           95,
@@ -1537,7 +1887,7 @@
 
           x + 4,
 
-          cardY + 7
+          cardY + 6
 
         );
 
@@ -1548,7 +1898,7 @@
           "bold"
         );
 
-        doc.setFontSize(13);
+        doc.setFontSize(12);
 
         doc.setTextColor(
           35,
@@ -1562,7 +1912,7 @@
 
           x + 4,
 
-          cardY + 15
+          cardY + 14
 
         );
 
@@ -1577,7 +1927,7 @@
         "bold"
       );
 
-      doc.setFontSize(11);
+      doc.setFontSize(10);
 
       doc.setTextColor(
         25,
@@ -1591,123 +1941,124 @@
 
         margin,
 
-        74
+        69
 
       );
 
       // ====================================================
-      // PREPARE PDF TABLE DATA
-      // NO CUSTOMER ADDRESS
+      // PREPARE PDF TABLE RECORDS
+      // CUSTOMER ADDRESS NOT INCLUDED
       // ====================================================
 
-      const rows = selectedOrders.map(order => [
+      const rows =
+        selectedOrders.map(order => [
 
-        // ORDER ID
+          pdfText(
+            String(order.id || "").slice(0, 8)
+          ),
 
-        pdfText(
-          String(order.id || "").slice(0, 8)
-        ),
+          pdfText(
+            order.customer_name,
+            "Unknown"
+          ),
 
-        // CUSTOMER NAME
+          pdfText(
+            order.customer_email
+          ),
 
-        pdfText(
-          order.customer_name,
-          "Unknown"
-        ),
+          pdfText(
+            order.customer_phone
+          ),
 
-        // EMAIL
+          pesoPDF(
+            order.total_amount
+          ),
 
-        pdfText(
-          order.customer_email
-        ),
+          pdfText(
+            order.payment_method
+          ),
 
-        // PHONE NUMBER
+          pdfText(
+            order.payment_status
+          ),
 
-        pdfText(
-          order.customer_phone
-        ),
+          pdfText(
+            order.status
+          ),
 
-        // ORDER AMOUNT
+          pdfText(
+            order.tracking_number
+          ),
 
-        pesoPDF(
-          order.total_amount
-        ),
+          displayPDFDate(
+            order.created_at
+          )
 
-        // PAYMENT METHOD
-
-        pdfText(
-          order.payment_method
-        ),
-
-        // PAYMENT STATUS
-
-        pdfText(
-          order.payment_status
-        ),
-
-        // ORDER STATUS
-
-        pdfText(
-          order.status
-        ),
-
-        // TRACKING NUMBER
-
-        pdfText(
-          order.tracking_number
-        ),
-
-        // DATE AND TIME
-
-        displayPDFDate(
-          order.created_at
-        )
-
-      ]);
+        ]);
 
       // ====================================================
-      // GENERATE PROFESSIONAL PDF TABLE
+      // RESPONSIVE PDF COLUMN WIDTHS
+      //
+      // BASE WIDTH: 277 MM
+      // WIDTHS ARE SCALED TO THE ACTUAL A4 PAGE WIDTH
+      // ====================================================
+
+      const baseWidths = [
+
+        19, // ORDER ID
+        32, // CUSTOMER
+        48, // EMAIL
+        28, // PHONE
+        25, // AMOUNT
+        18, // METHOD
+        20, // PAYMENT
+        27, // STATUS
+        32, // TRACKING
+        28  // DATE
+
+      ];
+
+      const baseTotal =
+        baseWidths.reduce(
+          (sum, width) => sum + width,
+          0
+        );
+
+      const columnWidth = index =>
+
+        contentWidth *
+        (baseWidths[index] / baseTotal);
+
+      // ====================================================
+      // GENERATE PDF TABLE
       // ====================================================
 
       doc.autoTable({
 
-        startY: 79,
+        startY: 73,
 
         theme: "grid",
-
-        // TABLE HEADINGS
 
         head: [[
 
           "Order ID",
-
           "Customer",
-
           "Email",
-
           "Phone",
-
           "Amount",
-
           "Method",
-
           "Payment",
-
           "Status",
-
           "Tracking",
-
           "Date (PHT)"
 
         ]],
 
         body: rows,
 
-        // TABLE WIDTH
-
         tableWidth: contentWidth,
 
-        // GENERAL CELL STYLING
+        // GENERAL TABLE DESIGN
 
         styles: {
 
@@ -1727,13 +2078,13 @@
 
           cellPadding: {
 
-            top: 3,
+            top: 2.2,
 
-            right: 2,
+            right: 1.5,
 
-            bottom: 3,
+            bottom: 2.2,
 
-            left: 2
+            left: 1.5
 
           },
 
@@ -1743,7 +2094,7 @@
 
         },
 
-        // TABLE HEADERS
+        // TABLE HEADINGS
 
         headStyles: {
 
@@ -1759,31 +2110,27 @@
 
           halign: "left",
 
-          minCellHeight: 11,
+          minCellHeight: 9,
 
           cellPadding: {
 
-            top: 3,
+            top: 2,
 
-            right: 2,
+            right: 1.5,
 
-            bottom: 3,
+            bottom: 2,
 
-            left: 2
+            left: 1.5
 
           }
 
         },
-
-        // TABLE BODY
 
         bodyStyles: {
 
           fillColor: [255, 255, 255]
 
         },
-
-        // ALTERNATING ROW COLORS
 
         alternateRowStyles: {
 
@@ -1792,68 +2139,81 @@
         },
 
         // ==================================================
-        // FIXED COLUMN WIDTHS
-        // TOTAL WIDTH: 277 MM
-        // A4 LANDSCAPE: 297 MM
-        // LEFT AND RIGHT MARGINS: 10 MM
+        // COLUMN WIDTH SETTINGS
         // ==================================================
 
         columnStyles: {
 
-          // ORDER ID
           0: {
-            cellWidth: 19,
+
+            cellWidth: columnWidth(0),
+
             fontStyle: "bold"
+
           },
 
-          // CUSTOMER NAME
           1: {
-            cellWidth: 32
+
+            cellWidth: columnWidth(1)
+
           },
 
-          // EMAIL ADDRESS
           2: {
-            cellWidth: 48,
+
+            cellWidth: columnWidth(2),
+
             fontSize: 7.5
+
           },
 
-          // PHONE NUMBER
           3: {
-            cellWidth: 28
+
+            cellWidth: columnWidth(3)
+
           },
 
-          // AMOUNT
           4: {
-            cellWidth: 25,
+
+            cellWidth: columnWidth(4),
+
             halign: "right",
+
             fontStyle: "bold"
+
           },
 
-          // PAYMENT METHOD
           5: {
-            cellWidth: 18
+
+            cellWidth: columnWidth(5)
+
           },
 
-          // PAYMENT STATUS
           6: {
-            cellWidth: 20
+
+            cellWidth: columnWidth(6)
+
           },
 
-          // ORDER STATUS
           7: {
-            cellWidth: 27
+
+            cellWidth: columnWidth(7)
+
           },
 
-          // TRACKING NUMBER
           8: {
-            cellWidth: 32,
+
+            cellWidth: columnWidth(8),
+
             fontSize: 7.5
+
           },
 
-          // DATE AND TIME
           9: {
-            cellWidth: 28,
+
+            cellWidth: columnWidth(9),
+
             fontSize: 7.5
+
           }
 
         },
@@ -1872,8 +2232,6 @@
 
         },
 
-        // KEEP TABLE HEADER ON EVERY PAGE
-
         showHead: "everyPage",
 
         pageBreak: "auto",
@@ -1881,7 +2239,7 @@
         rowPageBreak: "avoid",
 
         // ==================================================
-        // PDF CELL COLOR FORMATTING
+        // PAYMENT AND ORDER STATUS COLORS
         // ==================================================
 
         didParseCell(data) {
@@ -1898,7 +2256,7 @@
               .trim()
               .toLowerCase();
 
-          // PAYMENT STATUS COLORS
+          // PAYMENT STATUS
 
           if (columnIndex === 6) {
 
@@ -1940,7 +2298,7 @@
 
           }
 
-          // ORDER STATUS COLORS
+          // ORDER STATUS
 
           if (columnIndex === 7) {
 
@@ -2007,20 +2365,16 @@
       });
 
       // ====================================================
-      // AUTOMATIC PAGE FOOTER AND PAGE NUMBERS
+      // AUTOMATIC PAGE NUMBERING
       // ====================================================
 
       const totalPages =
         doc.internal.getNumberOfPages();
 
       for (
-
         let page = 1;
-
         page <= totalPages;
-
         page++
-
       ) {
 
         doc.setPage(page);
@@ -2135,7 +2489,7 @@
       }
 
       // ====================================================
-      // SAVE FILTERED PDF REPORT
+      // DOWNLOAD PDF
       // ====================================================
 
       doc.save(
@@ -2185,7 +2539,7 @@
   }
 
   // ========================================================
-  // 24. UNIFIED ADMIN LOGOUT MODAL
+  // 27. UNIFIED ADMIN LOGOUT MODAL
   // ========================================================
 
   function setupAdminLogout() {
@@ -2215,7 +2569,7 @@
     let modal =
       $("adminLogoutModal");
 
-    // CREATE NATIVE HTML DIALOG IF NEEDED
+    // CREATE NATIVE DIALOG IF NEEDED
 
     if (!(modal instanceof HTMLDialogElement)) {
 
@@ -2239,7 +2593,7 @@
 
     }
 
-    // APPLY UNIFIED LOGOUT CLASS
+    // UNIFIED LOGOUT MODAL
 
     modal.id =
       "adminLogoutModal";
@@ -2252,13 +2606,19 @@
     modal.removeAttribute("style");
 
     modal.setAttribute(
+
       "aria-labelledby",
+
       "adminLogoutTitle"
+
     );
 
     modal.setAttribute(
+
       "aria-describedby",
+
       "adminLogoutDescription"
+
     );
 
     if (modal.open) {
@@ -2324,7 +2684,9 @@
       $("adminCancelLogout");
 
     let previousOverflow = "";
+
     let loggingOut = false;
+
     let outsidePress = false;
 
     // OPEN LOGOUT MODAL
@@ -2334,11 +2696,9 @@
       event.preventDefault();
 
       if (
-
         modal.open ||
         loggingOut ||
         exporting
-
       ) {
         return;
       }
@@ -2362,12 +2722,14 @@
       if (loggingOut) return;
 
       if (modal.open) {
+
         modal.close();
+
       }
 
     }
 
-    // DETECT OUTSIDE CLICK
+    // OUTSIDE CLICK DETECTION
 
     function isOutsideModal(event) {
 
@@ -2381,8 +2743,11 @@
         (
 
           event.clientX < rect.left ||
+
           event.clientX > rect.right ||
+
           event.clientY < rect.top ||
+
           event.clientY > rect.bottom
 
         )
@@ -2391,24 +2756,32 @@
 
     }
 
-    // LOGOUT BUTTON
+    // OPEN LOGOUT EVENT
 
     logoutButton.addEventListener(
+
       "click",
+
       openLogoutModal
+
     );
 
-    // CANCEL BUTTON
+    // CANCEL LOGOUT
 
     cancelButton.addEventListener(
+
       "click",
+
       closeLogoutModal
+
     );
 
-    // ESCAPE KEY SUPPORT
+    // ESCAPE KEY
 
     modal.addEventListener(
+
       "cancel",
+
       event => {
 
         event.preventDefault();
@@ -2416,22 +2789,28 @@
         closeLogoutModal();
 
       }
+
     );
 
-    // OUTSIDE CLICK SUPPORT
+    // OUTSIDE CLICK
 
     modal.addEventListener(
+
       "pointerdown",
+
       event => {
 
         outsidePress =
           isOutsideModal(event);
 
       }
+
     );
 
     modal.addEventListener(
+
       "click",
+
       event => {
 
         if (
@@ -2446,12 +2825,15 @@
         outsidePress = false;
 
       }
+
     );
 
-    // RESTORE PAGE AFTER CLOSING
+    // RESTORE BODY SCROLL
 
     modal.addEventListener(
+
       "close",
+
       () => {
 
         document.body.style.overflow =
@@ -2462,6 +2844,7 @@
         if (!loggingOut) {
 
           confirmButton.disabled = false;
+
           cancelButton.disabled = false;
 
           logoutButton.focus();
@@ -2469,24 +2852,33 @@
         }
 
       }
+
     );
 
     // CONFIRM ADMIN LOGOUT
 
     confirmButton.addEventListener(
+
       "click",
+
       () => {
 
-        if (loggingOut || exporting) {
+        if (
+          loggingOut ||
+          exporting
+        ) {
           return;
         }
 
         loggingOut = true;
 
         confirmButton.disabled = true;
+
         cancelButton.disabled = true;
 
         try {
+
+          // REMOVE ADMIN SESSION ONLY
 
           clearAdminSession();
 
@@ -2501,21 +2893,29 @@
           loggingOut = false;
 
           confirmButton.disabled = false;
+
           cancelButton.disabled = false;
 
           console.error(
+
             "ADMIN LOGOUT ERROR:",
+
             error
+
           );
 
           window.alert(
+
             "Unable to clear the admin session. " +
+
             "Please try again."
+
           );
 
         }
 
       }
+
     );
 
     logoutButton.dataset.jcnLogoutReady =
@@ -2528,7 +2928,7 @@
   }
 
   // ========================================================
-  // 25. REPORT HISTORY SCROLL RESET
+  // 28. REPORT HISTORY SCROLL RESET
   // ========================================================
 
   function resetReportHistoryScroll() {
@@ -2550,12 +2950,16 @@
   }
 
   // ========================================================
-  // 26. REPORT EVENTS
+  // 29. REPORT EVENTS
   // ========================================================
 
   function setupReportEvents() {
 
-    // REPORT HISTORY STATUS FILTER
+    // DAILY REPORT MODAL
+
+    setupDailyReport();
+
+    // REPORT HISTORY FILTER
 
     $("reportHistoryFilter")?.addEventListener(
 
@@ -2571,7 +2975,7 @@
 
     );
 
-    // OPEN REPORT HISTORY MODAL
+    // OPEN REPORT HISTORY
 
     $("reportHistoryModal")?.addEventListener(
 
@@ -2596,7 +3000,7 @@
 
     );
 
-    // MODAL SHOWN
+    // REPORT HISTORY SHOWN
 
     $("reportHistoryModal")?.addEventListener(
 
@@ -2611,8 +3015,7 @@
     );
 
     // ======================================================
-    // EXPORT REPORT DROPDOWN OPTIONS
-    // TODAY / WEEK / MONTH / ALL
+    // THIS WEEK / THIS MONTH EXPORT
     // ======================================================
 
     document
@@ -2642,25 +3045,15 @@
             const range =
               button.dataset.exportRange;
 
-            // CLOSE DROPDOWN BEFORE EXPORTING
-
-            const exportButton =
-              $("exportReportBtn");
+            // ALLOW WEEK AND MONTH ONLY
 
             if (
-              exportButton &&
-              window.bootstrap?.Dropdown
+              !["week", "month"].includes(range)
             ) {
-
-              const dropdown =
-                window.bootstrap.Dropdown
-                  .getInstance(exportButton);
-
-              dropdown?.hide();
-
+              return;
             }
 
-            // GENERATE SELECTED REPORT
+            closeExportDropdown();
 
             exportReport(range);
 
@@ -2679,8 +3072,11 @@
       () => {
 
         if (
+
           !reportLoading &&
+
           !exporting
+
         ) {
 
           loadReports();
@@ -2694,7 +3090,7 @@
   }
 
   // ========================================================
-  // 27. INITIALIZE ADMIN REPORTS
+  // 30. INITIALIZE ADMIN REPORTS
   // ========================================================
 
   function init() {
@@ -2705,7 +3101,7 @@
 
     initialized = true;
 
-    // INITIALIZE ADMIN LOGOUT
+    // INITIALIZE LOGOUT
 
     setupAdminLogout();
 
@@ -2733,14 +3129,14 @@
 
     console.log(
 
-      "[JCN Admin] Reports initialized."
+      "[JCN Admin] Reports Version 16 initialized."
 
     );
 
   }
 
   // ========================================================
-  // 28. DOM READY
+  // 31. DOM READY
   // ========================================================
 
   if (document.readyState === "loading") {
