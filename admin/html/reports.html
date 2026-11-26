@@ -28,7 +28,7 @@
   <!-- REPORTS CSS -->
   <link
     rel="stylesheet"
-    href="../css/reports.css?v=13"
+    href="../css/reports.css?v=14"
   >
 
   <!-- GLOBAL ADMIN THEME CSS -->
@@ -431,9 +431,53 @@
           aria-labelledby="summaryTitle"
         >
 
-          <h3 id="summaryTitle">
-            Recent Report Summary
-          </h3>
+          <!-- RECENT REPORT HEADER -->
+
+          <div class="report-history-heading">
+
+            <h3 id="summaryTitle">
+              Recent Report Summary
+            </h3>
+
+            <!-- VIEW ALL BUTTON -->
+
+            <button
+              id="viewAllReportsBtn"
+              class="btn btn-outline"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#reportHistoryModal"
+              disabled
+            >
+
+              View All
+
+              <i
+                class="fa-solid fa-arrow-right"
+                aria-hidden="true"
+              ></i>
+
+            </button>
+
+          </div>
+
+          <!-- TODAY'S REPORTS -->
+
+          <div class="report-today-heading">
+
+            <span>
+
+              <i class="fa-solid fa-calendar-day text-gold"></i>
+
+              Today's Reports
+
+            </span>
+
+            <span id="todayReportDate"></span>
+
+          </div>
+
+          <!-- TODAY'S REPORT TABLE -->
 
           <div class="table-responsive">
 
@@ -495,9 +539,191 @@
 
           </div>
 
+          <!-- TODAY'S REPORT COUNT -->
+
+          <p
+            id="todayReportCount"
+            class="muted report-today-count"
+            aria-live="polite"
+          ></p>
+
         </section>
 
       </main>
+
+    </div>
+
+  </div>
+
+  <!-- ==================================================
+       REPORT HISTORY MODAL
+  =================================================== -->
+
+  <div
+    id="reportHistoryModal"
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="reportHistoryTitle"
+    aria-hidden="true"
+  >
+
+    <div
+      class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    >
+
+      <div class="modal-content">
+
+        <!-- =============================================
+             REPORT HISTORY HEADER
+        ============================================== -->
+
+        <div class="modal-header">
+
+          <h2 id="reportHistoryTitle">
+
+            <i class="fa-solid fa-clock-rotate-left text-gold"></i>
+
+            Report History
+
+          </h2>
+
+          <!-- CLOSE MODAL BUTTON -->
+
+          <button
+            type="button"
+            class="report-history-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          >
+
+            <i class="fa-solid fa-xmark"></i>
+
+          </button>
+
+        </div>
+
+        <!-- =============================================
+             REPORT HISTORY FILTER
+        ============================================== -->
+
+        <div class="report-history-tools">
+
+          <label for="reportHistoryFilter">
+            Order status
+          </label>
+
+          <select id="reportHistoryFilter">
+
+            <option value="all">
+              All
+            </option>
+
+            <option value="preparing">
+              Preparing
+            </option>
+
+            <option value="pending payment">
+              Pending Payment
+            </option>
+
+            <option value="to deliver">
+              To Deliver
+            </option>
+
+            <option value="completed">
+              Completed
+            </option>
+
+            <option value="cancelled">
+              Cancelled
+            </option>
+
+            <option value="other">
+              Other statuses
+            </option>
+
+          </select>
+
+        </div>
+
+        <!-- =============================================
+             SCROLLABLE REPORT HISTORY TABLE
+        ============================================== -->
+
+        <div
+          class="modal-body"
+          tabindex="0"
+          role="region"
+          aria-label="Report history table"
+        >
+
+          <table class="table report-table align-middle">
+
+            <thead>
+
+              <tr>
+
+                <th scope="col">
+                  Report ID
+                </th>
+
+                <th scope="col">
+                  Type
+                </th>
+
+                <th scope="col">
+                  Date
+                </th>
+
+                <th scope="col">
+                  Amount
+                </th>
+
+                <th scope="col">
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <!-- ALL AVAILABLE REPORT RECORDS -->
+
+            <tbody id="allReportTable"></tbody>
+
+          </table>
+
+        </div>
+
+        <!-- =============================================
+             REPORT HISTORY FOOTER
+        ============================================== -->
+
+        <div class="modal-footer">
+
+          <!-- REPORT COUNT -->
+
+          <small
+            id="reportHistoryCount"
+            class="muted me-auto"
+            aria-live="polite"
+          ></small>
+
+          <!-- CLOSE BUTTON -->
+
+          <button
+            type="button"
+            class="btn btn-gold"
+            data-bs-dismiss="modal"
+          >
+
+            Close
+
+          </button>
+
+        </div>
+
+      </div>
 
     </div>
 
@@ -609,7 +835,7 @@
 
   <!-- REPORTS JAVASCRIPT -->
 
-  <script src="../js/reports.js?v=13"></script>
+  <script src="../js/reports.js?v=14"></script>
 
 </body>
 

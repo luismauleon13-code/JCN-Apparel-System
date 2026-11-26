@@ -1,17 +1,22 @@
+
 /* ==========================================================
    JCN APPAREL PRINTING SERVICES
-   ADMIN REPORTS
-   WITH UNIFIED ADMIN LOGOUT MODAL
+   ADMIN - BUSINESS REPORTS
+   TODAY'S REPORTS & REPORT HISTORY
+   PDF EXPORT & UNIFIED LOGOUT
 ========================================================== */
 
 (() => {
 
-  /* ==========================================================
-     01. API CONFIGURATION
-  ========================================================== */
+  // ========================================================
+  // 01. API CONFIGURATION
+  // ========================================================
 
   const REPORTS_API = "/api/admin/reports";
   const LOGIN_PAGE = "admin-login.html";
+
+  const REPORT_TIMEZONE = "Asia/Manila";
+  const TODAY_REPORT_LIMIT = 3;
 
   const $ = id => document.getElementById(id);
 
@@ -22,39 +27,49 @@
   let initialized = false;
 
 
-  /* ==========================================================
-     02. ADMIN SESSION
-  ========================================================== */
+  // ========================================================
+  // 02. ADMIN SESSION
+  // ========================================================
 
   function clearAdminSession() {
+
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("admin");
 
-    // Preserve admin and customer theme preferences.
-    // Do not use localStorage.clear().
+    // Preserve existing theme preferences.
+
   }
 
   function redirectToLogin() {
+
     clearAdminSession();
+
     window.location.replace(LOGIN_PAGE);
+
   }
 
   function checkAdminSession() {
+
     if (!localStorage.getItem("adminToken")) {
+
       redirectToLogin();
+
       return false;
+
     }
 
     return true;
+
   }
 
 
-  /* ==========================================================
-     03. FORMAT CURRENCY
-  ========================================================== */
+  // ========================================================
+  // 03. FORMAT CURRENCY
+  // ========================================================
 
   function peso(value) {
+
     const amount = Number(value || 0);
 
     return `₱${(
@@ -63,9 +78,11 @@
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })}`;
+
   }
 
   function pesoPDF(value) {
+
     const amount = Number(value || 0);
 
     return `PHP ${(
@@ -74,73 +91,141 @@
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })}`;
+
   }
 
 
-  /* ==========================================================
-     04. SET ELEMENT TEXT
-  ========================================================== */
+  // ========================================================
+  // 04. SET ELEMENT TEXT
+  // ========================================================
 
   function setText(id, value) {
+
     const element = $(id);
 
     if (element) {
+
       element.textContent = value;
+
     }
+
   }
 
 
-  /* ==========================================================
-     05. FORMAT DATE
-  ========================================================== */
+  // ========================================================
+  // 05. FORMAT DATE - PHILIPPINE TIME
+  // ========================================================
 
   function displayDate(value, includeTime = false) {
+
     if (!value) return "N/A";
 
     const date = new Date(value);
 
     if (Number.isNaN(date.getTime())) {
+
       return "N/A";
+
     }
 
     const options = {
-      timeZone: "Asia/Manila"
+      timeZone: REPORT_TIMEZONE
     };
 
     return includeTime
       ? date.toLocaleString("en-PH", options)
       : date.toLocaleDateString("en-PH", options);
+
   }
 
 
-  /* ==========================================================
-     06. UPDATE BUTTON STATES
-  ========================================================== */
+  // ========================================================
+  // 06. TODAY'S DATE FORMATTER
+  // ========================================================
+
+  const reportDateFormatter = new Intl.DateTimeFormat(
+    "en-PH",
+    {
+      timeZone: REPORT_TIMEZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
+  );
+
+  function reportDateKey(value) {
+
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+
+      return "";
+
+    }
+
+    return reportDateFormatter.format(date);
+
+  }
+
+
+  // ========================================================
+  // 07. UPDATE BUTTON STATES
+  // ========================================================
 
   function updateControls() {
+
     const exportButton = $("exportReportBtn");
-    const logoutButton = $("adminLogoutBtn") || $("logoutBtn");
+
+    const historyButton = $("viewAllReportsBtn");
+
+    const logoutButton =
+      $("adminLogoutBtn") || $("logoutBtn");
+
+    // EXPORT BUTTON
 
     if (exportButton) {
+
       exportButton.disabled =
         reportLoading ||
         exporting ||
         !reportLoaded ||
         reportOrders.length === 0;
+
     }
 
-    if (logoutButton) {
-      logoutButton.disabled = exporting;
+    // VIEW ALL REPORTS
+
+    if (historyButton) {
+
+      historyButton.disabled =
+        reportLoading || !reportLoaded;
+
     }
+
+    // LOGOUT BUTTON
+
+    if (logoutButton) {
+
+      logoutButton.disabled = exporting;
+
+    }
+
   }
 
 
-  /* ==========================================================
-     07. REPORT TABLE MESSAGE
-  ========================================================== */
+  // ========================================================
+  // 08. REPORT TABLE MESSAGE
+  // ========================================================
 
-  function tableMessage(message, isError = false) {
-    const table = $("reportTable");
+  function tableMessage(
+    message,
+    isError = false,
+    tableId = "reportTable"
+  ) {
+
+    const table = $(tableId);
 
     if (!table) return;
 
@@ -156,15 +241,18 @@
     cell.textContent = message;
 
     row.append(cell);
+
     table.replaceChildren(row);
+
   }
 
 
-  /* ==========================================================
-     08. REPORT STATUS BADGES
-  ========================================================== */
+  // ========================================================
+  // 09. REPORT STATUS BADGES
+  // ========================================================
 
   function getStatusClass(status) {
+
     const normalized = String(status || "")
       .trim()
       .toLowerCase();
@@ -173,94 +261,347 @@
 
       case "completed":
       case "delivered":
+
         return "status-badge badge-success";
+
 
       case "cancelled":
       case "canceled":
+
         return "status-badge badge-danger";
+
 
       case "processing":
       case "preparing":
+
         return "status-badge badge-warning";
+
 
       case "to deliver":
       case "to ship":
       case "to receive":
+
         return "status-badge badge-info";
 
+
+      case "pending payment":
       case "pending":
+
         return "status-badge badge-pending";
 
+
       default:
+
         return "status-badge";
+
     }
+
   }
 
 
-  /* ==========================================================
-     09. RENDER RECENT REPORT SUMMARY
-  ========================================================== */
+  // ========================================================
+  // 10. REPORT STATUS FILTER GROUPS
+  // ========================================================
 
-  function renderReportTable() {
-    const table = $("reportTable");
+  function reportStatusGroup(order) {
+
+    const status = String(order.status || "")
+      .trim()
+      .toLowerCase();
+
+    if (
+      ["preparing", "processing"].includes(status)
+    ) {
+
+      return "preparing";
+
+    }
+
+    if (
+      ["pending", "pending payment"].includes(status)
+    ) {
+
+      return "pending payment";
+
+    }
+
+    if (
+      [
+        "to deliver",
+        "to ship",
+        "to receive"
+      ].includes(status)
+    ) {
+
+      return "to deliver";
+
+    }
+
+    if (
+      ["completed", "delivered"].includes(status)
+    ) {
+
+      return "completed";
+
+    }
+
+    if (
+      ["cancelled", "canceled"].includes(status)
+    ) {
+
+      return "cancelled";
+
+    }
+
+    return "other";
+
+  }
+
+
+  // ========================================================
+  // 11. SORT REPORTS - NEWEST FIRST
+  // ========================================================
+
+  function sortedReportOrders() {
+
+    const timestamp = order => {
+
+      const value = order.created_at
+        ? Date.parse(order.created_at)
+        : NaN;
+
+      return Number.isFinite(value)
+        ? value
+        : -Infinity;
+
+    };
+
+    return [...reportOrders].sort((a, b) => {
+
+      const first = timestamp(a);
+      const second = timestamp(b);
+
+      return first === second
+        ? 0
+        : second > first
+          ? 1
+          : -1;
+
+    });
+
+  }
+
+
+  // ========================================================
+  // 12. RENDER REPORT TABLE ROWS
+  // ========================================================
+
+  function renderReportRows(
+    tableId,
+    orders,
+    emptyMessage
+  ) {
+
+    const table = $(tableId);
 
     if (!table) return;
 
-    if (!reportOrders.length) {
-      tableMessage("No report data found.");
+    // EMPTY TABLE
+
+    if (!orders.length) {
+
+      tableMessage(
+        emptyMessage,
+        false,
+        tableId
+      );
+
       return;
+
     }
 
-    const fragment = document.createDocumentFragment();
+    const fragment =
+      document.createDocumentFragment();
 
-    reportOrders.slice(0, 10).forEach(order => {
+    orders.forEach(order => {
 
-      const row = document.createElement("tr");
+      const row =
+        document.createElement("tr");
+
+      // REPORT INFORMATION
 
       const values = [
+
         `#${String(order.id || "").slice(0, 8)}`,
+
         "Order Report",
+
         displayDate(order.created_at),
+
         peso(order.total_amount)
+
       ];
 
-
-      /* REPORT INFORMATION */
+      // CREATE TABLE CELLS
 
       values.forEach(value => {
-        const cell = document.createElement("td");
+
+        const cell =
+          document.createElement("td");
 
         cell.textContent = value;
 
         row.append(cell);
+
       });
 
+      // STATUS BADGE
 
-      /* ORDER STATUS */
+      const statusCell =
+        document.createElement("td");
 
-      const statusCell = document.createElement("td");
-      const badge = document.createElement("span");
+      const badge =
+        document.createElement("span");
 
-      badge.className = getStatusClass(order.status);
+      badge.className =
+        getStatusClass(order.status);
 
-      badge.textContent = order.status || "N/A";
+      badge.textContent =
+        order.status || "N/A";
 
       statusCell.append(badge);
 
       row.append(statusCell);
 
       fragment.append(row);
+
     });
 
     table.replaceChildren(fragment);
+
   }
 
 
-  /* ==========================================================
-     10. MONTHLY SALES CHART
-  ========================================================== */
+  // ========================================================
+  // 13. TODAY'S RECENT REPORT SUMMARY
+  // ========================================================
+
+  function renderReportTable() {
+
+    const today =
+      reportDateKey(new Date());
+
+    // FILTER TODAY'S REPORTS
+
+    const todayOrders =
+      sortedReportOrders().filter(order => {
+
+        return reportDateKey(
+          order.created_at
+        ) === today;
+
+      });
+
+    // DISPLAY TODAY'S DATE
+
+    setText(
+      "todayReportDate",
+      today
+    );
+
+    // DISPLAY MAXIMUM OF THREE REPORTS
+
+    const visibleOrders = todayOrders.slice(
+      0,
+      TODAY_REPORT_LIMIT
+    );
+
+    // RENDER TODAY'S TABLE
+
+    renderReportRows(
+      "reportTable",
+      visibleOrders,
+      "No reports today."
+    );
+
+    // DISPLAY TODAY'S REPORT COUNT
+
+    if (todayOrders.length > 0) {
+
+      setText(
+        "todayReportCount",
+
+        `Showing ${visibleOrders.length} ` +
+        `of ${todayOrders.length} available reports today`
+
+      );
+
+    } else {
+
+      setText(
+        "todayReportCount",
+        ""
+      );
+
+    }
+
+    // UPDATE COMPLETE REPORT HISTORY
+
+    renderReportHistory();
+
+  }
+
+
+  // ========================================================
+  // 14. RENDER ALL AVAILABLE REPORT HISTORY
+  // ========================================================
+
+  function renderReportHistory() {
+
+    const filter =
+      $("reportHistoryFilter")?.value || "all";
+
+    // GET FILTERED REPORTS
+
+    const filteredOrders =
+      sortedReportOrders().filter(order => {
+
+        return filter === "all" ||
+          reportStatusGroup(order) === filter;
+
+      });
+
+    // RENDER REPORT HISTORY TABLE
+
+    renderReportRows(
+
+      "allReportTable",
+
+      filteredOrders,
+
+      "No reports found in this category."
+
+    );
+
+    // UPDATE REPORT HISTORY COUNT
+
+    setText(
+
+      "reportHistoryCount",
+
+      `${filteredOrders.length} available reports`
+
+    );
+
+  }
+
+
+  // ========================================================
+  // 15. MONTHLY SALES CHART
+  // ========================================================
 
   function renderMonthlySalesChart() {
+
     const chart = $("monthlySalesChart");
 
     if (!chart) return;
@@ -268,6 +609,7 @@
     const monthlySales = Array(12).fill(0);
 
     const months = [
+
       "Jan",
       "Feb",
       "Mar",
@@ -280,73 +622,85 @@
       "Oct",
       "Nov",
       "Dec"
+
     ];
 
+    // PHILIPPINE MONTH FORMAT
 
-    /* PHILIPPINE MONTH FORMAT */
+    const monthFormatter =
+      new Intl.DateTimeFormat("en-US", {
 
-    const monthFormatter = new Intl.DateTimeFormat(
-      "en-US",
-      {
-        timeZone: "Asia/Manila",
+        timeZone: REPORT_TIMEZONE,
+
         month: "numeric"
-      }
-    );
 
+      });
 
-    /* CALCULATE COMPLETED ORDER SALES */
+    // COMPLETED ORDER SALES ONLY
 
     reportOrders.forEach(order => {
+
       if (
         order.status !== "Completed" ||
         !order.created_at
       ) {
+
         return;
+
       }
 
-      const date = new Date(order.created_at);
+      const date =
+        new Date(order.created_at);
 
-      const amount = Number(order.total_amount || 0);
+      const amount =
+        Number(order.total_amount || 0);
 
       if (
         Number.isNaN(date.getTime()) ||
         !Number.isFinite(amount)
       ) {
+
         return;
+
       }
 
       const monthIndex =
         Number(monthFormatter.format(date)) - 1;
 
       monthlySales[monthIndex] += amount;
+
     });
 
-
-    /* CALCULATE MAXIMUM SALES */
+    // MAXIMUM SALES VALUE
 
     const maxSales = Math.max(
       ...monthlySales,
       1
     );
 
-    const fragment = document.createDocumentFragment();
+    const fragment =
+      document.createDocumentFragment();
 
-
-    /* GENERATE MONTHLY CHART BARS */
+    // GENERATE MONTHLY SALES BARS
 
     months.forEach((month, index) => {
 
-      const bar = document.createElement("div");
-      const value = document.createElement("small");
-      const label = document.createElement("span");
+      const bar =
+        document.createElement("div");
 
-      const sales = monthlySales[index];
+      const value =
+        document.createElement("small");
+
+      const label =
+        document.createElement("span");
+
+      const sales =
+        monthlySales[index];
 
       const percentage =
         (sales / maxSales) * 100;
 
-
-      /* BAR DESIGN */
+      // BAR DESIGN
 
       bar.className = "bar";
 
@@ -363,213 +717,327 @@
         bar.title
       );
 
-
-      /* SALES AMOUNT */
+      // SALES VALUE
 
       value.className = "bar-value";
 
       value.textContent = peso(sales);
 
-
-      /* MONTH LABEL */
+      // MONTH LABEL
 
       label.textContent = month;
 
-
-      /* APPEND CHART ELEMENTS */
+      // APPEND CHART COMPONENTS
 
       bar.append(value, label);
 
       fragment.append(bar);
+
     });
 
     chart.replaceChildren(fragment);
+
   }
 
 
-  /* ==========================================================
-     11. RESET REPORT SUMMARY
-  ========================================================== */
+  // ========================================================
+  // 16. RESET REPORT SUMMARY
+  // ========================================================
 
   function resetReportSummary() {
+
     setText("reportTotalSales", peso(0));
+
     setText("reportTotalOrders", 0);
+
     setText("reportTotalUsers", 0);
+
     setText("reportDelivered", 0);
 
     setText("statusPreparing", 0);
+
     setText("statusToDeliver", 0);
+
     setText("statusCompleted", 0);
+
     setText("statusCancelled", 0);
+
   }
 
 
-  /* ==========================================================
-     12. LOAD REPORT DATA
-  ========================================================== */
+  // ========================================================
+  // 17. LOAD REPORT DATA
+  // ========================================================
 
   async function loadReports() {
-    if (!$("reportTable") || reportLoading) return;
+
+    if (!$("reportTable") || reportLoading) {
+
+      return;
+
+    }
 
     if (!checkAdminSession()) return;
 
     reportLoading = true;
+
     reportLoaded = false;
+
     reportOrders = [];
 
     updateControls();
 
-    tableMessage("Loading report data...");
+    // LOADING STATE
+
+    tableMessage(
+      "Loading report data..."
+    );
+
+    setText(
+      "todayReportCount",
+      ""
+    );
+
+    setText(
+      "todayReportDate",
+      reportDateKey(new Date())
+    );
+
+    tableMessage(
+      "Loading report data...",
+      false,
+      "allReportTable"
+    );
+
+    setText(
+      "reportHistoryCount",
+      ""
+    );
 
     try {
 
-      /* GET ADMIN TOKEN */
+      // GET ADMIN TOKEN
 
-      const token = localStorage.getItem("adminToken");
+      const token =
+        localStorage.getItem("adminToken");
 
-
-      /* SEND API REQUEST */
+      // SEND API REQUEST
 
       const response = await fetch(REPORTS_API, {
+
         method: "GET",
 
         cache: "no-store",
 
         headers: {
+
           Accept: "application/json",
+
           Authorization: `Bearer ${token}`
+
         }
+
       });
 
-
-      /* EXPIRED ADMIN SESSION */
+      // EXPIRED ADMIN SESSION
 
       if (response.status === 401) {
+
         redirectToLogin();
+
         return;
+
       }
 
-
-      /* PARSE SERVER RESPONSE */
+      // PARSE RESPONSE
 
       let data;
 
       try {
+
         data = await response.json();
 
       } catch {
+
         throw new Error(
+
           "The server returned an unexpected response. " +
+
           "Check the reports API."
+
         );
+
       }
 
-
-      /* CHECK ADMIN PERMISSION */
+      // CHECK ADMIN PERMISSION
 
       if (response.status === 403) {
+
         throw new Error(
+
           data.message ||
+
           "You do not have permission to view reports."
+
         );
+
       }
 
-
-      /* VALIDATE SERVER RESPONSE */
+      // VALIDATE API RESPONSE
 
       if (!response.ok || !data.success) {
+
         throw new Error(
+
           data.message || "Cannot load reports."
+
         );
+
       }
+
+      // VALIDATE ORDER LIST
 
       if (!Array.isArray(data.orders)) {
+
         throw new Error(
+
           "The server did not return a valid order list."
+
         );
+
       }
 
-
-      /* SAVE ORDER RECORDS */
+      // SAVE ALL ORDER RECORDS
 
       reportOrders = data.orders;
 
-
-      /* PERFORMANCE OVERVIEW */
+      // ====================================================
+      // PERFORMANCE OVERVIEW
+      // ====================================================
 
       setText(
+
         "reportTotalSales",
+
         peso(data.totalSales)
+
       );
 
       setText(
+
         "reportTotalOrders",
+
         data.totalOrders ?? 0
+
       );
 
       setText(
+
         "reportTotalUsers",
+
         data.totalUsers ?? 0
+
       );
 
       setText(
+
         "reportDelivered",
+
         data.delivered ?? 0
+
       );
 
-
-      /* ORDER STATUS COUNTS */
+      // ====================================================
+      // ORDER STATUS COUNTS
+      // ====================================================
 
       setText(
+
         "statusPreparing",
+
         data.statusCounts?.Preparing ?? 0
+
       );
 
       setText(
+
         "statusToDeliver",
+
         data.statusCounts?.["To Deliver"] ?? 0
+
       );
 
       setText(
+
         "statusCompleted",
+
         data.statusCounts?.Completed ?? 0
+
       );
 
       setText(
+
         "statusCancelled",
+
         data.statusCounts?.Cancelled ?? 0
+
       );
 
-
-      /* RENDER REPORT MODULE */
+      // RENDER TODAY'S REPORTS AND REPORT HISTORY
 
       renderReportTable();
 
+      // RENDER MONTHLY SALES CHART
+
       renderMonthlySalesChart();
 
-
-      /* MARK REPORT AS LOADED */
+      // REPORT DATA LOADED SUCCESSFULLY
 
       reportLoaded = true;
 
     } catch (error) {
 
       console.error(
+
         "Reports loading error:",
+
         error
+
       );
 
       reportOrders = [];
+
       reportLoaded = false;
 
       resetReportSummary();
 
       renderMonthlySalesChart();
 
-      tableMessage(
+      const errorMessage =
+
         `${error.message || "Cannot load reports."} ` +
-        "Check the server and refresh this page.",
+
+        "Check the server and refresh this page.";
+
+      tableMessage(
+        errorMessage,
         true
+      );
+
+      tableMessage(
+        errorMessage,
+        true,
+        "allReportTable"
+      );
+
+      setText(
+        "todayReportCount",
+        ""
+      );
+
+      setText(
+        "reportHistoryCount",
+        ""
       );
 
     } finally {
@@ -577,21 +1045,26 @@
       reportLoading = false;
 
       updateControls();
+
     }
+
   }
 
 
-  /* ==========================================================
-     13. GLOBAL NOTIFICATION
-  ========================================================== */
+  // ========================================================
+  // 18. GLOBAL NOTIFICATION
+  // ========================================================
 
   function showNotification(
     icon,
     title,
     message
   ) {
+
     if (window.Swal) {
+
       return Swal.fire({
+
         icon,
 
         title,
@@ -601,41 +1074,58 @@
         confirmButtonText: "OK",
 
         confirmButtonColor: "#f4c542"
+
       });
+
     }
 
     window.alert(`${title}\n\n${message}`);
+
   }
 
 
-  /* ==========================================================
-     14. EXPORT FULL REPORT TO PDF
-  ========================================================== */
+  // ========================================================
+  // 19. EXPORT FULL REPORT TO PDF
+  // ========================================================
 
   function exportReport() {
+
     if (exporting) return;
 
+    // CHECK AVAILABLE REPORT DATA
+
     if (!reportLoaded || !reportOrders.length) {
+
       showNotification(
+
         "warning",
+
         "No Report Data",
+
         "No report data to export."
+
       );
 
       return;
+
     }
 
-
-    /* CHECK PDF LIBRARY */
+    // CHECK PDF LIBRARY
 
     if (!window.jspdf?.jsPDF) {
+
       showNotification(
+
         "error",
+
         "PDF Library Not Loaded",
+
         "Check the jsPDF script connection."
+
       );
 
       return;
+
     }
 
     exporting = true;
@@ -644,82 +1134,112 @@
 
     try {
 
-      /* INITIALIZE PDF */
+      // INITIALIZE PDF
 
       const { jsPDF } = window.jspdf;
 
       const doc = new jsPDF("landscape");
 
-
-      /* CHECK AUTOTABLE */
+      // CHECK AUTOTABLE LIBRARY
 
       if (typeof doc.autoTable !== "function") {
+
         throw new Error(
+
           "PDF table library not loaded. " +
+
           "Check the jsPDF AutoTable script."
+
         );
+
       }
 
-
-      /* CALCULATE COMPLETED SALES */
+      // CALCULATE COMPLETED ORDER SALES
 
       const totalSales = reportOrders
 
         .filter(order =>
+
           order.status === "Completed"
+
         )
 
         .reduce((sum, order) => {
+
           const amount = Number(
+
             order.total_amount || 0
+
           );
 
           return sum + (
+
             Number.isFinite(amount)
+
               ? amount
+
               : 0
+
           );
 
         }, 0);
 
-
-      /* PDF HEADER */
+      // PDF HEADER
 
       doc.setFontSize(18);
 
       doc.setTextColor(20, 20, 20);
 
       doc.text(
+
         "JCN Apparel Full Report",
+
         14,
+
         15
+
       );
 
-
-      /* REPORT INFORMATION */
+      // PDF REPORT INFORMATION
 
       doc.setFontSize(10);
 
       doc.text(
+
         `Generated: ${displayDate(new Date(), true)} PHT`,
+
         14,
+
         23
+
       );
 
       doc.text(
+
         `Completed Order Sales: ${pesoPDF(totalSales)}`,
+
         14,
+
         31
+
       );
 
       doc.text(
+
         `Orders included: ${reportOrders.length}`,
+
         14,
+
         38
+
       );
 
-
-      /* PREPARE REPORT TABLE ROWS */
+      // ====================================================
+      // PREPARE ALL REPORT RECORDS
+      //
+      // PDF EXPORT IS NOT LIMITED TO TODAY'S REPORTS
+      // OR THE CURRENT REPORT HISTORY FILTER
+      // ====================================================
 
       const rows = reportOrders.map(order => [
 
@@ -745,68 +1265,98 @@
 
       ]);
 
-
-      /* GENERATE PDF TABLE */
+      // GENERATE PDF TABLE
 
       doc.autoTable({
 
         startY: 46,
 
         head: [[
+
           "Order ID",
+
           "Customer",
+
           "Email",
+
           "Phone",
+
           "Amount",
+
           "Method",
+
           "Payment",
+
           "Status",
+
           "Tracking",
+
           "Date (PHT)"
+
         ]],
 
         body: rows,
 
         styles: {
+
           fontSize: 8,
+
           overflow: "linebreak",
+
           cellPadding: 3
+
         },
 
         headStyles: {
+
           fillColor: [214, 165, 29],
+
           textColor: [0, 0, 0],
+
           fontStyle: "bold"
+
         },
 
         alternateRowStyles: {
+
           fillColor: [247, 247, 247]
+
         },
 
         margin: {
+
           left: 14,
+
           right: 14
+
         }
 
       });
 
-
-      /* SAVE PDF REPORT */
+      // SAVE PDF REPORT
 
       doc.save("jcn-full-report.pdf");
 
     } catch (error) {
 
       console.error(
+
         "PDF export error:",
+
         error
+
       );
 
       showNotification(
+
         "error",
+
         "Export Failed",
+
         error.message ||
+
         "Unable to export the report."
+
       );
 
     } finally {
@@ -816,49 +1366,47 @@
       updateControls();
 
     }
+
   }
 
 
-  /* ==========================================================
-     15. UNIFIED ADMIN LOGOUT MODAL
-
-     Same design as:
-     - Manage Customers
-     - Manage Staff
-     - Announcements
-
-     Compatible with admin-theme.css
-  ========================================================== */
+  // ========================================================
+  // 20. UNIFIED ADMIN LOGOUT MODAL
+  // ========================================================
 
   function setupAdminLogout() {
 
     const logoutButton =
+
       $("adminLogoutBtn") ||
+
       $("logoutBtn");
 
     if (!logoutButton) {
+
       console.warn(
+
         "[JCN Admin] Logout button was not found."
+
       );
 
       return;
+
     }
 
-
-    /* PREVENT DUPLICATE INITIALIZATION */
+    // PREVENT DUPLICATE INITIALIZATION
 
     if (
       logoutButton.dataset.jcnLogoutReady === "true"
     ) {
+
       return;
+
     }
 
     let modal = $("adminLogoutModal");
 
-
-    /* ========================================================
-       CREATE NATIVE HTML DIALOG
-    ======================================================== */
+    // CREATE NATIVE HTML DIALOG IF NEEDED
 
     if (!(modal instanceof HTMLDialogElement)) {
 
@@ -868,46 +1416,54 @@
       newModal.id = "adminLogoutModal";
 
       if (modal) {
+
         modal.replaceWith(newModal);
 
       } else {
+
         document.body.appendChild(newModal);
+
       }
 
       modal = newModal;
+
     }
 
-
-    /* ========================================================
-       APPLY UNIFIED LOGOUT CLASS
-    ======================================================== */
+    // APPLY UNIFIED LOGOUT CLASS
 
     modal.id = "adminLogoutModal";
 
     modal.className = "jcn-unified-logout";
 
     modal.removeAttribute("hidden");
+
     modal.removeAttribute("aria-hidden");
+
     modal.removeAttribute("style");
 
     modal.setAttribute(
+
       "aria-labelledby",
+
       "adminLogoutTitle"
+
     );
 
     modal.setAttribute(
+
       "aria-describedby",
+
       "adminLogoutDescription"
+
     );
 
     if (modal.open) {
+
       modal.close();
+
     }
 
-
-    /* ========================================================
-       STANDARD LOGOUT HTML
-    ======================================================== */
+    // STANDARD LOGOUT HTML
 
     modal.innerHTML = `
 
@@ -920,16 +1476,17 @@
 
       </div>
 
-
       <h3 id="adminLogoutTitle">
+
         Confirm Admin Logout
+
       </h3>
 
-
       <p id="adminLogoutDescription">
-      Are you sure you want to end your current session?
-      </p>
 
+        Are you sure you want to end your current session?
+
+      </p>
 
       <div class="logout-actions">
 
@@ -938,7 +1495,9 @@
           id="adminConfirmLogout"
           class="logout-confirm-btn"
         >
+
           Yes, Logout
+
         </button>
 
         <button
@@ -947,17 +1506,16 @@
           class="logout-cancel-btn"
           autofocus
         >
+
           Cancel
+
         </button>
 
       </div>
 
     `;
 
-
-    /* ========================================================
-       LOGOUT ELEMENTS
-    ======================================================== */
+    // LOGOUT ELEMENTS
 
     const confirmButton =
       $("adminConfirmLogout");
@@ -966,15 +1524,18 @@
       $("adminCancelLogout");
 
     let previousOverflow = "";
+
     let loggingOut = false;
+
     let outsidePress = false;
 
 
-    /* ========================================================
-       OPEN LOGOUT MODAL
-    ======================================================== */
+    // ======================================================
+    // OPEN LOGOUT MODAL
+    // ======================================================
 
     function openLogoutModal(event) {
+
       event.preventDefault();
 
       if (
@@ -982,7 +1543,9 @@
         loggingOut ||
         exporting
       ) {
+
         return;
+
       }
 
       previousOverflow =
@@ -994,25 +1557,30 @@
         "hidden";
 
       cancelButton.focus();
+
     }
 
 
-    /* ========================================================
-       CLOSE LOGOUT MODAL
-    ======================================================== */
+    // ======================================================
+    // CLOSE LOGOUT MODAL
+    // ======================================================
 
     function closeLogoutModal() {
+
       if (loggingOut) return;
 
       if (modal.open) {
+
         modal.close();
+
       }
+
     }
 
 
-    /* ========================================================
-       DETECT OUTSIDE CLICK
-    ======================================================== */
+    // ======================================================
+    // DETECT OUTSIDE CLICK
+    // ======================================================
 
     function isOutsideModal(event) {
 
@@ -1024,86 +1592,114 @@
         event.target === modal &&
 
         (
+
           event.clientX < rect.left ||
+
           event.clientX > rect.right ||
+
           event.clientY < rect.top ||
+
           event.clientY > rect.bottom
+
         )
 
       );
+
     }
 
 
-    /* ========================================================
-       OPEN LOGOUT BUTTON EVENT
-    ======================================================== */
+    // ======================================================
+    // LOGOUT BUTTON EVENT
+    // ======================================================
 
     logoutButton.addEventListener(
+
       "click",
+
       openLogoutModal
+
     );
 
 
-    /* ========================================================
-       CANCEL LOGOUT BUTTON EVENT
-    ======================================================== */
+    // ======================================================
+    // CANCEL LOGOUT BUTTON
+    // ======================================================
 
     cancelButton.addEventListener(
+
       "click",
+
       closeLogoutModal
+
     );
 
 
-    /* ========================================================
-       ESCAPE KEY SUPPORT
-    ======================================================== */
+    // ======================================================
+    // ESCAPE KEY SUPPORT
+    // ======================================================
 
     modal.addEventListener(
+
       "cancel",
+
       event => {
+
         event.preventDefault();
 
         closeLogoutModal();
+
       }
+
     );
 
 
-    /* ========================================================
-       OUTSIDE CLICK SUPPORT
-    ======================================================== */
+    // ======================================================
+    // OUTSIDE CLICK SUPPORT
+    // ======================================================
 
     modal.addEventListener(
+
       "pointerdown",
+
       event => {
 
         outsidePress =
           isOutsideModal(event);
 
       }
+
     );
 
     modal.addEventListener(
+
       "click",
+
       event => {
 
         if (
           outsidePress &&
           isOutsideModal(event)
         ) {
+
           closeLogoutModal();
+
         }
 
         outsidePress = false;
+
       }
+
     );
 
 
-    /* ========================================================
-       RESTORE PAGE AFTER CLOSING
-    ======================================================== */
+    // ======================================================
+    // RESTORE PAGE AFTER CLOSING
+    // ======================================================
 
     modal.addEventListener(
+
       "close",
+
       () => {
 
         document.body.style.overflow =
@@ -1112,49 +1708,56 @@
         outsidePress = false;
 
         if (!loggingOut) {
+
           confirmButton.disabled = false;
+
           cancelButton.disabled = false;
 
           logoutButton.focus();
+
         }
+
       }
+
     );
 
 
-    /* ========================================================
-       CONFIRM ADMIN LOGOUT
-    ======================================================== */
+    // ======================================================
+    // CONFIRM ADMIN LOGOUT
+    // ======================================================
 
     confirmButton.addEventListener(
+
       "click",
+
       () => {
 
         if (loggingOut || exporting) {
+
           return;
+
         }
 
         loggingOut = true;
 
         confirmButton.disabled = true;
+
         cancelButton.disabled = true;
 
         try {
 
-          /* REMOVE ADMIN SESSION ONLY */
+          // REMOVE ADMIN SESSION ONLY
 
           clearAdminSession();
 
+          // PRESERVE ADMIN AND CUSTOMER THEMES
 
-          /* PRESERVE THEME PREFERENCES */
-
-          // jcnAdminAccountTheme remains saved.
-          // jcnCustomerTheme remains saved.
-
-
-          /* REDIRECT TO ADMIN LOGIN */
+          // REDIRECT TO ADMIN LOGIN
 
           window.location.replace(
+
             LOGIN_PAGE
+
           );
 
         } catch (error) {
@@ -1162,117 +1765,238 @@
           loggingOut = false;
 
           confirmButton.disabled = false;
+
           cancelButton.disabled = false;
 
           console.error(
+
             "ADMIN LOGOUT ERROR:",
+
             error
+
           );
 
           window.alert(
+
             "Unable to clear the admin session. " +
+
             "Please try again."
+
           );
+
         }
+
       }
+
     );
 
-
-    /* ========================================================
-       MARK LOGOUT AS INITIALIZED
-    ======================================================== */
+    // MARK LOGOUT AS INITIALIZED
 
     logoutButton.dataset.jcnLogoutReady =
       "true";
 
     console.log(
+
       "[JCN Admin] Unified logout initialized."
+
     );
+
   }
 
 
-  /* ==========================================================
-     16. REPORT EVENTS
-  ========================================================== */
+  // ========================================================
+  // 21. REPORT HISTORY SCROLL RESET
+  // ========================================================
+
+  function resetReportHistoryScroll() {
+
+    const modal = $("reportHistoryModal");
+
+    const body =
+      modal?.querySelector(".modal-body");
+
+    if (body) {
+
+      body.scrollTop = 0;
+
+    }
+
+  }
+
+
+  // ========================================================
+  // 22. REPORT EVENTS
+  // ========================================================
 
   function setupReportEvents() {
 
-    /* EXPORT REPORT */
+    // ======================================================
+    // REPORT HISTORY STATUS FILTER
+    // ======================================================
 
-    $("exportReportBtn")?.addEventListener(
-      "click",
-      exportReport
+    $("reportHistoryFilter")?.addEventListener(
+
+      "change",
+
+      () => {
+
+        renderReportHistory();
+
+        resetReportHistoryScroll();
+
+      }
+
     );
 
 
-    /* OPTIONAL REFRESH REPORT BUTTON */
+    // ======================================================
+    // OPEN REPORT HISTORY MODAL
+    // ======================================================
+
+    $("reportHistoryModal")?.addEventListener(
+
+      "show.bs.modal",
+
+      () => {
+
+        // RESET FILTER TO ALL
+
+        const filter =
+          $("reportHistoryFilter");
+
+        if (filter) {
+
+          filter.value = "all";
+
+        }
+
+        // UPDATE TODAY'S TABLE AND REPORT HISTORY
+
+        renderReportTable();
+
+        // RESET SCROLL POSITION
+
+        resetReportHistoryScroll();
+
+      }
+
+    );
+
+
+    // ======================================================
+    // MODAL SHOWN
+    // ======================================================
+
+    $("reportHistoryModal")?.addEventListener(
+
+      "shown.bs.modal",
+
+      () => {
+
+        resetReportHistoryScroll();
+
+      }
+
+    );
+
+
+    // ======================================================
+    // EXPORT REPORT
+    // ======================================================
+
+    $("exportReportBtn")?.addEventListener(
+
+      "click",
+
+      exportReport
+
+    );
+
+
+    // ======================================================
+    // OPTIONAL REFRESH REPORT BUTTON
+    // ======================================================
 
     $("refreshReports")?.addEventListener(
+
       "click",
+
       () => {
 
         if (!reportLoading && !exporting) {
+
           loadReports();
+
         }
 
       }
+
     );
+
   }
 
 
-  /* ==========================================================
-     17. INITIALIZE ADMIN REPORTS
-  ========================================================== */
+  // ========================================================
+  // 23. INITIALIZE ADMIN REPORTS
+  // ========================================================
 
   function init() {
+
     if (initialized) return;
 
     if (!checkAdminSession()) return;
 
     initialized = true;
 
-
-    /* INITIALIZE UNIFIED LOGOUT */
+    // INITIALIZE ADMIN LOGOUT
 
     setupAdminLogout();
 
-
-    /* CHECK REPORT TABLE */
+    // CHECK REPORT TABLE
 
     if (!$("reportTable")) {
+
       console.warn(
+
         "[JCN Reports] Report table was not found."
+
       );
 
       return;
+
     }
 
-
-    /* INITIALIZE REPORT EVENTS */
+    // INITIALIZE REPORT EVENTS
 
     setupReportEvents();
 
-
-    /* LOAD REPORT DATA */
+    // LOAD REPORT DATA
 
     loadReports();
 
     console.log(
+
       "[JCN Admin] Reports initialized."
+
     );
+
   }
 
 
-  /* ==========================================================
-     18. DOM READY
-  ========================================================== */
+  // ========================================================
+  // 24. DOM READY
+  // ========================================================
 
   if (document.readyState === "loading") {
 
     document.addEventListener(
+
       "DOMContentLoaded",
+
       init,
+
       { once: true }
+
     );
 
   } else {
