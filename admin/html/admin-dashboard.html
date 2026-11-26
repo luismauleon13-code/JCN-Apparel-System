@@ -1,41 +1,33 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>JCN Admin Dashboard</title>
 
-  <!-- Bootstrap -->
+  <!-- BOOTSTRAP -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
 
-  <!-- Font Awesome -->
+  <!-- FONT AWESOME -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   >
 
-  <!-- Existing JCN CSS -->
-  <link
-    rel="stylesheet"
-    href="../css/style.css"
-  >
+  <!-- JCN CSS -->
+  <link rel="stylesheet" href="../css/style.css">
 
   <!-- GLOBAL ADMIN THEME -->
-<link rel="stylesheet" href="../css/admin-theme.css">
-
-<script src="../js/admin-theme.js"></script>
+  <link rel="stylesheet" href="../css/admin-theme.css">
+  <script src="../js/admin-theme.js"></script>
 
 </head>
-
 
 <body class="dashboard-body">
 
@@ -43,173 +35,34 @@
 
     <div class="dashboard-wrapper mx-auto">
 
-
-      <!-- ===================================================== -->
-      <!-- NAVBAR -->
-      <!-- ===================================================== -->
-
-      <nav class="navbar navbar-expand-lg dashboard-nav px-4 py-3 mb-4">
-
-        <div class="container-fluid p-0">
-
-          <!-- BRAND -->
-          <a
-            class="navbar-brand text-light fw-bold d-flex align-items-center gap-2"
-            href="admin-dashboard.html"
-          >
-
-            <i class="fa-solid fa-user-shield text-gold"></i>
-
-            Admin Dashboard
-
-          </a>
-
-
-          <!-- MOBILE MENU BUTTON -->
-
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#adminNav"
-          >
-
-            <span class="navbar-toggler-icon"></span>
-
-          </button>
-
-
-          <!-- NAVIGATION -->
-
-          <div
-            class="collapse navbar-collapse"
-            id="adminNav"
-          >
-
-            <ul class="navbar-nav mx-auto gap-lg-4">
-
-              <!-- OVERVIEW -->
-
-              <li class="nav-item">
-
-                <a
-                  class="nav-link text-gold fw-semibold"
-                  href="admin-dashboard.html"
-                >
-
-                  Overview
-
-                </a>
-
-              </li>
-
-
-              <!-- CUSTOMERS -->
-
-              <li class="nav-item">
-
-                <a
-                  class="nav-link text-light"
-                  href="manage-user.html"
-                >
-
-                  Customers
-
-                </a>
-
-              </li>
-
-
-              <!-- STAFF -->
-
-              <li class="nav-item">
-
-                <a
-                  class="nav-link text-light"
-                  href="manage-staff.html"
-                >
-
-                  Staff
-
-                </a>
-
-              </li>
-
-
-              <!-- REPORTS -->
-
-              <li class="nav-item">
-
-                <a
-                  class="nav-link text-light"
-                  href="reports.html"
-                >
-
-                  Reports
-
-                </a>
-
-              </li>
-
-            </ul>
-
-
-            <!-- LOGOUT -->
-
-            <button
-              id="adminLogoutBtn"
-              class="btn btn-gold px-4"
-            >
-
-              <i class="fa-solid fa-right-from-bracket me-2"></i>
-
-              Logout
-
-            </button>
-
-          </div>
-
-        </div>
-
-      </nav>
-
-
-
-      <!-- ===================================================== -->
-      <!-- WELCOME HEADER -->
-      <!-- ===================================================== -->
+      <!-- =========================================
+           WELCOME HEADER
+      ========================================== -->
 
       <section class="mb-4">
 
         <div class="dashboard-card p-4">
 
-          <div
-            class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
-          >
+          <div class="d-flex flex-column flex-md-row
+                      justify-content-between
+                      align-items-md-center gap-3">
 
             <div>
 
               <p class="text-gold fw-semibold mb-1">
-
                 JCN APPAREL PRINTING SERVICES
-
               </p>
 
               <h2 class="text-light fw-bold mb-1">
-
                 Administrator Overview
-
               </h2>
 
               <p class="text-secondary-light mb-0">
-
                 Monitor customers, staff accounts, orders,
                 sales and system activity.
-
               </p>
 
             </div>
-
 
             <div>
 
@@ -223,7 +76,6 @@
               >
 
                 <i class="fa-solid fa-circle-check me-1"></i>
-
                 Administrator
 
               </span>
@@ -236,14 +88,11 @@
 
       </section>
 
-
-
-      <!-- ===================================================== -->
-      <!-- DASHBOARD CARDS -->
-      <!-- ===================================================== -->
+      <!-- =========================================
+           DASHBOARD CARDS
+      ========================================== -->
 
       <section class="row g-4 mb-4">
-
 
         <!-- TOTAL CUSTOMERS -->
 
@@ -252,34 +101,23 @@
           <div class="dashboard-card p-4 text-center h-100">
 
             <div class="mb-3">
-
               <i
                 class="fa-solid fa-users text-gold"
                 style="font-size: 28px;"
               ></i>
-
             </div>
 
             <h6 class="text-secondary-light">
-
               Total Customers
-
             </h6>
 
-            <h2
-              id="totalUsers"
-              class="text-gold fw-bold"
-            >
-
+            <h2 id="totalUsers" class="text-gold fw-bold">
               0
-
             </h2>
 
           </div>
 
         </div>
-
-
 
         <!-- PENDING ORDERS -->
 
@@ -288,34 +126,23 @@
           <div class="dashboard-card p-4 text-center h-100">
 
             <div class="mb-3">
-
               <i
                 class="fa-solid fa-clock text-gold"
                 style="font-size: 28px;"
               ></i>
-
             </div>
 
             <h6 class="text-secondary-light">
-
               Pending Orders
-
             </h6>
 
-            <h2
-              id="pendingOrders"
-              class="text-gold fw-bold"
-            >
-
+            <h2 id="pendingOrders" class="text-gold fw-bold">
               0
-
             </h2>
 
           </div>
 
         </div>
-
-
 
         <!-- COMPLETED ORDERS -->
 
@@ -324,34 +151,23 @@
           <div class="dashboard-card p-4 text-center h-100">
 
             <div class="mb-3">
-
               <i
                 class="fa-solid fa-circle-check text-gold"
                 style="font-size: 28px;"
               ></i>
-
             </div>
 
             <h6 class="text-secondary-light">
-
               Completed Orders
-
             </h6>
 
-            <h2
-              id="completedOrders"
-              class="text-gold fw-bold"
-            >
-
+            <h2 id="completedOrders" class="text-gold fw-bold">
               0
-
             </h2>
 
           </div>
 
         </div>
-
-
 
         <!-- REVENUE -->
 
@@ -360,27 +176,18 @@
           <div class="dashboard-card p-4 text-center h-100">
 
             <div class="mb-3">
-
               <i
                 class="fa-solid fa-peso-sign text-gold"
                 style="font-size: 28px;"
               ></i>
-
             </div>
 
             <h6 class="text-secondary-light">
-
               Revenue
-
             </h6>
 
-            <h2
-              id="revenue"
-              class="text-gold fw-bold"
-            >
-
+            <h2 id="revenue" class="text-gold fw-bold">
               ₱0
-
             </h2>
 
           </div>
@@ -389,14 +196,11 @@
 
       </section>
 
-
-
-      <!-- ===================================================== -->
-      <!-- ADMIN MENU + RECENT ACTIVITY -->
-      <!-- ===================================================== -->
+      <!-- =========================================
+           ADMIN MENU AND RECENT ACTIVITY
+      ========================================== -->
 
       <section class="row g-4 mb-4">
-
 
         <!-- ADMIN MENU -->
 
@@ -407,14 +211,11 @@
             <h4 class="text-light mb-4">
 
               <i class="fa-solid fa-bars text-gold me-2"></i>
-
               Admin Menu
 
             </h4>
 
-
             <div class="list-group dashboard-menu">
-
 
               <!-- OVERVIEW -->
 
@@ -424,14 +225,11 @@
               >
 
                 <i class="fa-solid fa-chart-line me-2"></i>
-
                 Overview
 
               </a>
 
-
-
-              <!-- CUSTOMERS -->
+              <!-- MANAGE CUSTOMERS -->
 
               <a
                 href="manage-user.html"
@@ -439,14 +237,11 @@
               >
 
                 <i class="fa-solid fa-users me-2"></i>
-
                 Manage Customers
 
               </a>
 
-
-
-              <!-- STAFF -->
+              <!-- MANAGE STAFF -->
 
               <a
                 href="manage-staff.html"
@@ -454,12 +249,9 @@
               >
 
                 <i class="fa-solid fa-user-tie me-2"></i>
-
                 Manage Staff
 
               </a>
-
-
 
               <!-- ANNOUNCEMENTS -->
 
@@ -469,12 +261,9 @@
               >
 
                 <i class="fa-solid fa-bullhorn me-2"></i>
-
                 Announcements
 
               </a>
-
-
 
               <!-- REPORTS -->
 
@@ -484,12 +273,9 @@
               >
 
                 <i class="fa-solid fa-file-lines me-2"></i>
-
                 Reports
 
               </a>
-
-
 
               <!-- SETTINGS -->
 
@@ -499,10 +285,22 @@
               >
 
                 <i class="fa-solid fa-gear me-2"></i>
-
                 Settings
 
               </a>
+
+              <!-- LOGOUT -->
+
+              <button
+                id="adminLogoutBtn"
+                type="button"
+                class="list-group-item list-group-item-action"
+              >
+
+                <i class="fa-solid fa-right-from-bracket me-2"></i>
+                Logout
+
+              </button>
 
             </div>
 
@@ -510,45 +308,36 @@
 
         </div>
 
-
-
-        <!-- ================================================= -->
-        <!-- RECENT ACTIVITY -->
-        <!-- ================================================= -->
+        <!-- =========================================
+             RECENT ACTIVITY
+        ========================================== -->
 
         <div class="col-lg-8">
 
           <div class="dashboard-card p-4 h-100">
 
-            <div
-              class="d-flex justify-content-between align-items-center mb-4"
-            >
+            <div class="d-flex justify-content-between
+                        align-items-center mb-4">
 
               <h4 class="text-light mb-0">
 
                 <i class="fa-solid fa-clock-rotate-left text-gold me-2"></i>
-
                 Recent Activity
 
               </h4>
 
             </div>
 
-
             <div id="recentActivity">
 
               <div class="inner-panel p-3">
 
                 <p class="text-light mb-1 fw-semibold">
-
                   Loading...
-
                 </p>
 
                 <small class="text-secondary-light">
-
                   Please wait while loading recent activity.
-
                 </small>
 
               </div>
@@ -561,34 +350,25 @@
 
       </section>
 
-
-
-      <!-- ===================================================== -->
-      <!-- SALES SUMMARY -->
-      <!-- ===================================================== -->
+      <!-- =========================================
+           SALES SUMMARY
+      ========================================== -->
 
       <section class="row g-4">
 
-
         <div class="col-12">
 
-          <div
-            class="dashboard-card p-5 h-100 sales-summary-wide"
-          >
+          <div class="dashboard-card p-5 h-100 sales-summary-wide">
 
-
-            <div
-              class="d-flex justify-content-between align-items-center mb-4"
-            >
+            <div class="d-flex justify-content-between
+                        align-items-center mb-4">
 
               <h4 class="text-light mb-0">
 
                 <i class="fa-solid fa-chart-column text-gold me-2"></i>
-
                 Sales Summary
 
               </h4>
-
 
               <a
                 href="reports.html"
@@ -601,151 +381,95 @@
 
             </div>
 
-
-
             <!-- TODAY -->
 
             <div class="inner-panel p-3 mb-3">
 
-              <div
-                class="d-flex justify-content-between align-items-center"
-              >
+              <div class="d-flex justify-content-between align-items-center">
 
                 <span class="text-light">
-
                   Today
-
                 </span>
 
-                <span
-                  id="salesToday"
-                  class="text-gold fw-bold"
-                >
-
+                <span id="salesToday" class="text-gold fw-bold">
                   ₱0
-
                 </span>
 
               </div>
 
             </div>
 
-
-
-            <!-- WEEK -->
+            <!-- THIS WEEK -->
 
             <div class="inner-panel p-3 mb-3">
 
-              <div
-                class="d-flex justify-content-between align-items-center"
-              >
+              <div class="d-flex justify-content-between align-items-center">
 
                 <span class="text-light">
-
                   This Week
-
                 </span>
 
-                <span
-                  id="salesWeek"
-                  class="text-gold fw-bold"
-                >
-
+                <span id="salesWeek" class="text-gold fw-bold">
                   ₱0
-
                 </span>
 
               </div>
 
             </div>
 
-
-
-            <!-- MONTH -->
+            <!-- THIS MONTH -->
 
             <div class="inner-panel p-3 mb-3">
 
-              <div
-                class="d-flex justify-content-between align-items-center"
-              >
+              <div class="d-flex justify-content-between align-items-center">
 
                 <span class="text-light">
-
                   This Month
-
                 </span>
 
-                <span
-                  id="salesMonth"
-                  class="text-gold fw-bold"
-                >
-
+                <span id="salesMonth" class="text-gold fw-bold">
                   ₱0
-
                 </span>
 
               </div>
 
             </div>
 
-
-
-            <!-- QUARTER -->
+            <!-- QUARTERLY -->
 
             <div class="inner-panel p-3 mb-3">
 
-              <div
-                class="d-flex justify-content-between align-items-center"
-              >
+              <div class="d-flex justify-content-between align-items-center">
 
                 <span class="text-light">
-
                   Quarterly
-
                 </span>
 
-                <span
-                  id="salesQuarterly"
-                  class="text-gold fw-bold"
-                >
-
+                <span id="salesQuarterly" class="text-gold fw-bold">
                   ₱0
-
                 </span>
 
               </div>
 
             </div>
 
-
-
-            <!-- YEAR -->
+            <!-- ANNUALLY -->
 
             <div class="inner-panel p-3">
 
-              <div
-                class="d-flex justify-content-between align-items-center"
-              >
+              <div class="d-flex justify-content-between align-items-center">
 
                 <span class="text-light">
-
                   Annually
-
                 </span>
 
-                <span
-                  id="salesYearly"
-                  class="text-gold fw-bold"
-                >
-
+                <span id="salesYearly" class="text-gold fw-bold">
                   ₱0
-
                 </span>
 
               </div>
 
             </div>
-
 
           </div>
 
@@ -753,24 +477,17 @@
 
       </section>
 
-
     </div>
 
   </div>
 
+  <!-- =========================================
+       ADMIN LOGOUT MODAL
+  ========================================== -->
 
-
-  <!-- ======================================================= -->
-  <!-- ADMIN LOGOUT MODAL -->
-  <!-- ======================================================= -->
-
-  <div
-    id="adminLogoutModal"
-    class="hidden"
-  >
+  <div id="adminLogoutModal" class="hidden">
 
     <div class="logout-backdrop"></div>
-
 
     <div class="logout-box">
 
@@ -783,40 +500,22 @@
 
       </div>
 
-
       <h4>
-
         Logout Confirmation
-
       </h4>
 
-
       <p>
-
         Are you sure you want to end your current session?
-
       </p>
-
 
       <div class="logout-actions">
 
-        <button
-          id="adminConfirmLogout"
-          type="button"
-        >
-
+        <button id="adminConfirmLogout" type="button">
           Yes, Logout
-
         </button>
 
-
-        <button
-          id="adminCancelLogout"
-          type="button"
-        >
-
+        <button id="adminCancelLogout" type="button">
           Cancel
-
         </button>
 
       </div>
@@ -825,172 +524,106 @@
 
   </div>
 
+  <!-- =========================================
+       BOOTSTRAP
+  ========================================== -->
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- ======================================================= -->
-  <!-- BOOTSTRAP -->
-  <!-- ======================================================= -->
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-  ></script>
-
-
-
-  <!-- ======================================================= -->
-  <!-- ADMIN DASHBOARD JAVASCRIPT -->
-  <!-- ======================================================= -->
+  <!-- =========================================
+       ADMIN DASHBOARD JAVASCRIPT
+  ========================================== -->
 
   <script>
 
     const API_URL = "/api/admin";
 
-
-    /*
-    ==========================================================
-    FORMAT PHILIPPINE PESO
-    ==========================================================
-    */
+    // =========================================
+    // FORMAT PHILIPPINE PESO
+    // =========================================
 
     function peso(value) {
-
       return "₱" + Number(value || 0).toLocaleString("en-PH");
-
     }
 
-
-
-    /*
-    ==========================================================
-    LOAD ADMIN OVERVIEW
-    ==========================================================
-    */
+    // =========================================
+    // LOAD ADMIN OVERVIEW
+    // =========================================
 
     async function loadOverview() {
 
       try {
 
-        const res = await fetch(
-          `${API_URL}/overview`
-        );
-
+        const res = await fetch(`${API_URL}/overview`);
 
         if (!res.ok) {
-
           throw new Error(
             `Overview request failed: ${res.status}`
           );
-
         }
-
 
         const data = await res.json();
 
+        // DASHBOARD CARDS
 
-        /*
-        ------------------------------------------------------
-        DASHBOARD CARDS
-        ------------------------------------------------------
-        */
+        document.getElementById("totalUsers").textContent =
+          data.totalUsers || 0;
 
-        document.getElementById(
-          "totalUsers"
-        ).textContent = data.totalUsers || 0;
+        document.getElementById("pendingOrders").textContent =
+          data.pendingOrders || 0;
 
+        document.getElementById("completedOrders").textContent =
+          data.completedOrders || 0;
 
-        document.getElementById(
-          "pendingOrders"
-        ).textContent = data.pendingOrders || 0;
+        document.getElementById("revenue").textContent =
+          peso(data.revenue);
 
-
-        document.getElementById(
-          "completedOrders"
-        ).textContent = data.completedOrders || 0;
-
-
-        document.getElementById(
-          "revenue"
-        ).textContent = peso(data.revenue);
-
-
-
-        /*
-        ------------------------------------------------------
-        RECENT ACTIVITY
-        ------------------------------------------------------
-        */
+        // RECENT ACTIVITY
 
         const recentActivity =
           document.getElementById("recentActivity");
 
-
         recentActivity.innerHTML = "";
-
 
         const activities = [
 
+          // ANNOUNCEMENTS
 
-          /*
-          ANNOUNCEMENTS
-          */
+          ...(data.recentAnnouncements || []).map(item => ({
 
-          ...(data.recentAnnouncements || []).map(
-            item => ({
+            type: "announcement",
+            title: item.title,
+            message: item.message,
+            date: item.created_at
 
-              type: "announcement",
+          })),
 
-              title: item.title,
+          // ORDERS
 
-              message: item.message,
+          ...(data.recentOrders || []).map(order => ({
 
-              date: item.created_at
+            type: "order",
 
-            })
-          ),
+            title: `Order #${String(order.id).slice(0, 8)}`,
 
+            message:
+              `Status: ${order.status} | ` +
+              `Payment: ${order.payment_status} | ` +
+              `Amount: ${peso(order.total_amount)}`,
 
-          /*
-          ORDERS
-          */
+            date: order.created_at
 
-          ...(data.recentOrders || []).map(
-            order => ({
-
-              type: "order",
-
-              title:
-                `Order #${String(order.id).slice(0, 8)}`,
-
-              message:
-                `Status: ${order.status} | ` +
-                `Payment: ${order.payment_status} | ` +
-                `Amount: ${peso(order.total_amount)}`,
-
-              date: order.created_at
-
-            })
-          )
+          }))
 
         ];
 
-
-
-        /*
-        SORT NEWEST FIRST
-        */
+        // SORT NEWEST FIRST
 
         activities.sort(
-
-          (a, b) =>
-            new Date(b.date) - new Date(a.date)
-
+          (a, b) => new Date(b.date) - new Date(a.date)
         );
 
-
-
-        /*
-        NO ACTIVITY
-        */
+        // NO ACTIVITY
 
         if (activities.length === 0) {
 
@@ -999,15 +632,11 @@
             <div class="inner-panel p-3">
 
               <p class="text-light mb-1 fw-semibold">
-
                 No recent activity
-
               </p>
 
               <small class="text-secondary-light">
-
                 No orders or announcements yet.
-
               </small>
 
             </div>
@@ -1018,127 +647,75 @@
 
         }
 
+        // DISPLAY LATEST 8 ACTIVITIES
 
+        activities.slice(0, 8).forEach(item => {
 
-        /*
-        DISPLAY LATEST 8
-        */
+          let icon = "fa-circle-info";
 
-        activities
-          .slice(0, 8)
-          .forEach(item => {
+          if (item.type === "announcement") {
+            icon = "fa-bullhorn";
+          }
 
+          if (item.type === "order") {
+            icon = "fa-cart-shopping";
+          }
 
-            let icon = "fa-circle-info";
+          const activity = document.createElement("div");
 
+          activity.className =
+            "inner-panel p-3 mb-3 d-flex gap-3 align-items-start";
 
-            if (item.type === "announcement") {
+          activity.innerHTML = `
 
-              icon = "fa-bullhorn";
+            <div class="activity-icon">
 
-            }
+              <i class="fa-solid ${icon}"></i>
 
+            </div>
 
-            if (item.type === "order") {
+            <div class="flex-grow-1">
 
-              icon = "fa-cart-shopping";
+              <p class="activity-title text-light mb-1 fw-semibold"></p>
 
-            }
+              <small class="activity-message text-secondary-light"></small>
 
+            </div>
 
-            recentActivity.innerHTML += `
+            <small class="activity-date text-secondary-light"></small>
 
-              <div
-                class="
-                  inner-panel
-                  p-3
-                  mb-3
-                  d-flex
-                  gap-3
-                  align-items-start
-                "
-              >
+          `;
 
-                <div class="activity-icon">
+          activity.querySelector(".activity-title").textContent =
+            item.title || "";
 
-                  <i
-                    class="fa-solid ${icon}"
-                  ></i>
+          activity.querySelector(".activity-message").textContent =
+            item.message || "";
 
-                </div>
+          activity.querySelector(".activity-date").textContent =
+            new Date(item.date).toLocaleString("en-PH");
 
+          recentActivity.appendChild(activity);
 
-                <div class="flex-grow-1">
-
-                  <p
-                    class="
-                      text-light
-                      mb-1
-                      fw-semibold
-                    "
-                  >
-
-                    ${item.title}
-
-                  </p>
-
-
-                  <small
-                    class="text-secondary-light"
-                  >
-
-                    ${item.message}
-
-                  </small>
-
-                </div>
-
-
-                <small
-                  class="text-secondary-light"
-                >
-
-                  ${new Date(
-                    item.date
-                  ).toLocaleString("en-PH")}
-
-                </small>
-
-              </div>
-
-            `;
-
-          });
-
+        });
 
       } catch (error) {
 
-        console.error(
-          "Overview error:",
-          error
-        );
-
+        console.error("Overview error:", error);
 
         const recentActivity =
-          document.getElementById(
-            "recentActivity"
-          );
-
+          document.getElementById("recentActivity");
 
         recentActivity.innerHTML = `
 
           <div class="inner-panel p-3">
 
             <p class="text-danger mb-1 fw-semibold">
-
               Unable to load dashboard
-
             </p>
 
             <small class="text-secondary-light">
-
               Make sure the JCN backend server is running.
-
             </small>
 
           </div>
@@ -1149,220 +726,119 @@
 
     }
 
-
-
-    /*
-    ==========================================================
-    LOAD SALES SUMMARY
-    ==========================================================
-    */
+    // =========================================
+    // LOAD SALES SUMMARY
+    // =========================================
 
     async function loadSalesSummary() {
 
       try {
 
-        const res = await fetch(
-          `${API_URL}/sales-summary`
-        );
-
+        const res = await fetch(`${API_URL}/sales-summary`);
 
         if (!res.ok) {
-
           throw new Error(
             `Sales request failed: ${res.status}`
           );
-
         }
-
 
         const data = await res.json();
 
+        document.getElementById("salesToday").textContent =
+          peso(data.today);
 
-        document.getElementById(
-          "salesToday"
-        ).textContent = peso(data.today);
+        document.getElementById("salesWeek").textContent =
+          peso(data.week);
 
+        document.getElementById("salesMonth").textContent =
+          peso(data.month);
 
-        document.getElementById(
-          "salesWeek"
-        ).textContent = peso(data.week);
+        document.getElementById("salesQuarterly").textContent =
+          peso(data.quarterly);
 
-
-        document.getElementById(
-          "salesMonth"
-        ).textContent = peso(data.month);
-
-
-        document.getElementById(
-          "salesQuarterly"
-        ).textContent = peso(data.quarterly);
-
-
-        document.getElementById(
-          "salesYearly"
-        ).textContent = peso(data.yearly);
-
+        document.getElementById("salesYearly").textContent =
+          peso(data.yearly);
 
       } catch (error) {
 
-        console.error(
-          "Sales summary error:",
-          error
-        );
+        console.error("Sales summary error:", error);
 
       }
 
     }
 
-
-
-    /*
-    ==========================================================
-    ADMIN LOGOUT
-    ==========================================================
-    */
+    // =========================================
+    // ADMIN LOGOUT
+    // =========================================
 
     const adminLogoutBtn =
-      document.getElementById(
-        "adminLogoutBtn"
-      );
-
+      document.getElementById("adminLogoutBtn");
 
     const adminLogoutModal =
-      document.getElementById(
-        "adminLogoutModal"
-      );
-
+      document.getElementById("adminLogoutModal");
 
     const adminConfirmLogout =
-      document.getElementById(
-        "adminConfirmLogout"
-      );
-
+      document.getElementById("adminConfirmLogout");
 
     const adminCancelLogout =
-      document.getElementById(
-        "adminCancelLogout"
-      );
+      document.getElementById("adminCancelLogout");
 
+    const logoutBackdrop =
+      document.querySelector(".logout-backdrop");
 
+    // OPEN LOGOUT MODAL
 
-    /*
-    OPEN LOGOUT MODAL
-    */
+    adminLogoutBtn?.addEventListener("click", () => {
 
-    adminLogoutBtn.addEventListener(
-      "click",
-      () => {
+      adminLogoutModal?.classList.remove("hidden");
 
-        adminLogoutModal
-          .classList
-          .remove("hidden");
+    });
 
-      }
-    );
+    // CANCEL LOGOUT
 
+    adminCancelLogout?.addEventListener("click", () => {
 
+      adminLogoutModal?.classList.add("hidden");
 
-    /*
-    CANCEL LOGOUT
-    */
+    });
 
-    adminCancelLogout.addEventListener(
-      "click",
-      () => {
+    // CLICK BACKDROP TO CLOSE
 
-        adminLogoutModal
-          .classList
-          .add("hidden");
+    logoutBackdrop?.addEventListener("click", () => {
 
-      }
-    );
+      adminLogoutModal?.classList.add("hidden");
 
+    });
 
+    // CONFIRM LOGOUT
 
-    /*
-    CLICK BACKDROP TO CLOSE
-    */
+    adminConfirmLogout?.addEventListener("click", () => {
 
-    document
-      .querySelector(".logout-backdrop")
-      .addEventListener(
-        "click",
-        () => {
+      localStorage.removeItem("admin");
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("staffUser");
+      localStorage.removeItem("staffToken");
 
-          adminLogoutModal
-            .classList
-            .add("hidden");
+      window.location.href = "admin-login.html";
 
-        }
-      );
+    });
 
+    // =========================================
+    // INITIAL LOAD
+    // =========================================
 
+    document.addEventListener("DOMContentLoaded", () => {
 
-    /*
-    CONFIRM LOGOUT
-    */
+      loadOverview();
+      loadSalesSummary();
 
-    adminConfirmLogout.addEventListener(
-      "click",
-      () => {
-
-        /*
-        Existing admin login values
-        */
-
-        localStorage.removeItem(
-          "admin"
-        );
-
-        localStorage.removeItem(
-          "adminToken"
-        );
-
-
-        localStorage.removeItem(
-          "staffUser"
-        );
-
-        localStorage.removeItem(
-          "staffToken"
-        );
-
-
-        window.location.href =
-          "admin-login.html";
-
-      }
-    );
-
-
-
-    /*
-    ==========================================================
-    INITIAL LOAD
-    ==========================================================
-    */
-
-    document.addEventListener(
-      "DOMContentLoaded",
-      () => {
-
-        loadOverview();
-
-        loadSalesSummary();
-
-      }
-    );
+    });
 
   </script>
 
   <!-- SWEETALERT -->
 
-  <script
-    src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
-  ></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>
 
