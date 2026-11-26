@@ -3512,6 +3512,433 @@ input[type="tel"]::-webkit-outer-spin-button {
 }
 }
 
+
+/* ==================================================
+   JCN ADMIN DASHBOARD
+   RECENT ACTIVITY & ACTIVITY HISTORY
+================================================== */
+
+/* RECENT ACTIVITY HEADER */
+
+.recent-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.recent-activity-subheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+/* VIEW ALL BUTTON */
+
+#viewAllActivityBtn {
+  padding: 7px 14px;
+  border: 1px solid rgba(242, 193, 78, 0.5);
+  border-radius: 8px;
+  background: transparent;
+  color: #d4af37;
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.25s ease;
+}
+
+#viewAllActivityBtn:not(:disabled):hover {
+  background: #f2c14e;
+  border-color: #f2c14e;
+  color: #111;
+}
+
+#viewAllActivityBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ACTIVITY LIST */
+
+#recentActivity,
+#allActivityList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* ACTIVITY CARD */
+
+#recentActivity .activity-entry,
+#allActivityList .activity-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  margin: 0;
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+
+#recentActivity .activity-entry:hover,
+#allActivityList .activity-entry:hover {
+  transform: none;
+  border-color: rgba(242, 193, 78, 0.4);
+}
+
+/* ACTIVITY ICON */
+
+#recentActivity .activity-icon,
+#allActivityList .activity-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  background: rgba(242, 193, 78, 0.12);
+  border: 1px solid rgba(242, 193, 78, 0.18);
+  border-radius: 10px;
+  color: #d4af37;
+  font-size: 15px;
+}
+
+/* ACTIVITY CONTENT */
+
+#recentActivity .activity-content,
+#allActivityList .activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+#recentActivity .activity-title,
+#allActivityList .activity-title {
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+#recentActivity .activity-message,
+#allActivityList .activity-message {
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* LIMIT DASHBOARD TITLE */
+
+#recentActivity .activity-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* LIMIT DASHBOARD MESSAGE */
+
+#recentActivity .activity-message {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* FULL MESSAGE IN HISTORY */
+
+#allActivityList .activity-message {
+  display: block;
+  white-space: pre-wrap;
+}
+
+/* ACTIVITY TIME AND DATE */
+
+#recentActivity .activity-date,
+#allActivityList .activity-date {
+  font-size: 11px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+#recentActivity .activity-date {
+  white-space: nowrap;
+}
+
+#allActivityList .activity-date {
+  max-width: 120px;
+  line-height: 1.5;
+}
+
+/* ACTIVITY COUNT */
+
+#recentActivityCount.activity-summary {
+  text-align: center;
+  font-size: 12px;
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+#recentActivityCount:empty {
+  display: none;
+}
+
+/* ==================================================
+   EMPTY ACTIVITY
+================================================== */
+
+#recentActivity .activity-empty,
+#allActivityList .activity-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 160px;
+  padding: 24px;
+  border-radius: 12px;
+}
+
+#recentActivity .activity-empty i,
+#allActivityList .activity-empty i {
+  font-size: 28px;
+  color: #d4af37;
+  margin-bottom: 15px;
+}
+
+#recentActivity .activity-empty p,
+#allActivityList .activity-empty p {
+  font-size: 14px;
+}
+
+#recentActivity .activity-empty small,
+#allActivityList .activity-empty small {
+  font-size: 12px;
+}
+
+/* ==================================================
+   ACTIVITY HISTORY MODAL
+================================================== */
+
+#activityHistoryModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1055;
+  display: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#activityHistoryModal .modal-dialog {
+  width: calc(100% - 24px);
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#activityHistoryModal .modal-content {
+  max-height: 85vh;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(242, 193, 78, 0.3);
+  transform: none !important;
+}
+
+/* MODAL HEADER */
+
+#activityHistoryModal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(242, 193, 78, 0.12);
+  flex-shrink: 0;
+}
+
+#activityHistoryTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* CLOSE ICON */
+
+#activityHistoryModal .activity-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(242, 193, 78, 0.2);
+  background: transparent;
+  border-radius: 8px;
+  color: #d4af37;
+  font-size: 17px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#activityHistoryModal .activity-close-btn:hover {
+  background: rgba(242, 193, 78, 0.15);
+}
+
+/* ==================================================
+   ACTIVITY FILTER BUTTONS
+================================================== */
+
+#activityFilters.activity-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 24px;
+  flex-shrink: 0;
+}
+
+#activityFilters .activity-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 15px;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 8px;
+  color: #d4af37;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#activityFilters .activity-filter-btn:hover {
+  background: rgba(242, 193, 78, 0.12);
+}
+
+#activityFilters .activity-filter-btn.active {
+  background: linear-gradient(135deg, #d4af37, #f2c14e);
+  border-color: #f2c14e;
+  color: #111;
+}
+
+/* ==================================================
+   SCROLLABLE MODAL CONTENT
+================================================== */
+
+#activityHistoryModal .modal-body {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 50vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px 24px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #b99132 transparent;
+}
+
+#activityHistoryModal .modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+#activityHistoryModal .modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#activityHistoryModal .modal-body::-webkit-scrollbar-thumb {
+  background: #b99132;
+  border-radius: 10px;
+}
+
+/* MODAL FOOTER */
+
+#activityHistoryModal .modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(242, 193, 78, 0.12);
+  flex-shrink: 0;
+}
+
+#activityHistoryCount {
+  font-size: 12px;
+}
+
+/* ==================================================
+   RECENT ACTIVITY RESPONSIVE DESIGN
+================================================== */
+
+@media (max-width: 576px) {
+
+  .recent-activity-header h4 {
+    font-size: 17px;
+  }
+
+  .recent-activity-subheader {
+    font-size: 11px;
+  }
+
+  #recentActivity .activity-entry,
+  #allActivityList .activity-entry {
+    padding: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  #recentActivity .activity-content,
+  #allActivityList .activity-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #recentActivity .activity-date,
+  #allActivityList .activity-date {
+    width: 100%;
+    max-width: 100%;
+    text-align: right;
+    font-size: 10px;
+  }
+
+  #activityHistoryModal .modal-content {
+    max-height: 90vh;
+  }
+
+  #activityHistoryModal .modal-header {
+    padding: 16px;
+  }
+
+  #activityHistoryTitle {
+    font-size: 17px;
+  }
+
+  #activityFilters.activity-filters {
+    padding: 12px 16px;
+    gap: 6px;
+  }
+
+  #activityFilters .activity-filter-btn {
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  #activityHistoryModal .modal-body {
+    padding: 10px 16px 16px;
+  }
+
+  #activityHistoryModal .modal-footer {
+    padding: 12px 16px;
+  }
+
+}
+
+
 /* =========================================================
    ADMIN LOGIN PORTAL LINKS - FINAL OVERRIDE
 ========================================================= */
