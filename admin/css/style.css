@@ -4082,3 +4082,122 @@ input[type="tel"]::-webkit-outer-spin-button {
 #adminLoginForm a.admin-login-link:hover { color:#fff !important; text-decoration:none !important; }
 #adminLoginForm a.admin-login-link:hover i { color:#fff !important; }
 @media (max-width:576px) { #adminLoginForm .admin-login-options { flex-direction:column; align-items:center; gap:13px; } #adminLoginForm .admin-portal-links { justify-content:center; } #adminLoginForm .admin-forgot-link { margin-left:0; } }
+
+/* ADMIN OVERVIEW — compact Reports-style panels and Logout button.
+   Scoped to the Overview wrapper containing the active Overview link. */
+body.dashboard-body .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) {
+  --ov-card: linear-gradient(135deg,#151515,#0c0c0c);
+  --ov-inner: #141414;
+  --ov-border: rgba(244,197,66,.22);
+  --ov-divider: #292929;
+  --ov-text: #fff;
+  --ov-muted: #a8a8ad;
+  --ov-gold: #f4c542;
+  --ov-active: rgba(244,197,66,.17);
+  width: min(1560px, calc(100% - 32px)) !important;
+  max-width: 1560px !important;
+  margin: 0 auto !important;
+  display: grid;
+  grid-template-columns: 265px minmax(0,1fr);
+  gap: 16px;
+  align-items: start;
+  font-size: 14px;
+}
+html[data-account-theme="light"] body.dashboard-body .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) {
+  --ov-card: #fff;
+  --ov-inner: #f8f9fb;
+  --ov-border: #dce0e6;
+  --ov-divider: #e1e4e8;
+  --ov-text: #20242b;
+  --ov-muted: #626b78;
+  --ov-gold: #936a12;
+  --ov-active: #fff3d4;
+}
+body.dashboard-body:has(.dashboard-wrapper .dashboard-menu a.active-menu[href="admin-dashboard.html"]) > .container-fluid {
+  padding: 16px 0 !important;
+}
+/* Keep the original sections and their contents; place them in the shared grid. */
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section {
+  min-width: 0;
+  margin: 0 !important;
+  grid-column: 2;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:first-of-type {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(#totalUsers) {
+  grid-row: 2;
+  --bs-gutter-x: 12px;
+  --bs-gutter-y: 12px;
+  margin: -12px -6px 0 !important;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(.dashboard-menu) { display: contents; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(.dashboard-menu) > div {
+  width: 100%; max-width: 100%; min-width: 0; margin: 0; padding: 0;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(.dashboard-menu) > div:has(.dashboard-menu) {
+  grid-column: 1; grid-row: 2 / span 3;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(.dashboard-menu) > div:has(#recentActivity) {
+  grid-column: 2; grid-row: 3;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(.sales-summary-wide) {
+  grid-row: 4; margin: 0 !important; --bs-gutter-x: 0; --bs-gutter-y: 0;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-card {
+  background: var(--ov-card) !important;
+  color: var(--ov-text);
+  border: 1px solid var(--ov-border) !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,.08) !important;
+  transform: none !important;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:first-of-type .dashboard-card { padding: 20px 22px !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(#totalUsers) .dashboard-card { min-height: 120px; padding: 16px 12px !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(#totalUsers) .dashboard-card .mb-3 { margin-bottom: 9px !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .inner-panel {
+  background: var(--ov-inner) !important; border: 1px solid var(--ov-divider) !important;
+  border-radius: 12px !important; transform: none !important; box-shadow: none !important;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) :is(.dashboard-card,.inner-panel):hover { transform: none !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .text-light { color: var(--ov-text) !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .text-secondary-light { color: var(--ov-muted) !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .text-gold { color: var(--ov-gold) !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-card:has(.dashboard-menu) { padding: 24px !important; height: auto !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-card:has(.dashboard-menu) h4 { font-size: 20px; font-weight: 700; margin-bottom: 20px !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu { display: grid; gap: 6px; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu a {
+  display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 12px;
+  margin: 0 !important; border: 0 !important; border-radius: 10px !important;
+  background: transparent; color: var(--ov-text); font-size: 14px; font-weight: 600; transform: none !important;
+}
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu a i { width: 18px; text-align: center; margin: 0 !important; }
+.dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu a:is(:hover,.active-menu) { background: var(--ov-active) !important; color: var(--ov-gold) !important; }
+/* Same gold Logout button as Business Reports; no behavior changes. */
+html body.dashboard-body .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu #adminLogoutBtn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 42px; margin: 0 !important; padding: 10px 16px !important;
+  background: linear-gradient(135deg,#f4c542,#d4a51b) !important;
+  color: #16120a !important; border: 1px solid transparent !important; border-radius: 9px !important;
+  font-size: 13px; font-weight: 700; text-align: center; transform: none !important; box-shadow: none !important;
+}
+html body.dashboard-body .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu #adminLogoutBtn i { color: #16120a !important; margin: 0 !important; }
+html body.dashboard-body .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu #adminLogoutBtn:hover { background: #ffda65 !important; }
+@media (max-width:1000px) {
+  body.dashboard-body .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) { grid-template-columns: 220px minmax(0,1fr); }
+}
+@media (max-width:760px) {
+  body.dashboard-body .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) { width: calc(100% - 24px) !important; grid-template-columns: minmax(0,1fr); }
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section,
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(.dashboard-menu) > div { grid-column: 1 !important; grid-row: auto !important; }
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:first-of-type { grid-row: 1 !important; }
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) > section:has(.dashboard-menu) > div:has(.dashboard-menu) { grid-row: 2 !important; }
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-card { padding: 16px !important; }
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu #adminLogoutBtn { grid-column: 1 / -1; }
+}
+@media (max-width:420px) {
+  .dashboard-wrapper:has(.dashboard-menu a.active-menu[href="admin-dashboard.html"]) .dashboard-menu { grid-template-columns: 1fr; }
+}

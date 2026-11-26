@@ -4,51 +4,37 @@
    GLOBAL DARK AND LIGHT MODE
    UNIFIED CENTERED LOGOUT MODAL
 ========================================================== */
-
-
 /* ==========================================================
    01. DARK MODE VARIABLES
 ========================================================== */
-
 :root {
   color-scheme: dark;
-
   --ms-bg: #0c0c0d;
   --ms-card: #141414;
   --ms-surface: #191919;
   --ms-input: #080808;
-
   --ms-text: #ffffff;
   --ms-text-secondary: #dddddd;
   --ms-muted: #a5a5a5;
-
   --ms-gold: #f4c542;
   --ms-gold-dark: #c79b1b;
   --ms-gold-hover: #ffe08a;
   --ms-gold-text: #f4c542;
-
   --ms-border: rgba(244, 197, 66, 0.22);
   --ms-input-border: #292929;
   --ms-divider: rgba(255, 255, 255, 0.07);
-
   --ms-success: #53db8c;
   --ms-danger: #ff6969;
-
   --ms-active: rgba(244, 197, 66, 0.17);
   --ms-hover: rgba(244, 197, 66, 0.08);
-
   --ms-icon-bg: rgba(244, 197, 66, 0.10);
   --ms-icon-border: rgba(244, 197, 66, 0.20);
-
   --ms-table-header: #090909;
   --ms-table-row: #101010;
   --ms-table-hover: #19170f;
-
   --ms-button-bg: #111111;
   --ms-button-text: #aaaaaa;
-
   --ms-note-bg: rgba(244, 197, 66, 0.04);
-
   --ms-page-bg:
     radial-gradient(
       circle at top right,
@@ -56,1774 +42,1163 @@
       transparent 48%
     ),
     #0c0c0d;
-
   --ms-card-bg:
     linear-gradient(135deg, #151515, #0c0c0c);
-
   --ms-modal-bg:
     linear-gradient(145deg, #121212, #090909);
-
   --ms-shadow:
     0 8px 28px rgba(0, 0, 0, 0.20);
-
   --ms-modal-shadow:
     0 25px 80px rgba(0, 0, 0, 0.60);
-
   --ms-backdrop: rgba(0, 0, 0, 0.75);
-
   --ms-gold-gradient:
     linear-gradient(135deg, #f4c542, #d4a72c);
-
   /* LOGOUT THEME */
-
   --ms-logout-bg: #161616;
   --ms-logout-text: #ffffff;
   --ms-logout-muted: #b8b8b8;
-
   --ms-logout-border: rgba(244, 197, 66, 0.28);
-
   --ms-logout-cancel: #f4c542;
   --ms-logout-hover: rgba(244, 197, 66, 0.12);
-
   --ms-logout-overlay: rgba(0, 0, 0, 0.76);
 }
-
-
 /* ==========================================================
    02. LIGHT MODE VARIABLES
 ========================================================== */
-
 :root[data-account-theme="light"] {
   color-scheme: light;
-
   --ms-bg: #f6f7f9;
   --ms-card: #ffffff;
   --ms-surface: #f0f2f5;
   --ms-input: #f8f9fb;
-
   --ms-text: #20242b;
   --ms-text-secondary: #434a55;
   --ms-muted: #626b78;
-
   --ms-gold: #f4c542;
   --ms-gold-dark: #d4a72c;
   --ms-gold-hover: #e8b830;
   --ms-gold-text: #936a12;
-
   --ms-border: #dce0e6;
   --ms-input-border: #dce0e6;
   --ms-divider: #e1e4e8;
-
   --ms-success: #168258;
   --ms-danger: #c73636;
-
   --ms-active: #fff3d4;
   --ms-hover: #fff9eb;
-
   --ms-icon-bg: #fff7e3;
   --ms-icon-border: #efddb0;
-
   --ms-table-header: #edf0f4;
   --ms-table-row: #ffffff;
   --ms-table-hover: #fffaf0;
-
   --ms-button-bg: #f0f2f5;
   --ms-button-text: #434a55;
-
   --ms-note-bg: #fff9eb;
-
   --ms-page-bg: #f6f7f9;
   --ms-card-bg: #ffffff;
   --ms-modal-bg: #ffffff;
-
   --ms-shadow:
     0 8px 28px rgba(35, 40, 50, 0.07);
-
   --ms-modal-shadow:
     0 20px 60px rgba(15, 23, 42, 0.18);
-
   --ms-backdrop: rgba(15, 23, 42, 0.48);
-
   /* LIGHT MODE LOGOUT */
-
   --ms-logout-bg: #ffffff;
   --ms-logout-text: #20242b;
   --ms-logout-muted: #626b78;
-
   --ms-logout-border: #dce0e6;
-
   --ms-logout-cancel: #936a12;
   --ms-logout-hover: #fff3d4;
 }
-
-
 /* ==========================================================
    03. RESET AND GENERAL STYLES
 ========================================================== */
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
   min-height: 100vh;
-
   background: var(--ms-page-bg);
   color: var(--ms-text);
-
   font-family: "Segoe UI", Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
-
 a {
   color: inherit;
   text-decoration: none;
 }
-
 button,
 input,
 select,
 textarea {
   font: inherit;
 }
-
 button {
   cursor: pointer;
 }
-
 button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
-
 .hidden,
 [hidden] {
   display: none !important;
 }
-
 :focus-visible {
   outline: 2px solid var(--ms-gold-text);
   outline-offset: 3px;
 }
-
 .text-gold {
   color: var(--ms-gold-text) !important;
 }
-
 .text-muted,
 .muted {
   color: var(--ms-muted) !important;
 }
-
 .staff-wrapper {
   width: 100%;
   max-width: 1400px;
 }
-
-
 /* ==========================================================
    04. DASHBOARD WRAPPER
 ========================================================== */
-
 .dashboard-wrapper {
   width: min(1400px, calc(100% - 40px));
   margin: 20px auto;
 }
-
 .dashboard-nav,
 .dashboard-card {
   background: var(--ms-card-bg);
   color: var(--ms-text);
-
   border: 1px solid var(--ms-border);
   border-radius: 16px;
-
   box-shadow: var(--ms-shadow);
 }
-
-
 /* ==========================================================
    05. ADMIN TOP NAVIGATION
 ========================================================== */
-
 .dashboard-nav {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
   gap: 20px;
   padding: 16px 22px;
   margin-bottom: 20px;
 }
-
 .dashboard-nav .brand {
   display: inline-flex;
   align-items: center;
-
   gap: 10px;
   margin: 0;
-
   color: var(--ms-text);
-
   font-size: 17px;
   font-weight: 750;
   text-decoration: none;
 }
-
 .dashboard-nav .brand:hover {
   color: var(--ms-text);
 }
-
 .dashboard-nav .brand i {
   color: var(--ms-gold-text);
 }
-
 .dashboard-nav .top-menu {
   display: flex;
-
   align-items: center;
   flex-wrap: wrap;
-
   gap: 26px;
 }
-
 .dashboard-nav .top-menu a {
   padding: 6px 0;
-
   color: var(--ms-text);
-
   font-weight: 600;
   text-decoration: none;
-
   transition: color 0.2s ease;
 }
-
 .dashboard-nav .top-menu a:hover,
 .dashboard-nav .top-menu a.active {
   color: var(--ms-gold-text);
 }
-
-
 /* ==========================================================
    06. OLD STAFF NAVBAR COMPATIBILITY
 ========================================================== */
-
 .staff-navbar {
   background: var(--ms-card-bg);
-
   border: 1px solid var(--ms-border);
   border-radius: 18px;
-
   box-shadow: var(--ms-shadow);
 }
-
 .navbar-brand {
   font-size: 18px;
   color: var(--ms-text);
 }
-
 .staff-navbar .nav-link {
   position: relative;
-
   color: var(--ms-text-secondary) !important;
-
   transition: color 0.25s ease;
 }
-
 .staff-navbar .nav-link:hover,
 .staff-navbar .active-link {
   color: var(--ms-gold-text) !important;
 }
-
 .staff-navbar .active-link {
   font-weight: 700;
 }
-
 .staff-navbar .active-link::after {
   content: "";
-
   position: absolute;
-
   left: 8px;
   right: 8px;
   bottom: 1px;
-
   height: 2px;
-
   border-radius: 20px;
-
   background: var(--ms-gold);
 }
-
 .navbar-toggler {
   border: 1px solid var(--ms-border);
 }
-
 .navbar-toggler:focus {
   box-shadow: none;
 }
-
-
 /* ==========================================================
    07. GENERAL BUTTONS
 ========================================================== */
-
 .btn {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   gap: 8px;
   padding: 10px 16px;
-
   border: 1px solid transparent;
   border-radius: 9px;
-
   font-weight: 700;
-
   cursor: pointer;
-
   transition:
     background 0.2s,
     border-color 0.2s,
     color 0.2s;
 }
-
 .btn-gold,
 .dashboard-nav .btn-gold {
   background: var(--ms-gold-gradient);
-
   color: #16120a;
-
   border: none;
-
   font-weight: 700;
 }
-
 .btn-gold:hover,
 .dashboard-nav .btn-gold:hover {
   background: var(--ms-gold-hover);
-
   color: #16120a;
 }
-
-
 /* ==========================================================
    08. MAIN PAGE HEADING
 ========================================================== */
-
 .dashboard-wrapper .page-heading {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
   gap: 16px;
-
   padding: 24px;
   margin-bottom: 22px;
 }
-
 .dashboard-wrapper .page-heading > div {
   flex: 1;
   min-width: 0;
 }
-
 .dashboard-wrapper .page-heading .eyebrow {
   margin: 0 0 4px;
-
   color: var(--ms-gold-text);
-
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.5px;
 }
-
 .dashboard-wrapper .page-heading h1 {
   margin: 0 0 4px;
-
   color: var(--ms-text);
-
   font-size: clamp(24px, 3vw, 32px);
   font-weight: 750;
   line-height: 1.2;
 }
-
 .dashboard-wrapper .page-heading .muted {
   margin: 5px 0 0;
-
   color: var(--ms-muted);
-
   font-size: 14px;
 }
-
 .dashboard-wrapper .admin-badge {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   gap: 6px;
   padding: 5px 10px;
-
   background: var(--ms-icon-bg);
   color: var(--ms-gold-text);
-
   border: 1px solid var(--ms-icon-border);
   border-radius: 20px;
-
   font-size: 11px;
   font-weight: 700;
-
   white-space: nowrap;
 }
-
-
 /* ==========================================================
    09. DASHBOARD MAIN LAYOUT
 ========================================================== */
-
 .dashboard-layout {
   display: grid;
-
   grid-template-columns: 265px minmax(0, 1fr);
-
   align-items: start;
   gap: 20px;
 }
-
-
 /* ==========================================================
    10. ADMIN SIDEBAR
 ========================================================== */
-
 .dashboard-layout .sidebar {
   position: static;
-
   width: auto;
   height: auto;
   min-height: 0;
-
   margin: 0;
   padding: 24px;
-
   background: var(--ms-card-bg);
-
   border: 1px solid var(--ms-border);
   border-radius: 16px;
 }
-
 .dashboard-layout .sidebar h2 {
   display: flex;
-
   align-items: center;
-
   gap: 10px;
   margin: 0 0 20px;
-
   color: var(--ms-text);
-
   font-size: 20px;
   font-weight: 700;
 }
-
 .dashboard-layout .sidebar h2 i {
   color: var(--ms-gold-text);
 }
-
 .dashboard-menu {
   display: grid;
   gap: 6px;
 }
-
 .dashboard-menu a {
   display: flex;
   align-items: center;
-
   gap: 12px;
   padding: 12px;
-
   border-radius: 10px;
-
   color: var(--ms-text-secondary);
-
   font-weight: 600;
   text-decoration: none;
-
   transition:
     background 0.2s ease,
     color 0.2s ease;
 }
-
 .dashboard-menu a i {
   width: 18px;
   text-align: center;
 }
-
 .dashboard-menu a:hover {
   background: var(--ms-hover);
-
   color: var(--ms-gold-text);
 }
-
 .dashboard-menu a.active,
 .dashboard-menu a.active-menu {
   background: var(--ms-active);
-
   color: var(--ms-gold-text);
 }
-
-
 /* ==========================================================
    11. STAFF DIRECTORY HEADER
 ========================================================== */
-
 .staff-main {
   width: 100%;
   min-width: 0;
 }
-
 .page-header,
 .staff-main .page-header {
   display: block;
-
   padding: 24px;
   margin-bottom: 24px !important;
-
   background: var(--ms-card-bg);
-
   border: 1px solid var(--ms-border);
   border-radius: 16px;
-
   box-shadow: var(--ms-shadow);
 }
-
 .staff-main .page-header .row {
   width: auto;
-
   margin-left: 0;
   margin-right: 0;
 }
-
 .staff-main .page-header .col-lg-8,
 .staff-main .page-header .col-lg-4 {
   padding-left: 0;
   padding-right: 0;
 }
-
 .page-eyebrow,
 .staff-main .page-eyebrow {
   margin-bottom: 6px !important;
-
   color: var(--ms-gold-text);
-
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1px;
 }
-
 .page-title,
 .staff-main .page-title {
   margin: 0 0 6px;
-
   color: var(--ms-text);
-
   font-size: 24px;
   font-weight: 750;
   line-height: 1.25;
 }
-
 .page-description,
 .staff-main .page-description {
   margin: 0;
-
   color: var(--ms-muted);
-
   font-size: 13px;
   line-height: 1.5;
 }
-
 .staff-main .page-header .col-lg-4 {
   display: flex;
-
   align-items: center;
   justify-content: flex-end;
 }
-
-
 /* ==========================================================
    12. ADD STAFF BUTTON
 ========================================================== */
-
 .btn-add-staff,
 .staff-main .btn-add-staff {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   gap: 8px;
-
   width: auto;
   min-height: 42px;
-
   padding: 11px 18px;
-
   background: var(--ms-gold-gradient);
-
   color: #171717;
-
   border: none;
   border-radius: 10px;
-
   font-size: 13px;
   font-weight: 800;
   line-height: 1.3;
-
   white-space: nowrap;
-
   transition: 0.25s ease;
 }
-
 .btn-add-staff i {
   margin-right: 0;
 }
-
 .btn-add-staff:hover,
 .staff-main .btn-add-staff:hover {
   background: var(--ms-gold-hover);
-
   color: #171717;
-
   transform: translateY(-1px);
-
   box-shadow:
     0 5px 18px rgba(244, 197, 66, 0.18);
 }
-
-
 /* ==========================================================
    13. STAFF SUMMARY CARDS
 ========================================================== */
-
 .summary-card {
   display: flex;
-
   align-items: center;
-
   min-height: 100px;
-
   gap: 18px;
   padding: 16px;
-
   background: var(--ms-card-bg);
-
   border: 1px solid var(--ms-border);
   border-radius: 16px;
-
   box-shadow: var(--ms-shadow);
-
   transition:
     transform 0.25s,
     border-color 0.25s;
 }
-
 .summary-card:hover {
   transform: translateY(-3px);
-
   border-color: var(--ms-gold);
 }
-
 .summary-icon {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   width: 44px;
   height: 44px;
-
   border-radius: 14px;
-
   background: var(--ms-icon-bg);
-
   border: 1px solid var(--ms-icon-border);
-
   color: var(--ms-gold-text);
-
   font-size: 21px;
 }
-
 .summary-card p {
   margin-bottom: 5px;
-
   color: var(--ms-muted);
-
   font-size: 13px;
 }
-
 .summary-card h3 {
   margin: 0;
-
   color: var(--ms-gold-text);
-
   font-size: 23px;
   font-weight: 800;
 }
-
 :root[data-account-theme="light"]
 .summary-card h3 {
   color: var(--ms-text);
 }
-
-
 /* ==========================================================
    14. STAFF ACCOUNTS PANEL
 ========================================================== */
-
 .staff-panel {
   overflow: hidden;
-
   background: var(--ms-card);
-
   border: 1px solid var(--ms-border);
   border-radius: 16px;
-
   box-shadow: var(--ms-shadow);
 }
-
 .staff-panel-header {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
   gap: 20px;
   padding: 22px;
-
   background: var(--ms-card);
-
   border-bottom: 1px solid var(--ms-divider);
 }
-
 .staff-panel-header h3 {
   margin-bottom: 5px;
-
   color: var(--ms-text);
-
   font-size: 20px;
   font-weight: 800;
 }
-
 .staff-panel-header p {
   margin: 0;
-
   color: var(--ms-muted);
-
   font-size: 13px;
 }
-
-
 /* ==========================================================
    15. STAFF SEARCH AND FILTERS
 ========================================================== */
-
 .staff-tools {
   display: flex;
-
   align-items: center;
   flex-wrap: wrap;
-
   gap: 10px;
 }
-
 .search-box {
   display: flex;
-
   align-items: center;
-
   min-width: 230px;
   height: 42px;
-
   gap: 10px;
   padding: 0 13px;
-
   background: var(--ms-input);
-
   border: 1px solid var(--ms-input-border);
   border-radius: 9px;
 }
-
 .search-box i {
   color: var(--ms-muted);
-
   font-size: 13px;
 }
-
 .search-box input {
   width: 100%;
   min-width: 0;
-
   border: none;
   outline: none;
-
   background: transparent;
-
   color: var(--ms-text);
-
   font-size: 13px;
 }
-
 .search-box input::placeholder {
   color: var(--ms-muted);
 }
-
 .search-box:focus-within {
   border-color: var(--ms-gold-text);
 }
-
 .staff-filter {
   height: 42px;
-
   padding: 0 35px 0 13px;
-
   background-color: var(--ms-input);
-
   color: var(--ms-text);
-
   border: 1px solid var(--ms-input-border);
   border-radius: 9px;
-
   outline: none;
-
   font-size: 13px;
 }
-
 .staff-filter:focus {
   border-color: var(--ms-gold-text);
 }
-
 .staff-filter option {
   background: var(--ms-card);
-
   color: var(--ms-text);
 }
-
-
 /* ==========================================================
    16. STAFF TABLE
 ========================================================== */
-
 .table-responsive {
   width: 100%;
-
   overflow-x: auto;
 }
-
 .staff-table {
   --bs-table-bg: var(--ms-table-row);
   --bs-table-color: var(--ms-text);
   --bs-table-border-color: var(--ms-divider);
   --bs-table-hover-bg: var(--ms-table-hover);
-
   width: 100%;
-
   margin-bottom: 0;
-
   border-collapse: collapse;
-
   background: var(--ms-card);
-
   color: var(--ms-text);
 }
-
 .staff-table thead {
   background: var(--ms-table-header);
 }
-
 .staff-table th {
   padding: 15px 12px;
-
   background: var(--ms-table-header);
-
   color: var(--ms-muted);
-
   border-bottom: 1px solid var(--ms-divider);
-
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.7px;
-
   text-transform: uppercase;
-
   white-space: nowrap;
 }
-
 .staff-table td {
   padding: 15px 12px;
-
   background: var(--ms-table-row);
-
   color: var(--ms-text-secondary);
-
   border-bottom: 1px solid var(--ms-divider);
-
   font-size: 13px;
-
   vertical-align: middle;
 }
-
 .staff-table tbody tr {
   transition: background 0.2s ease;
 }
-
 .staff-table tbody tr:hover td {
   background: var(--ms-table-hover);
 }
-
-
 /* ==========================================================
    17. STAFF PROFILE
 ========================================================== */
-
 .staff-profile {
   display: flex;
-
   align-items: center;
-
   gap: 12px;
 }
-
 .staff-avatar {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   width: 40px;
   height: 40px;
-
   border-radius: 50%;
-
   background: var(--ms-icon-bg);
-
   border: 1px solid var(--ms-icon-border);
-
   color: var(--ms-gold-text);
-
   font-weight: 800;
 }
-
 .staff-details {
   min-width: 0;
 }
-
 .staff-name,
 .staff-details strong {
   display: block;
-
   margin-bottom: 2px;
-
   color: var(--ms-text);
-
   font-weight: 700;
 }
-
 .staff-email,
 .staff-details small {
   display: block;
-
   color: var(--ms-muted);
-
   font-size: 11px;
-
   overflow-wrap: anywhere;
 }
-
 .staff-username,
 .last-login {
   color: var(--ms-text-secondary);
 }
-
-
 /* ==========================================================
    18. ROLE BADGES
 ========================================================== */
-
 .role-badge {
   display: inline-flex;
-
   align-items: center;
-
   padding: 6px 10px;
-
   border-radius: 20px;
-
   background: var(--ms-icon-bg);
-
   border: 1px solid var(--ms-icon-border);
-
   color: var(--ms-gold-text);
-
   font-size: 11px;
   font-weight: 700;
-
   white-space: nowrap;
 }
-
-
 /* ==========================================================
    19. STATUS BADGES
 ========================================================== */
-
 .status-badge {
   display: inline-flex;
-
   align-items: center;
-
   gap: 6px;
   padding: 6px 10px;
-
   border-radius: 20px;
-
   font-size: 11px;
   font-weight: 700;
-
   white-space: nowrap;
 }
-
 .status-dot {
   display: inline-block;
-
   width: 7px;
   height: 7px;
-
   border-radius: 50%;
-
   background: currentColor;
 }
-
 .status-active {
   color: var(--ms-success);
-
   background: rgba(83, 219, 140, 0.08);
-
   border: 1px solid rgba(83, 219, 140, 0.20);
 }
-
 .status-inactive {
   color: var(--ms-muted);
-
   background: rgba(170, 170, 170, 0.08);
-
   border: 1px solid rgba(170, 170, 170, 0.20);
 }
-
 .status-restricted {
   color: var(--ms-danger);
-
   background: rgba(255, 105, 105, 0.08);
-
   border: 1px solid rgba(255, 105, 105, 0.20);
 }
-
-
 /* ==========================================================
    20. STAFF ACTION BUTTONS
 ========================================================== */
-
 .staff-actions {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   gap: 7px;
 }
-
 .action-btn,
 .staff-action-btn {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   width: 34px;
   height: 34px;
-
   border: 1px solid var(--ms-input-border);
   border-radius: 8px;
-
   background: var(--ms-button-bg);
-
   color: var(--ms-button-text);
-
   cursor: pointer;
-
   transition: 0.2s ease;
 }
-
 .action-btn:hover,
 .staff-action-btn:hover {
   background: var(--ms-hover);
-
   border-color: var(--ms-gold);
-
   color: var(--ms-gold-text);
 }
-
 .action-btn.delete:hover,
 .staff-action-btn.delete:hover {
   border-color: var(--ms-danger);
-
   color: var(--ms-danger);
 }
-
-
 /* ==========================================================
    21. EMPTY STAFF TABLE
 ========================================================== */
-
 .empty-table,
 .staff-empty-state {
   padding: 65px 20px !important;
-
   text-align: center;
 }
-
 .empty-icon {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   width: 65px;
   height: 65px;
-
   margin: 0 auto 15px;
-
   border-radius: 50%;
-
   background: var(--ms-icon-bg);
-
   color: var(--ms-gold-text);
-
   font-size: 24px;
 }
-
 .empty-table h4,
 .staff-empty-state h5 {
   color: var(--ms-text);
-
   font-size: 17px;
   font-weight: 700;
 }
-
 .empty-table p,
 .staff-empty-state p {
   max-width: 420px;
-
   margin: 7px auto 0;
-
   color: var(--ms-muted);
-
   font-size: 13px;
 }
-
-
 /* ==========================================================
    22. ADD STAFF MODAL
 ========================================================== */
-
 .modal-backdrop.show {
   background: var(--ms-backdrop);
-
   opacity: 1;
 }
-
 .staff-modal {
   overflow: hidden;
-
   background: var(--ms-modal-bg);
-
   border: 1px solid var(--ms-border);
   border-radius: 18px;
-
   color: var(--ms-text);
-
   box-shadow: var(--ms-modal-shadow);
 }
-
 .staff-modal .modal-header {
   padding: 22px 25px;
-
   background: var(--ms-card);
-
   border-bottom: 1px solid var(--ms-divider);
 }
-
 .modal-eyebrow {
   margin-bottom: 4px;
-
   color: var(--ms-gold-text);
-
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1.5px;
 }
-
 .staff-modal .modal-title {
   color: var(--ms-text);
-
   font-weight: 800;
 }
-
 .staff-modal .modal-body {
   padding: 25px;
-
   background: var(--ms-card);
-
   color: var(--ms-text);
 }
-
 .staff-modal .form-label,
 .form-label {
   margin-bottom: 8px;
-
   color: var(--ms-text-secondary);
-
   font-size: 12px;
   font-weight: 700;
 }
-
-
 /* ==========================================================
    23. STAFF MODAL INPUT GROUPS
 ========================================================== */
-
 .input-group-custom {
   display: flex;
-
   align-items: center;
-
   min-height: 48px;
-
   gap: 11px;
   padding: 0 14px;
-
   background: var(--ms-input);
-
   border: 1px solid var(--ms-input-border);
   border-radius: 9px;
-
   transition:
     background 0.2s,
     border-color 0.2s,
     box-shadow 0.2s;
 }
-
 .input-group-custom:focus-within {
   border-color: var(--ms-gold-text);
-
   box-shadow:
     0 0 0 3px rgba(196, 154, 53, 0.14);
 }
-
 .input-group-custom i {
   flex-shrink: 0;
-
   width: 16px;
-
   color: var(--ms-gold-text);
-
   font-size: 13px;
 }
-
 .input-group-custom input,
 .input-group-custom select {
   width: 100%;
   min-width: 0;
-
   height: 46px;
-
   border: none;
   outline: none;
-
   background: transparent;
-
   color: var(--ms-text);
-
   font-size: 13px;
 }
-
 .input-group-custom input::placeholder {
   color: var(--ms-muted);
 }
-
 .input-group-custom select option {
   background: var(--ms-card);
-
   color: var(--ms-text);
 }
-
 .input-group-custom input:-webkit-autofill {
   -webkit-box-shadow:
     0 0 0 1000px var(--ms-input) inset !important;
-
   -webkit-text-fill-color:
     var(--ms-text) !important;
-
   caret-color: var(--ms-text);
 }
-
 .input-group-custom button {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   background: transparent;
-
   border: none;
-
   color: var(--ms-muted);
 }
-
 .input-group-custom button:hover {
   color: var(--ms-gold-text);
 }
-
-
 /* ==========================================================
    24. STAFF ACCESS INFORMATION
 ========================================================== */
-
 .account-note {
   display: flex;
-
   gap: 12px;
-
   margin-top: 25px;
   padding: 15px;
-
   background: var(--ms-note-bg);
-
   border: 1px solid var(--ms-icon-border);
   border-radius: 10px;
 }
-
 .account-note > i {
   margin-top: 3px;
-
   color: var(--ms-gold-text);
 }
-
 .account-note strong {
   display: block;
-
   margin-bottom: 3px;
-
   color: var(--ms-text);
-
   font-size: 12px;
 }
-
 .account-note p {
   margin: 0;
-
   color: var(--ms-muted);
-
   font-size: 11px;
 }
-
-
 /* ==========================================================
    25. STAFF MODAL CLOSE BUTTON
 ========================================================== */
-
 .staff-modal .btn-close {
   opacity: 1;
-
   background-color: var(--ms-surface);
-
   border-radius: 6px;
-
   background-size: 12px;
   background-repeat: no-repeat;
   background-position: center;
-
   filter: invert(1) grayscale(100%);
 }
-
 :root[data-account-theme="light"]
 .staff-modal .btn-close {
   filter: none !important;
-
   background-color: #edf0f4 !important;
-
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='%23434a55' stroke-width='2' stroke-linecap='round' d='M3 3l10 10M13 3L3 13'/%3E%3C/svg%3E") !important;
-
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: 12px !important;
-
   opacity: 1 !important;
 }
-
-
 /* ==========================================================
    26. STAFF MODAL FOOTER
 ========================================================== */
-
 .staff-modal .modal-footer {
   padding: 18px 25px;
-
   background: var(--ms-card);
-
   border-top: 1px solid var(--ms-divider);
 }
-
 .btn-cancel,
 .btn-create {
   padding: 11px 18px;
-
   border-radius: 9px;
-
   font-size: 13px;
   font-weight: 700;
-
   cursor: pointer;
 }
-
 .btn-cancel {
   background: var(--ms-button-bg);
-
   color: var(--ms-button-text);
-
   border: 1px solid var(--ms-input-border);
 }
-
 .btn-cancel:hover {
   background: var(--ms-surface);
-
   color: var(--ms-text);
-
   border-color: var(--ms-gold-text);
 }
-
 .btn-create {
   background: var(--ms-gold-gradient);
-
   color: #171717;
-
   border: none;
 }
-
 .btn-create i {
   margin-right: 6px;
 }
-
 .btn-create:hover {
   background: var(--ms-gold-hover);
-
   color: #171717;
 }
-
-
 /* ==========================================================
    27. UNIFIED LOGOUT MODAL
    OLD CUSTOM DIV COMPATIBILITY
 ========================================================== */
-
 html body div#adminLogoutModal {
   position: fixed !important;
-
   inset: 0 !important;
-
   z-index: 999999;
-
   display: flex;
-
   align-items: center !important;
   justify-content: center !important;
-
   width: 100% !important;
   height: 100% !important;
-
   margin: 0 !important;
   padding: 16px !important;
-
   transform: none !important;
-
   background: transparent !important;
-
   border: none !important;
   box-shadow: none !important;
 }
-
-
 /* HIDDEN CUSTOM LOGOUT MODAL */
-
 html body #adminLogoutModal.hidden,
 html body #adminLogoutModal[hidden] {
   display: none !important;
   pointer-events: none !important;
 }
-
-
 /* CUSTOM LOGOUT BACKDROP */
-
 html body #adminLogoutModal .logout-backdrop {
   position: absolute;
-
   inset: 0;
-
   z-index: 1;
-
   background: var(--ms-logout-overlay) !important;
-
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
-
-
 /* ==========================================================
    28. CUSTOM LOGOUT BOX
 ========================================================== */
-
 html body #adminLogoutModal .logout-box {
   position: relative !important;
-
   z-index: 2;
-
   inset: auto !important;
-
   transform: none !important;
-
   width: min(378px, 100%) !important;
   max-width: 378px !important;
-
   height: auto !important;
-
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
-
   margin: auto !important;
   padding: 30px 27px !important;
-
   background: var(--ms-logout-bg) !important;
   background-image: none !important;
-
   color: var(--ms-logout-text) !important;
-
   border: 1px solid var(--ms-logout-border) !important;
-
   border-radius: 20px !important;
-
   box-shadow: var(--ms-modal-shadow) !important;
-
   text-align: center !important;
-
   overflow-y: auto;
-
   box-sizing: border-box;
 }
-
-
 /* ==========================================================
    29. NATIVE HTML LOGOUT DIALOG
    PERFECT CENTER ALIGNMENT
 ========================================================== */
-
 html body dialog#adminLogoutModal.jcn-unified-logout {
   position: fixed !important;
-
   inset: 0 !important;
-
   top: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
   left: 0 !important;
-
   margin: auto !important;
-
   transform: none !important;
-
   width: min(378px, calc(100vw - 32px)) !important;
-
   max-width: 378px !important;
-
   height: fit-content !important;
-
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
-
   padding: 30px 27px !important;
-
   background: var(--ms-logout-bg) !important;
   background-image: none !important;
-
   color: var(--ms-logout-text) !important;
-
   border: 1px solid var(--ms-logout-border) !important;
-
   border-radius: 20px !important;
-
   box-shadow: var(--ms-modal-shadow) !important;
-
   text-align: center !important;
-
   box-sizing: border-box;
-
   overflow-y: auto;
-
   z-index: 10000;
 }
-
-
 /* NATIVE LOGOUT MODAL VISIBILITY */
-
 html body dialog#adminLogoutModal:not([open]) {
   display: none !important;
-
   pointer-events: none !important;
 }
-
 html body dialog#adminLogoutModal[open] {
   display: block !important;
-
   pointer-events: auto !important;
 }
-
-
 /* NATIVE LOGOUT BACKDROP */
-
 html body dialog#adminLogoutModal::backdrop {
   background: var(--ms-logout-overlay) !important;
-
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
-
-
 /* ==========================================================
    30. CENTERED LOGOUT ICON
 ========================================================== */
-
 html body #adminLogoutModal .logout-icon {
   display: flex !important;
-
   align-items: center !important;
   justify-content: center !important;
-
   flex-shrink: 0;
-
   width: 65px !important;
   height: 65px !important;
-
   margin: 0 auto 18px !important;
-
   padding: 0 !important;
-
   background: linear-gradient(
     135deg,
     #f4c542,
     #d4a51b
   ) !important;
-
   color: #080808 !important;
-
   border: none !important;
   border-radius: 50% !important;
-
   font-size: 25px !important;
-
   box-shadow: none !important;
 }
-
 html body #adminLogoutModal .logout-icon i {
   color: #080808 !important;
-
   font-size: 25px !important;
 }
-
-
 /* ==========================================================
    31. LOGOUT TITLE AND DESCRIPTION
 ========================================================== */
-
 html body #adminLogoutModal :is(h2, h3, h4) {
   margin: 0 0 8px !important;
-
   color: var(--ms-logout-text) !important;
-
   font-size: 23px !important;
   font-weight: 800 !important;
-
   line-height: 1.3;
-
   text-align: center !important;
 }
-
 html body #adminLogoutModal p {
   margin: 0 0 27px !important;
-
   color: var(--ms-logout-muted) !important;
-
   font-size: 14px !important;
   line-height: 1.5;
-
   white-space: normal !important;
-
   text-align: center !important;
 }
-
-
 /* ==========================================================
    32. LOGOUT BUTTON CONTAINER
 ========================================================== */
-
 html body #adminLogoutModal .logout-actions {
   display: flex !important;
-
   align-items: center !important;
   justify-content: center !important;
-
   flex-direction: row !important;
   flex-wrap: nowrap !important;
-
   gap: 12px !important;
-
   width: 100% !important;
-
   padding: 0 !important;
   margin: 0 !important;
-
   background: transparent !important;
-
   border: none !important;
 }
-
-
 /* SHARED LOGOUT BUTTON STYLES */
-
 html body #adminLogoutModal :is(
   #adminConfirmLogout,
   #adminCancelLogout,
@@ -1833,139 +1208,94 @@ html body #adminLogoutModal :is(
   .logout-cancel-btn
 ) {
   display: inline-flex !important;
-
   align-items: center !important;
   justify-content: center !important;
-
   flex: 1 1 0 !important;
-
   width: auto !important;
   min-width: 0;
-
   min-height: 46px;
-
   height: auto;
-
   margin: 0 !important;
-
   padding: 12px 10px !important;
-
   border-radius: 10px !important;
-
   font-size: 13px !important;
   font-weight: 800 !important;
   line-height: 1.4;
-
   cursor: pointer;
-
   transform: none !important;
   box-shadow: none !important;
-
   transition:
     background 0.2s,
     color 0.2s;
 }
-
-
 /* ==========================================================
    33. CONFIRM LOGOUT BUTTON
 ========================================================== */
-
 html body #adminLogoutModal :is(
   #adminConfirmLogout,
   .confirm-logout,
   .logout-confirm-btn
 ) {
   order: 1 !important;
-
   background: linear-gradient(
     135deg,
     #f4c542,
     #d4a51b
   ) !important;
-
   color: #080808 !important;
-
   border: 1px solid transparent !important;
 }
-
 html body #adminLogoutModal :is(
   #adminConfirmLogout,
   .confirm-logout,
   .logout-confirm-btn
 ):hover {
   background: #e8b830 !important;
-
   color: #080808 !important;
-
   transform: none !important;
   box-shadow: none !important;
 }
-
-
 /* ==========================================================
    34. CANCEL LOGOUT BUTTON
 ========================================================== */
-
 html body #adminLogoutModal :is(
   #adminCancelLogout,
   .cancel-logout,
   .logout-cancel-btn
 ) {
   order: 2 !important;
-
   background: transparent !important;
-
   color: var(--ms-logout-cancel) !important;
-
   border: 1px solid #d4a51b !important;
 }
-
 html body #adminLogoutModal :is(
   #adminCancelLogout,
   .cancel-logout,
   .logout-cancel-btn
 ):hover {
   background: var(--ms-logout-hover) !important;
-
   color: var(--ms-logout-cancel) !important;
-
   transform: none !important;
   box-shadow: none !important;
 }
-
-
 /* LOGOUT BUTTON DISABLED STATE */
-
 html body #adminLogoutModal button:disabled {
   opacity: 0.55 !important;
-
   cursor: not-allowed;
 }
-
-
 /* LOGOUT KEYBOARD ACCESSIBILITY */
-
 #adminLogoutModal button:focus-visible {
   outline: 2px solid #c49a35;
-
   outline-offset: 3px;
 }
-
-
 /* ==========================================================
    35. EXACT LIGHT MODE OVERRIDES
 ========================================================== */
-
 html[data-account-theme="light"] body {
   background: #f6f7f9 !important;
-
   color: #20242b !important;
 }
-
-
 /* DASHBOARD CARDS */
-
 html[data-account-theme="light"]
 body :is(
   .dashboard-nav,
@@ -1974,39 +1304,27 @@ body :is(
 ) {
   background: #ffffff !important;
   background-image: none !important;
-
   color: var(--ms-text) !important;
-
   border-color: var(--ms-border) !important;
 }
-
-
 /* TOP NAVIGATION */
-
 html[data-account-theme="light"]
 body .dashboard-nav .brand,
-
 html[data-account-theme="light"]
 body .dashboard-nav .top-menu a {
   color: var(--ms-text) !important;
 }
-
 html[data-account-theme="light"]
 body .dashboard-nav .top-menu a:hover,
-
 html[data-account-theme="light"]
 body .dashboard-nav .top-menu a.active {
   color: var(--ms-gold-text) !important;
 }
-
-
 /* SIDEBAR */
-
 html[data-account-theme="light"]
 body .dashboard-menu a {
   color: var(--ms-text-secondary) !important;
 }
-
 html[data-account-theme="light"]
 body .dashboard-menu a:is(
   .active,
@@ -2014,150 +1332,103 @@ body .dashboard-menu a:is(
   :hover
 ) {
   background: var(--ms-active) !important;
-
   color: var(--ms-gold-text) !important;
 }
-
-
 /* STAFF DIRECTORY */
-
 html[data-account-theme="light"]
 body .staff-main .page-header {
   background: #ffffff !important;
   background-image: none !important;
-
   color: var(--ms-text) !important;
-
   border-color: var(--ms-border) !important;
-
   box-shadow: var(--ms-shadow) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-main .page-title {
   color: var(--ms-text) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-main .page-eyebrow {
   color: var(--ms-gold-text) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-main .page-description {
   color: var(--ms-muted) !important;
 }
-
-
 /* SUMMARY CARDS */
-
 html[data-account-theme="light"]
 body .staff-main .summary-card {
   background: var(--ms-card) !important;
   background-image: none !important;
-
   border-color: var(--ms-border) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-main .summary-card p {
   color: var(--ms-muted) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-main .summary-card h3 {
   color: var(--ms-text) !important;
 }
-
-
 /* STAFF ACCOUNTS PANEL */
-
 html[data-account-theme="light"]
 body .staff-main .staff-panel,
-
 html[data-account-theme="light"]
 body .staff-main .staff-panel-header {
   background: var(--ms-card) !important;
   background-image: none !important;
-
   border-color: var(--ms-border) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-panel-header h3 {
   color: var(--ms-text) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-panel-header p {
   color: var(--ms-muted) !important;
 }
-
-
 /* SEARCH AND FILTERS */
-
 html[data-account-theme="light"]
 body .staff-main :is(
   .search-box,
   .staff-filter
 ) {
   background: var(--ms-input) !important;
-
   color: var(--ms-text) !important;
-
   border-color: var(--ms-input-border) !important;
 }
-
 html[data-account-theme="light"]
 body .search-box input {
   background: transparent !important;
-
   color: var(--ms-text) !important;
-
   border: none !important;
-
   box-shadow: none !important;
 }
-
-
 /* STAFF TABLE */
-
 html[data-account-theme="light"]
 body .staff-table {
   background: #ffffff !important;
-
   color: var(--ms-text) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-table th {
   background: var(--ms-table-header) !important;
-
   color: var(--ms-muted) !important;
-
   border-color: var(--ms-divider) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-table td {
   background: var(--ms-table-row) !important;
-
   color: var(--ms-text-secondary) !important;
-
   border-color: var(--ms-divider) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-table tbody tr:hover td {
   background: var(--ms-table-hover) !important;
 }
-
-
 /* STAFF MODAL BACKGROUNDS */
-
 html[data-account-theme="light"]
 body .staff-modal,
-
 html[data-account-theme="light"]
 body .staff-modal :is(
   .modal-header,
@@ -2166,154 +1437,104 @@ body .staff-modal :is(
 ) {
   background: #ffffff !important;
   background-image: none !important;
-
   color: var(--ms-text) !important;
-
   border-color: var(--ms-border) !important;
 }
-
-
 /* STAFF MODAL INPUT WRAPPERS */
-
 html[data-account-theme="light"]
 body .staff-modal .input-group-custom {
   background: var(--ms-input) !important;
-
   border-color: var(--ms-input-border) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-modal .input-group-custom i {
   background: transparent !important;
-
   color: var(--ms-gold-text) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-modal .input-group-custom input,
-
 html[data-account-theme="light"]
 body .staff-modal .input-group-custom select {
   background: transparent !important;
-
   color: var(--ms-text) !important;
-
   border: none !important;
-
   box-shadow: none !important;
 }
-
 html[data-account-theme="light"]
 body .staff-modal .input-group-custom:focus-within {
   border-color: #c49a35 !important;
-
   box-shadow:
     0 0 0 3px rgba(196, 154, 53, 0.14) !important;
 }
-
-
 /* STAFF ACCOUNT NOTE */
-
 html[data-account-theme="light"]
 body .staff-modal .account-note {
   background: var(--ms-note-bg) !important;
-
   border-color: var(--ms-icon-border) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-modal .account-note strong {
   color: var(--ms-gold-text) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-modal .account-note p {
   color: var(--ms-muted) !important;
 }
-
-
 /* STAFF MODAL BUTTONS */
-
 html[data-account-theme="light"]
 body .staff-modal .btn-cancel {
   background: var(--ms-button-bg) !important;
-
   color: var(--ms-button-text) !important;
-
   border-color: var(--ms-border) !important;
 }
-
 html[data-account-theme="light"]
 body .staff-modal .btn-create,
-
 html[data-account-theme="light"]
 body .staff-main .btn-add-staff {
   background: var(--ms-gold-gradient) !important;
-
   color: #171717 !important;
 }
-
-
 /* LIGHT MODE STAFF STATUS */
-
 html[data-account-theme="light"]
 body .staff-table .status-active {
   background: #eaf9f0 !important;
-
   color: #168258 !important;
-
   border-color: #bce8cf !important;
 }
-
 html[data-account-theme="light"]
 body .staff-table .status-inactive {
   background: #edf0f4 !important;
-
   color: #626b78 !important;
-
   border-color: #dce0e6 !important;
 }
-
 html[data-account-theme="light"]
 body .staff-table .status-restricted {
   background: #fff0f0 !important;
-
   color: #c73636 !important;
-
   border-color: #efc5c5 !important;
 }
-
-
 /* ==========================================================
    36. LIGHT MODE LOGOUT MODAL
 ========================================================== */
-
 html[data-account-theme="light"]
 body dialog#adminLogoutModal.jcn-unified-logout,
-
 html[data-account-theme="light"]
 body #adminLogoutModal .logout-box {
   background: #ffffff !important;
   background-image: none !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
-
   box-shadow:
     0 20px 60px rgba(15, 23, 42, 0.18) !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal :is(h2, h3, h4) {
   color: #20242b !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal p {
   color: #626b78 !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal :is(
   #adminCancelLogout,
@@ -2321,12 +1542,9 @@ body #adminLogoutModal :is(
   .logout-cancel-btn
 ) {
   background: #ffffff !important;
-
   color: #936a12 !important;
-
   border-color: #d4a51b !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal :is(
   #adminCancelLogout,
@@ -2334,48 +1552,33 @@ body #adminLogoutModal :is(
   .logout-cancel-btn
 ):hover {
   background: #fff3d4 !important;
-
   color: #936a12 !important;
 }
-
-
 /* ==========================================================
    37. SWEETALERT2 MODALS
    EDIT, STATUS, PASSWORD AND DELETE STAFF
 ========================================================== */
-
 html[data-account-theme] body .swal2-popup {
   background: var(--ms-card) !important;
-
   color: var(--ms-text) !important;
-
   border: 1px solid var(--ms-border);
-
   border-radius: 20px;
-
   box-shadow: var(--ms-modal-shadow);
 }
-
 html[data-account-theme] body .swal2-title {
   color: var(--ms-text) !important;
-
   font-weight: 750;
 }
-
 html[data-account-theme] body .swal2-html-container {
   color: var(--ms-muted) !important;
 }
-
 html[data-account-theme]
 body .swal2-popup label {
   display: block;
-
   color: var(--ms-text-secondary) !important;
-
   font-size: 13px;
   font-weight: 600;
 }
-
 html[data-account-theme]
 body .swal2-popup :is(
   .swal2-input,
@@ -2383,14 +1586,10 @@ body .swal2-popup :is(
   .swal2-textarea
 ) {
   background: var(--ms-input) !important;
-
   color: var(--ms-text) !important;
-
   border: 1px solid var(--ms-input-border) !important;
-
   border-radius: 9px;
 }
-
 html[data-account-theme]
 body .swal2-popup :is(
   .swal2-input,
@@ -2398,284 +1597,274 @@ body .swal2-popup :is(
   .swal2-textarea
 ):focus {
   border-color: var(--ms-gold-text) !important;
-
   box-shadow:
     0 0 0 3px rgba(196, 154, 53, 0.14);
 }
-
 html[data-account-theme]
 body .swal2-popup .swal2-input::placeholder {
   color: var(--ms-muted);
 }
-
 html[data-account-theme]
 body .swal2-popup select option {
   background: var(--ms-card);
-
   color: var(--ms-text);
 }
-
 html[data-account-theme]
 body .swal2-popup .swal2-cancel {
   background: var(--ms-button-bg) !important;
-
   color: var(--ms-button-text) !important;
-
   border: 1px solid var(--ms-input-border) !important;
-
   border-radius: 9px;
 }
-
 html[data-account-theme]
 body .swal2-popup .swal2-confirm {
   border-radius: 9px;
-
   font-weight: 700;
 }
-
 html[data-account-theme]
 body .swal2-validation-message {
   background: var(--ms-surface) !important;
-
   color: var(--ms-danger) !important;
 }
-
-
 /* ==========================================================
    38. SCROLLBAR
 ========================================================== */
-
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--ms-bg);
 }
-
 ::-webkit-scrollbar-thumb {
   background: #b9953b;
-
   border-radius: 10px;
 }
-
-
 /* ==========================================================
    39. TABLET RESPONSIVE DESIGN
 ========================================================== */
-
 @media (max-width: 1000px) {
-
   .dashboard-layout {
     grid-template-columns: 220px minmax(0, 1fr);
   }
-
   .dashboard-layout .sidebar {
     padding: 18px;
   }
-
   .dashboard-nav .top-menu {
     gap: 18px;
   }
-
 }
-
-
 @media (max-width: 991px) {
-
   .staff-navbar .navbar-collapse {
     padding-top: 18px;
   }
-
   .staff-navbar .navbar-nav {
     margin-bottom: 18px;
   }
-
   .staff-panel-header {
     flex-direction: column;
-
     align-items: stretch;
   }
-
   .staff-tools {
     width: 100%;
   }
-
   .search-box {
     flex: 1;
   }
-
   .staff-main .page-header .col-lg-4 {
     justify-content: flex-start;
-
     margin-top: 14px;
   }
-
 }
-
-
 /* ==========================================================
    40. MOBILE RESPONSIVE DESIGN
 ========================================================== */
-
 @media (max-width: 760px) {
-
   .dashboard-wrapper {
     width: calc(100% - 24px);
-
     margin: 12px auto;
   }
-
   .dashboard-nav {
     padding: 16px;
   }
-
   .dashboard-nav .top-menu {
     order: 3;
-
     width: 100%;
-
     justify-content: center;
-
     gap: 18px;
-
     border-top: 1px solid var(--ms-border);
-
     padding-top: 12px;
   }
-
   .dashboard-wrapper .page-heading {
     padding: 20px;
   }
-
   .dashboard-layout {
     grid-template-columns: minmax(0, 1fr);
   }
-
   .dashboard-menu {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
-
   .staff-main .page-header {
     padding: 20px;
   }
-
   .staff-tools {
     flex-direction: column;
-
     align-items: stretch;
   }
-
   .search-box,
   .staff-filter {
     width: 100%;
-
     min-width: 0;
   }
-
   .staff-table {
     min-width: 850px;
   }
-
   .staff-modal .modal-body {
     padding: 18px;
   }
-
   .staff-modal .modal-header,
   .staff-modal .modal-footer {
     padding: 18px;
   }
-
 }
-
-
 /* ==========================================================
    41. SMALL MOBILE DEVICES
 ========================================================== */
-
 @media (max-width: 480px) {
-
   body > .container-fluid {
     padding-left: 12px;
     padding-right: 12px;
   }
-
   .summary-card {
     padding: 16px;
   }
-
   /* CENTERED MOBILE LOGOUT */
-
   html body #adminLogoutModal .logout-box,
-
   html body dialog#adminLogoutModal.jcn-unified-logout {
     width: min(
       378px,
       calc(100vw - 32px)
     ) !important;
-
     padding: 25px 20px !important;
-
     margin: auto !important;
   }
-
   html body #adminLogoutModal :is(h2, h3, h4) {
     font-size: 21px !important;
   }
-
   html body #adminLogoutModal .logout-actions {
     flex-direction: row !important;
-
     flex-wrap: nowrap !important;
-
     gap: 10px !important;
   }
-
   html body #adminLogoutModal .logout-actions button {
     flex: 1 1 0 !important;
-
     min-width: 0 !important;
-
     width: auto !important;
   }
-
 }
-
-
 @media (max-width: 420px) {
-
   .dashboard-nav .brand {
     font-size: 14px;
   }
-
   .dashboard-menu {
     grid-template-columns: 1fr;
   }
-
   .staff-main .btn-add-staff {
     width: 100%;
   }
-
 }
-
-
 /* ==========================================================
    42. REDUCED MOTION ACCESSIBILITY
 ========================================================== */
-
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
     transition: none !important;
   }
-
   .summary-card:hover,
   .btn-add-staff:hover {
     transform: none;
   }
+}
 
+/* ==========================================================
+   43. COMPACT MANAGE STAFF — STANDARD ADMIN PANELS
+   Logout and modal styling remain unchanged.
+========================================================== */
+body .dashboard-wrapper {
+  width: min(1560px, calc(100% - 32px));
+  max-width: 1560px;
+  margin: 16px auto;
+}
+body .dashboard-wrapper .staff-wrapper { max-width: none; min-width: 0; }
+body .dashboard-wrapper.staff-wrapper { width: min(1560px, calc(100% - 32px)); max-width: 1560px; }
+body .dashboard-wrapper .page-heading {
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+body .dashboard-wrapper .dashboard-layout {
+  grid-template-columns: 265px minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  min-height: 0;
+}
+body .dashboard-layout > .sidebar {
+  padding: 24px;
+  min-width: 0;
+  align-self: start;
+}
+body .dashboard-layout > .staff-main {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+}
+body .dashboard-wrapper :is(.page-heading, .sidebar, .page-header, .staff-panel, .summary-card) {
+  border-radius: 16px;
+  transform: none;
+}
+body .dashboard-wrapper :is(.page-heading, .sidebar, .page-header, .staff-panel, .summary-card):hover {
+  transform: none;
+}
+body .staff-main .page-header {
+  padding: 20px;
+  margin-bottom: 16px !important;
+}
+.staff-main .summary-card {
+  min-height: 96px;
+  padding: 16px;
+  gap: 12px;
+  border-radius: 12px;
+}
+.staff-main .summary-card > div { min-width: 0; }
+.staff-main .summary-card h3 { overflow-wrap: anywhere; }
+.staff-main .staff-panel { min-width: 0; }
+.staff-main .staff-panel-header {
+  padding: 18px 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.staff-main .staff-tools { max-width: 100%; min-width: 0; }
+.staff-main .search-box { min-width: min(200px, 100%); max-width: 100%; }
+.staff-main .staff-filter { max-width: 100%; }
+.staff-main .staff-table :is(th, td) { padding: 12px 10px; }
+.staff-main .table-responsive { max-width: 100%; overflow-x: auto; }
+.staff-main :is(.empty-table, .staff-empty-state) { padding: 36px 16px !important; }
+@media (max-width: 1000px) {
+  body .dashboard-wrapper .dashboard-layout { grid-template-columns: 220px minmax(0, 1fr); }
+  body .dashboard-layout > .sidebar { padding: 18px; }
+  body .staff-main .page-header { padding: 18px; }
+}
+@media (max-width: 760px) {
+  body .dashboard-wrapper, body .dashboard-wrapper.staff-wrapper { width: calc(100% - 24px); margin: 12px auto; }
+  body .dashboard-wrapper .dashboard-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  body .dashboard-wrapper .page-heading, body .staff-main .page-header { padding: 16px; }
+  .staff-main .staff-panel-header { padding: 16px; }
+  .staff-main .summary-card { padding: 14px; }
+  .staff-main .search-box { min-width: 0; }
+}
+@media (max-width: 420px) {
+  body .staff-main .page-header, .staff-main .staff-panel-header { padding: 14px; }
 }

@@ -3,14 +3,11 @@
    MANAGE CUSTOMERS
    GLOBAL DARK AND LIGHT THEME COMPATIBLE
 ========================================================== */
-
 /* ==========================================================
    01. DARK THEME VARIABLES
 ========================================================== */
-
 :root {
   color-scheme: dark;
-
   --bg: #0c0c0d;
   --card: #141414;
   --gold: #f4c542;
@@ -20,9 +17,7 @@
   --muted: #b8b8b8;
   --danger: #ff8585;
   --success: #63dba0;
-
   /* Customer module variables */
-
   --mu-page-bg:
     radial-gradient(
       circle at top right,
@@ -30,56 +25,42 @@
       transparent 48%
     ),
     #0c0c0d;
-
   --mu-card-bg:
     linear-gradient(135deg, #171715, #101010);
-
   --mu-input-bg: #171717;
   --mu-input-border: #403a2b;
   --mu-placeholder: #a4a4a4;
-
   --mu-table-border: #302a20;
   --mu-table-heading: #b8b8b8;
   --mu-table-header-bg: transparent;
   --mu-table-hover: rgba(244, 197, 66, 0.04);
-
   --mu-avatar-bg: #302817;
   --mu-avatar-text: #f4c542;
-
   --mu-outline-bg: transparent;
   --mu-outline-border: #574922;
   --mu-outline-text: #ffffff;
   --mu-outline-hover: rgba(244, 197, 66, 0.08);
-
   --mu-action-bg: transparent;
   --mu-action-hover: #282214;
-
   --mu-modal-bg: #161616;
   --mu-modal-title: #f4c542;
   --mu-modal-border: rgba(244, 197, 66, 0.4);
   --mu-modal-backdrop: rgba(0, 0, 0, 0.75);
-
   --mu-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
   --mu-modal-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
-
   --mu-gold-button: #f4c542;
   --mu-gold-button-hover: #f7d76a;
-
   --mu-active-bg: rgba(244, 197, 66, 0.17);
   --mu-hover-bg: rgba(244, 197, 66, 0.10);
-
   --mu-badge-bg: rgba(244, 197, 66, 0.08);
   --mu-badge-border: rgba(244, 197, 66, 0.4);
 }
 
-
 /* ==========================================================
    02. LIGHT THEME VARIABLES
 ========================================================== */
-
 :root[data-account-theme="light"] {
   color-scheme: light;
-
   --bg: #f6f7f9;
   --card: #ffffff;
   --gold: #936a12;
@@ -89,53 +70,40 @@
   --muted: #626b78;
   --danger: #c73636;
   --success: #168258;
-
   --mu-page-bg: #f6f7f9;
   --mu-card-bg: #ffffff;
-
   --mu-input-bg: #ffffff;
   --mu-input-border: #dce0e6;
   --mu-placeholder: #707986;
-
   --mu-table-border: #e1e4e8;
   --mu-table-heading: #434a55;
   --mu-table-header-bg: #edf0f4;
   --mu-table-hover: #fffaf0;
-
   --mu-avatar-bg: #fff3d4;
   --mu-avatar-text: #936a12;
-
   --mu-outline-bg: #f0f2f5;
   --mu-outline-border: #dce0e6;
   --mu-outline-text: #434a55;
   --mu-outline-hover: #e2e5e9;
-
   --mu-action-bg: #f8f9fb;
   --mu-action-hover: #fff3d4;
-
   --mu-modal-bg: #ffffff;
   --mu-modal-title: #20242b;
   --mu-modal-border: #dce0e6;
   --mu-modal-backdrop: rgba(15, 23, 42, 0.48);
-
   --mu-shadow: 0 8px 28px rgba(35, 40, 50, 0.07);
   --mu-modal-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
-
   --mu-gold-button: #f4c542;
   --mu-gold-button-hover: #e8b830;
-
   --mu-active-bg: #fff3d4;
   --mu-hover-bg: #fff9eb;
-
   --mu-badge-bg: #fff9eb;
   --mu-badge-border: #efddb0;
 }
 
-
 /* ==========================================================
    03. RESET AND BASE STYLES
 ========================================================== */
-
 * {
   box-sizing: border-box;
 }
@@ -143,10 +111,8 @@
 body {
   margin: 0;
   min-height: 100vh;
-
   background: var(--mu-page-bg);
   color: var(--text);
-
   font-family: "Segoe UI", Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
@@ -181,14 +147,12 @@ textarea {
   display: none !important;
 }
 
-
 /* ==========================================================
    04. DASHBOARD LAYOUT
 ========================================================== */
-
 .dashboard-wrapper {
-  width: min(1400px, calc(100% - 40px));
-  margin: 20px auto;
+  width: min(1560px, 96%);
+  margin: 16px auto;
 }
 
 .dashboard-nav,
@@ -204,29 +168,25 @@ textarea {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
-  gap: 20px;
+  gap: 16px;
   padding: 16px 22px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .dashboard-layout {
   display: grid;
   grid-template-columns: 265px minmax(0, 1fr);
   align-items: start;
-  gap: 20px;
+  gap: 16px;
 }
-
 
 /* ==========================================================
    05. NAVIGATION
 ========================================================== */
-
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-
   font-size: 17px;
   font-weight: 750;
 }
@@ -252,26 +212,22 @@ textarea {
   color: var(--gold);
 }
 
-
 /* ==========================================================
    06. PAGE HEADER
 ========================================================== */
-
 .page-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
   gap: 16px;
-  margin-bottom: 22px;
-  padding: 24px;
+  margin-bottom: 16px;
+  padding: 20px 22px;
 }
 
 .eyebrow {
   margin: 0 0 4px;
   color: var(--gold);
-
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.5px;
@@ -297,37 +253,30 @@ h2 {
   margin: 5px 0 0;
 }
 
-
 /* ==========================================================
    07. ADMIN AND ROLE BADGES
 ========================================================== */
-
 .admin-badge,
 .badge-role {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
   border: 1px solid var(--mu-badge-border);
   background: var(--mu-badge-bg);
   color: var(--gold);
-
   border-radius: 20px;
   padding: 5px 10px;
-
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
 }
 
-
 /* ==========================================================
    08. SIDEBAR
 ========================================================== */
-
 .sidebar,
 .directory {
-  padding: 24px;
+  padding: 20px;
 }
 
 .sidebar h2 {
@@ -346,11 +295,9 @@ h2 {
   display: flex;
   align-items: center;
   gap: 12px;
-
   padding: 12px;
   border-radius: 10px;
   font-weight: 600;
-
   transition:
     background 0.2s,
     color 0.2s;
@@ -371,11 +318,9 @@ h2 {
   color: var(--gold);
 }
 
-
 /* ==========================================================
    09. CUSTOMER DIRECTORY
 ========================================================== */
-
 .directory {
   min-width: 0;
 }
@@ -385,30 +330,23 @@ h2 {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
-
 
 /* ==========================================================
    10. BUTTONS
 ========================================================== */
-
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
   padding: 10px 16px;
-
   border: 1px solid transparent;
   border-radius: 9px;
-
   cursor: pointer;
   font-weight: 700;
-
   transition:
     background 0.2s,
     border-color 0.2s,
@@ -416,7 +354,6 @@ h2 {
 }
 
 /* Gold button */
-
 .btn-gold {
   background: var(--mu-gold-button);
   color: #16120a;
@@ -427,7 +364,6 @@ h2 {
 }
 
 /* Outline / Cancel button */
-
 .btn-outline {
   background: var(--mu-outline-bg);
   border-color: var(--mu-outline-border);
@@ -440,7 +376,6 @@ h2 {
 }
 
 /* Delete button */
-
 .btn-danger {
   background: #be3232;
   color: #ffffff;
@@ -455,15 +390,13 @@ button:disabled {
   cursor: not-allowed;
 }
 
-
 /* ==========================================================
    11. SEARCH AND FILTER TOOLBAR
 ========================================================== */
-
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 12px;
 }
 
@@ -488,20 +421,16 @@ button:disabled {
   min-width: 155px;
 }
 
-
 /* ==========================================================
    12. INPUT FIELDS
 ========================================================== */
-
 input,
 select,
 textarea {
   width: 100%;
   padding: 12px;
-
   background: var(--mu-input-bg);
   color: var(--text);
-
   border: 1px solid var(--mu-input-border);
   border-radius: 9px;
 }
@@ -526,11 +455,9 @@ select option {
   color: var(--text);
 }
 
-
 /* ==========================================================
    13. CUSTOMER COUNT AND TABLE
 ========================================================== */
-
 #customerCount {
   margin: 12px 0;
   font-size: 12px;
@@ -548,9 +475,8 @@ table {
 
 th,
 td {
-  padding: 16px 10px;
+  padding: 12px 10px;
   text-align: left;
-
   border-bottom: 1px solid var(--mu-table-border);
   vertical-align: middle;
 }
@@ -558,7 +484,6 @@ td {
 th {
   background: var(--mu-table-header-bg);
   color: var(--mu-table-heading);
-
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.8px;
@@ -574,15 +499,12 @@ tbody tr:hover {
   background: var(--mu-table-hover);
 }
 
-
 /* ==========================================================
    14. CUSTOMER INFORMATION
 ========================================================== */
-
 .customer-cell {
   display: flex;
   align-items: center;
-
   gap: 12px;
   min-width: 175px;
 }
@@ -591,15 +513,11 @@ tbody tr:hover {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-
   width: 36px;
   height: 36px;
-
   border-radius: 50%;
-
   background: var(--mu-avatar-bg);
   color: var(--mu-avatar-text);
-
   font-weight: 800;
 }
 
@@ -617,16 +535,13 @@ tbody tr:hover {
   white-space: nowrap;
 }
 
-
 /* ==========================================================
    15. CUSTOMER STATUS
 ========================================================== */
-
 .status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
   white-space: nowrap;
   font-size: 12px;
   font-weight: 650;
@@ -634,10 +549,8 @@ tbody tr:hover {
 
 .status::before {
   content: "";
-
   width: 7px;
   height: 7px;
-
   border-radius: 50%;
   background: currentColor;
 }
@@ -657,21 +570,17 @@ tbody tr:hover {
 
 .restriction-detail {
   display: block;
-
   min-width: 125px;
   max-width: 230px;
   margin-top: 4px;
-
   color: var(--muted);
   overflow-wrap: anywhere;
   font-size: 11px;
 }
 
-
 /* ==========================================================
    16. CUSTOMER ACTION BUTTONS
 ========================================================== */
-
 .actions-heading {
   text-align: right;
 }
@@ -685,16 +594,12 @@ tbody tr:hover {
 .icon-button {
   display: grid;
   place-items: center;
-
   width: 36px;
   height: 36px;
-
   border: 1px solid transparent;
   border-radius: 8px;
-
   background: var(--mu-action-bg);
   color: var(--gold);
-
   cursor: pointer;
 }
 
@@ -711,11 +616,9 @@ tbody tr:hover {
   color: var(--danger);
 }
 
-
 /* ==========================================================
    17. EMPTY AND STATUS MESSAGES
 ========================================================== */
-
 .empty {
   padding: 35px 15px;
   text-align: center;
@@ -735,85 +638,61 @@ tbody tr:hover {
   display: none;
 }
 
-
 /* ==========================================================
    18. CUSTOMER DIALOGS
-
    Restrict Customer
    Unrestrict Customer
    Delete Customer
-
    Uses native HTML dialog element.
 ========================================================== */
-
 dialog {
   width: min(460px, calc(100vw - 32px));
   max-height: calc(100vh - 40px);
-
   overflow-y: auto;
   padding: 28px;
-
   border: 1px solid var(--mu-modal-border);
   border-radius: 18px;
-
   background: var(--mu-modal-bg);
   color: var(--text);
-
   box-shadow: var(--mu-modal-shadow);
 }
 
-
 /* Modal background overlay */
-
 dialog::backdrop {
   background: var(--mu-modal-backdrop);
 }
 
-
 /* Modal title */
-
 dialog h2 {
   color: var(--mu-modal-title);
   margin-bottom: 12px;
-
   font-size: 20px;
   font-weight: 700;
 }
 
-
 /* Modal description */
-
 dialog p {
   color: var(--muted);
 }
 
-
 /* Modal labels */
-
 dialog label {
   display: block;
-
   margin: 14px 0 7px;
   color: var(--text);
-
   font-weight: 600;
 }
 
-
 /* Modal fields */
-
 dialog input,
 dialog textarea,
 dialog select {
   background: var(--mu-input-bg);
   color: var(--text);
-
   border: 1px solid var(--mu-input-border);
 }
 
-
 /* Modal field focus */
-
 dialog input:focus,
 dialog textarea:focus,
 dialog select:focus {
@@ -821,106 +700,77 @@ dialog select:focus {
   outline-offset: 3px;
 }
 
-
 /* Modal actions */
-
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-
   gap: 10px;
   margin-top: 24px;
 }
 
-
 /* ==========================================================
    19. EXACT LIGHT MODE DIALOG OVERRIDES
-
    Ensures native dialogs override old global CSS rules.
 ========================================================== */
-
 :root[data-account-theme="light"] dialog {
   color-scheme: light;
-
   background: #ffffff !important;
   background-image: none !important;
-
   color: #20242b !important;
   border-color: #dce0e6 !important;
-
   box-shadow:
     0 20px 60px rgba(15, 23, 42, 0.18) !important;
 }
 
-
 /* Light Mode overlay */
-
 :root[data-account-theme="light"] dialog::backdrop {
   background: rgba(15, 23, 42, 0.48) !important;
 }
 
-
 /* Light Mode title */
-
 :root[data-account-theme="light"] dialog h2 {
   color: #20242b !important;
 }
 
-
 /* Light Mode description */
-
 :root[data-account-theme="light"] dialog :is(p, .muted) {
   color: #626b78 !important;
 }
 
-
 /* Light Mode labels */
-
 :root[data-account-theme="light"] dialog label {
   color: #434a55 !important;
 }
 
-
 /* Light Mode fields */
-
 :root[data-account-theme="light"]
 dialog :is(input, textarea, select) {
   background: #ffffff !important;
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
 }
 
-
 /* Light Mode placeholders */
-
 :root[data-account-theme="light"]
 dialog :is(input, textarea)::placeholder {
   color: #707986 !important;
 }
 
-
 /* Light Mode input focus */
-
 :root[data-account-theme="light"]
 dialog :is(input, textarea, select):focus {
   outline: 2px solid #c49a35;
-
   border-color: #c49a35 !important;
-
   box-shadow:
     0 0 0 3px rgba(196, 154, 53, 0.12);
 }
 
-
 /* Cancel button */
-
 :root[data-account-theme="light"]
 dialog .modal-actions .btn-outline {
   background: #f0f2f5 !important;
   background-image: none !important;
-
   color: #434a55 !important;
   border-color: #dce0e6 !important;
 }
@@ -931,9 +781,7 @@ dialog .modal-actions .btn-outline:hover {
   color: #20242b !important;
 }
 
-
 /* Restrict / Unrestrict button */
-
 :root[data-account-theme="light"]
 dialog .modal-actions .btn-gold {
   background:
@@ -942,7 +790,6 @@ dialog .modal-actions .btn-gold {
       #f4c542,
       #d4a72c
     ) !important;
-
   color: #171717 !important;
   border-color: #c49a35 !important;
 }
@@ -952,14 +799,11 @@ dialog .modal-actions .btn-gold:hover {
   background: #e8b830 !important;
 }
 
-
 /* Delete confirmation button */
-
 :root[data-account-theme="light"]
 dialog .modal-actions .btn-danger {
   background: #dc3545 !important;
   color: #ffffff !important;
-
   border-color: #dc3545 !important;
 }
 
@@ -969,15 +813,12 @@ dialog .modal-actions .btn-danger:hover {
   border-color: #bb2d3b !important;
 }
 
-
 /* ==========================================================
    20. LIGHT MODE CUSTOMER DETAILS
 ========================================================== */
-
 :root[data-account-theme="light"] .user-avatar {
   background: #fff3d4 !important;
   color: #936a12 !important;
-
   border: 1px solid #efddb0;
 }
 
@@ -1005,14 +846,11 @@ dialog .modal-actions .btn-danger:hover {
   border: 1px solid #dce0e6 !important;
 }
 
-
 /* Light Mode action buttons */
-
 :root[data-account-theme="light"]
 .action-buttons .icon-button {
   background: #f8f9fb !important;
   color: #936a12 !important;
-
   border: 1px solid #dce0e6 !important;
 }
 
@@ -1043,23 +881,17 @@ dialog .modal-actions .btn-danger:hover {
   border-color: #dc3545 !important;
 }
 
-
 /* ==========================================================
    21. ACCESSIBILITY
 ========================================================== */
-
 .sr-only {
   position: absolute;
-
   width: 1px;
   height: 1px;
-
   padding: 0;
   margin: -1px;
-
   overflow: hidden;
   clip-path: inset(50%);
-
   white-space: nowrap;
   border: 0;
 }
@@ -1070,15 +902,13 @@ dialog .modal-actions .btn-danger:hover {
   .icon-button {
     transition: none;
   }
-}
 
+}
 
 /* ==========================================================
    22. TABLET RESPONSIVE DESIGN
 ========================================================== */
-
 @media (max-width: 1000px) {
-
   .dashboard-layout {
     grid-template-columns: 220px minmax(0, 1fr);
   }
@@ -1094,13 +924,10 @@ dialog .modal-actions .btn-danger:hover {
 
 }
 
-
 /* ==========================================================
    23. MOBILE RESPONSIVE DESIGN
 ========================================================== */
-
 @media (max-width: 760px) {
-
   .dashboard-wrapper {
     width: calc(100% - 24px);
     margin: 12px auto;
@@ -1114,7 +941,6 @@ dialog .modal-actions .btn-danger:hover {
     order: 3;
     width: 100%;
     justify-content: center;
-
     border-top: 1px solid var(--border);
     padding-top: 12px;
   }
@@ -1137,13 +963,10 @@ dialog .modal-actions .btn-danger:hover {
 
 }
 
-
 /* ==========================================================
    24. SMALL MOBILE DEVICES
 ========================================================== */
-
 @media (max-width: 420px) {
-
   .brand {
     font-size: 14px;
   }
@@ -1163,53 +986,36 @@ dialog .modal-actions .btn-danger:hover {
    PERFECT CENTER ALIGNMENT
    DARK AND LIGHT MODE
 ========================================================== */
-
 /* LOGOUT MODAL CONTAINER */
-
 html body dialog#adminLogoutModal.jcn-unified-logout {
   position: fixed !important;
-
   inset: 0 !important;
   margin: auto !important;
-
   top: 0 !important;
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
-
   transform: none !important;
-
   width: min(378px, calc(100vw - 32px)) !important;
   max-width: 378px !important;
-
   height: fit-content !important;
   max-height: calc(100dvh - 32px);
-
   padding: 30px 27px !important;
-
   box-sizing: border-box;
-
   background: var(--mu-modal-bg) !important;
   background-image: none !important;
-
   color: var(--text) !important;
-
   border: 1px solid var(--mu-modal-border) !important;
   border-radius: 20px !important;
-
   box-shadow: var(--mu-modal-shadow) !important;
-
   text-align: center !important;
-
   overflow-y: auto;
   z-index: 10000;
 }
 
-
 /* ==========================================================
    MODAL VISIBILITY
 ========================================================== */
-
 html body dialog#adminLogoutModal.jcn-unified-logout:not([open]) {
   display: none !important;
   pointer-events: none !important;
@@ -1220,45 +1026,33 @@ html body dialog#adminLogoutModal.jcn-unified-logout[open] {
   pointer-events: auto !important;
 }
 
-
 /* ==========================================================
    BACKGROUND OVERLAY
 ========================================================== */
-
 html body dialog#adminLogoutModal.jcn-unified-logout::backdrop {
   background: rgba(0, 0, 0, 0.76) !important;
-
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
 
-
 /* ==========================================================
    CENTERED LOGOUT ICON
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout .logout-icon {
   display: flex !important;
-
   align-items: center;
   justify-content: center;
-
   width: 65px !important;
   height: 65px !important;
-
   margin: 0 auto 18px !important;
-
   background: linear-gradient(
     135deg,
     #f4c542,
     #d4a51b
   ) !important;
-
   border: none !important;
   border-radius: 50% !important;
-
   color: #080808 !important;
-
   font-size: 25px !important;
 }
 
@@ -1267,109 +1061,74 @@ html body #adminLogoutModal.jcn-unified-logout .logout-icon i {
   font-size: 25px !important;
 }
 
-
 /* ==========================================================
    LOGOUT TITLE
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout :is(h2, h3) {
   margin: 0 0 8px !important;
-
   color: var(--text) !important;
-
   font-size: 23px !important;
   font-weight: 800 !important;
-
   line-height: 1.3;
-
   text-align: center !important;
 }
-
 
 /* ==========================================================
    LOGOUT DESCRIPTION
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout p {
   margin: 0 0 27px !important;
-
   color: var(--muted) !important;
-
   font-size: 14px !important;
   line-height: 1.5;
-
   text-align: center !important;
 }
-
 
 /* ==========================================================
    CENTERED LOGOUT BUTTONS
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout .logout-actions {
   display: flex !important;
-
   align-items: center !important;
   justify-content: center !important;
-
   flex-direction: row !important;
   flex-wrap: nowrap !important;
-
   gap: 12px !important;
-
   width: 100% !important;
-
   padding: 0 !important;
   margin: 0 !important;
-
   background: transparent !important;
-
   border: none !important;
 }
 
-
 /* SHARED BUTTON DESIGN */
-
 html body #adminLogoutModal.jcn-unified-logout .logout-actions button {
   display: inline-flex !important;
-
   align-items: center !important;
   justify-content: center !important;
-
   flex: 1 1 0 !important;
-
   width: 50%;
   min-width: 0;
   min-height: 46px;
-
   padding: 12px 10px !important;
-
   border-radius: 10px !important;
-
   font-size: 13px !important;
   font-weight: 800 !important;
-
   cursor: pointer;
-
   box-shadow: none !important;
 }
-
 
 /* ==========================================================
    CONFIRM LOGOUT BUTTON
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout #adminConfirmLogout {
   order: 1 !important;
-
   background: linear-gradient(
     135deg,
     #f4c542,
     #d4a51b
   ) !important;
-
   color: #080808 !important;
-
   border: 1px solid transparent !important;
 }
 
@@ -1377,18 +1136,13 @@ html body #adminLogoutModal.jcn-unified-logout #adminConfirmLogout:hover {
   background: #e8b830 !important;
 }
 
-
 /* ==========================================================
    CANCEL LOGOUT BUTTON
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout #adminCancelLogout {
   order: 2 !important;
-
   background: transparent !important;
-
   color: #f4c542 !important;
-
   border: 1px solid #d4a51b !important;
 }
 
@@ -1396,49 +1150,36 @@ html body #adminLogoutModal.jcn-unified-logout #adminCancelLogout:hover {
   background: rgba(244, 197, 66, 0.12) !important;
 }
 
-
 /* ==========================================================
    LIGHT MODE LOGOUT
 ========================================================== */
-
 html[data-account-theme="light"]
 body dialog#adminLogoutModal.jcn-unified-logout {
   background: #ffffff !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
-
   box-shadow: 0 20px 60px rgba(
     15, 23, 42, 0.18
   ) !important;
 }
 
-
 /* LIGHT MODE TITLE */
-
 html[data-account-theme="light"]
 body #adminLogoutModal.jcn-unified-logout :is(h2, h3) {
   color: #20242b !important;
 }
 
-
 /* LIGHT MODE DESCRIPTION */
-
 html[data-account-theme="light"]
 body #adminLogoutModal.jcn-unified-logout p {
   color: #626b78 !important;
 }
 
-
 /* LIGHT MODE CANCEL BUTTON */
-
 html[data-account-theme="light"]
 body #adminLogoutModal.jcn-unified-logout #adminCancelLogout {
   background: #ffffff !important;
-
   color: #936a12 !important;
-
   border-color: #d4a51b !important;
 }
 
@@ -1447,28 +1188,21 @@ body #adminLogoutModal.jcn-unified-logout #adminCancelLogout:hover {
   background: #fff3d4 !important;
 }
 
-
 /* ==========================================================
    KEYBOARD ACCESSIBILITY
 ========================================================== */
-
 #adminLogoutModal.jcn-unified-logout button:focus-visible {
   outline: 2px solid #c49a35;
   outline-offset: 3px;
 }
 
-
 /* ==========================================================
    MOBILE RESPONSIVE LOGOUT
 ========================================================== */
-
 @media (max-width: 420px) {
-
   html body dialog#adminLogoutModal.jcn-unified-logout {
     width: calc(100vw - 32px) !important;
-
     padding: 25px 20px !important;
-
     margin: auto !important;
   }
 
@@ -1480,4 +1214,14 @@ body #adminLogoutModal.jcn-unified-logout #adminCancelLogout:hover {
     gap: 10px !important;
   }
 
+}
+/* Manage Customers: stable panels and responsive content. */
+.dashboard-layout .directory {
+  min-width: 0;
+}
+.directory .table-responsive {
+  max-width: 100%;
+}
+.dashboard-wrapper :is(.dashboard-card, .dashboard-nav, .directory, .sidebar):hover {
+  transform: none;
 }

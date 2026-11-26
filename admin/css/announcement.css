@@ -4,192 +4,143 @@
    GLOBAL DARK AND LIGHT MODE COMPATIBLE
 ========================================================== */
 
-
 /* ==========================================================
    01. DARK MODE VARIABLES
 ========================================================== */
-
 :root {
   color-scheme: dark;
-
   --an-bg: #101010;
   --an-card: #141414;
   --an-text: #f4f4f4;
   --an-muted: #a8a8ad;
-
   --an-gold: #f2c14e;
   --an-gold-text: #f2c14e;
   --an-gold-hover: #ffcf60;
-
   --an-border: rgba(242, 193, 78, 0.18);
   --an-danger: #ff8585;
   --an-success: #63dba0;
-
   --an-page-bg:
     radial-gradient(circle at top right, #222 0, transparent 48%),
     #101010;
-
   --an-card-bg:
     linear-gradient(135deg, #151515, #0c0c0c);
-
   --an-input-bg: #191919;
   --an-input-border: #383838;
   --an-placeholder: #929298;
-
   --an-composer-bg: rgba(242, 193, 78, 0.025);
   --an-composer-border: rgba(242, 193, 78, 0.45);
-
   --an-history-bg: #141414;
   --an-history-border: #292929;
   --an-history-text: #c5c5cb;
-
   --an-icon-bg: rgba(242, 193, 78, 0.10);
-
   --an-hover-bg: rgba(242, 193, 78, 0.08);
   --an-active-bg: rgba(242, 193, 78, 0.17);
-
   --an-badge-bg: rgba(242, 193, 78, 0.08);
   --an-badge-border: rgba(242, 193, 78, 0.40);
-
   --an-outline-bg: transparent;
   --an-outline-border: #494337;
   --an-outline-hover: rgba(242, 193, 78, 0.08);
-
   --an-delete-bg: rgba(255, 133, 133, 0.06);
   --an-delete-border: rgba(255, 133, 133, 0.20);
   --an-delete-hover: rgba(255, 133, 133, 0.15);
-
   --an-notice-bg: rgba(99, 219, 160, 0.06);
   --an-notice-border: rgba(99, 219, 160, 0.25);
-
   --an-modal-bg: #161616;
   --an-modal-title: #f4c542;
   --an-modal-border: rgba(242, 193, 78, 0.40);
   --an-modal-backdrop: rgba(0, 0, 0, 0.75);
-
   --an-selected-bg: #222222;
-
   --an-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
   --an-modal-shadow: 0 24px 80px rgba(0, 0, 0, 0.60);
-
   --an-gold-gradient:
     linear-gradient(135deg, #f4c542, #d4a51b);
 }
 
-
 /* ==========================================================
    02. LIGHT MODE VARIABLES
 ========================================================== */
-
 :root[data-account-theme="light"] {
   color-scheme: light;
-
   --an-bg: #f6f7f9;
   --an-card: #ffffff;
   --an-text: #20242b;
   --an-muted: #626b78;
-
   --an-gold: #f4c542;
   --an-gold-text: #936a12;
   --an-gold-hover: #e8b830;
-
   --an-border: #dce0e6;
   --an-danger: #c73636;
   --an-success: #168258;
-
   --an-page-bg: #f6f7f9;
   --an-card-bg: #ffffff;
-
   --an-input-bg: #ffffff;
   --an-input-border: #dce0e6;
   --an-placeholder: #707986;
-
   --an-composer-bg: #fffdf7;
   --an-composer-border: #d9bf7c;
-
   --an-history-bg: #ffffff;
   --an-history-border: #dce0e6;
   --an-history-text: #434a55;
-
   --an-icon-bg: #fff3d4;
-
   --an-hover-bg: #fff9eb;
   --an-active-bg: #fff3d4;
-
   --an-badge-bg: #fff7e3;
   --an-badge-border: #efddb0;
-
   --an-outline-bg: #f0f2f5;
   --an-outline-border: #dce0e6;
   --an-outline-hover: #e2e5e9;
-
   --an-delete-bg: #fff0f0;
   --an-delete-border: #efc5c5;
   --an-delete-hover: #ffe0e0;
-
   --an-notice-bg: #eaf9f0;
   --an-notice-border: #bce8cf;
-
   --an-modal-bg: #ffffff;
   --an-modal-title: #20242b;
   --an-modal-border: #dce0e6;
   --an-modal-backdrop: rgba(15, 23, 42, 0.48);
-
   --an-selected-bg: #f0f2f5;
-
   --an-shadow: 0 8px 28px rgba(35, 40, 50, 0.07);
   --an-modal-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
 }
 
-
 /* ==========================================================
    03. RESET AND BASE STYLES
 ========================================================== */
-
 * {
   box-sizing: border-box;
 }
-
 body {
   margin: 0;
   min-height: 100vh;
-
   background: var(--an-page-bg);
   color: var(--an-text);
-
   font-family: "Segoe UI", Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
-
 a {
   color: inherit;
   text-decoration: none;
 }
-
 button,
 input,
 textarea {
   font: inherit;
 }
-
 button,
 a,
 input,
 textarea {
   -webkit-tap-highlight-color: transparent;
 }
-
 :focus-visible {
   outline: 2px solid var(--an-gold-text);
   outline-offset: 4px;
 }
-
 [hidden],
 .hidden {
   display: none !important;
 }
-
 button:disabled,
 input:disabled,
 textarea:disabled {
@@ -197,695 +148,500 @@ textarea:disabled {
   cursor: not-allowed;
 }
 
-
 /* ==========================================================
    04. DASHBOARD WRAPPER
 ========================================================== */
-
 .dashboard-wrapper {
   width: min(1400px, calc(100% - 40px));
   margin: 20px auto;
 }
-
 .dashboard-nav,
 .dashboard-card {
   background: var(--an-card-bg);
-
   border: 1px solid var(--an-border);
   border-radius: 16px;
-
   box-shadow: var(--an-shadow);
 }
-
 
 /* ==========================================================
    05. TOP NAVIGATION
 ========================================================== */
-
 .dashboard-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
   gap: 20px;
   padding: 16px 22px;
   margin-bottom: 20px;
 }
-
 .dashboard-nav .brand {
   display: inline-flex;
   align-items: center;
-
   gap: 10px;
-
   color: var(--an-text);
-
   font-size: 17px;
   font-weight: 750;
 }
-
 .dashboard-nav .brand:hover {
   color: var(--an-text);
 }
-
 .brand i,
 .sidebar h2 i {
   color: var(--an-gold-text);
 }
-
 .top-menu {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-
   gap: 26px;
 }
-
 .top-menu a {
   padding: 6px 0;
-
   color: var(--an-text);
-
   font-weight: 600;
-
   transition: color 0.2s;
 }
-
 .top-menu a:hover,
 .top-menu a.active {
   color: var(--an-gold-text);
 }
 
-
 /* ==========================================================
    06. PAGE HEADING
 ========================================================== */
-
 .page-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
   gap: 16px;
   padding: 24px;
   margin-bottom: 22px;
 }
-
 .eyebrow {
   margin: 0 0 4px;
-
   color: var(--an-gold-text);
-
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.5px;
 }
-
 h1 {
   margin: 0 0 4px;
-
   color: var(--an-text);
-
   font-size: clamp(24px, 3vw, 32px);
   font-weight: 750;
   line-height: 1.2;
 }
-
 h2 {
   margin: 0;
-
   color: var(--an-text);
-
   font-size: 20px;
   font-weight: 700;
 }
-
 .muted {
   color: var(--an-muted);
 }
-
 .page-heading .muted,
 .section-heading .muted {
   margin: 5px 0 0;
 }
 
-
 /* ==========================================================
    07. ADMIN BADGE
 ========================================================== */
-
 .admin-badge {
   display: inline-flex;
   align-items: center;
-
   gap: 6px;
   padding: 5px 10px;
-
   border: 1px solid var(--an-badge-border);
   border-radius: 20px;
-
   background: var(--an-badge-bg);
   color: var(--an-gold-text);
-
   font-size: 11px;
   font-weight: 700;
-
   white-space: nowrap;
 }
-
 
 /* ==========================================================
    08. DASHBOARD LAYOUT
 ========================================================== */
-
 .dashboard-layout {
   display: grid;
-
   grid-template-columns: 265px minmax(0, 1fr);
-
   align-items: start;
   gap: 20px;
 }
-
 .sidebar,
 .announcement-panel {
   padding: 24px;
 }
 
-
 /* ==========================================================
    09. ADMIN SIDEBAR
 ========================================================== */
-
 .sidebar h2 {
   display: flex;
   align-items: center;
-
   gap: 10px;
   margin-bottom: 20px;
 }
-
 .dashboard-menu {
   display: grid;
   gap: 6px;
 }
-
 .dashboard-menu a {
   display: flex;
   align-items: center;
-
   gap: 12px;
   padding: 12px;
-
   border-radius: 10px;
-
   color: var(--an-text);
-
   font-weight: 600;
-
   transition:
     background 0.2s,
     color 0.2s;
 }
-
 .dashboard-menu i {
   width: 18px;
   text-align: center;
 }
-
 .dashboard-menu a:hover {
   background: var(--an-hover-bg);
   color: var(--an-gold-text);
 }
-
 .dashboard-menu a.active,
 .dashboard-menu a.active-menu {
   background: var(--an-active-bg);
   color: var(--an-gold-text);
 }
 
-
 /* ==========================================================
    10. ANNOUNCEMENT MAIN PANEL
 ========================================================== */
-
 .announcement-panel {
   min-width: 0;
-
   background: var(--an-card-bg);
   color: var(--an-text);
 }
-
 .section-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
   gap: 16px;
   margin-bottom: 24px;
 }
-
 .section-heading h2 {
   color: var(--an-text);
 }
 
-
 /* ==========================================================
    11. BUTTONS
 ========================================================== */
-
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
   padding: 10px 16px;
-
   border: 1px solid transparent;
   border-radius: 9px;
-
   cursor: pointer;
-
   font-weight: 700;
-
   transition:
     background 0.2s,
     border-color 0.2s,
     color 0.2s;
 }
 
-
 /* GOLD BUTTON */
-
 .btn-gold {
   background: var(--an-gold-gradient);
   color: #16120a;
 }
-
 .btn-gold:hover {
   background: var(--an-gold-hover);
   color: #16120a;
 }
 
-
 /* OUTLINE BUTTON */
-
 .btn-outline {
   background: var(--an-outline-bg);
-
   border-color: var(--an-outline-border);
-
   color: var(--an-text);
 }
-
 .btn-outline:hover {
   background: var(--an-outline-hover);
-
   border-color: var(--an-gold-text);
-
   color: var(--an-text);
 }
 
-
 /* DELETE BUTTON */
-
 .btn-danger {
   background: #be3232;
   color: #ffffff;
 }
-
 .btn-danger:hover {
   background: #d23d3d;
   color: #ffffff;
 }
 
-
 /* ==========================================================
    12. ANNOUNCEMENT COMPOSER
 ========================================================== */
-
 .announcement-composer {
   padding: 24px;
-
   background: var(--an-composer-bg);
-
   border: 1px dashed var(--an-composer-border);
   border-radius: 14px;
 }
-
 .announcement-composer h3 {
   display: flex;
   align-items: center;
-
   gap: 10px;
   margin: 0 0 20px;
-
   color: var(--an-gold-text);
-
   font-size: 16px;
   font-weight: 700;
 }
 
-
 /* ==========================================================
    13. FORM LABELS AND INPUTS
 ========================================================== */
-
 label {
   display: block;
-
   margin: 16px 0 8px;
-
   color: var(--an-text);
-
   font-weight: 600;
 }
-
 input,
 textarea {
   width: 100%;
   padding: 12px 14px;
-
   background: var(--an-input-bg);
   color: var(--an-text);
-
   border: 1px solid var(--an-input-border);
   border-radius: 9px;
 }
-
 input::placeholder,
 textarea::placeholder {
   color: var(--an-placeholder);
 }
-
 input:focus,
 textarea:focus {
   border-color: var(--an-gold-text);
-
   outline: 2px solid var(--an-gold-text);
   outline-offset: 2px;
 }
-
 textarea {
   min-height: 140px;
   resize: vertical;
 }
-
 .composer-actions {
   display: flex;
   justify-content: flex-end;
-
   margin-top: 20px;
 }
-
 
 /* ==========================================================
    14. ANNOUNCEMENT HISTORY
 ========================================================== */
-
 .history-heading {
   margin-top: 32px;
 }
-
 #historyCount {
   color: var(--an-muted);
   font-size: 12px;
 }
-
 #announcementHistory {
   display: grid;
   gap: 14px;
 }
 
-
 /* ==========================================================
    15. ANNOUNCEMENT HISTORY CARDS
 ========================================================== */
-
 .announcement-item {
   display: flex;
   align-items: flex-start;
-
   gap: 14px;
   padding: 20px;
-
   background: var(--an-history-bg);
-
   border: 1px solid var(--an-history-border);
   border-radius: 12px;
-
   box-shadow: var(--an-shadow);
-
   transition: border-color 0.2s;
 }
-
 .announcement-item:hover {
   border-color: var(--an-gold);
 }
-
 .announcement-icon {
   display: grid;
   place-items: center;
-
   flex-shrink: 0;
-
   width: 40px;
   height: 40px;
-
   border-radius: 10px;
-
   background: var(--an-icon-bg);
   color: var(--an-gold-text);
 }
-
 .announcement-content {
   flex: 1;
   min-width: 0;
 }
-
 .announcement-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 14px;
 }
-
 .announcement-title {
   margin: 0;
-
   color: var(--an-text);
-
   font-size: 16px;
   font-weight: 700;
-
   overflow-wrap: anywhere;
 }
-
 .announcement-date {
   display: block;
-
   margin-top: 5px;
-
   color: var(--an-muted);
-
   font-size: 11px;
 }
-
 .announcement-message {
   margin: 14px 0 0;
-
   color: var(--an-history-text);
-
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-
 /* ==========================================================
    16. DELETE ANNOUNCEMENT BUTTON
 ========================================================== */
-
 .delete-announcement-btn {
   display: grid;
   place-items: center;
-
   flex-shrink: 0;
-
   width: 36px;
   height: 36px;
-
   border: 1px solid var(--an-delete-border);
   border-radius: 9px;
-
   background: var(--an-delete-bg);
   color: var(--an-danger);
-
   cursor: pointer;
 }
-
 .delete-announcement-btn:hover {
   background: var(--an-delete-hover);
-
   border-color: var(--an-danger);
 }
-
 
 /* ==========================================================
    17. EMPTY STATES AND NOTIFICATIONS
 ========================================================== */
-
 .empty {
   padding: 24px;
   margin: 0;
-
   border: 1px dashed var(--an-input-border);
   border-radius: 12px;
-
   color: var(--an-muted);
-
   text-align: center;
 }
-
 .error {
   color: var(--an-danger);
 }
-
 .error:empty,
 .page-notice:empty {
   display: none;
 }
-
 .page-notice {
   padding: 12px 16px;
   margin: 20px 0;
-
   border: 1px solid var(--an-notice-border);
   border-radius: 10px;
-
   background: var(--an-notice-bg);
   color: var(--an-success);
 }
 
-
 /* ==========================================================
    18. NATIVE HTML DIALOGS
-
    Delete Announcement
    Other confirmation dialogs
 ========================================================== */
-
 dialog {
   position: fixed;
-
   inset: 0;
   margin: auto;
-
   width: min(460px, calc(100vw - 32px));
-
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
-
   height: fit-content;
-
   overflow-y: auto;
-
   padding: 28px;
-
   border: 1px solid var(--an-modal-border);
   border-radius: 18px;
-
   background: var(--an-modal-bg);
   color: var(--an-text);
-
   box-shadow: var(--an-modal-shadow);
 }
-
 dialog:not([open]) {
   display: none !important;
 }
-
 dialog::backdrop {
   background: var(--an-modal-backdrop);
 }
-
 dialog h2 {
   margin-bottom: 12px;
-
   color: var(--an-modal-title);
-
   font-size: 20px;
   font-weight: 700;
 }
-
 dialog p {
   color: var(--an-muted);
 }
 
-
 /* ==========================================================
    19. DELETE ANNOUNCEMENT MODAL
 ========================================================== */
-
 .dialog-icon {
   display: grid;
   place-items: center;
-
   width: 54px;
   height: 54px;
-
   margin-bottom: 18px;
-
   border-radius: 50%;
-
   font-size: 22px;
 }
-
 .danger-icon {
   background: var(--an-delete-bg);
   color: var(--an-danger);
 }
-
 .selected-title {
   padding: 12px;
-
   background: var(--an-selected-bg);
-
   color: var(--an-text);
-
   border: 1px solid var(--an-border);
   border-radius: 8px;
-
   font-weight: 600;
-
   overflow-wrap: anywhere;
 }
-
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-
   gap: 10px;
   margin-top: 24px;
 }
 
-
 /* ==========================================================
    20. EXACT LIGHT MODE OVERRIDES
-
    Prevent conflicts with older admin-theme.css rules.
 ========================================================== */
-
 html[data-account-theme="light"] body {
   background: #f6f7f9 !important;
   color: #20242b !important;
 }
-
 html[data-account-theme="light"]
 body :is(
   .dashboard-nav,
@@ -894,602 +650,422 @@ body :is(
 ) {
   background: #ffffff !important;
   background-image: none !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
 }
 
-
 /* TOP NAVIGATION */
-
 html[data-account-theme="light"]
 body .dashboard-nav .brand,
-
 html[data-account-theme="light"]
 body .dashboard-nav .top-menu a {
   color: #20242b !important;
 }
-
 html[data-account-theme="light"]
 body .dashboard-nav .top-menu a:hover,
-
 html[data-account-theme="light"]
 body .dashboard-nav .top-menu a.active {
   color: #936a12 !important;
 }
 
-
 /* ANNOUNCEMENT COMPOSER */
-
 html[data-account-theme="light"]
 body .announcement-panel .announcement-composer {
   background: #fffdf7 !important;
   background-image: none !important;
-
   color: #20242b !important;
-
   border-color: #d9bf7c !important;
 }
-
 html[data-account-theme="light"]
 body .announcement-composer h3 {
   color: #936a12 !important;
 }
 
-
 /* FORM LABELS */
-
 html[data-account-theme="light"]
 body .announcement-composer label {
   color: #434a55 !important;
 }
 
-
 /* FORM INPUTS */
-
 html[data-account-theme="light"]
 body .announcement-composer :is(input, textarea) {
   background: #ffffff !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
 }
-
 html[data-account-theme="light"]
 body .announcement-composer :is(input, textarea)::placeholder {
   color: #707986 !important;
 }
 
-
 /* RECENT HISTORY CARDS */
-
 html[data-account-theme="light"]
 body #announcementHistory .announcement-item {
   background: #ffffff !important;
   background-image: none !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
-
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
-
 html[data-account-theme="light"]
 body #announcementHistory .announcement-title {
   color: #20242b !important;
 }
-
 html[data-account-theme="light"]
 body #announcementHistory .announcement-date {
   color: #626b78 !important;
 }
-
 html[data-account-theme="light"]
 body #announcementHistory .announcement-message {
   color: #434a55 !important;
 }
-
 html[data-account-theme="light"]
 body #announcementHistory .announcement-icon {
   background: #fff3d4 !important;
   color: #936a12 !important;
 }
 
-
 /* DELETE ANNOUNCEMENT BUTTON */
-
 html[data-account-theme="light"]
 body .delete-announcement-btn {
   background: #fff0f0 !important;
-
   color: #c73636 !important;
-
   border-color: #efc5c5 !important;
 }
-
 html[data-account-theme="light"]
 body .delete-announcement-btn:hover {
   background: #ffe0e0 !important;
 }
 
-
 /* DELETE ANNOUNCEMENT MODAL */
-
 html[data-account-theme="light"]
 body dialog#deleteModal {
   background: #ffffff !important;
   background-image: none !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
-
   box-shadow: var(--an-modal-shadow) !important;
 }
-
 html[data-account-theme="light"]
 body dialog#deleteModal h2 {
   color: #20242b !important;
 }
-
 html[data-account-theme="light"]
 body dialog#deleteModal p {
   color: #626b78 !important;
 }
-
 html[data-account-theme="light"]
 body dialog#deleteModal .selected-title {
   background: #f0f2f5 !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
 }
-
 html[data-account-theme="light"]
 body dialog#deleteModal .danger-icon {
   background: #fff0f0 !important;
   color: #c73636 !important;
 }
-
 html[data-account-theme="light"]
 body dialog#deleteModal .btn-outline {
   background: #f0f2f5 !important;
-
   color: #434a55 !important;
-
   border-color: #dce0e6 !important;
 }
-
 html[data-account-theme="light"]
 body dialog#deleteModal .btn-danger {
   background: #dc3545 !important;
-
   color: #ffffff !important;
-
   border-color: #dc3545 !important;
 }
-
 html[data-account-theme="light"]
 body dialog#deleteModal .btn-danger:hover {
   background: #bb2d3b !important;
 }
 
-
 /* ==========================================================
    21. UNIFIED ADMIN LOGOUT MODAL
-
    Centered horizontally and vertically.
    Same design as Manage Customers and Manage Staff.
 ========================================================== */
-
 html body dialog#adminLogoutModal.jcn-unified-logout {
   position: fixed !important;
-
   inset: 0 !important;
   margin: auto !important;
-
   top: 0 !important;
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
-
   transform: none !important;
-
   width: min(378px, calc(100vw - 32px)) !important;
   max-width: 378px !important;
-
   height: fit-content !important;
-
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
-
   padding: 30px 27px !important;
-
   background: var(--an-modal-bg) !important;
   background-image: none !important;
-
   color: var(--an-text) !important;
-
   border: 1px solid var(--an-modal-border) !important;
   border-radius: 20px !important;
-
   box-shadow: var(--an-modal-shadow) !important;
-
   text-align: center !important;
-
   box-sizing: border-box;
-
   overflow-y: auto;
-
   z-index: 10000;
 }
-
 
 /* ==========================================================
    22. LOGOUT MODAL VISIBILITY
 ========================================================== */
-
 html body dialog#adminLogoutModal.jcn-unified-logout:not([open]) {
   display: none !important;
   pointer-events: none !important;
 }
-
 html body dialog#adminLogoutModal.jcn-unified-logout[open] {
   display: block !important;
   pointer-events: auto !important;
 }
 
-
 /* ==========================================================
    23. LOGOUT BACKDROP
 ========================================================== */
-
 html body dialog#adminLogoutModal.jcn-unified-logout::backdrop {
   background: rgba(0, 0, 0, 0.76) !important;
-
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
 
-
 /* ==========================================================
    24. CENTERED LOGOUT ICON
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout .logout-icon {
   display: flex !important;
-
   align-items: center;
   justify-content: center;
-
   width: 65px !important;
   height: 65px !important;
-
   margin: 0 auto 18px !important;
-
   background: var(--an-gold-gradient) !important;
-
   border: none !important;
   border-radius: 50% !important;
-
   color: #080808 !important;
-
   font-size: 25px !important;
 }
-
 html body #adminLogoutModal.jcn-unified-logout .logout-icon i {
   color: #080808 !important;
   font-size: 25px !important;
 }
 
-
 /* ==========================================================
    25. LOGOUT TITLE AND DESCRIPTION
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout :is(h2, h3) {
   margin: 0 0 8px !important;
-
   color: var(--an-text) !important;
-
   font-size: 23px !important;
   font-weight: 800 !important;
-
   line-height: 1.3;
-
   text-align: center !important;
 }
-
 html body #adminLogoutModal.jcn-unified-logout p {
   margin: 0 0 27px !important;
-
   color: var(--an-muted) !important;
-
   font-size: 14px !important;
   line-height: 1.5;
-
   text-align: center !important;
 }
-
 
 /* ==========================================================
    26. CENTERED LOGOUT BUTTON CONTAINER
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout .logout-actions {
   display: flex !important;
-
   align-items: center !important;
   justify-content: center !important;
-
   flex-direction: row !important;
   flex-wrap: nowrap !important;
-
   gap: 12px !important;
-
   width: 100% !important;
-
   padding: 0 !important;
   margin: 0 !important;
-
   background: transparent !important;
-
   border: none !important;
 }
 
-
 /* SHARED BUTTON DESIGN */
-
 html body #adminLogoutModal.jcn-unified-logout .logout-actions button {
   display: inline-flex !important;
-
   align-items: center !important;
   justify-content: center !important;
-
   flex: 1 1 0 !important;
-
   width: 50%;
   min-width: 0;
   min-height: 46px;
-
   padding: 12px 10px !important;
-
   border-radius: 10px !important;
-
   font-size: 13px !important;
   font-weight: 800 !important;
-
   cursor: pointer;
-
   box-shadow: none !important;
-
   transition:
     background 0.2s,
     color 0.2s;
 }
 
-
 /* ==========================================================
    27. CONFIRM LOGOUT BUTTON
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout #adminConfirmLogout {
   order: 1 !important;
-
   background: var(--an-gold-gradient) !important;
-
   color: #080808 !important;
-
   border: 1px solid transparent !important;
 }
-
 html body #adminLogoutModal.jcn-unified-logout #adminConfirmLogout:hover {
   background: #e8b830 !important;
-
   color: #080808 !important;
 }
-
 
 /* ==========================================================
    28. CANCEL LOGOUT BUTTON
 ========================================================== */
-
 html body #adminLogoutModal.jcn-unified-logout #adminCancelLogout {
   order: 2 !important;
-
   background: transparent !important;
-
   color: #f4c542 !important;
-
   border: 1px solid #d4a51b !important;
 }
-
 html body #adminLogoutModal.jcn-unified-logout #adminCancelLogout:hover {
   background: rgba(244, 197, 66, 0.12) !important;
 }
 
-
 /* ==========================================================
    29. LIGHT MODE LOGOUT OVERRIDES
 ========================================================== */
-
 html[data-account-theme="light"]
 body dialog#adminLogoutModal.jcn-unified-logout {
   background: #ffffff !important;
   background-image: none !important;
-
   color: #20242b !important;
-
   border-color: #dce0e6 !important;
-
   box-shadow: 0 20px 60px rgba(
     15, 23, 42, 0.18
   ) !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal.jcn-unified-logout :is(h2, h3) {
   color: #20242b !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal.jcn-unified-logout p {
   color: #626b78 !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal.jcn-unified-logout #adminCancelLogout {
   background: #ffffff !important;
-
   color: #936a12 !important;
-
   border-color: #d4a51b !important;
 }
-
 html[data-account-theme="light"]
 body #adminLogoutModal.jcn-unified-logout #adminCancelLogout:hover {
   background: #fff3d4 !important;
 }
 
-
 /* ==========================================================
    30. KEYBOARD ACCESSIBILITY
 ========================================================== */
-
 #adminLogoutModal.jcn-unified-logout button:focus-visible {
   outline: 2px solid #c49a35;
   outline-offset: 3px;
 }
 
-
 /* ==========================================================
    31. TABLET RESPONSIVE
 ========================================================== */
-
 @media (max-width: 1000px) {
-
   .dashboard-layout {
     grid-template-columns: 220px minmax(0, 1fr);
   }
-
   .sidebar,
   .announcement-panel {
     padding: 18px;
   }
-
   .top-menu {
     gap: 18px;
   }
-
 }
-
 
 /* ==========================================================
    32. MOBILE RESPONSIVE
 ========================================================== */
-
 @media (max-width: 760px) {
-
   .dashboard-wrapper {
     width: calc(100% - 24px);
-
     margin: 12px auto;
   }
-
   .dashboard-nav {
     padding: 16px;
   }
-
   .top-menu {
     order: 3;
-
     width: 100%;
-
     justify-content: center;
-
     padding-top: 12px;
-
     border-top: 1px solid var(--an-border);
   }
-
   .dashboard-layout {
     grid-template-columns: minmax(0, 1fr);
   }
-
   .dashboard-menu {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
   .page-heading,
   .announcement-composer {
     padding: 20px;
   }
-
   .announcement-item {
     padding: 16px;
   }
-
 }
-
 
 /* ==========================================================
    33. SMALL MOBILE DEVICES
 ========================================================== */
-
 @media (max-width: 420px) {
-
   .dashboard-nav .brand {
     font-size: 14px;
   }
-
   .dashboard-menu {
     grid-template-columns: 1fr;
   }
-
   .announcement-icon {
     display: none;
   }
-
   .composer-actions .btn {
     width: 100%;
   }
-
   .modal-actions .btn {
     flex: 1;
   }
-
-
   /* RESPONSIVE LOGOUT MODAL */
-
   html body dialog#adminLogoutModal.jcn-unified-logout {
     width: calc(100vw - 32px) !important;
-
     margin: auto !important;
-
     padding: 25px 20px !important;
   }
-
   html body #adminLogoutModal.jcn-unified-logout :is(h2, h3) {
     font-size: 21px !important;
   }
-
   html body #adminLogoutModal.jcn-unified-logout .logout-actions {
     gap: 10px !important;
   }
-
 }
-
 
 /* ==========================================================
    34. REDUCED MOTION ACCESSIBILITY
 ========================================================== */
-
 @media (prefers-reduced-motion: reduce) {
-
   .btn,
   .dashboard-menu a,
   .announcement-item,
@@ -1497,5 +1073,78 @@ body #adminLogoutModal.jcn-unified-logout #adminCancelLogout:hover {
   #adminLogoutModal button {
     transition: none !important;
   }
+}
 
+/* ==========================================================
+   35. COMPACT ANNOUNCEMENTS — REPORTS LAYOUT STANDARD
+   Existing logout styles and functions are preserved.
+========================================================== */
+body .dashboard-wrapper {
+  width: min(1560px, calc(100% - 32px));
+  max-width: 1560px;
+  margin: 16px auto;
+}
+body .dashboard-wrapper .page-heading {
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+body .dashboard-wrapper .dashboard-layout {
+  grid-template-columns: 265px minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  min-height: 0;
+}
+body .dashboard-layout > .sidebar {
+  padding: 24px;
+  min-width: 0;
+  align-self: start;
+}
+body .dashboard-layout > .announcement-panel {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+}
+body .dashboard-wrapper :is(.page-heading, .sidebar, .announcement-panel) {
+  border-radius: 16px;
+  transform: none;
+}
+body .dashboard-wrapper :is(.page-heading, .sidebar, .announcement-panel):hover {
+  transform: none;
+}
+.announcement-panel .section-heading {
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.announcement-panel .announcement-composer {
+  padding: 18px;
+  border-radius: 12px;
+}
+.announcement-panel .announcement-composer h3 { margin-bottom: 14px; }
+.announcement-panel .announcement-composer label { margin: 12px 0 6px; }
+.announcement-panel .announcement-composer :is(input, textarea) { padding: 10px 12px; }
+.announcement-panel .announcement-composer textarea { min-height: 120px; }
+.announcement-panel .composer-actions { margin-top: 16px; }
+.announcement-panel .history-heading { margin-top: 22px; }
+.announcement-panel #announcementHistory { gap: 12px; }
+.announcement-panel .announcement-item { padding: 16px; gap: 12px; }
+.announcement-panel .announcement-message { margin-top: 10px; }
+.announcement-panel .empty { padding: 20px; }
+@media (max-width: 1000px) {
+  body .dashboard-wrapper .dashboard-layout { grid-template-columns: 220px minmax(0, 1fr); }
+  body .dashboard-layout > .sidebar,
+  body .dashboard-layout > .announcement-panel { padding: 18px; }
+}
+@media (max-width: 760px) {
+  body .dashboard-wrapper { width: calc(100% - 24px); margin: 12px auto; }
+  body .dashboard-wrapper .dashboard-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  body .dashboard-wrapper .page-heading,
+  body .dashboard-layout > .announcement-panel { padding: 16px; }
+  .announcement-panel .announcement-composer { padding: 16px; }
+  .announcement-panel .announcement-item { padding: 14px; }
+}
+@media (max-width: 420px) {
+  body .dashboard-layout > .announcement-panel { padding: 14px; }
+  .announcement-panel .announcement-composer { padding: 12px; }
 }

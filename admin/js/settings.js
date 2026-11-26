@@ -1878,25 +1878,17 @@
 
     /* PREVENT ACCIDENTAL PAGE EXIT */
 
-    window.addEventListener("beforeunload", event => {
+   window.addEventListener("beforeunload", event => {
 
-      if (
 
-        hasUnsavedChanges ||
-        isBusy ||
-        saveUnconfirmed
+  if (!hasUnsavedChanges) return;
 
-      ) {
+  event.preventDefault();
+  event.returnValue = "";
 
-        event.preventDefault();
+});
 
-        event.returnValue = "";
-
-      }
-
-    });
-
-  }
+}
 
 
   /* ==========================================================
