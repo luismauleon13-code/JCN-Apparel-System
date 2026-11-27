@@ -2791,11 +2791,28 @@ function cashierOrderDetails(row) {
   // VERIFY ORDER
   // =====================================================
 
-  const canVerify =
-    !closed &&
-    !released &&
-    !verified &&
-    hasItems;
+  // PAYMENT VALIDATION BEFORE ORDER VERIFICATION
+
+const paymentMethod = cashierNormalize(
+  row.payment_method
+);
+
+const isCOD = paymentMethod === "cod";
+
+const isPayPal = paymentMethod === "paypal";
+
+const paymentEligible =
+  isCOD ||
+  (isPayPal && paymentStatus === "paid");
+
+// VERIFY ORDER ELIGIBILITY
+
+const canVerify =
+  !closed &&
+  !released &&
+  !verified &&
+  hasItems &&
+  paymentEligible;
 
   // =====================================================
   // CONFIRM ORDER RELEASE
@@ -2875,12 +2892,15 @@ function cashierOrderDetails(row) {
     releaseReason =
       "Saved inventory items are missing. Check the order's inventory record.";
 
-  } else if (!verified) {
+  } else if (!paymentEligible) {
 
-    releaseReason =
-      "Review the customer and items, then click Verify order.";
+  releaseReason =
+    "Waiting for successful PayPal payment. Order verification is temporarily unavailable.";
 
-  } else if (paymentStatus !== "paid") {
+} else if (!verified) {
+
+  releaseReason =
+    "Review the customer and items, then click Verify order.";
 
     releaseReason =
       "Waiting for a recorded Paid payment status.";
