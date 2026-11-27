@@ -1,4 +1,3 @@
-
 (() => {
   const API_BASE = "/api/cashier";
 
@@ -21,15 +20,18 @@
     paymentStatus: ""
   };
 
-  // Reuse the same key after an uncertain network result.
-  // Backend must enforce idempotency for these keys.
   const actionKeys = new Map();
 
   let token = "";
 
+  // =====================================================
+  // STAFF SESSION
+  // =====================================================
+
   function signOut() {
     localStorage.removeItem("staffToken");
     localStorage.removeItem("staffUser");
+
     window.location.replace(STAFF_LOGIN);
   }
 
@@ -39,14 +41,21 @@
     let user;
 
     try {
-      user = JSON.parse(localStorage.getItem("staffUser") || "null");
+      user = JSON.parse(
+        localStorage.getItem("staffUser") || "null"
+      );
     } catch {
       signOut();
       return null;
     }
 
-    const role = String(user?.role || "").trim().toLowerCase();
-    const status = String(user?.status || "").trim().toLowerCase();
+    const role = String(user?.role || "")
+      .trim()
+      .toLowerCase();
+
+    const status = String(user?.status || "")
+      .trim()
+      .toLowerCase();
 
     if (
       !token ||
@@ -61,18 +70,33 @@
     return user;
   }
 
+  // =====================================================
+  // HTML SECURITY
+  // =====================================================
+
   function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (character) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[character]);
+    return String(value ?? "").replace(
+      /[&<>"']/g,
+      (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]
+    );
   }
 
+  // =====================================================
+  // MONEY FORMAT
+  // =====================================================
+
   function money(value) {
-    if (value === null || value === undefined || value === "") {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
       return "—";
     }
 
@@ -85,6 +109,10 @@
         }).format(amount)
       : "—";
   }
+
+  // =====================================================
+  // DATE AND TIME FORMAT
+  // =====================================================
 
   function dateTime(value) {
     if (!value) return "—";
@@ -100,24 +128,153 @@
         }).format(date);
   }
 
+  // =====================================================
+  // STATUS BADGES
+  // =====================================================
+
   function badge(value) {
     const text = String(value || "Unknown");
+
     const normalized = text.toLowerCase();
 
-    const className = ["paid", "pending", "unpaid"].includes(normalized)
+    const className = [
+      "paid",
+      "pending",
+      "unpaid"
+    ].includes(normalized)
       ? normalized
       : "";
 
-    return `<span class="badge ${className}">${escapeHTML(text)}</span>`;
+    return `
+      <span class="badge ${className}">
+        ${escapeHTML(text)}
+      </span>
+    `;
   }
 
-  function showNotice(message, error = false, detail = false) {
-    const element = $(detail ? "detailNotice" : "notice");
+  // =====================================================
+  // DELIVERY STATUS
+  // NEW FUNCTION
+  // =====================================================
+
+  function getDeliveryStatus(order) {
+    const normalize = (value) =>
+      String(value ?? "").trim().toLowerCase();
+
+    const status = normalize(order.status);
+
+    const delivery = String(
+      order.delivery_status ?? ""
+    ).trim();
+
+    const preparation = normalize(
+      order.inventory_preparation
+    );
+
+    // CANCELLED ORDER
+
+    if (
+      status === "cancelled" ||
+      status === "canceled"
+    ) {
+      return "Cancelled";
+    }
+
+    // ACTUAL DELIVERY STATUS FROM BACKEND
+
+    if (
+      delivery &&
+      ![
+        "—",
+        "-",
+        "unknown",
+        "null",
+        "undefined"
+      ].includes(normalize(delivery))
+    ) {
+      return delivery;
+    }
+
+    // RELEASED OR SHIPPED
+    // WAITING FOR ACTUAL LOGISTICS UPDATE
+
+    if (
+      [
+        "completed",
+        "delivered",
+        "to receive",
+        "to deliver",
+        "shipped",
+        "in transit",
+        "out for delivery"
+      ].includes(status) ||
+      order.released_at
+    ) {
+      return "Awaiting delivery update";
+    }
+
+    // INVENTORY PREPARATION COMPLETED
+
+    if (
+      order.inventory_prepared_at &&
+      !["queued", "preparing"].includes(preparation)
+    ) {
+      return "Ready for shipment";
+    }
+
+    // ORDER HAS NOT BEEN SHIPPED
+
+    if (
+      [
+        "pending",
+        "pending payment",
+        "preparing",
+        "processing",
+        "to ship"
+      ].includes(status)
+    ) {
+      return "Not yet shipped";
+    }
+
+    return "No delivery update";
+  }
+
+  // =====================================================
+  // SHIPPING ADDRESS
+  // NEW FUNCTION
+  // =====================================================
+
+  function getShippingAddress(order) {
+    const address = String(
+      order.shipping_address ?? ""
+    ).trim();
+
+    return address || "No shipping address saved";
+  }
+
+  // =====================================================
+  // NOTIFICATIONS
+  // =====================================================
+
+  function showNotice(
+    message,
+    error = false,
+    detail = false
+  ) {
+    const element = $(
+      detail ? "detailNotice" : "notice"
+    );
 
     element.textContent = message;
+
     element.classList.toggle("error", error);
+
     element.hidden = !message;
   }
+
+  // =====================================================
+  // CASHIER API
+  // =====================================================
 
   async function api(path, options = {}) {
     let response;
@@ -125,14 +282,22 @@
     try {
       response = await fetch(`${API_BASE}${path}`, {
         ...options,
+
         cache: "no-store",
+
         headers: {
           Accept: "application/json",
+
           Authorization: `Bearer ${token}`,
-          ...(options.body ? { "Content-Type": "application/json" } : {}),
+
+          ...(options.body
+            ? { "Content-Type": "application/json" }
+            : {}),
+
           ...options.headers
         }
       });
+
     } catch {
       throw new Error(
         "Hindi makakonekta sa server. Tingnan kung running ang backend sa port 5000."
@@ -141,14 +306,22 @@
 
     if (response.status === 401) {
       signOut();
-      throw new Error("Expired ang staff session. Mag-login muli.");
+
+      throw new Error(
+        "Expired ang staff session. Mag-login muli."
+      );
     }
 
-    const data = await response.json().catch(() => null);
+    const data = await response.json().catch(
+      () => null
+    );
 
     if (!response.ok) {
+
       if (response.status === 403) {
-        throw new Error("Walang cashier permission ang account na ito.");
+        throw new Error(
+          "Walang cashier permission ang account na ito."
+        );
       }
 
       if (response.status === 409) {
@@ -165,63 +338,107 @@
     }
 
     if (!data) {
-      throw new Error("Walang valid JSON response mula sa cashier API.");
+      throw new Error(
+        "Walang valid JSON response mula sa cashier API."
+      );
     }
 
     return data;
   }
 
+  // =====================================================
+  // PAGINATION
+  // =====================================================
+
   function updatePagination() {
-    const totalPages = Math.max(1, Math.ceil(state.total / PAGE_SIZE));
+
+    const totalPages = Math.max(
+      1,
+      Math.ceil(state.total / PAGE_SIZE)
+    );
 
     $("pageInfo").textContent =
       `Page ${state.page} of ${totalPages} · ${state.total} records`;
 
     $("previousButton").disabled =
-      state.loading || state.page <= 1;
+      state.loading ||
+      state.page <= 1;
 
     $("nextButton").disabled =
-      state.loading || state.page >= totalPages;
+      state.loading ||
+      state.page >= totalPages;
 
-    $("refreshButton").disabled = state.loading;
+    $("refreshButton").disabled =
+      state.loading;
   }
 
+  // =====================================================
+  // DASHBOARD SUMMARY
+  // =====================================================
+
   function renderSummary() {
+
     const isOrders = state.view === "orders";
 
-    document.querySelector(".stats").hidden = !isOrders;
+    document.querySelector(".stats").hidden =
+      !isOrders;
 
     if (!isOrders) return;
 
-    $("orderCount").textContent = state.rows.length;
+    $("orderCount").textContent =
+      state.rows.length;
 
-    $("paidCount").textContent = state.rows.filter(
-      (order) => String(order.payment_status).toLowerCase() === "paid"
-    ).length;
+    $("paidCount").textContent =
+      state.rows.filter(
+        (order) =>
+          String(order.payment_status)
+            .toLowerCase() === "paid"
+      ).length;
 
     const amounts = state.rows.map((order) => {
+
       const value = order.amount_due;
 
-      return value === null || value === undefined || value === ""
+      return (
+        value === null ||
+        value === undefined ||
+        value === ""
+      )
         ? NaN
         : Number(value);
     });
 
     $("dueTotal").textContent = amounts.every(
-      (amount) => Number.isFinite(amount) && amount >= 0
+      (amount) =>
+        Number.isFinite(amount) &&
+        amount >= 0
     )
-      ? money(amounts.reduce((sum, amount) => sum + amount, 0))
+      ? money(
+          amounts.reduce(
+            (sum, amount) => sum + amount,
+            0
+          )
+        )
       : "—";
   }
 
+  // =====================================================
+  // RENDER ORDERS AND PAYMENT RECORDS
+  // =====================================================
+
   function renderRows() {
+
     const isOrders = state.view === "orders";
 
     $("tableCaption").textContent =
-      isOrders ? "Cashier orders" : "Payment records";
+      isOrders
+        ? "Cashier orders"
+        : "Payment records";
 
     $("tableHead").innerHTML = isOrders
-      ? `<tr>
+
+      ? `
+        <tr>
           <th>Order</th>
           <th>Customer</th>
           <th>Total / Due</th>
@@ -229,8 +446,11 @@
           <th>Payment</th>
           <th>Order status</th>
           <th>Action</th>
-        </tr>`
-      : `<tr>
+        </tr>
+      `
+
+      : `
+        <tr>
           <th>Date</th>
           <th>Order</th>
           <th>Reference</th>
@@ -238,60 +458,132 @@
           <th>Amount</th>
           <th>Status</th>
           <th>Verified by</th>
-        </tr>`;
+        </tr>
+      `;
 
     if (!state.rows.length) {
-      $("tableBody").innerHTML =
-        '<tr><td class="empty" colspan="7">No records found.</td></tr>';
+
+      $("tableBody").innerHTML = `
+        <tr>
+          <td class="empty" colspan="7">
+            No records found.
+          </td>
+        </tr>
+      `;
 
       renderSummary();
+
       return;
     }
 
-    $("tableBody").innerHTML = state.rows.map((row, index) => {
-      if (isOrders) {
+    $("tableBody").innerHTML =
+      state.rows.map((row, index) => {
+
+        if (isOrders) {
+
+          return `
+            <tr>
+
+              <td>
+                <strong>
+                  ${escapeHTML(row.order_number)}
+                </strong>
+
+                <small>
+                  ${escapeHTML(
+                    dateTime(row.created_at)
+                  )}
+                </small>
+              </td>
+
+              <td>
+                ${escapeHTML(row.customer_name)}
+
+                <small>
+                  ${escapeHTML(row.customer_email)}
+                </small>
+              </td>
+
+              <td>
+                ${money(row.total_amount)}
+
+                <small>
+                  Due: ${money(row.amount_due)}
+                </small>
+              </td>
+
+              <td>
+                ${escapeHTML(row.payment_method)}
+              </td>
+
+              <td>
+                ${badge(row.payment_status)}
+              </td>
+
+              <td>
+                ${badge(row.status)}
+              </td>
+
+              <td>
+                <button
+                  class="secondary"
+                  data-order-index="${index}"
+                >
+                  Review
+                </button>
+              </td>
+
+            </tr>
+          `;
+        }
+
         return `
           <tr>
-            <td>
-              <strong>${escapeHTML(row.order_number)}</strong>
-              <small>${escapeHTML(dateTime(row.created_at))}</small>
-            </td>
-            <td>
-              ${escapeHTML(row.customer_name)}
-              <small>${escapeHTML(row.customer_email)}</small>
-            </td>
-            <td>
-              ${money(row.total_amount)}
-              <small>Due: ${money(row.amount_due)}</small>
-            </td>
-            <td>${escapeHTML(row.payment_method)}</td>
-            <td>${badge(row.payment_status)}</td>
-            <td>${badge(row.status)}</td>
-            <td>
-              <button
-                class="secondary"
-                data-order-index="${index}"
-              >Review</button>
-            </td>
-          </tr>`;
-      }
 
-      return `
-        <tr>
-          <td>${escapeHTML(dateTime(row.created_at))}</td>
-          <td>${escapeHTML(row.order_number)}</td>
-          <td>${escapeHTML(row.reference || "—")}</td>
-          <td>${escapeHTML(row.payment_method)}</td>
-          <td>${money(row.amount)}</td>
-          <td>${badge(row.status)}</td>
-          <td>${escapeHTML(row.verified_by || "—")}</td>
-        </tr>`;
-    }).join("");
+            <td>
+              ${escapeHTML(
+                dateTime(row.created_at)
+              )}
+            </td>
+
+            <td>
+              ${escapeHTML(row.order_number)}
+            </td>
+
+            <td>
+              ${escapeHTML(row.reference || "—")}
+            </td>
+
+            <td>
+              ${escapeHTML(row.payment_method)}
+            </td>
+
+            <td>
+              ${money(row.amount)}
+            </td>
+
+            <td>
+              ${badge(row.status)}
+            </td>
+
+            <td>
+              ${escapeHTML(row.verified_by || "—")}
+            </td>
+
+          </tr>
+        `;
+
+      }).join("");
 
     renderSummary();
   }
 
+  // =====================================================
+  // LOAD TABLE RECORDS
+  // =====================================================
+
   async function loadRows() {
+
     const requestId = ++state.listRequest;
 
     state.loading = true;
@@ -299,10 +591,16 @@
     state.total = 0;
 
     showNotice("");
+
     renderRows();
 
-    $("tableBody").innerHTML =
-      '<tr><td class="empty" colspan="7">Loading records…</td></tr>';
+    $("tableBody").innerHTML = `
+      <tr>
+        <td class="empty" colspan="7">
+          Loading records…
+        </td>
+      </tr>
+    `;
 
     updatePagination();
 
@@ -312,21 +610,43 @@
       search: state.query
     });
 
-    if (state.view === "orders" && state.paymentStatus) {
-      parameters.set("payment_status", state.paymentStatus);
+    if (
+      state.view === "orders" &&
+      state.paymentStatus
+    ) {
+      parameters.set(
+        "payment_status",
+        state.paymentStatus
+      );
     }
 
-    const endpoint = state.view === "orders" ? "/orders" : "/payments";
+    const endpoint =
+      state.view === "orders"
+        ? "/orders"
+        : "/payments";
 
     try {
-      const data = await api(`${endpoint}?${parameters}`);
 
-      if (requestId !== state.listRequest) return;
+      const data = await api(
+        `${endpoint}?${parameters}`
+      );
 
-      const rows = state.view === "orders" ? data.orders : data.payments;
+      if (requestId !== state.listRequest) {
+        return;
+      }
+
+      const rows =
+        state.view === "orders"
+          ? data.orders
+          : data.payments;
+
       const total = Number(data.total);
 
-      if (!Array.isArray(rows) || !Number.isInteger(total) || total < 0) {
+      if (
+        !Array.isArray(rows) ||
+        !Number.isInteger(total) ||
+        total < 0
+      ) {
         throw new Error(
           "Hindi tugma ang API response. Kailangan ng records array at total."
         );
@@ -336,216 +656,502 @@
       state.total = total;
 
       renderRows();
-    } catch (error) {
-      if (requestId !== state.listRequest) return;
 
-      $("tableBody").innerHTML =
-        '<tr><td class="empty" colspan="7">Unable to load records. Use Refresh to retry.</td></tr>';
+    } catch (error) {
+
+      if (requestId !== state.listRequest) {
+        return;
+      }
+
+      $("tableBody").innerHTML = `
+        <tr>
+          <td class="empty" colspan="7">
+            Unable to load records. Use Refresh to retry.
+          </td>
+        </tr>
+      `;
 
       showNotice(error.message, true);
+
     } finally {
+
       if (requestId === state.listRequest) {
+
         state.loading = false;
+
         updatePagination();
       }
     }
   }
 
+  // =====================================================
+  // ORDER DETAILS FIELD
+  // =====================================================
+
   function detailField(label, value) {
+
     return `
       <div>
-        <dt>${escapeHTML(label)}</dt>
-        <dd>${escapeHTML(value ?? "—")}</dd>
-      </div>`;
+
+        <dt>
+          ${escapeHTML(label)}
+        </dt>
+
+        <dd>
+          ${escapeHTML(value ?? "—")}
+        </dd>
+
+      </div>
+    `;
   }
 
+  // =====================================================
+  // UPDATE CASHIER ACTION BUTTONS
+  // =====================================================
+
   function updateActionButtons() {
+
     const order = state.selected;
+
     const actions = order?.actions || {};
 
-    // These permissions must come from the backend.
+    // VERIFY ORDER
+
     $("verifyOrderButton").disabled =
-      state.busy || actions.can_verify_order !== true;
+      state.busy ||
+      actions.can_verify_order !== true;
+
+    // PAYMENT VERIFICATION
 
     $("paymentForm").hidden =
       actions.can_verify_payment !== true;
 
-    $("paymentButton").disabled = state.busy;
-    $("paymentReference").disabled = state.busy;
-    $("paymentNote").disabled = state.busy;
+    $("paymentButton").disabled =
+      state.busy;
+
+    $("paymentReference").disabled =
+      state.busy;
+
+    $("paymentNote").disabled =
+      state.busy;
+
+    // CONFIRM ORDER RELEASE
 
     $("releaseButton").disabled =
-      state.busy || actions.can_release !== true;
+      state.busy ||
+      actions.can_release !== true;
 
-    $("closeDialog").disabled = state.busy;
+    // CLOSE MODAL
+
+    $("closeDialog").disabled =
+      state.busy;
   }
 
+  // =====================================================
+  // RENDER ORDER DETAILS
+  // UPDATED SHIPPING ADDRESS AND DELIVERY STATUS
+  // =====================================================
+
   function renderOrder() {
+
     const order = state.selected;
 
     if (!order) return;
 
-    $("dialogTitle").textContent = order.order_number || "Order";
+    $("dialogTitle").textContent =
+      order.order_number || "Order";
 
-    const items = Array.isArray(order.items) ? order.items : [];
-    const payments = Array.isArray(order.payments) ? order.payments : [];
+    const items = Array.isArray(order.items)
+      ? order.items
+      : [];
+
+    const payments = Array.isArray(order.payments)
+      ? order.payments
+      : [];
 
     $("detailContent").innerHTML = `
+
       <dl class="detail-grid">
-        ${detailField("Customer", order.customer_name)}
-        ${detailField("Email", order.customer_email)}
-        ${detailField("Phone", order.customer_phone)}
-        ${detailField("Total amount", money(order.total_amount))}
-        ${detailField("Amount due", money(order.amount_due))}
-        ${detailField("Payment method", order.payment_method)}
-        ${detailField("Payment status", order.payment_status)}
-        ${detailField("Order status", order.status)}
-        ${detailField("Delivery status", order.delivery_status)}
-        ${detailField("Courier", order.courier)}
-        ${detailField("Tracking number", order.tracking_number)}
+
+        ${detailField(
+          "Customer",
+          order.customer_name
+        )}
+
+        ${detailField(
+          "Email",
+          order.customer_email
+        )}
+
+        ${detailField(
+          "Phone",
+          order.customer_phone
+        )}
+
+        ${detailField(
+          "Total amount",
+          money(order.total_amount)
+        )}
+
+        ${detailField(
+          "Amount due",
+          money(order.amount_due)
+        )}
+
+        ${detailField(
+          "Payment method",
+          order.payment_method
+        )}
+
+        ${detailField(
+          "Payment status",
+          order.payment_status
+        )}
+
+        ${detailField(
+          "Order status",
+          order.status
+        )}
+
+        ${detailField(
+          "Delivery status",
+          getDeliveryStatus(order)
+        )}
+
+        ${detailField(
+          "Shipping address",
+          getShippingAddress(order)
+        )}
+
+        ${detailField(
+          "Tracking number",
+          order.tracking_number ||
+          "Not yet assigned"
+        )}
+
         ${detailField(
           "Order verification",
-          order.verified_at ? dateTime(order.verified_at) : "Not verified"
+          order.verified_at
+            ? dateTime(order.verified_at)
+            : "Not verified"
         )}
+
         ${detailField(
           "Order release",
-          order.released_at ? dateTime(order.released_at) : "Not released"
+          order.released_at
+            ? dateTime(order.released_at)
+            : "Not released"
         )}
+
       </dl>
+
+
+      <!-- ORDERED ITEMS -->
 
       <h3>Ordered items</h3>
 
       <div class="table-wrap">
+
         <table>
+
           <thead>
+
             <tr>
+
               <th>Product</th>
               <th>Size</th>
               <th>Color</th>
               <th>Quantity</th>
               <th>Unit price</th>
+
             </tr>
+
           </thead>
+
           <tbody>
-            ${items.length ? items.map((item) => `
-              <tr>
-                <td>${escapeHTML(item.title)}</td>
-                <td>${escapeHTML(item.size)}</td>
-                <td>${escapeHTML(item.color)}</td>
-                <td>${escapeHTML(item.quantity)}</td>
-                <td>${money(item.unit_price)}</td>
-              </tr>
-            `).join("") : `
-              <tr>
-                <td colspan="5" class="empty">No item details available.</td>
-              </tr>
-            `}
+
+            ${
+              items.length
+
+                ? items.map((item) => `
+
+                  <tr>
+
+                    <td>
+                      ${escapeHTML(item.title)}
+                    </td>
+
+                    <td>
+                      ${escapeHTML(item.size)}
+                    </td>
+
+                    <td>
+                      ${escapeHTML(item.color)}
+                    </td>
+
+                    <td>
+                      ${escapeHTML(item.quantity)}
+                    </td>
+
+                    <td>
+                      ${money(item.unit_price)}
+                    </td>
+
+                  </tr>
+
+                `).join("")
+
+                : `
+
+                  <tr>
+
+                    <td colspan="5" class="empty">
+
+                      No item details available.
+
+                    </td>
+
+                  </tr>
+
+                `
+            }
+
           </tbody>
+
         </table>
+
       </div>
 
-      <h3 style="margin-top:24px">Payment history</h3>
+
+      <!-- PAYMENT HISTORY -->
+
+      <h3 style="margin-top:24px">
+        Payment history
+      </h3>
 
       <div class="table-wrap">
+
         <table>
+
           <thead>
+
             <tr>
+
               <th>Date</th>
               <th>Reference</th>
               <th>Amount</th>
               <th>Status</th>
+
             </tr>
+
           </thead>
+
           <tbody>
-            ${payments.length ? payments.map((payment) => `
-              <tr>
-                <td>${escapeHTML(dateTime(payment.created_at))}</td>
-                <td>${escapeHTML(payment.reference)}</td>
-                <td>${money(payment.amount)}</td>
-                <td>${badge(payment.status)}</td>
-              </tr>
-            `).join("") : `
-              <tr>
-                <td colspan="4" class="empty">No payment records.</td>
-              </tr>
-            `}
+
+            ${
+              payments.length
+
+                ? payments.map((payment) => `
+
+                  <tr>
+
+                    <td>
+                      ${escapeHTML(
+                        dateTime(payment.created_at)
+                      )}
+                    </td>
+
+                    <td>
+                      ${escapeHTML(payment.reference)}
+                    </td>
+
+                    <td>
+                      ${money(payment.amount)}
+                    </td>
+
+                    <td>
+                      ${badge(payment.status)}
+                    </td>
+
+                  </tr>
+
+                `).join("")
+
+                : `
+
+                  <tr>
+
+                    <td colspan="4" class="empty">
+
+                      No payment records.
+
+                    </td>
+
+                  </tr>
+
+                `
+            }
+
           </tbody>
+
         </table>
+
       </div>
 
+
+      <!-- RELEASE STATUS MESSAGE -->
+
       <p class="muted">
+
         ${escapeHTML(
+
           order.actions?.release_reason ||
+
           "Release eligibility is determined by the server."
+
         )}
+
       </p>
+
     `;
 
     updateActionButtons();
   }
 
+  // =====================================================
+  // VALIDATE ORDER RESPONSE
+  // =====================================================
+
   function validateOrder(order) {
-    if (!order || order.id === undefined || order.revision === undefined) {
-      throw new Error("Missing order ID or revision in the API response.");
+
+    if (
+      !order ||
+      order.id === undefined ||
+      order.revision === undefined
+    ) {
+      throw new Error(
+        "Missing order ID or revision in the API response."
+      );
     }
 
     return order;
   }
 
+  // =====================================================
+  // OPEN ORDER DETAILS
+  // =====================================================
+
   async function openOrder(id) {
+
     if (state.busy) return;
 
     const requestId = ++state.detailRequest;
 
     state.selected = null;
-    $("dialogTitle").textContent = "Loading order…";
-    $("detailContent").textContent = "Loading details…";
+
+    $("dialogTitle").textContent =
+      "Loading order…";
+
+    $("detailContent").textContent =
+      "Loading details…";
+
     $("paymentForm").reset();
 
     showNotice("", false, true);
+
     updateActionButtons();
 
     if (!$("orderDialog").open) {
+
       $("orderDialog").showModal();
     }
 
     try {
-      const data = await api(`/orders/${encodeURIComponent(id)}`);
 
-      if (requestId !== state.detailRequest) return;
+      const data = await api(
+        `/orders/${encodeURIComponent(id)}`
+      );
+
+      if (requestId !== state.detailRequest) {
+        return;
+      }
 
       state.selected = validateOrder(data.order);
-      renderOrder();
-    } catch (error) {
-      if (requestId !== state.detailRequest) return;
 
-      $("detailContent").textContent = "Unable to load this order.";
+      renderOrder();
+
+    } catch (error) {
+
+      if (requestId !== state.detailRequest) {
+        return;
+      }
+
+      $("detailContent").textContent =
+        "Unable to load this order.";
+
       showNotice(error.message, true, true);
     }
   }
 
+  // =====================================================
+  // REQUEST KEY
+  // IDEMPOTENCY PROTECTION
+  // =====================================================
+
   function createRequestKey() {
+
     const bytes = new Uint8Array(16);
+
     crypto.getRandomValues(bytes);
 
-    return Array.from(bytes, (byte) =>
-      byte.toString(16).padStart(2, "0")
+    return Array.from(
+      bytes,
+      (byte) => byte.toString(16).padStart(2, "0")
     ).join("");
   }
 
-  async function performAction(action, extra = {}) {
-    if (state.busy || !state.selected) return;
+  // =====================================================
+  // CASHIER TRANSACTIONS
+  // VERIFY ORDER / VERIFY PAYMENT / RELEASE
+  // =====================================================
+
+  async function performAction(
+    action,
+    extra = {}
+  ) {
+
+    if (
+      state.busy ||
+      !state.selected
+    ) {
+      return;
+    }
 
     const order = state.selected;
 
     const requiredPermission = {
-      "verify-order": "can_verify_order",
-      "verify-payment": "can_verify_payment",
-      "release": "can_release"
+
+      "verify-order":
+        "can_verify_order",
+
+      "verify-payment":
+        "can_verify_payment",
+
+      "release":
+        "can_release"
+
     }[action];
 
-    if (order.actions?.[requiredPermission] !== true) {
-      showNotice("Hindi available ang action na ito.", true, true);
+    if (
+      order.actions?.[requiredPermission] !== true
+    ) {
+
+      showNotice(
+        "Hindi available ang action na ito.",
+        true,
+        true
+      );
+
       return;
     }
 
@@ -554,24 +1160,46 @@
       ...extra
     };
 
-    const operation = JSON.stringify([order.id, action, payload]);
+    const operation = JSON.stringify([
+      order.id,
+      action,
+      payload
+    ]);
 
     if (!actionKeys.has(operation)) {
-      actionKeys.set(operation, createRequestKey());
+
+      actionKeys.set(
+        operation,
+        createRequestKey()
+      );
     }
 
     state.busy = true;
+
     updateActionButtons();
-    showNotice("Processing…", false, true);
+
+    showNotice(
+      "Processing…",
+      false,
+      true
+    );
 
     try {
+
       const data = await api(
+
         `/orders/${encodeURIComponent(order.id)}/${action}`,
+
         {
           method: "POST",
+
           headers: {
-            "Idempotency-Key": actionKeys.get(operation)
+
+            "Idempotency-Key":
+              actionKeys.get(operation)
+
           },
+
           body: JSON.stringify(payload)
         }
       );
@@ -579,7 +1207,9 @@
       state.selected = validateOrder(data.order);
 
       actionKeys.delete(operation);
+
       $("paymentForm").reset();
+
       renderOrder();
 
       showNotice(
@@ -589,229 +1219,468 @@
       );
 
       await loadRows();
+
     } catch (error) {
+
       showNotice(
+
         `${error.message} Kung naputol ang connection, i-refresh muna ang order para makita ang pinakabagong status.`,
+
         true,
+
         true
       );
+
     } finally {
+
       state.busy = false;
+
       updateActionButtons();
     }
   }
 
+  // =====================================================
+  // CLOSE ORDER DETAILS
+  // =====================================================
+
   function closeOrder() {
+
     if (state.busy) return;
 
     ++state.detailRequest;
+
     state.selected = null;
+
     $("orderDialog").close();
   }
 
+  // =====================================================
+  // BIND DASHBOARD EVENTS
+  // =====================================================
+
   function bindEvents() {
-    document.querySelectorAll("[data-view]").forEach((button) => {
-      button.addEventListener("click", () => {
-        if (state.busy) return;
 
-        state.view = button.dataset.view;
-        state.page = 1;
+    // SIDEBAR NAVIGATION
 
-        document.querySelectorAll("[data-view]").forEach((item) => {
-          item.classList.toggle("active", item === button);
+    document.querySelectorAll("[data-view]")
+      .forEach((button) => {
+
+        button.addEventListener("click", () => {
+
+          if (state.busy) return;
+
+          state.view = button.dataset.view;
+
+          state.page = 1;
+
+          document.querySelectorAll("[data-view]")
+            .forEach((item) => {
+
+              item.classList.toggle(
+                "active",
+                item === button
+              );
+
+            });
+
+          $("pageTitle").textContent =
+
+            state.view === "orders"
+
+              ? "Orders & Payments"
+
+              : "Payment Records";
+
+          $("statusFilter").hidden =
+            state.view !== "orders";
+
+          loadRows();
+
         });
 
-        $("pageTitle").textContent =
-          state.view === "orders" ? "Orders & Payments" : "Payment Records";
+      });
 
-        $("statusFilter").hidden = state.view !== "orders";
+
+    // SEARCH AND PAYMENT FILTER
+
+    $("filterForm").addEventListener(
+      "submit",
+      (event) => {
+
+        event.preventDefault();
+
+        state.query =
+          $("searchInput").value.trim();
+
+        state.paymentStatus =
+          $("paymentFilter").value;
+
+        state.page = 1;
 
         loadRows();
-      });
-    });
 
-    $("filterForm").addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      state.query = $("searchInput").value.trim();
-      state.paymentStatus = $("paymentFilter").value;
-      state.page = 1;
-
-      loadRows();
-    });
-
-    $("refreshButton").addEventListener("click", loadRows);
-
-    $("previousButton").addEventListener("click", () => {
-      if (state.loading || state.page <= 1) return;
-
-      state.page--;
-      loadRows();
-    });
-
-    $("nextButton").addEventListener("click", () => {
-      if (state.loading || state.page * PAGE_SIZE >= state.total) return;
-
-      state.page++;
-      loadRows();
-    });
-
-    $("tableBody").addEventListener("click", (event) => {
-      const button = event.target.closest("[data-order-index]");
-
-      if (!button || state.loading) return;
-
-      const row = state.rows[Number(button.dataset.orderIndex)];
-
-      if (row?.id !== undefined) {
-        openOrder(row.id);
       }
-    });
+    );
 
-    $("closeDialog").addEventListener("click", closeOrder);
 
-    $("orderDialog").addEventListener("cancel", (event) => {
-      event.preventDefault();
-      closeOrder();
-    });
+    // REFRESH BUTTON
 
-    $("verifyOrderButton").addEventListener("click", () => {
-      if (!state.selected || state.busy) return;
+    $("refreshButton").addEventListener(
+      "click",
+      loadRows
+    );
 
-      const approved = confirm(
-        `Confirm na tama ang customer at items ng ${state.selected.order_number}?`
+
+    // PREVIOUS PAGE
+
+    $("previousButton").addEventListener(
+      "click",
+      () => {
+
+        if (
+          state.loading ||
+          state.page <= 1
+        ) {
+          return;
+        }
+
+        state.page--;
+
+        loadRows();
+
+      }
+    );
+
+
+    // NEXT PAGE
+
+    $("nextButton").addEventListener(
+      "click",
+      () => {
+
+        if (
+          state.loading ||
+          state.page * PAGE_SIZE >= state.total
+        ) {
+          return;
+        }
+
+        state.page++;
+
+        loadRows();
+
+      }
+    );
+
+
+    // REVIEW ORDER BUTTON
+
+    $("tableBody").addEventListener(
+      "click",
+      (event) => {
+
+        const button = event.target.closest(
+          "[data-order-index]"
+        );
+
+        if (
+          !button ||
+          state.loading
+        ) {
+          return;
+        }
+
+        const row = state.rows[
+          Number(button.dataset.orderIndex)
+        ];
+
+        if (row?.id !== undefined) {
+
+          openOrder(row.id);
+
+        }
+
+      }
+    );
+
+
+    // CLOSE ORDER DETAILS
+
+    $("closeDialog").addEventListener(
+      "click",
+      closeOrder
+    );
+
+
+    $("orderDialog").addEventListener(
+      "cancel",
+      (event) => {
+
+        event.preventDefault();
+
+        closeOrder();
+
+      }
+    );
+
+
+    // ===================================================
+    // VERIFY ORDER
+    // EXISTING FUNCTIONALITY PRESERVED
+    // ===================================================
+
+    $("verifyOrderButton").addEventListener(
+      "click",
+      () => {
+
+        if (
+          !state.selected ||
+          state.busy
+        ) {
+          return;
+        }
+
+        const approved = confirm(
+
+          `Confirm na tama ang customer at items ng ${state.selected.order_number}?`
+
+        );
+
+        if (approved) {
+
+          performAction("verify-order");
+
+        }
+
+      }
+    );
+
+
+    // ===================================================
+    // VERIFY PAYMENT
+    // ===================================================
+
+    $("paymentForm").addEventListener(
+      "submit",
+      (event) => {
+
+        event.preventDefault();
+
+        const reference =
+          $("paymentReference").value.trim();
+
+        const notes =
+          $("paymentNote").value.trim();
+
+        if (!reference) {
+
+          showNotice(
+            "Ilagay ang payment reference.",
+            true,
+            true
+          );
+
+          $("paymentReference").focus();
+
+          return;
+        }
+
+        if (
+          confirm(
+            "Submit this payment reference for verification?"
+          )
+        ) {
+
+          performAction(
+            "verify-payment",
+            {
+              reference,
+              notes
+            }
+          );
+
+        }
+
+      }
+    );
+
+
+    // ===================================================
+    // CONFIRM ORDER RELEASE
+    // EXISTING FUNCTIONALITY PRESERVED
+    // ===================================================
+
+    $("releaseButton").addEventListener(
+      "click",
+      () => {
+
+        if (
+          !state.selected ||
+          state.busy
+        ) {
+          return;
+        }
+
+        if (
+          confirm(
+            `Confirm actual release ng ${state.selected.order_number}?`
+          )
+        ) {
+
+          performAction("release");
+
+        }
+
+      }
+    );
+
+
+    // ===================================================
+    // CASHIER LOGOUT CONFIRMATION
+    // SAME DESIGN AS ADMIN
+    // ===================================================
+
+    const cashierLogoutModal =
+      document.getElementById(
+        "cashierLogoutModal"
       );
 
-      if (approved) performAction("verify-order");
-    });
+    const confirmCashierLogout =
+      document.getElementById(
+        "confirmCashierLogout"
+      );
 
-    $("paymentForm").addEventListener("submit", (event) => {
-      event.preventDefault();
+    const cancelCashierLogout =
+      document.getElementById(
+        "cancelCashierLogout"
+      );
 
-      const reference = $("paymentReference").value.trim();
-      const notes = $("paymentNote").value.trim();
 
-      if (!reference) {
-        showNotice("Ilagay ang payment reference.", true, true);
-        $("paymentReference").focus();
-        return;
+    // OPEN LOGOUT MODAL
+
+    $("logoutButton").addEventListener(
+      "click",
+      () => {
+
+        if (state.busy) return;
+
+        cashierLogoutModal.hidden = false;
+
+        cancelCashierLogout.focus();
+
       }
+    );
 
-      if (confirm("Submit this payment reference for verification?")) {
-        performAction("verify-payment", { reference, notes });
+
+    // CANCEL LOGOUT
+
+    cancelCashierLogout.addEventListener(
+      "click",
+      () => {
+
+        cashierLogoutModal.hidden = true;
+
       }
-    });
+    );
 
-    $("releaseButton").addEventListener("click", () => {
-      if (!state.selected || state.busy) return;
 
-      if (confirm(
-        `Confirm actual release ng ${state.selected.order_number}?`
-      )) {
-        performAction("release");
+    // CONFIRM LOGOUT
+
+    confirmCashierLogout.addEventListener(
+      "click",
+      () => {
+
+        if (state.busy) return;
+
+        cashierLogoutModal.hidden = true;
+
+        signOut();
+
       }
-    });
-
-    
-/* =========================================
-   CASHIER LOGOUT CONFIRMATION
-   SAME DESIGN AS ADMIN
-========================================= */
-
-const cashierLogoutModal =
-  document.getElementById("cashierLogoutModal");
-
-const confirmCashierLogout =
-  document.getElementById("confirmCashierLogout");
-
-const cancelCashierLogout =
-  document.getElementById("cancelCashierLogout");
+    );
 
 
-// OPEN LOGOUT MODAL
+    // CLOSE WHEN CLICKING OUTSIDE
 
-$("logoutButton").addEventListener("click", () => {
+    cashierLogoutModal.addEventListener(
+      "click",
+      (event) => {
 
-  if (state.busy) return;
+        if (
+          event.target === cashierLogoutModal
+        ) {
 
-  cashierLogoutModal.hidden = false;
+          cashierLogoutModal.hidden = true;
 
-  cancelCashierLogout.focus();
+        }
 
-});
-
-
-// CANCEL LOGOUT
-
-cancelCashierLogout.addEventListener("click", () => {
-
-  cashierLogoutModal.hidden = true;
-
-});
+      }
+    );
 
 
-// CONFIRM LOGOUT
+    // CLOSE USING ESC KEY
 
-confirmCashierLogout.addEventListener("click", () => {
+    document.addEventListener(
+      "keydown",
+      (event) => {
 
-  if (state.busy) return;
+        if (
+          event.key === "Escape" &&
+          !cashierLogoutModal.hidden
+        ) {
 
-  cashierLogoutModal.hidden = true;
+          cashierLogoutModal.hidden = true;
 
-  signOut();
+        }
 
-});
+      }
+    );
 
 
-// CLOSE WHEN CLICKING OUTSIDE
+    // SESSION STORAGE CHANGE
 
-cashierLogoutModal.addEventListener("click", (event) => {
+    window.addEventListener(
+      "storage",
+      (event) => {
 
-  if (event.target === cashierLogoutModal) {
-    cashierLogoutModal.hidden = true;
+        if (
+          event.key === null ||
+          event.key === "staffToken" ||
+          event.key === "staffUser"
+        ) {
+
+          location.reload();
+
+        }
+
+      }
+    );
+
   }
 
-});
-
-
-// CLOSE USING ESC KEY
-
-document.addEventListener("keydown", (event) => {
-
-  if (
-    event.key === "Escape" &&
-    !cashierLogoutModal.hidden
-  ) {
-    cashierLogoutModal.hidden = true;
-  }
-
-});
-
-
-    window.addEventListener("storage", (event) => {
-      if (
-        event.key === null ||
-        event.key === "staffToken" ||
-        event.key === "staffUser"
-      ) {
-        location.reload();
-      }
-    });
-  }
-
-  
+  // =====================================================
+  // INITIALIZE CASHIER DASHBOARD
+  // =====================================================
 
   function init() {
+
     const user = readSession();
 
     if (!user) return;
 
     $("staffName").textContent =
-      user.full_name || user.username || "Cashier";
+
+      user.full_name ||
+
+      user.username ||
+
+      "Cashier";
 
     bindEvents();
+
     loadRows();
   }
 
   init();
+
 })();
