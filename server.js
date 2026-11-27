@@ -2955,7 +2955,7 @@ const canVerify =
 
     id: row.id,
 
-    order_number: String(row.id),
+    order_number: row.order_number || String(row.id),
 
     waybill_order_number: String(
       row.order_number || row.id

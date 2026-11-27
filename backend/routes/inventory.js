@@ -501,201 +501,710 @@ module.exports = function createInventoryRouter({
      Also retrieves J&T tracking information.
   ========================================== */
 
-  router.get(
-    "/orders",
+  // =====================================================
+// INVENTORY - GET VERIFIED ORDERS FOR PREPARATION
+// =====================================================
 
-    handle(async (req, res) => {
+/* ==========================================
+   GET VERIFIED ORDERS FOR PREPARATION
+========================================== */
 
-      const p = pagination(req);
+router.get(
+  "/orders",
 
-      const {
-        data,
-        error,
-        count
-      } = await supabase
-        .from("orders")
-        .select(
-          [
-            "id",
-            "order_number",
-            "customer_name",
-            "payment_method",
-            "payment_status",
-            "status",
-            "tracking_number",
-            "courier",
-            "inventory_items",
-            "inventory_preparation",
-            "inventory_revision",
-            "inventory_prepared_by",
-            "inventory_prepared_at",
-            "created_at"
-          ].join(","),
-          {
-            count: "exact"
-          }
-        )
-        .in(
+  handle(async (req, res) => {
+
+    const p = pagination(req);
+
+    const {
+      data,
+      error,
+      count
+    } = await supabase
+
+      .from("orders")
+
+      .select(
+        [
+          "id",
+          "order_number",
+          "customer_name",
+          "customer_phone",
+          "shipping_address",
+          "payment_method",
+          "payment_status",
           "status",
-          [
-            "Preparing",
-            "Processing",
-            "To Ship"
-          ]
-        )
-        .order("created_at", {
-          ascending: true
-        })
-        .order("id", {
-          ascending: true
-        })
-        .range(
-          p.from,
-          p.to
-        );
-
-      if (error) {
-        throw error;
-      }
-
-      const orders = (data || []).map(order => {
-
-        const preparationStatus =
-          String(
-            order.inventory_preparation || "Queued"
-          ).trim();
-
-        const isReady = [
-          "ready",
-          "ready to ship",
-          "prepared"
-        ].includes(
-          preparationStatus.toLowerCase()
-        );
-
-        return {
-          ...order,
-
-          inventory_preparation: preparationStatus,
-
-          is_ready_for_tracking: isReady,
-
-          has_tracking: Boolean(
-            order.tracking_number
-          )
-        };
-
-      });
-
-      return res.json({
-        success: true,
-        orders,
-        total: count ?? 0,
-        page: p.page,
-        limit: p.limit
-      });
-
-    })
-  );
-
-  /* ==========================================
-     START / COMPLETE ORDER PREPARATION
-  ========================================== */
-
-  router.patch(
-    "/orders/:id/preparation",
-
-    handle(async (req, res) => {
-
-      const id = recordId(req.params.id);
-
-      const {
-        action,
-        revision,
-        checked
-      } = objectBody(req);
-
-      /* ----------------------------------
-         VALIDATE ACTION
-      ---------------------------------- */
-
-      if (
-        !["start", "ready"].includes(action)
-      ) {
-        throw invalid(
-          "Invalid preparation action."
-        );
-      }
-
-      /* ----------------------------------
-         VALIDATE REVISION
-      ---------------------------------- */
-
-      if (
-        !Number.isInteger(revision) ||
-        revision < 0 ||
-        revision >= 2147483647
-      ) {
-        throw invalid(
-          "Invalid order revision. Refresh this page."
-        );
-      }
-
-      /* ----------------------------------
-         VALIDATE CHECKLIST
-      ---------------------------------- */
-
-      if (
-        !Array.isArray(checked) ||
-        checked.length > 200 ||
-        checked.some(
-          index =>
-            !Number.isInteger(index) ||
-            index < 0 ||
-            index >= 200
-        ) ||
-        new Set(checked).size !== checked.length
-      ) {
-
-        throw invalid(
-          "Send a valid item checklist."
-        );
-
-      }
-
-      /* ----------------------------------
-         SAVE PREPARATION USING SUPABASE RPC
-      ---------------------------------- */
-
-      const {
-        data,
-        error
-      } = await supabase.rpc(
-        "jcn_inventory_prepare",
+          "tracking_number",
+          "courier",
+          "inventory_items",
+          "inventory_preparation",
+          "inventory_revision",
+          "inventory_prepared_by",
+          "inventory_prepared_at",
+          "cashier_verified_at",
+          "cashier_verified_by",
+          "cashier_released_at",
+          "created_at"
+        ].join(","),
         {
-          p_order_id: id,
-          p_action: action,
-          p_revision: revision,
-          p_checked: checked,
-          p_actor: req.inventoryActor
+          count: "exact"
         }
+      )
+
+      /* ----------------------------------
+         INCLUDE VERIFIED PENDING ORDERS
+      ---------------------------------- */
+
+      .in(
+        "status",
+        [
+          "Pending",
+          "Preparing",
+          "Processing",
+          "To Ship"
+        ]
+      )
+
+      /* ----------------------------------
+         CASHIER VERIFICATION REQUIRED
+      ---------------------------------- */
+
+      .not(
+        "cashier_verified_at",
+        "is",
+        null
+      )
+
+      /* ----------------------------------
+         EXCLUDE RELEASED ORDERS
+      ---------------------------------- */
+
+      .is(
+        "cashier_released_at",
+        null
+      )
+
+      /* ----------------------------------
+         PAYMENT ELIGIBILITY
+         COD: Pending or Paid
+         PayPal: Paid only
+      ---------------------------------- */
+
+      .or(
+        "payment_method.eq.COD,and(payment_method.eq.PayPal,payment_status.ilike.Paid)"
+      )
+
+      /* ----------------------------------
+         ORDER SORTING
+      ---------------------------------- */
+
+      .order("created_at", {
+        ascending: true
+      })
+
+      .order("id", {
+        ascending: true
+      })
+
+      /* ----------------------------------
+         PAGINATION
+      ---------------------------------- */
+
+      .range(
+        p.from,
+        p.to
       );
 
-      if (error) {
-        throw error;
+    if (error) {
+      throw error;
+    }
+
+    /* ==========================================
+       FORMAT INVENTORY ORDER DETAILS
+    ========================================== */
+
+    const orders = (data || []).map(order => {
+
+      const preparationStatus = String(
+        order.inventory_preparation || "Queued"
+      ).trim();
+
+      const normalizedPreparation =
+        preparationStatus.toLowerCase();
+
+      const orderStatus = String(
+        order.status || ""
+      ).trim().toLowerCase();
+
+      const paymentMethod = String(
+        order.payment_method || ""
+      ).trim().toLowerCase();
+
+      const paymentStatus = String(
+        order.payment_status || ""
+      ).trim().toLowerCase();
+
+      const cashierVerified = Boolean(
+        order.cashier_verified_at
+      );
+
+      const cashierReleased = Boolean(
+        order.cashier_released_at
+      );
+
+      /* ----------------------------------
+         PAYMENT VALIDATION
+      ---------------------------------- */
+
+      const paymentEligible =
+        paymentMethod === "cod" ||
+        (
+          paymentMethod === "paypal" &&
+          paymentStatus === "paid"
+        );
+
+      /* ----------------------------------
+         PREPARATION STATUS
+      ---------------------------------- */
+
+      const isQueued =
+        normalizedPreparation === "queued";
+
+      const isPreparing =
+        normalizedPreparation === "preparing";
+
+      const isReady = [
+        "ready",
+        "ready to ship",
+        "prepared"
+      ].includes(normalizedPreparation);
+
+      /* ----------------------------------
+         INVENTORY ITEMS
+      ---------------------------------- */
+
+      let items = order.inventory_items;
+
+      if (typeof items === "string") {
+
+        try {
+          items = JSON.parse(items);
+        } catch {
+          items = [];
+        }
+
       }
 
-      return res.json({
-        success: true,
-        message:
-          action === "ready"
-            ? "Order is ready for shipment."
-            : "Order preparation started.",
-        preparation: data?.preparation
-      });
+      if (!Array.isArray(items)) {
+        items = [];
+      }
 
-    })
-  );
+      const hasItems =
+        items.length > 0 &&
+        items.length <= 200;
+
+      /* ----------------------------------
+         START PREPARATION ELIGIBILITY
+      ---------------------------------- */
+
+      const canStartPreparation =
+
+        cashierVerified &&
+
+        !cashierReleased &&
+
+        paymentEligible &&
+
+        hasItems &&
+
+        isQueued &&
+
+        [
+          "pending",
+          "preparing",
+          "processing"
+        ].includes(orderStatus);
+
+      /* ----------------------------------
+         MARK READY ELIGIBILITY
+      ---------------------------------- */
+
+      const canMarkReady =
+
+        cashierVerified &&
+
+        !cashierReleased &&
+
+        paymentEligible &&
+
+        hasItems &&
+
+        isPreparing &&
+
+        [
+          "preparing",
+          "processing"
+        ].includes(orderStatus);
+
+      /* ----------------------------------
+         SHIPPING ADDRESS
+      ---------------------------------- */
+
+      const shippingAddress = String(
+        order.shipping_address ?? ""
+      ).trim();
+
+      /* ----------------------------------
+         RETURN ORDER DETAILS
+      ---------------------------------- */
+
+      return {
+
+        ...order,
+
+        order_number:
+          order.order_number || String(order.id),
+
+        shipping_address:
+          shippingAddress || null,
+
+        inventory_items:
+          items,
+
+        inventory_preparation:
+          preparationStatus,
+
+        cashier_verified:
+          cashierVerified,
+
+        payment_eligible:
+          paymentEligible,
+
+        can_start_preparation:
+          canStartPreparation,
+
+        can_mark_ready:
+          canMarkReady,
+
+        is_ready_for_tracking:
+
+          isReady &&
+
+          cashierVerified &&
+
+          paymentEligible &&
+
+          !cashierReleased,
+
+        has_tracking:
+          Boolean(order.tracking_number)
+
+      };
+
+    });
+
+    /* ==========================================
+       RETURN INVENTORY ORDER LIST
+    ========================================== */
+
+    return res.json({
+
+      success: true,
+
+      orders,
+
+      total: count ?? 0,
+
+      page: p.page,
+
+      limit: p.limit
+
+    });
+
+  })
+);
+
+
+/* ==========================================
+   START / COMPLETE ORDER PREPARATION
+========================================== */
+
+router.patch(
+  "/orders/:id/preparation",
+
+  handle(async (req, res) => {
+
+    const id = recordId(req.params.id);
+
+    const {
+      action,
+      revision,
+      checked
+    } = objectBody(req);
+
+    /* ----------------------------------
+       VALIDATE ACTION
+    ---------------------------------- */
+
+    if (
+      !["start", "ready"].includes(action)
+    ) {
+
+      throw invalid(
+        "Invalid preparation action."
+      );
+
+    }
+
+    /* ----------------------------------
+       VALIDATE REVISION
+    ---------------------------------- */
+
+    if (
+      !Number.isInteger(revision) ||
+      revision < 0 ||
+      revision >= 2147483647
+    ) {
+
+      throw invalid(
+        "Invalid order revision. Refresh this page."
+      );
+
+    }
+
+    /* ----------------------------------
+       VALIDATE CHECKLIST
+    ---------------------------------- */
+
+    if (
+
+      !Array.isArray(checked) ||
+
+      checked.length > 200 ||
+
+      checked.some(
+        index =>
+          !Number.isInteger(index) ||
+          index < 0 ||
+          index >= 200
+      ) ||
+
+      new Set(checked).size !== checked.length
+
+    ) {
+
+      throw invalid(
+        "Send a valid item checklist."
+      );
+
+    }
+
+    /* ----------------------------------
+       READY ACTION REQUIRES CHECKED ITEMS
+    ---------------------------------- */
+
+    if (
+      action === "ready" &&
+      checked.length === 0
+    ) {
+
+      throw invalid(
+        "Check all ordered items before completing preparation."
+      );
+
+    }
+
+    /* ==========================================
+       GET CURRENT ORDER DETAILS
+    ========================================== */
+
+    const {
+      data: order,
+      error: orderError
+    } = await supabase
+
+      .from("orders")
+
+      .select(
+        [
+          "id",
+          "status",
+          "payment_method",
+          "payment_status",
+          "cashier_verified_at",
+          "cashier_released_at",
+          "inventory_preparation",
+          "inventory_revision",
+          "inventory_items",
+          "inventory_prepared_at"
+        ].join(",")
+      )
+
+      .eq("id", id)
+
+      .maybeSingle();
+
+    if (orderError) {
+      throw orderError;
+    }
+
+    if (!order) {
+
+      throw invalid(
+        "Order not found."
+      );
+
+    }
+
+    /* ----------------------------------
+       CASHIER VERIFICATION REQUIRED
+    ---------------------------------- */
+
+    if (!order.cashier_verified_at) {
+
+      throw invalid(
+        "This order must be verified by the cashier first."
+      );
+
+    }
+
+    /* ----------------------------------
+       BLOCK RELEASED ORDERS
+    ---------------------------------- */
+
+    if (order.cashier_released_at) {
+
+      throw invalid(
+        "This order has already been released."
+      );
+
+    }
+
+    /* ----------------------------------
+       NORMALIZE CURRENT STATUS
+    ---------------------------------- */
+
+    const orderStatus = String(
+      order.status || ""
+    ).trim().toLowerCase();
+
+    const preparationStatus = String(
+      order.inventory_preparation || "Queued"
+    ).trim().toLowerCase();
+
+    const paymentMethod = String(
+      order.payment_method || ""
+    ).trim().toLowerCase();
+
+    const paymentStatus = String(
+      order.payment_status || ""
+    ).trim().toLowerCase();
+
+    /* ----------------------------------
+       PAYMENT ELIGIBILITY
+    ---------------------------------- */
+
+    const paymentEligible =
+
+      paymentMethod === "cod" ||
+
+      (
+        paymentMethod === "paypal" &&
+        paymentStatus === "paid"
+      );
+
+    if (!paymentEligible) {
+
+      throw invalid(
+        "Payment confirmation is required."
+      );
+
+    }
+
+    /* ----------------------------------
+       VALIDATE CURRENT REVISION
+    ---------------------------------- */
+
+    if (
+      revision !== order.inventory_revision
+    ) {
+
+      throw invalid(
+        "Order changed. Please refresh this page."
+      );
+
+    }
+
+    /* ----------------------------------
+       GET SAVED INVENTORY ITEMS
+    ---------------------------------- */
+
+    let items = order.inventory_items;
+
+    if (typeof items === "string") {
+
+      try {
+        items = JSON.parse(items);
+      } catch {
+        items = [];
+      }
+
+    }
+
+    if (
+      !Array.isArray(items) ||
+      items.length === 0 ||
+      items.length > 200
+    ) {
+
+      throw invalid(
+        "Valid saved inventory items are required."
+      );
+
+    }
+
+    /* ==========================================
+       START PREPARATION VALIDATION
+    ========================================== */
+
+    if (action === "start") {
+
+      if (
+        ![
+          "pending",
+          "preparing",
+          "processing"
+        ].includes(orderStatus)
+      ) {
+
+        throw invalid(
+          "This order cannot enter preparation."
+        );
+
+      }
+
+      if (
+        preparationStatus !== "queued" ||
+        order.inventory_prepared_at
+      ) {
+
+        throw invalid(
+          "This order is not queued for preparation."
+        );
+
+      }
+
+    }
+
+    /* ==========================================
+       MARK READY VALIDATION
+    ========================================== */
+
+    if (action === "ready") {
+
+      if (
+        ![
+          "preparing",
+          "processing"
+        ].includes(orderStatus)
+      ) {
+
+        throw invalid(
+          "Start preparation before marking this order ready."
+        );
+
+      }
+
+      if (
+        preparationStatus !== "preparing" ||
+        order.inventory_prepared_at
+      ) {
+
+        throw invalid(
+          "This order is not currently being prepared."
+        );
+
+      }
+
+      const checkedItems =
+        new Set(checked);
+
+      const allItemsChecked =
+
+        checkedItems.size === items.length &&
+
+        items.every(
+          (_, index) =>
+            checkedItems.has(index)
+        );
+
+      if (!allItemsChecked) {
+
+        throw invalid(
+          "All ordered items must be checked."
+        );
+
+      }
+
+    }
+
+    /* ==========================================
+       SAVE PREPARATION USING SUPABASE RPC
+
+       The RPC must enforce these validations
+       and update both statuses atomically.
+    ========================================== */
+
+    const {
+      data,
+      error
+    } = await supabase.rpc(
+
+      "jcn_inventory_prepare",
+
+      {
+
+        p_order_id: id,
+
+        p_action: action,
+
+        p_revision: revision,
+
+        p_checked: checked,
+
+        p_actor: req.inventoryActor
+
+      }
+
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    /* ----------------------------------
+       RETURN SUCCESS
+    ---------------------------------- */
+
+    return res.json({
+
+      success: true,
+
+      message:
+
+        action === "ready"
+
+          ? "Order is ready for shipment."
+
+          : "Order preparation started.",
+
+      preparation:
+        data?.preparation
+
+    });
+
+  })
+);
 
   /* ==========================================
      UNKNOWN INVENTORY ENDPOINT
