@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -13,21 +12,18 @@
   <title>JCN | Order Preparation</title>
 
   <!-- FONT AWESOME -->
-
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   >
 
   <!-- ORDER PREPARATION CSS -->
-
   <link
     rel="stylesheet"
     href="../css/order-preparation.css"
   >
 
   <!-- ORDER PREPARATION JAVASCRIPT -->
-
   <script
     defer
     src="../js/order-preparation.js"
@@ -51,18 +47,15 @@
           JCN APPAREL PRINTING SERVICES
         </p>
 
-        <h1>
-          Order Preparation
-        </h1>
+        <h1>Order Preparation</h1>
 
         <p>
-          Verify ordered items, prepare customer
-          orders, and register J&T Express
-          tracking numbers for dispatch.
+          Verify ordered items, prepare customer orders,
+          and register J&T Express tracking numbers
+          for dispatch.
         </p>
 
       </div>
-
 
       <!-- INVENTORY STAFF INFORMATION -->
 
@@ -79,9 +72,7 @@
             Inventory Staff
           </span>
 
-          <small>
-            Inventory Staff
-          </small>
+          <small>Inventory Staff</small>
 
         </div>
 
@@ -90,22 +81,17 @@
     </header>
 
 
-
     <!-- ==========================================
          MAIN INVENTORY LAYOUT
     =========================================== -->
 
     <div class="layout">
 
-
       <!-- ========================================
            INVENTORY SIDEBAR
       ========================================= -->
 
       <aside class="panel sidebar">
-
-
-        <!-- INVENTORY MENU TITLE -->
 
         <h2 class="inventory-menu-title">
 
@@ -115,11 +101,7 @@
 
         </h2>
 
-
-        <!-- INVENTORY MENU -->
-
         <nav aria-label="Inventory menu">
-
 
           <!-- MANAGE PRODUCTS -->
 
@@ -127,12 +109,9 @@
 
             <i class="fa-solid fa-shirt"></i>
 
-            <span>
-              Manage Products
-            </span>
+            <span>Manage Products</span>
 
           </a>
-
 
           <!-- STOCK MANAGEMENT -->
 
@@ -140,12 +119,9 @@
 
             <i class="fa-solid fa-boxes-stacked"></i>
 
-            <span>
-              Stock Management
-            </span>
+            <span>Stock Management</span>
 
           </a>
-
 
           <!-- ORDER PREPARATION -->
 
@@ -157,12 +133,9 @@
 
             <i class="fa-solid fa-box-open"></i>
 
-            <span>
-              Order Preparation
-            </span>
+            <span>Order Preparation</span>
 
           </a>
-
 
           <!-- STOCK HISTORY -->
 
@@ -170,19 +143,13 @@
 
             <i class="fa-solid fa-clock-rotate-left"></i>
 
-            <span>
-              Stock History
-            </span>
+            <span>Stock History</span>
 
           </a>
 
         </nav>
 
-
-        <!-- ======================================
-             LOGOUT BUTTON
-             BELOW STOCK HISTORY
-        ======================================= -->
+        <!-- LOGOUT BUTTON -->
 
         <button
           type="button"
@@ -192,21 +159,15 @@
 
           <i class="fa-solid fa-right-from-bracket"></i>
 
-          <span>
-            Logout
-          </span>
+          <span>Logout</span>
 
         </button>
 
       </aside>
 
 
-
       <!-- ========================================
-           ORDER PREPARATION CONTENT
-
-           Existing JavaScript functionality
-           remains unchanged.
+           ORDER PREPARATION MAIN CONTENT
       ========================================= -->
 
       <main
@@ -215,7 +176,167 @@
         aria-label="Order preparation"
       >
 
-        <section class="panel">
+        <!-- ======================================
+             ORDER SUMMARY AND FILTERS
+        ======================================= -->
+
+        <section
+          class="panel order-controls"
+          aria-label="Order filters"
+        >
+
+          <!-- ORDER SUMMARY CARDS -->
+
+          <div class="order-summary">
+
+            <!-- ALL ORDERS -->
+
+            <div class="order-summary-card">
+
+              <span>All Orders</span>
+
+              <strong id="countAll">—</strong>
+
+            </div>
+
+            <!-- FOR PREPARATION -->
+
+            <div class="order-summary-card">
+
+              <span>For Preparation</span>
+
+              <strong id="countPreparation">—</strong>
+
+            </div>
+
+            <!-- READY TO SHIP -->
+
+            <div class="order-summary-card">
+
+              <span>Ready to Ship</span>
+
+              <strong id="countReady">—</strong>
+
+            </div>
+
+            <!-- WITH TRACKING NUMBER -->
+
+            <div class="order-summary-card">
+
+              <span>With Tracking Number</span>
+
+              <strong id="countTracking">—</strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- ====================================
+               SEARCH AND FILTER TOOLBAR
+          ===================================== -->
+
+          <div class="order-toolbar">
+
+            <!-- SEARCH ORDERS -->
+
+            <div class="order-filter-field">
+
+              <label for="orderSearch">
+
+                Search Orders
+
+              </label>
+
+              <input
+                type="search"
+                id="orderSearch"
+                placeholder="Order, customer or tracking number"
+                autocomplete="off"
+              >
+
+            </div>
+
+
+            <!-- ORDER STATUS DROPDOWN -->
+
+            <div class="order-filter-field">
+
+              <label for="orderStatusFilter">
+
+                Order Status
+
+              </label>
+
+              <select id="orderStatusFilter">
+
+                <option value="all">
+                  All Orders
+                </option>
+
+                <option value="preparation">
+                  For Preparation
+                </option>
+
+                <option value="ready">
+                  Ready to Ship
+                </option>
+
+                <option value="tracking">
+                  With Tracking Number
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <!-- ORDER SORTING DROPDOWN -->
+
+            <div class="order-filter-field">
+
+              <label for="orderSort">
+
+                Sort Orders
+
+              </label>
+
+              <select id="orderSort">
+
+                <option value="newest" selected>
+                  Newest First
+                </option>
+
+                <option value="oldest">
+                  Oldest First
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <!-- MATCHING ORDER COUNT -->
+
+          <p
+            id="orderResultCount"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+        </section>
+
+
+        <!-- ======================================
+             CUSTOMER ORDER LIST
+        ======================================= -->
+
+        <section
+          class="panel"
+          id="orderResults"
+        >
 
           <div class="section-head">
 
@@ -230,25 +351,41 @@
           </div>
 
 
-          <!--
-            Orders are loaded dynamically
-            by order-preparation.js.
+          <!-- ====================================
+               DYNAMIC ORDER CARDS
 
-            Existing functionality:
+               Orders will be rendered through
+               order-preparation.js.
 
-            1. Load customer orders
-            2. Start Preparation
-            3. Product checklist
-            4. Mark Ready to Ship
-            5. Add J&T Tracking Number
-            6. Update Tracking Number
-          -->
+               Supported functionality:
+               - Start Preparation
+               - Product Checklist
+               - Mark Ready to Ship
+               - Add J&T Tracking Number
+               - Update Tracking Number
+               - Search Orders
+               - Filter Orders
+               - Sort Orders
+          ===================================== -->
 
-          <p role="status">
+          <div id="orderList">
 
-            <i class="fa-solid fa-spinner fa-spin"></i>
+            <p role="status">
 
-            Loading customer orders...
+              <i class="fa-solid fa-spinner fa-spin"></i>
+
+              Loading customer orders...
+
+            </p>
+
+          </div>
+
+
+          <!-- EMPTY ORDER STATE -->
+
+          <p id="orderEmptyState" hidden>
+
+            No orders match your selected filters.
 
           </p>
 
@@ -261,11 +398,8 @@
   </div>
 
 
-
   <!-- ==========================================
        J&T EXPRESS TRACKING MODAL
-
-       EXISTING FUNCTIONALITY PRESERVED
   =========================================== -->
 
   <div
@@ -277,7 +411,6 @@
     aria-hidden="true"
   >
 
-
     <!-- MODAL OVERLAY -->
 
     <div class="jnt-modal-overlay"></div>
@@ -287,18 +420,13 @@
 
     <div class="jnt-modal-content">
 
-
-      <!-- ======================================
-           MODAL HEADER
-      ======================================= -->
+      <!-- MODAL HEADER -->
 
       <div class="jnt-modal-header">
 
         <div>
 
-          <small>
-            COURIER REGISTRATION
-          </small>
+          <small>COURIER REGISTRATION</small>
 
           <h2 id="jntModalTitle">
 
@@ -310,7 +438,6 @@
 
         </div>
 
-
         <!-- CLOSE MODAL -->
 
         <button
@@ -319,11 +446,12 @@
           class="jnt-close-btn"
           aria-label="Close tracking modal"
         >
+
           &times;
+
         </button>
 
       </div>
-
 
 
       <!-- MODAL DESCRIPTION -->
@@ -338,10 +466,7 @@
       </p>
 
 
-
-      <!-- ======================================
-           SELECTED ORDER INFORMATION
-      ======================================= -->
+      <!-- SELECTED ORDER INFORMATION -->
 
       <div class="jnt-order-info">
 
@@ -353,12 +478,9 @@
 
         </span>
 
-        <strong id="jntOrderNumber">
-          —
-        </strong>
+        <strong id="jntOrderNumber">—</strong>
 
       </div>
-
 
 
       <!-- ======================================
@@ -366,7 +488,6 @@
       ======================================= -->
 
       <form id="jntTrackingForm">
-
 
         <!-- HIDDEN ORDER ID -->
 
@@ -402,7 +523,7 @@
         >
 
 
-        <!-- INPUT INSTRUCTIONS -->
+        <!-- TRACKING NUMBER INSTRUCTIONS -->
 
         <p class="jnt-input-hint">
 
@@ -416,10 +537,7 @@
         </p>
 
 
-
-        <!-- ====================================
-             COURIER INFORMATION
-        ===================================== -->
+        <!-- COURIER INFORMATION -->
 
         <div class="jnt-order-info">
 
@@ -431,22 +549,16 @@
 
           </span>
 
-          <strong>
-            J&T Express Philippines
-          </strong>
+          <strong>J&T Express Philippines</strong>
 
         </div>
 
 
-
-        <!-- ====================================
-             TRACKING ACTION BUTTONS
-        ===================================== -->
+        <!-- TRACKING ACTION BUTTONS -->
 
         <div class="jnt-modal-actions">
 
-
-          <!-- CANCEL TRACKING -->
+          <!-- CANCEL BUTTON -->
 
           <button
             type="button"
@@ -461,7 +573,7 @@
           </button>
 
 
-          <!-- SAVE TRACKING -->
+          <!-- SAVE TRACKING BUTTON -->
 
           <button
             type="submit"
@@ -484,11 +596,8 @@
   </div>
 
 
-
   <!-- ==========================================
        INVENTORY LOGOUT CONFIRMATION
-
-       SAME DESIGN AS OTHER INVENTORY MODULES
   =========================================== -->
 
   <div
@@ -500,7 +609,6 @@
     aria-describedby="inventoryLogoutDescription"
   >
 
-
     <!-- BLURRED BACKGROUND -->
 
     <div class="logout-backdrop"></div>
@@ -509,7 +617,6 @@
     <!-- LOGOUT CONFIRMATION BOX -->
 
     <div class="logout-box">
-
 
       <!-- LOGOUT ICON -->
 
@@ -542,9 +649,6 @@
 
       <div class="logout-actions">
 
-
-        <!-- CONFIRM LOGOUT -->
-
         <button
           type="button"
           id="inventoryConfirmLogout"
@@ -553,9 +657,6 @@
           Yes, Logout
 
         </button>
-
-
-        <!-- CANCEL LOGOUT -->
 
         <button
           type="button"
@@ -573,7 +674,6 @@
   </div>
 
 
-
   <!-- ==========================================
        SYSTEM NOTIFICATIONS
   =========================================== -->
@@ -584,7 +684,6 @@
     aria-live="polite"
     aria-atomic="true"
   ></div>
-
 
 
   <!-- ==========================================

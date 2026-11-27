@@ -491,24 +491,18 @@ module.exports = function createInventoryRouter({
     })
   );
 
-  /* ==========================================
-     GET INVENTORY ORDERS
+  /* =========================================================
+   GET INVENTORY ORDERS
 
-     Includes:
-     - Preparing
-     - Processing
-     - To Ship
-
-     Also retrieves J&T tracking information.
-  ========================================== */
-
-  // =====================================================
-// INVENTORY - GET VERIFIED ORDERS FOR PREPARATION
-// =====================================================
-
-/* ==========================================
-   GET VERIFIED ORDERS FOR PREPARATION
-========================================== */
+   FEATURES:
+   - Newest orders first
+   - For Preparation
+   - Ready to Ship
+   - With Tracking Number
+   - Cashier verification
+   - Payment validation
+   - Order pagination
+========================================================= */
 
 router.get(
   "/orders",
@@ -547,28 +541,29 @@ router.get(
           "cashier_released_at",
           "created_at"
         ].join(","),
+
         {
           count: "exact"
         }
       )
 
-      /* ----------------------------------
-         INCLUDE VERIFIED PENDING ORDERS
-      ---------------------------------- */
 
-      .in(
-        "status",
-        [
-          "Pending",
-          "Preparing",
-          "Processing",
-          "To Ship"
-        ]
-      )
+      /* ========================================
+         INCLUDE ACTIVE ORDERS
+      ========================================= */
 
-      /* ----------------------------------
+      .in("status", [
+        "Pending",
+        "Preparing",
+        "Processing",
+        "To Ship",
+        "To Receive"
+      ])
+
+
+      /* ========================================
          CASHIER VERIFICATION REQUIRED
-      ---------------------------------- */
+      ========================================= */
 
       .not(
         "cashier_verified_at",
@@ -576,49 +571,67 @@ router.get(
         null
       )
 
-      /* ----------------------------------
+
+      /* ========================================
          EXCLUDE RELEASED ORDERS
-      ---------------------------------- */
+      ========================================= */
 
       .is(
         "cashier_released_at",
         null
       )
 
-      /* ----------------------------------
-         PAYMENT ELIGIBILITY
-         COD: Pending or Paid
+
+      /* ========================================
+         PAYMENT AND ORDER ELIGIBILITY
+
+         COD: No advance payment required
          PayPal: Paid only
-      ---------------------------------- */
+         To Receive: Must have tracking
+      ========================================= */
 
       .or(
-        "payment_method.eq.COD,and(payment_method.eq.PayPal,payment_status.ilike.Paid)"
+        "and(status.in.(Pending,Preparing,Processing,To Ship),or(payment_method.eq.COD,and(payment_method.eq.PayPal,payment_status.ilike.Paid))),and(status.eq.To Receive,tracking_number.not.is.null,or(payment_method.eq.COD,and(payment_method.eq.PayPal,payment_status.ilike.Paid)))"
       )
 
-      /* ----------------------------------
-         ORDER SORTING
-      ---------------------------------- */
+
+      /* ========================================
+         NEWEST ORDERS FIRST
+      ========================================= */
 
       .order("created_at", {
-        ascending: true
+        ascending: false,
+        nullsFirst: false
       })
+
+
+      /* ========================================
+         STABLE SECONDARY SORTING
+      ========================================= */
 
       .order("id", {
         ascending: true
       })
 
-      /* ----------------------------------
+
+      /* ========================================
          PAGINATION
-      ---------------------------------- */
+      ========================================= */
 
       .range(
         p.from,
         p.to
       );
 
+
+    /* ==========================================
+       HANDLE DATABASE ERROR
+    ========================================== */
+
     if (error) {
       throw error;
     }
+
 
     /* ==========================================
        FORMAT INVENTORY ORDER DETAILS
@@ -626,24 +639,41 @@ router.get(
 
     const orders = (data || []).map(order => {
 
+
+      /* ----------------------------------------
+         PREPARATION STATUS
+      ---------------------------------------- */
+
       const preparationStatus = String(
         order.inventory_preparation || "Queued"
       ).trim();
 
       const normalizedPreparation =
-        preparationStatus.toLowerCase();
+        normalize(preparationStatus);
 
-      const orderStatus = String(
-        order.status || ""
-      ).trim().toLowerCase();
 
-      const paymentMethod = String(
-        order.payment_method || ""
-      ).trim().toLowerCase();
+      /* ----------------------------------------
+         ORDER STATUS
+      ---------------------------------------- */
 
-      const paymentStatus = String(
-        order.payment_status || ""
-      ).trim().toLowerCase();
+      const orderStatus =
+        normalize(order.status);
+
+
+      /* ----------------------------------------
+         PAYMENT INFORMATION
+      ---------------------------------------- */
+
+      const paymentMethod =
+        normalize(order.payment_method);
+
+      const paymentStatus =
+        normalize(order.payment_status);
+
+
+      /* ----------------------------------------
+         CASHIER VERIFICATION
+      ---------------------------------------- */
 
       const cashierVerified = Boolean(
         order.cashier_verified_at
@@ -653,20 +683,24 @@ router.get(
         order.cashier_released_at
       );
 
-      /* ----------------------------------
-         PAYMENT VALIDATION
-      ---------------------------------- */
+
+      /* ----------------------------------------
+         PAYMENT ELIGIBILITY
+      ---------------------------------------- */
 
       const paymentEligible =
+
         paymentMethod === "cod" ||
+
         (
           paymentMethod === "paypal" &&
           paymentStatus === "paid"
         );
 
-      /* ----------------------------------
-         PREPARATION STATUS
-      ---------------------------------- */
+
+      /* ========================================
+         INVENTORY PREPARATION STATES
+      ========================================= */
 
       const isQueued =
         normalizedPreparation === "queued";
@@ -680,33 +714,89 @@ router.get(
         "prepared"
       ].includes(normalizedPreparation);
 
-      /* ----------------------------------
+
+      /* ========================================
+         CHECK EXISTING TRACKING NUMBER
+      ========================================= */
+
+      const trackingNumber = String(
+        order.tracking_number ?? ""
+      ).trim();
+
+      const hasTracking = Boolean(
+        trackingNumber
+      );
+
+
+      /* ========================================
+         ORDER CATEGORY
+
+         preparation:
+           Queued or Preparing
+
+         ready:
+           Prepared without tracking
+
+         tracking:
+           With registered tracking number
+      ========================================= */
+
+      let category = "preparation";
+
+      if (hasTracking) {
+
+        category = "tracking";
+
+      } else if (isReady) {
+
+        category = "ready";
+
+      }
+
+
+      /* ========================================
          INVENTORY ITEMS
-      ---------------------------------- */
+      ========================================= */
 
       let items = order.inventory_items;
+
+
+      /* PARSE SAVED JSON ITEMS */
 
       if (typeof items === "string") {
 
         try {
+
           items = JSON.parse(items);
+
         } catch {
+
           items = [];
+
         }
 
       }
 
+
+      /* VALIDATE ITEMS ARRAY */
+
       if (!Array.isArray(items)) {
+
         items = [];
+
       }
 
+
       const hasItems =
+
         items.length > 0 &&
+
         items.length <= 200;
 
-      /* ----------------------------------
+
+      /* ========================================
          START PREPARATION ELIGIBILITY
-      ---------------------------------- */
+      ========================================= */
 
       const canStartPreparation =
 
@@ -726,9 +816,10 @@ router.get(
           "processing"
         ].includes(orderStatus);
 
-      /* ----------------------------------
-         MARK READY ELIGIBILITY
-      ---------------------------------- */
+
+      /* ========================================
+         MARK READY TO SHIP ELIGIBILITY
+      ========================================= */
 
       const canMarkReady =
 
@@ -747,17 +838,36 @@ router.get(
           "processing"
         ].includes(orderStatus);
 
-      /* ----------------------------------
-         SHIPPING ADDRESS
-      ---------------------------------- */
+
+      /* ========================================
+         J&T TRACKING ELIGIBILITY
+      ========================================= */
+
+      const isReadyForTracking =
+
+        isReady &&
+
+        orderStatus !== "to receive" &&
+
+        cashierVerified &&
+
+        paymentEligible &&
+
+        !cashierReleased;
+
+
+      /* ========================================
+         CUSTOMER SHIPPING ADDRESS
+      ========================================= */
 
       const shippingAddress = String(
         order.shipping_address ?? ""
       ).trim();
 
-      /* ----------------------------------
-         RETURN ORDER DETAILS
-      ---------------------------------- */
+
+      /* ========================================
+         RETURN FORMATTED ORDER
+      ========================================= */
 
       return {
 
@@ -788,21 +898,17 @@ router.get(
           canMarkReady,
 
         is_ready_for_tracking:
-
-          isReady &&
-
-          cashierVerified &&
-
-          paymentEligible &&
-
-          !cashierReleased,
+          isReadyForTracking,
 
         has_tracking:
-          Boolean(order.tracking_number)
+          hasTracking,
+
+        category
 
       };
 
     });
+
 
     /* ==========================================
        RETURN INVENTORY ORDER LIST

@@ -1,28 +1,57 @@
 /* =========================================================
    JCN APPAREL PRINTING SERVICES
    INVENTORY - ORDER PREPARATION
+
+   FEATURES:
+   - Order status dropdown
+   - Newest orders first
+   - Oldest orders first
+   - Search orders
+   - Automatic order counters
+   - Order pagination
+   - Preparation checklist
+   - Cashier verification
+   - J&T tracking registration
+   - Update tracking number
+   - Inventory staff logout
+========================================================= */
+
+
+/* =========================================================
+   01. CONFIGURATION
 ========================================================= */
 
 const INVENTORY_API = "/api/inventory";
 const SERVER_API = "";
 const STAFF_LOGIN = "../../staff/html/staff-login.html";
 
+const PAGE_LIMIT = 10;
+
 let currentPage = 1;
+
 let currentOrders = [];
+let filteredOrders = [];
+
 let selectedTrackingOrder = null;
 
 let loadingOrders = false;
 let savingTracking = false;
 
+let currentFilter = "all";
+let currentSort = "newest";
+let currentSearch = "";
+
 const processingOrders = new Set();
+const preparationChecklists = new Map();
+
+let notificationTimer = null;
 
 
 /* =========================================================
-   01. HTML SECURITY
+   02. HTML SECURITY
 ========================================================= */
 
 function escapeInventoryHtml(value) {
-
   return String(value ?? "").replace(
     /[&<>"']/g,
     char => ({
@@ -33,90 +62,79 @@ function escapeInventoryHtml(value) {
       "'": "&#39;"
     }[char])
   );
-
 }
 
 
 /* =========================================================
-   02. NORMALIZE VALUES
+   03. NORMALIZE VALUES
 ========================================================= */
 
 function normalizeInventoryValue(value) {
-
   return String(value ?? "")
     .trim()
     .toLowerCase();
-
 }
 
 
 /* =========================================================
-   03. NOTIFICATION
+   04. SYSTEM NOTIFICATION
 ========================================================= */
 
 function inventoryNotify(message) {
-
   const element =
     document.getElementById("notice") ||
     document.getElementById("notification");
 
-  if (element) {
-
-    element.textContent = message;
-    element.hidden = !message;
-
-  } else {
-
+  if (!element) {
     console.log(message);
-
+    return;
   }
 
+  clearTimeout(notificationTimer);
+
+  element.textContent = message;
+  element.hidden = !message;
+
+  notificationTimer = setTimeout(() => {
+    element.textContent = "";
+    element.hidden = true;
+  }, 5000);
 }
 
 
 /* =========================================================
-   04. STAFF SESSION
+   05. STAFF SESSION VALIDATION
 ========================================================= */
 
 function checkInventorySession() {
-
   try {
-
     const user = JSON.parse(
       localStorage.getItem("staffUser") || "null"
     );
 
-    const token =
-      localStorage.getItem("staffToken");
+    const token = localStorage.getItem("staffToken");
 
-    const role =
-      normalizeInventoryValue(user?.role);
+    const role = normalizeInventoryValue(user?.role);
 
     if (
       !token ||
       !user ||
       !["inventory_staff", "admin"].includes(role)
     ) {
-
       throw new Error("Login required.");
-
     }
 
     return user;
 
   } catch (error) {
-
     window.location.replace(STAFF_LOGIN);
-
     return null;
-
   }
-
 }
 
 
 /* =========================================================
-   05. API REQUEST
+   06. INVENTORY API REQUEST
 ========================================================= */
 
 async function inventoryRequest(
@@ -125,213 +143,154 @@ async function inventoryRequest(
   body,
   baseUrl = INVENTORY_API
 ) {
-
   let response;
 
   try {
+    response = await fetch(`${baseUrl}${path}`, {
+      method,
 
-    response = await fetch(
-      `${baseUrl}${path}`,
-      {
+      cache: "no-store",
 
-        method,
-
-        cache: "no-store",
-
-        headers: {
-
-          Authorization:
-            `Bearer ${localStorage.getItem("staffToken") || ""}`,
-
-          ...(body !== undefined
-            ? {
-                "Content-Type": "application/json"
-              }
-            : {})
-
-        },
+      headers: {
+        Authorization:
+          `Bearer ${localStorage.getItem("staffToken") || ""}`,
 
         ...(body !== undefined
-          ? {
-              body: JSON.stringify(body)
-            }
+          ? { "Content-Type": "application/json" }
           : {})
+      },
 
-      }
-    );
+      ...(body !== undefined
+        ? { body: JSON.stringify(body) }
+        : {})
+    });
 
   } catch (error) {
-
     throw new Error(
       "Cannot connect to the server. Please check your connection."
     );
-
   }
 
 
-  /* -----------------------------------------
-     EXPIRED SESSION
-  ----------------------------------------- */
+  /* EXPIRED SESSION */
 
   if (response.status === 401) {
-
     localStorage.removeItem("staffToken");
     localStorage.removeItem("staffUser");
 
     window.location.replace(STAFF_LOGIN);
 
     throw new Error("Session expired.");
-
   }
 
 
-  /* -----------------------------------------
-     READ SERVER RESPONSE
-  ----------------------------------------- */
+  /* READ SERVER RESPONSE */
 
   let data;
 
   try {
-
     data = await response.json();
 
   } catch (error) {
-
-    throw new Error(
-      "Invalid server response."
-    );
-
+    throw new Error("Invalid server response.");
   }
 
 
-  /* -----------------------------------------
-     HANDLE SERVER ERRORS
-  ----------------------------------------- */
+  /* HANDLE SERVER ERRORS */
 
   if (
     !response.ok ||
     !data ||
     data.success === false
   ) {
-
     const message =
-
       data?.message ||
-
       data?.error ||
-
       `Request failed (${response.status}).`;
 
-    console.error(
-      "INVENTORY API ERROR",
-      {
-
-        url: `${baseUrl}${path}`,
-
-        status: response.status,
-
-        message,
-
-        details: data?.details || null
-
-      }
-    );
+    console.error("INVENTORY API ERROR", {
+      url: `${baseUrl}${path}`,
+      status: response.status,
+      message,
+      details: data?.details || null
+    });
 
     throw new Error(message);
-
   }
 
   return data;
-
 }
 
 
 /* =========================================================
-   06. PAGE INITIALIZATION
+   07. PAGE INITIALIZATION
 ========================================================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+document.addEventListener("DOMContentLoaded", () => {
+  const user = checkInventorySession();
 
-    const user =
-      checkInventorySession();
+  if (!user) return;
 
-    if (!user) return;
 
-    const staffBadge =
-      document.querySelector(".topbar .staff");
+  /* DISPLAY STAFF NAME */
 
-    if (staffBadge) {
+  const staffBadge =
+    document.getElementById("inventoryStaffName") ||
+    document.querySelector(".topbar .staff");
 
-      staffBadge.textContent =
-
-        user.full_name ||
-
-        user.username ||
-
-        "Inventory Staff";
-
-    }
-
-    setupTrackingModal();
-
-    loadPreparationOrders();
-
+  if (staffBadge) {
+    staffBadge.textContent =
+      user.full_name ||
+      user.username ||
+      "Inventory Staff";
   }
-);
+
+
+  /* INITIALIZE PAGE FUNCTIONS */
+
+  setupOrderControls();
+
+  setupTrackingModal();
+
+  setupInventoryLogout();
+
+  loadPreparationOrders();
+});
 
 
 /* =========================================================
-   07. GET READABLE ORDER NUMBER
+   08. GET READABLE ORDER NUMBER
 ========================================================= */
 
 function getInventoryOrderNumber(order) {
-
   return String(
-
     order.order_number ||
-
     order.id ||
-
     "Unknown Order"
-
   );
-
 }
 
 
 /* =========================================================
-   08. GET SAVED INVENTORY ITEMS
+   09. GET SAVED INVENTORY ITEMS
 ========================================================= */
 
 function getInventoryOrderItems(order) {
-
   let items = order.inventory_items;
 
   if (typeof items === "string") {
-
     try {
-
       items = JSON.parse(items);
 
     } catch (error) {
-
-      console.error(
-        "INVALID INVENTORY ITEMS:",
-        error
-      );
+      console.error("INVALID INVENTORY ITEMS:", error);
 
       return [];
-
     }
-
   }
 
   if (!Array.isArray(items)) {
-
     return [];
-
   }
 
   const validItems = items.every(
@@ -342,401 +301,402 @@ function getInventoryOrderItems(order) {
   );
 
   return validItems ? items : [];
-
 }
 
 
 /* =========================================================
-   09. CASHIER VERIFICATION
+   10. CASHIER VERIFICATION
 ========================================================= */
 
 function isCashierVerified(order) {
-
-  return Boolean(
-    order.cashier_verified_at
-  );
-
+  return Boolean(order.cashier_verified_at);
 }
 
 
 /* =========================================================
-   10. PAYMENT ELIGIBILITY
+   11. PAYMENT ELIGIBILITY
 ========================================================= */
 
 function isInventoryPaymentEligible(order) {
+  const method = normalizeInventoryValue(
+    order.payment_method
+  );
 
-  const method =
-    normalizeInventoryValue(
-      order.payment_method
-    );
+  const payment = normalizeInventoryValue(
+    order.payment_status
+  );
 
-  const payment =
-    normalizeInventoryValue(
-      order.payment_status
-    );
 
-  // COD DOES NOT REQUIRE ADVANCE PAYMENT
+  /* COD DOES NOT REQUIRE ADVANCE PAYMENT */
 
   if (method === "cod") {
-
     return true;
-
   }
 
-  // PAYPAL MUST BE PAID
+
+  /* PAYPAL MUST BE PAID */
 
   if (method === "paypal") {
-
     return payment === "paid";
-
   }
 
   return false;
-
 }
 
 
 /* =========================================================
-   11. GET PREPARATION STATUS
+   12. GET PREPARATION STATUS
 ========================================================= */
 
 function getInventoryPreparationStatus(order) {
-
   return String(
-
-    order.inventory_preparation ||
-
-    "Queued"
-
+    order.inventory_preparation || "Queued"
   ).trim();
-
 }
 
 
 /* =========================================================
-   12. CHECK IF INVENTORY IS READY
+   13. CHECK IF INVENTORY IS READY
 ========================================================= */
 
 function isInventoryReady(order) {
-
-  const preparation =
-    normalizeInventoryValue(
-      getInventoryPreparationStatus(order)
-    );
+  const preparation = normalizeInventoryValue(
+    getInventoryPreparationStatus(order)
+  );
 
   return [
-
     "ready",
-
     "ready to ship",
-
     "prepared"
-
   ].includes(preparation);
-
 }
 
 
 /* =========================================================
-   13. ORDER PREPARATION ELIGIBILITY
+   14. CHECK TRACKING NUMBER
+========================================================= */
 
-   CORRECT WORKFLOW:
+function hasInventoryTracking(order) {
+  return Boolean(
+    String(order.tracking_number ?? "").trim()
+  );
+}
 
-   Customer:
-   Pending / Queued
 
-   Cashier Verify:
-   Pending / Queued / Verified
+/* =========================================================
+   15. ORDER CATEGORY
 
-   Inventory Start:
-   Preparing / Preparing
+   preparation = Queued / Preparing
+   ready       = Ready without tracking number
+   tracking    = With tracking number
+========================================================= */
 
-   Inventory Complete:
-   To Ship / Ready
+function getOrderCategory(order) {
+  if (hasInventoryTracking(order)) {
+    return "tracking";
+  }
+
+  if (isInventoryReady(order)) {
+    return "ready";
+  }
+
+  return "preparation";
+}
+
+
+/* =========================================================
+   16. ORDER CATEGORY LABEL
+========================================================= */
+
+function getOrderCategoryLabel(order) {
+  const category = getOrderCategory(order);
+
+  switch (category) {
+    case "tracking":
+      return "Tracking Registered";
+
+    case "ready":
+      return "Ready to Ship";
+
+    default:
+      return "For Preparation";
+  }
+}
+
+
+/* =========================================================
+   17. ORDER CATEGORY BADGE
+========================================================= */
+
+function getOrderCategoryBadge(order) {
+  const category = getOrderCategory(order);
+
+  switch (category) {
+    case "tracking":
+      return "badge tracking";
+
+    case "ready":
+      return "badge";
+
+    default:
+      return "badge warning";
+  }
+}
+
+
+/* =========================================================
+   18. ORDER CREATION TIME
+========================================================= */
+
+function getOrderTime(order) {
+  const time = Date.parse(order.created_at || "");
+
+  return Number.isFinite(time)
+    ? time
+    : null;
+}
+
+
+/* =========================================================
+   19. FORMAT ORDER DATE - PHILIPPINE TIME
+========================================================= */
+
+function formatOrderDate(order) {
+  const time = getOrderTime(order);
+
+  if (time === null) {
+    return "Not available";
+  }
+
+  return new Intl.DateTimeFormat("en-PH", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+
+    hour: "numeric",
+    minute: "2-digit",
+
+    hour12: true,
+
+    timeZone: "Asia/Manila"
+  }).format(new Date(time));
+}
+
+
+/* =========================================================
+   20. NEW ORDER INDICATOR
+
+   Orders created within the last 24 hours
+========================================================= */
+
+function isNewInventoryOrder(order) {
+  const time = getOrderTime(order);
+
+  if (time === null) {
+    return false;
+  }
+
+  const difference = Date.now() - time;
+
+  return (
+    difference >= 0 &&
+    difference < 24 * 60 * 60 * 1000
+  );
+}
+
+
+/* =========================================================
+   21. ORDER PREPARATION ELIGIBILITY
 ========================================================= */
 
 function getPreparationEligibility(order) {
+  const orderStatus = normalizeInventoryValue(
+    order.status
+  );
 
-  const orderStatus =
-    normalizeInventoryValue(
-      order.status
-    );
+  const preparationStatus = normalizeInventoryValue(
+    getInventoryPreparationStatus(order)
+  );
 
-  const preparationStatus =
-    normalizeInventoryValue(
-      getInventoryPreparationStatus(order)
-    );
-
-  const verified =
-    isCashierVerified(order);
+  const verified = isCashierVerified(order);
 
   const paymentEligible =
     isInventoryPaymentEligible(order);
 
-  const items =
-    getInventoryOrderItems(order);
+  const items = getInventoryOrderItems(order);
 
   const blocked = reason => ({
-
     allowed: false,
-
     action: null,
-
     reason
-
   });
 
 
-  /* -----------------------------------------
-     CLOSED ORDERS
-  ----------------------------------------- */
+  /* CLOSED ORDERS */
 
   if (
-
     [
       "cancelled",
       "canceled",
       "completed"
     ].includes(orderStatus)
-
   ) {
-
-    return blocked(
-      "This order is already closed."
-    );
-
+    return blocked("This order is already closed.");
   }
 
 
-  /* -----------------------------------------
-     RELEASED ORDERS
-  ----------------------------------------- */
+  /* RELEASED ORDERS */
 
   if (
-
     order.cashier_released_at ||
-
     order.released_at
-
   ) {
-
     return blocked(
       "This order has already been released."
     );
-
   }
 
 
-  /* -----------------------------------------
-     CASHIER VERIFICATION REQUIRED
-  ----------------------------------------- */
+  /* CASHIER VERIFICATION REQUIRED */
 
   if (!verified) {
-
     return blocked(
       "Waiting for cashier verification."
     );
-
   }
 
 
-  /* -----------------------------------------
-     PAYMENT VALIDATION
-  ----------------------------------------- */
+  /* PAYMENT VALIDATION */
 
   if (!paymentEligible) {
-
     return blocked(
       "Waiting for successful payment confirmation."
     );
-
   }
 
 
-  /* -----------------------------------------
-     VALIDATE INVENTORY ITEMS
-  ----------------------------------------- */
+  /* INVENTORY ITEM VALIDATION */
 
   if (
     !items.length ||
     items.length > 200
   ) {
-
     return blocked(
       "Valid saved inventory items are required."
     );
-
   }
 
 
-  /* -----------------------------------------
-     VALIDATE INVENTORY REVISION
-  ----------------------------------------- */
+  /* INVENTORY REVISION VALIDATION */
 
   if (
-
-    !Number.isInteger(
-      order.inventory_revision
-    ) ||
-
+    !Number.isInteger(order.inventory_revision) ||
     order.inventory_revision < 0 ||
-
     order.inventory_revision >= 2147483647
-
   ) {
-
     return blocked(
       "Invalid inventory revision. Refresh this page."
     );
-
   }
 
 
-  /* =========================================
-     START PREPARATION
-
-     IMPORTANT:
-     Verified Pending orders are allowed.
-
-     Cashier does not change the order status.
-     Inventory starts the preparation.
-  ========================================= */
+  /* START PREPARATION */
 
   if (preparationStatus === "queued") {
 
     if (
-
       ![
         "pending",
         "preparing",
         "processing"
       ].includes(orderStatus)
-
     ) {
-
       return blocked(
         "This order cannot enter preparation."
       );
-
     }
 
     if (order.inventory_prepared_at) {
-
       return blocked(
         "This order already has a preparation record."
       );
-
     }
 
-    if (
-      order.can_start_preparation === false
-    ) {
-
+    if (order.can_start_preparation === false) {
       return blocked(
         "The server has blocked this preparation action."
       );
-
     }
 
     return {
-
       allowed: true,
-
       action: "start",
-
       reason:
         "Verified order is ready for preparation."
-
     };
-
   }
 
 
-  /* =========================================
-     MARK READY TO SHIP
-  ========================================= */
+  /* MARK READY TO SHIP */
 
   if (preparationStatus === "preparing") {
 
     if (
-
       ![
         "preparing",
         "processing"
       ].includes(orderStatus)
-
     ) {
-
       return blocked(
         "The order has not properly entered preparation."
       );
-
     }
 
     if (order.inventory_prepared_at) {
-
       return blocked(
         "Preparation has already been completed."
       );
-
     }
 
-    if (
-      order.can_mark_ready === false
-    ) {
-
+    if (order.can_mark_ready === false) {
       return blocked(
         "This order cannot be marked ready."
       );
-
     }
 
     return {
-
       allowed: true,
-
       action: "ready",
-
       reason:
         "Check all ordered items before completing preparation."
-
     };
-
   }
 
 
-  /* -----------------------------------------
-     COMPLETED PREPARATION
-  ----------------------------------------- */
+  /* COMPLETED PREPARATION */
 
   if (isInventoryReady(order)) {
-
     return blocked(
       "Inventory preparation has been completed."
     );
-
   }
 
   return blocked(
     "Order preparation is unavailable."
   );
-
 }
 
 
 /* =========================================================
-   14. J&T TRACKING ELIGIBILITY
+   22. J&T TRACKING ELIGIBILITY
 ========================================================= */
 
 function canManageInventoryTracking(order) {
-
-  const orderStatus =
-    normalizeInventoryValue(
-      order.status
-    );
+  const orderStatus = normalizeInventoryValue(
+    order.status
+  );
 
   return (
-
     isInventoryReady(order) &&
 
     isCashierVerified(order) &&
@@ -754,205 +714,401 @@ function canManageInventoryTracking(order) {
     !order.released_at &&
 
     order.is_ready_for_tracking !== false
-
   );
-
 }
 
 
 /* =========================================================
-   15. LOAD PREPARATION ORDERS
+   23. CHECK IF PAGE IS BUSY
+========================================================= */
+
+function isInventoryPageBusy() {
+  return (
+    loadingOrders ||
+    savingTracking ||
+    processingOrders.size > 0
+  );
+}
+
+
+/* =========================================================
+   24. DISABLE / ENABLE FILTER CONTROLS
+========================================================= */
+
+function updateOrderControlState() {
+  const disabled = isInventoryPageBusy();
+
+  [
+    "orderSearch",
+    "orderStatusFilter",
+    "orderSort",
+    "refreshOrders"
+  ].forEach(id => {
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.disabled = disabled;
+    }
+  });
+
+
+  /* DISABLE PAGINATION WHILE PROCESSING */
+
+  if (disabled) {
+    [
+      "previousOrders",
+      "nextOrders"
+    ].forEach(id => {
+      const element = document.getElementById(id);
+
+      if (element) {
+        element.disabled = true;
+      }
+    });
+
+    document
+      .querySelectorAll("#orderList button, #orderList input")
+      .forEach(element => {
+        element.disabled = true;
+      });
+  }
+}
+
+
+/* =========================================================
+   25. INITIALIZE SEARCH, FILTER AND SORT
+========================================================= */
+
+function setupOrderControls() {
+  const searchInput =
+    document.getElementById("orderSearch");
+
+  const statusFilter =
+    document.getElementById("orderStatusFilter");
+
+  const sortSelect =
+    document.getElementById("orderSort");
+
+
+  /* DEFAULT SEARCH */
+
+  if (searchInput) {
+    searchInput.value = "";
+
+    searchInput.addEventListener("input", () => {
+      currentSearch = normalizeInventoryValue(
+        searchInput.value
+      );
+
+      currentPage = 1;
+
+      applyOrderFilters();
+    });
+  }
+
+
+  /* STATUS DROPDOWN */
+
+  if (statusFilter) {
+    statusFilter.value = "all";
+
+    statusFilter.addEventListener("change", () => {
+      currentFilter = statusFilter.value;
+
+      currentPage = 1;
+
+      applyOrderFilters();
+    });
+  }
+
+
+  /* SORTING DROPDOWN */
+
+  if (sortSelect) {
+    sortSelect.value = "newest";
+
+    sortSelect.addEventListener("change", () => {
+      currentSort = sortSelect.value;
+
+      currentPage = 1;
+
+      applyOrderFilters();
+    });
+  }
+
+
+  /* CREATE REFRESH BUTTON */
+
+  const sectionHead = document.querySelector(
+    "#orderResults .section-head"
+  );
+
+  let refreshButton =
+    document.getElementById("refreshOrders");
+
+  if (!refreshButton && sectionHead) {
+    refreshButton = document.createElement("button");
+
+    refreshButton.type = "button";
+    refreshButton.id = "refreshOrders";
+
+    refreshButton.innerHTML = `
+      <i class="fa-solid fa-arrows-rotate"></i>
+      Refresh
+    `;
+
+    sectionHead.appendChild(refreshButton);
+  }
+
+
+  /* REFRESH EVENT */
+
+  refreshButton?.addEventListener("click", () => {
+    if (isInventoryPageBusy()) {
+      return;
+    }
+
+    currentPage = 1;
+
+    loadPreparationOrders();
+  });
+
+
+  /* CREATE PAGINATION CONTAINER */
+
+  const orderResults =
+    document.getElementById("orderResults");
+
+  if (
+    orderResults &&
+    !document.getElementById("orderPagination")
+  ) {
+    const pagination = document.createElement("div");
+
+    pagination.id = "orderPagination";
+    pagination.className = "toolbar";
+
+    pagination.style.marginTop = "20px";
+    pagination.style.marginBottom = "0";
+
+    orderResults.appendChild(pagination);
+  }
+}
+
+
+/* =========================================================
+   26. LOAD ALL ORDER PAGES
+
+   All orders are collected before applying search,
+   category filtering and sorting.
+========================================================= */
+
+async function fetchAllInventoryOrders() {
+  const orders = new Map();
+
+  let page = 1;
+  let expectedTotal = null;
+
+  while (true) {
+
+    const data = await inventoryRequest(
+      `/orders?page=${page}`
+    );
+
+
+    /* VALIDATE RESPONSE */
+
+    if (!Array.isArray(data.orders)) {
+      throw new Error(
+        "The inventory orders API returned an invalid orders list."
+      );
+    }
+
+    const limit = Number(data.limit) || 10;
+
+    if (data.page != null && Number(data.page) !== page) {
+      throw new Error(
+        "Invalid inventory pagination response."
+      );
+    }
+
+    if (
+      expectedTotal === null &&
+      data.total != null &&
+      Number.isFinite(Number(data.total))
+    ) {
+      expectedTotal = Math.max(0, Number(data.total));
+    }
+
+
+    /* COLLECT ORDERS WITHOUT DUPLICATES */
+
+    let added = 0;
+
+    for (const order of data.orders) {
+
+      if (!order || !order.id) {
+        throw new Error(
+          "The inventory API returned an order without an ID."
+        );
+      }
+
+      if (!orders.has(order.id)) {
+        added++;
+      }
+
+      orders.set(order.id, order);
+    }
+
+
+    /* CHECK IF LAST PAGE */
+
+    if (data.orders.length === 0) {
+      break;
+    }
+
+    if (added === 0) {
+      throw new Error(
+        "Duplicate API pages detected. Please refresh the orders."
+      );
+    }
+
+    if (
+      expectedTotal !== null &&
+      page * limit >= expectedTotal
+    ) {
+      break;
+    }
+
+    if (data.orders.length < limit) {
+      break;
+    }
+
+    page++;
+
+    if (page > 500) {
+      throw new Error(
+        "Too many order pages. Backend pagination must be optimized."
+      );
+    }
+  }
+
+  if (
+    expectedTotal !== null &&
+    orders.size < expectedTotal
+  ) {
+    throw new Error(
+      "The order list changed while loading. Please refresh and try again."
+    );
+  }
+
+  return Array.from(orders.values());
+}
+
+
+/* =========================================================
+   27. LOAD PREPARATION ORDERS
 ========================================================= */
 
 async function loadPreparationOrders() {
+  const container =
+    document.getElementById("orderList");
 
-  const main =
-    document.getElementById("main");
+  const emptyState =
+    document.getElementById("orderEmptyState");
 
-  if (!main || loadingOrders) {
+  const pagination =
+    document.getElementById("orderPagination");
 
+  if (
+    !container ||
+    loadingOrders ||
+    processingOrders.size
+  ) {
     return;
-
   }
 
   loadingOrders = true;
 
-  main.innerHTML = `
+  updateOrderControlState();
 
-    <section class="panel">
+  if (emptyState) {
+    emptyState.hidden = true;
+  }
 
-      <p>
-        Loading verified customer orders...
-      </p>
+  if (pagination) {
+    pagination.innerHTML = "";
+  }
 
-    </section>
-
+  container.innerHTML = `
+    <p class="empty" role="status">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      Loading customer orders...
+    </p>
   `;
 
   try {
 
-    /* ---------------------------------------
-       GET VERIFIED ORDERS FROM BACKEND
-    --------------------------------------- */
+    /* LOAD ALL ORDERS */
 
-    const data = await inventoryRequest(
+    currentOrders = await fetchAllInventoryOrders();
 
-      `/orders?page=${currentPage}`
 
+    /* REMOVE OUTDATED CHECKLISTS */
+
+    const activeKeys = new Set(
+      currentOrders.map(getChecklistKey)
     );
 
-
-    /* ---------------------------------------
-       VALIDATE RESPONSE
-    --------------------------------------- */
-
-    if (!Array.isArray(data.orders)) {
-
-      throw new Error(
-
-        "The inventory orders API returned an invalid orders list."
-
-      );
-
+    for (const key of preparationChecklists.keys()) {
+      if (!activeKeys.has(key)) {
+        preparationChecklists.delete(key);
+      }
     }
 
 
-    /* ---------------------------------------
-       STORE ORDER DATA
-    --------------------------------------- */
+    /* UPDATE SUMMARY */
 
-    currentOrders = data.orders;
+    updateOrderCounters();
 
-    const total =
-      Number(data.total) || 0;
-
-    const limit =
-      Number(data.limit) || 10;
-
-    currentPage =
-      Number(data.page) || currentPage;
+    loadingOrders = false;
 
 
-    /* ---------------------------------------
-       PAGE CONTENT
-    --------------------------------------- */
+    /* APPLY DEFAULT OR SELECTED FILTER */
 
-    main.innerHTML = `
-
-      <section class="panel">
-
-        <div class="section-head">
-
-          <h2>
-            Order Preparation
-          </h2>
-
-          <button
-            type="button"
-            id="refreshOrders"
-          >
-            Refresh
-          </button>
-
-        </div>
-
-        <p>
-
-          Prepare customer orders that have
-          been verified by the cashier.
-
-          Check all ordered items before
-          marking them as ready for shipment.
-
-        </p>
-
-        <div id="preparationOrders"></div>
-
-
-        <!-- PAGINATION -->
-
-        <div
-          class="toolbar"
-          style="margin-top:20px"
-        >
-
-          <button
-            type="button"
-            id="previousOrders"
-            class="ghost"
-
-            ${currentPage <= 1
-              ? "disabled"
-              : ""}
-
-          >
-            Previous
-          </button>
-
-          <span>
-
-            Page ${currentPage}
-
-            ·
-
-            ${total} records
-
-          </span>
-
-          <button
-            type="button"
-            id="nextOrders"
-            class="ghost"
-
-            ${
-              currentPage * limit >= total
-                ? "disabled"
-                : ""
-            }
-
-          >
-            Next
-          </button>
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    /* ---------------------------------------
-       DISPLAY ORDERS
-    --------------------------------------- */
-
-    renderPreparationOrders();
-
-    setupPreparationPagination({
-
-      total,
-
-      limit
-
-    });
+    applyOrderFilters();
 
   } catch (error) {
 
-    console.error(
-      "PREPARATION ERROR:",
-      error
-    );
+    console.error("PREPARATION ERROR:", error);
 
     currentOrders = [];
+    filteredOrders = [];
 
-    main.innerHTML = `
+    [
+      "countAll",
+      "countPreparation",
+      "countReady",
+      "countTracking"
+    ].forEach(id => {
+      const element = document.getElementById(id);
 
-      <section class="panel">
+      if (element) {
+        element.textContent = "—";
+      }
+    });
 
-        <h2>
-          Unable to load data
-        </h2>
+    const resultCount =
+      document.getElementById("orderResultCount");
 
-        <p>
+    if (resultCount) {
+      resultCount.textContent = "Unable to load orders.";
+    }
+
+    container.innerHTML = `
+      <div class="empty">
+
+        <p class="negative">
           ${escapeInventoryHtml(error.message)}
         </p>
 
@@ -960,1504 +1116,1650 @@ async function loadPreparationOrders() {
           type="button"
           id="retryOrders"
         >
+          <i class="fa-solid fa-arrows-rotate"></i>
           Retry
         </button>
 
-      </section>
-
+      </div>
     `;
 
     document
       .getElementById("retryOrders")
-      ?.addEventListener(
-        "click",
-        loadPreparationOrders
-      );
+      ?.addEventListener("click", loadPreparationOrders);
 
   } finally {
 
     loadingOrders = false;
 
-  }
+    updateOrderControlState();
 
+    const retryButton =
+      document.getElementById("retryOrders");
+
+    if (retryButton) {
+      retryButton.disabled = false;
+    }
+  }
 }
 
 
 /* =========================================================
-   16. DISPLAY PREPARATION ORDERS
+   28. AUTOMATIC ORDER COUNTERS
+========================================================= */
+
+function updateOrderCounters() {
+  const counts = {
+    all: currentOrders.length,
+    preparation: 0,
+    ready: 0,
+    tracking: 0
+  };
+
+  currentOrders.forEach(order => {
+    const category = getOrderCategory(order);
+
+    counts[category]++;
+  });
+
+  const elements = {
+    countAll: counts.all,
+    countPreparation: counts.preparation,
+    countReady: counts.ready,
+    countTracking: counts.tracking
+  };
+
+  Object.entries(elements).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.textContent = value;
+    }
+  });
+}
+
+
+/* =========================================================
+   29. SEARCH ORDER
+========================================================= */
+
+function matchesOrderSearch(order) {
+  if (!currentSearch) {
+    return true;
+  }
+
+  const items = getInventoryOrderItems(order);
+
+  const productNames = items
+    .map(item =>
+      item.title ||
+      item.name ||
+      item.product_name ||
+      ""
+    )
+    .join(" ");
+
+  const searchableText = [
+    order.order_number,
+    order.id,
+    order.customer_name,
+    order.customer_email,
+    order.customer_phone,
+    order.tracking_number,
+    order.shipping_address,
+    productNames
+  ]
+    .map(normalizeInventoryValue)
+    .join(" ");
+
+  return searchableText.includes(currentSearch);
+}
+
+
+/* =========================================================
+   30. SORT ORDERS
+
+   Newest orders always appear first by default.
+========================================================= */
+
+function sortInventoryOrders(orders) {
+  return [...orders].sort((first, second) => {
+    const firstTime = getOrderTime(first);
+    const secondTime = getOrderTime(second);
+
+
+    /* INVALID DATES ALWAYS APPEAR LAST */
+
+    if (firstTime === null && secondTime === null) {
+      return String(first.id).localeCompare(
+        String(second.id)
+      );
+    }
+
+    if (firstTime === null) {
+      return 1;
+    }
+
+    if (secondTime === null) {
+      return -1;
+    }
+
+
+    /* STABLE SORT FOR IDENTICAL DATES */
+
+    if (firstTime === secondTime) {
+      return String(first.id).localeCompare(
+        String(second.id)
+      );
+    }
+
+
+    /* OLDEST FIRST */
+
+    if (currentSort === "oldest") {
+      return firstTime - secondTime;
+    }
+
+
+    /* NEWEST FIRST */
+
+    return secondTime - firstTime;
+  });
+}
+
+
+/* =========================================================
+   31. APPLY SEARCH, CATEGORY FILTER AND SORT
+========================================================= */
+
+function applyOrderFilters() {
+  if (loadingOrders) {
+    return;
+  }
+
+  filteredOrders = currentOrders.filter(order => {
+
+    const category = getOrderCategory(order);
+
+    const categoryMatches =
+      currentFilter === "all" ||
+      category === currentFilter;
+
+    return (
+      categoryMatches &&
+      matchesOrderSearch(order)
+    );
+  });
+
+
+  /* SORT MATCHING ORDERS */
+
+  filteredOrders = sortInventoryOrders(
+    filteredOrders
+  );
+
+
+  /* VALIDATE CURRENT PAGE */
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredOrders.length / PAGE_LIMIT)
+  );
+
+  currentPage = Math.max(
+    1,
+    Math.min(currentPage, totalPages)
+  );
+
+
+  /* UPDATE MATCHING ORDER COUNT */
+
+  updateOrderResultCount();
+
+
+  /* DISPLAY FILTERED ORDERS */
+
+  renderPreparationOrders();
+
+
+  /* DISPLAY PAGINATION */
+
+  renderOrderPagination();
+}
+
+
+/* =========================================================
+   32. UPDATE ORDER RESULT COUNT
+========================================================= */
+
+function updateOrderResultCount() {
+  const element =
+    document.getElementById("orderResultCount");
+
+  if (!element) return;
+
+  const total = filteredOrders.length;
+
+  if (!total) {
+    element.textContent =
+      "Showing 0 orders";
+
+    return;
+  }
+
+  const start =
+    (currentPage - 1) * PAGE_LIMIT + 1;
+
+  const end = Math.min(
+    currentPage * PAGE_LIMIT,
+    total
+  );
+
+  element.textContent =
+    `Showing ${start}–${end} of ${total} order(s)`;
+}
+
+
+/* =========================================================
+   33. CHECKLIST MEMORY
+
+   Preserve checked items when changing:
+   - Search
+   - Filters
+   - Sorting
+   - Pagination
+
+   Reset checklist when inventory revision changes.
+========================================================= */
+
+function getChecklistKey(order) {
+  return `${order.id}:${order.inventory_revision}`;
+}
+
+
+function getSavedChecklist(order) {
+  const key = getChecklistKey(order);
+
+  return preparationChecklists.get(key) || new Set();
+}
+
+
+function savePreparationChecklist(order, checkboxes) {
+  const key = getChecklistKey(order);
+
+  const checkedItems = checkboxes
+    .filter(item => item.checked)
+    .map(item => Number(item.value));
+
+  preparationChecklists.set(
+    key,
+    new Set(checkedItems)
+  );
+}
+
+
+/* =========================================================
+   34. RENDER PREPARATION ORDERS
 ========================================================= */
 
 function renderPreparationOrders() {
-
   const container =
-    document.getElementById(
-      "preparationOrders"
-    );
+    document.getElementById("orderList");
+
+  const emptyState =
+    document.getElementById("orderEmptyState");
 
   if (!container) return;
 
 
-  /* -----------------------------------------
-     EMPTY ORDER LIST
-  ----------------------------------------- */
+  /* EMPTY ORDER LIST */
 
-  if (!currentOrders.length) {
+  if (!filteredOrders.length) {
+    container.innerHTML = "";
 
-    container.innerHTML = `
+    if (emptyState) {
+      emptyState.hidden = false;
 
-      <p class="empty">
-
-        No verified orders awaiting preparation.
-
-      </p>
-
-    `;
+      emptyState.textContent =
+        "No orders match your selected filters.";
+    }
 
     return;
+  }
 
+  if (emptyState) {
+    emptyState.hidden = true;
   }
 
 
-  /* =========================================
-     RENDER ORDER CARDS
-  ========================================= */
+  /* GET ORDERS FOR CURRENT PAGE */
 
-  container.innerHTML = currentOrders.map(
+  const start = (currentPage - 1) * PAGE_LIMIT;
 
-    (order, index) => {
-
-      const items =
-        getInventoryOrderItems(order);
-
-      const verified =
-        isCashierVerified(order);
-
-      const paymentEligible =
-        isInventoryPaymentEligible(order);
-
-      const eligibility =
-        getPreparationEligibility(order);
-
-      const preparationStatus =
-        getInventoryPreparationStatus(order);
-
-      const normalizedPreparation =
-        normalizeInventoryValue(
-          preparationStatus
-        );
-
-      const isQueued =
-        normalizedPreparation === "queued";
-
-      const isPreparing =
-        normalizedPreparation === "preparing";
-
-      const isReady =
-        isInventoryReady(order);
-
-      const canPrepare =
-        eligibility.allowed;
-
-      const canTrack =
-        canManageInventoryTracking(order);
-
-      const trackingNumber =
-        order.tracking_number || "";
-
-      const shippingAddress = String(
-
-        order.shipping_address ?? ""
-
-      ).trim();
-
-      const orderStatus =
-        order.status || "Pending";
-
-      const isBusy =
-        processingOrders.has(order.id);
+  const visibleOrders = filteredOrders.slice(
+    start,
+    start + PAGE_LIMIT
+  );
 
 
-      /* =====================================
-         ORDER CARD TEMPLATE
-      ===================================== */
+  /* RENDER ORDER CARDS */
 
-      return `
-
-        <article
-          class="order"
-          data-index="${index}"
-        >
+  container.innerHTML = visibleOrders
+    .map(order => renderInventoryOrderCard(order))
+    .join("");
 
 
-          <!-- ORDER NUMBER -->
+  /* INITIALIZE ORDER ACTIONS */
 
-          <div class="section-head">
+  setupPreparationActions();
 
-            <h3>
-
-              Order ${escapeInventoryHtml(
-
-                getInventoryOrderNumber(order)
-
-              )}
-
-            </h3>
-
-            <span class="badge">
-
-              ${escapeInventoryHtml(
-                preparationStatus
-              )}
-
-            </span>
-
-          </div>
+  if (isInventoryPageBusy()) {
+    updateOrderControlState();
+  }
+}
 
 
-          <!-- CUSTOMER AND PAYMENT -->
+/* =========================================================
+   35. ORDER CARD TEMPLATE
+========================================================= */
 
-          <p>
+function renderInventoryOrderCard(order) {
+  const items = getInventoryOrderItems(order);
 
-            ${escapeInventoryHtml(
-              order.customer_name || "Customer"
+  const verified = isCashierVerified(order);
+
+  const paymentEligible =
+    isInventoryPaymentEligible(order);
+
+  const eligibility =
+    getPreparationEligibility(order);
+
+  const preparationStatus =
+    getInventoryPreparationStatus(order);
+
+  const normalizedPreparation =
+    normalizeInventoryValue(preparationStatus);
+
+  const isQueued =
+    normalizedPreparation === "queued";
+
+  const isPreparing =
+    normalizedPreparation === "preparing";
+
+  const isReady = isInventoryReady(order);
+
+  const canPrepare = eligibility.allowed;
+
+  const canTrack =
+    canManageInventoryTracking(order);
+
+  const trackingNumber = String(
+    order.tracking_number ?? ""
+  ).trim();
+
+  const shippingAddress = String(
+    order.shipping_address ?? ""
+  ).trim();
+
+  const orderStatus =
+    order.status || "Pending";
+
+  const isBusy =
+    processingOrders.has(order.id);
+
+  const checkedItems =
+    getSavedChecklist(order);
+
+  const categoryLabel =
+    getOrderCategoryLabel(order);
+
+  const badgeClass =
+    getOrderCategoryBadge(order);
+
+
+  return `
+
+    <article
+      class="order"
+      data-order-id="${escapeInventoryHtml(order.id)}"
+    >
+
+      <!-- ORDER HEADER -->
+
+      <div class="section-head">
+
+        <div>
+
+          <h3>
+
+            Order ${escapeInventoryHtml(
+              getInventoryOrderNumber(order)
             )}
-
-            ·
-
-            ${escapeInventoryHtml(
-              order.payment_method || "N/A"
-            )}
-
-            /
-
-            ${escapeInventoryHtml(
-              order.payment_status || "Pending"
-            )}
-
-          </p>
-
-
-          <!-- ORDER STATUS -->
-
-          <p>
-
-            <strong>
-              Order Status:
-            </strong>
-
-            ${escapeInventoryHtml(
-              orderStatus
-            )}
-
-          </p>
-
-
-          <!-- CUSTOMER PHONE -->
-
-          <p>
-
-            <strong>
-              Contact Number:
-            </strong>
-
-            ${escapeInventoryHtml(
-
-              order.customer_phone ||
-
-              "Not available"
-
-            )}
-
-          </p>
-
-
-          <!-- SHIPPING ADDRESS -->
-
-          <p style="overflow-wrap:anywhere">
-
-            <strong>
-              Shipping Address:
-            </strong>
-
-            ${escapeInventoryHtml(
-
-              shippingAddress ||
-
-              "No shipping address saved"
-
-            )}
-
-          </p>
-
-
-          <!-- CASHIER VERIFICATION -->
-
-          <p>
-
-            <strong>
-              Cashier Verification:
-            </strong>
 
             ${
-              verified
+              isNewInventoryOrder(order)
 
                 ? `
-
-                  <span class="positive">
-
-                    Verified
-
-                  </span>
-
-                `
-
-                : `
-
-                  <span class="negative">
-
-                    Not Verified
-
-                  </span>
-
-                `
-            }
-
-          </p>
-
-
-          <!-- PAYMENT WARNING -->
-
-          ${
-            !paymentEligible
-
-              ? `
-
-                <p class="negative">
-
-                  Payment confirmation required.
-
-                </p>
-
-              `
-
-              : ""
-          }
-
-
-          <!-- QUEUED ORDER MESSAGE -->
-
-          ${
-            isQueued && canPrepare
-
-              ? `
-
-                <p class="positive">
-
-                  Verified by cashier.
-                  Ready to start preparation.
-
-                </p>
-
-              `
-
-              : ""
-          }
-
-
-          <!-- PREPARATION IN PROGRESS -->
-
-          ${
-            isPreparing && canPrepare
-
-              ? `
-
-                <p>
-
-                  Check all ordered items
-                  to complete preparation.
-
-                </p>
-
-              `
-
-              : ""
-          }
-
-
-          <!-- READY ORDER MESSAGE -->
-
-          ${
-            isReady
-
-              ? `
-
-                <p class="positive">
-
-                  Inventory preparation completed.
-
-                </p>
-
-              `
-
-              : ""
-          }
-
-
-          <!-- BLOCKED ACTION MESSAGE -->
-
-          ${
-            !canPrepare && !isReady
-
-              ? `
-
-                <p class="negative">
-
-                  ${escapeInventoryHtml(
-                    eligibility.reason
-                  )}
-
-                </p>
-
-              `
-
-              : ""
-          }
-
-
-          <!-- ORDERED ITEMS -->
-
-          <div class="preparation-items">
-
-            ${
-              items.length
-
-                ? items.map(
-
-                  (item, itemIndex) => `
-
-                    <label class="check">
-
-                      <input
-
-                        type="checkbox"
-
-                        value="${itemIndex}"
-
-                        ${
-                          isReady
-                            ? "checked"
-                            : ""
-                        }
-
-                        ${
-                          !isPreparing ||
-                          !canPrepare ||
-                          isBusy
-
-                            ? "disabled"
-
-                            : ""
-                        }
-
-                      >
-
-                      <span>
-
-                        ${escapeInventoryHtml(
-
-                          item.title ||
-
-                          item.name ||
-
-                          item.product_name ||
-
-                          `Product ${item.product_id || item.id || ""}`
-
-                        )}
-
-                        <small style="display:block">
-
-                          ${escapeInventoryHtml(
-                            item.size || "N/A"
-                          )}
-
-                          /
-
-                          ${escapeInventoryHtml(
-                            item.color || "N/A"
-                          )}
-
-                          ·
-
-                          ${escapeInventoryHtml(
-
-                            item.quantity ??
-
-                            item.qty ??
-
-                            1
-
-                          )}
-
-                          unit(s)
-
-                        </small>
-
-                      </span>
-
-                    </label>
-
+                    <span class="new-order-badge">
+                      NEW
+                    </span>
                   `
 
-                ).join("")
-
-                : `
-
-                  <p class="negative">
-
-                    No saved item details.
-
-                    Preparation is blocked
-                    until verified items
-                    are recovered.
-
-                  </p>
-
-                `
+                : ""
             }
 
-          </div>
+          </h3>
+
+          <p class="order-date">
+
+            <i class="fa-regular fa-clock"></i>
+
+            ${escapeInventoryHtml(
+              formatOrderDate(order)
+            )}
+
+          </p>
+
+        </div>
+
+        <span class="${badgeClass}">
+
+          ${escapeInventoryHtml(categoryLabel)}
+
+        </span>
+
+      </div>
 
 
-          <!-- PREPARATION ACTION BUTTONS -->
+      <!-- CUSTOMER AND PAYMENT -->
 
-          <footer class="preparation-actions">
+      <p>
+
+        ${escapeInventoryHtml(
+          order.customer_name || "Customer"
+        )}
+
+        ·
+
+        ${escapeInventoryHtml(
+          order.payment_method || "N/A"
+        )}
+
+        /
+
+        ${escapeInventoryHtml(
+          order.payment_status || "Pending"
+        )}
+
+      </p>
 
 
-            <!-- START / MARK READY -->
+      <!-- ORDER STATUS -->
 
-            ${
-              canPrepare
+      <p>
 
-                ? `
+        <strong>Order Status:</strong>
 
-                  <button
+        ${escapeInventoryHtml(orderStatus)}
 
-                    type="button"
+      </p>
 
-                    data-action="${eligibility.action}"
+
+      <!-- PREPARATION STATUS -->
+
+      <p>
+
+        <strong>Preparation Status:</strong>
+
+        ${escapeInventoryHtml(preparationStatus)}
+
+      </p>
+
+
+      <!-- CUSTOMER PHONE -->
+
+      <p>
+
+        <strong>Contact Number:</strong>
+
+        ${escapeInventoryHtml(
+          order.customer_phone || "Not available"
+        )}
+
+      </p>
+
+
+      <!-- SHIPPING ADDRESS -->
+
+      <p style="overflow-wrap:anywhere">
+
+        <strong>Shipping Address:</strong>
+
+        ${escapeInventoryHtml(
+          shippingAddress ||
+          "No shipping address saved"
+        )}
+
+      </p>
+
+
+      <!-- MISSING ADDRESS WARNING -->
+
+      ${
+        !shippingAddress
+
+          ? `
+              <p class="negative">
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+
+                Please verify the customer's shipping address.
+
+              </p>
+            `
+
+          : ""
+      }
+
+
+      <!-- CASHIER VERIFICATION -->
+
+      <p>
+
+        <strong>Cashier Verification:</strong>
+
+        ${
+          verified
+
+            ? `
+                <span class="positive">
+                  Verified
+                </span>
+              `
+
+            : `
+                <span class="negative">
+                  Not Verified
+                </span>
+              `
+        }
+
+      </p>
+
+
+      <!-- PAYMENT WARNING -->
+
+      ${
+        !paymentEligible
+
+          ? `
+              <p class="negative">
+                Payment confirmation required.
+              </p>
+            `
+
+          : ""
+      }
+
+
+      <!-- QUEUED ORDER MESSAGE -->
+
+      ${
+        isQueued && canPrepare
+
+          ? `
+              <p class="positive">
+
+                Verified by cashier.
+                Ready to start preparation.
+
+              </p>
+            `
+
+          : ""
+      }
+
+
+      <!-- PREPARATION IN PROGRESS -->
+
+      ${
+        isPreparing && canPrepare
+
+          ? `
+              <p>
+
+                Check all ordered items before
+                completing preparation.
+
+              </p>
+            `
+
+          : ""
+      }
+
+
+      <!-- READY ORDER MESSAGE -->
+
+      ${
+        isReady
+
+          ? `
+              <p class="positive">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                Inventory preparation completed.
+
+              </p>
+            `
+
+          : ""
+      }
+
+
+      <!-- READY TO REGISTER TRACKING -->
+
+      ${
+        isReady && !trackingNumber && canTrack
+
+          ? `
+              <p>
+
+                This order is ready for shipment.
+                Add the official J&T tracking number.
+
+              </p>
+            `
+
+          : ""
+      }
+
+
+      <!-- BLOCKED ACTION MESSAGE -->
+
+      ${
+        !canPrepare && !isReady
+
+          ? `
+              <p class="negative">
+
+                ${escapeInventoryHtml(
+                  eligibility.reason
+                )}
+
+              </p>
+            `
+
+          : ""
+      }
+
+
+      <!-- ORDERED ITEMS -->
+
+      <div class="preparation-items">
+
+        ${
+          items.length
+
+            ? items.map((item, itemIndex) => `
+
+                <label class="check">
+
+                  <input
+                    type="checkbox"
+                    value="${itemIndex}"
 
                     ${
-                      eligibility.action === "ready" ||
+                      isReady ||
+                      checkedItems.has(itemIndex)
+
+                        ? "checked"
+
+                        : ""
+                    }
+
+                    ${
+                      !isPreparing ||
+                      !canPrepare ||
                       isBusy
 
                         ? "disabled"
 
                         : ""
                     }
-
                   >
 
-                    ${
-                      eligibility.action === "start"
+                  <span>
 
-                        ? "Start Preparation"
+                    ${escapeInventoryHtml(
+                      item.title ||
+                      item.name ||
+                      item.product_name ||
+                      `Product ${item.product_id || item.id || ""}`
+                    )}
 
-                        : "Mark Ready to Ship"
-                    }
+                    <small style="display:block">
 
-                  </button>
+                      ${escapeInventoryHtml(
+                        item.size || "N/A"
+                      )}
 
-                `
+                      /
 
-                : ""
-            }
+                      ${escapeInventoryHtml(
+                        item.color || "N/A"
+                      )}
+
+                      ·
+
+                      ${escapeInventoryHtml(
+                        item.quantity ??
+                        item.qty ??
+                        1
+                      )}
+
+                      unit(s)
+
+                    </small>
+
+                  </span>
+
+                </label>
+
+              `).join("")
+
+            : `
+                <p class="negative">
+
+                  No saved item details.
+
+                  Preparation is blocked until
+                  verified items are recovered.
+
+                </p>
+              `
+        }
+
+      </div>
 
 
-            <!-- ADD J&T TRACKING -->
+      <!-- ORDER ACTIONS -->
 
-            ${
-              canTrack && !trackingNumber
-
-                ? `
-
-                  <button
-
-                    type="button"
-
-                    class="jnt-add-btn"
-
-                    data-action="add-tracking"
-
-                  >
-
-                    Add J&T Tracking
-
-                  </button>
-
-                `
-
-                : ""
-            }
+      <footer class="preparation-actions">
 
 
-            <!-- SAVED J&T TRACKING -->
+        <!-- START / MARK READY -->
 
-            ${
-              trackingNumber
+        ${
+          canPrepare
 
-                ? `
+            ? `
+                <button
+                  type="button"
+                  data-action="${eligibility.action}"
 
-                  <div class="jnt-tracking-saved">
+                  ${
+                    eligibility.action === "ready" ||
+                    isBusy
 
-                    <p>
+                      ? "disabled"
 
-                      J&T Tracking:
+                      : ""
+                  }
+                >
 
-                      <strong>
+                  ${
+                    eligibility.action === "start"
 
-                        ${escapeInventoryHtml(
-                          trackingNumber
-                        )}
+                      ? `
+                          <i class="fa-solid fa-box-open"></i>
 
-                      </strong>
+                          Start Preparation
+                        `
 
-                    </p>
+                      : `
+                          <i class="fa-solid fa-circle-check"></i>
 
-                    ${
-                      canTrack
+                          Mark Ready to Ship
+                        `
+                  }
 
-                        ? `
+                </button>
+              `
 
+            : ""
+        }
+
+
+        <!-- ADD J&T TRACKING -->
+
+        ${
+          canTrack && !trackingNumber
+
+            ? `
+                <button
+                  type="button"
+                  class="jnt-add-btn"
+                  data-action="add-tracking"
+                >
+
+                  <i class="fa-solid fa-truck-fast"></i>
+
+                  Add J&T Tracking
+
+                </button>
+              `
+
+            : ""
+        }
+
+
+        <!-- SAVED J&T TRACKING -->
+
+        ${
+          trackingNumber
+
+            ? `
+                <div class="jnt-tracking-saved">
+
+                  <p>
+
+                    <i class="fa-solid fa-truck"></i>
+
+                    J&T Tracking:
+
+                    <strong>
+
+                      ${escapeInventoryHtml(
+                        trackingNumber
+                      )}
+
+                    </strong>
+
+                  </p>
+
+                  ${
+                    canTrack
+
+                      ? `
                           <button
-
                             type="button"
-
                             class="jnt-add-btn"
-
                             data-action="edit-tracking"
-
                           >
+
+                            <i class="fa-solid fa-pen"></i>
 
                             Update Tracking
 
                           </button>
-
                         `
 
-                        : ""
-                    }
+                      : ""
+                  }
 
-                  </div>
+                </div>
+              `
 
-                `
+            : ""
+        }
 
-                : ""
-            }
+      </footer>
 
-          </footer>
+    </article>
 
-        </article>
-
-      `;
-
-    }
-
-  ).join("");
-
-
-  /* -----------------------------------------
-     INITIALIZE ORDER ACTIONS
-  ----------------------------------------- */
-
-  setupPreparationActions();
-
+  `;
 }
 
 
 /* =========================================================
-   17. PREPARATION ACTIONS
+   36. INITIALIZE PREPARATION ACTIONS
 ========================================================= */
 
 function setupPreparationActions() {
-
   document
-
-    .querySelectorAll(
-      "#preparationOrders .order"
-    )
-
+    .querySelectorAll("#orderList .order")
     .forEach(card => {
 
-      const index =
-        Number(card.dataset.index);
+      const orderId = card.dataset.orderId;
 
-      const order =
-        currentOrders[index];
+      const order = currentOrders.find(
+        item => String(item.id) === orderId
+      );
 
       if (!order) return;
 
 
-      /* -------------------------------------
-         GET PREPARATION BUTTON
-      ------------------------------------- */
+      /* GET PREPARATION BUTTON */
 
-      const preparationButton =
-        card.querySelector(
-
-          '[data-action="start"], [data-action="ready"]'
-
-        );
+      const preparationButton = card.querySelector(
+        '[data-action="start"], [data-action="ready"]'
+      );
 
 
-      /* -------------------------------------
-         GET CHECKLIST
-      ------------------------------------- */
+      /* GET ITEM CHECKLIST */
 
       const checkboxes = [
-
         ...card.querySelectorAll(
-
           'input[type="checkbox"]'
-
         )
-
       ];
 
 
-      /* =====================================
-         PREPARATION BUTTON LOGIC
-      ===================================== */
+      /* UPDATE PREPARATION BUTTON */
 
-      if (preparationButton) {
+      const updatePreparationButton = () => {
+        if (!preparationButton) {
+          return;
+        }
 
+        if (isInventoryPageBusy()) {
+          preparationButton.disabled = true;
+          return;
+        }
 
-        /* -----------------------------------
-           ENABLE READY WHEN ALL ITEMS CHECKED
-        ----------------------------------- */
+        const action =
+          preparationButton.dataset.action;
 
-        const updatePreparationButton = () => {
+        if (action === "ready") {
 
-          const action =
-            preparationButton.dataset.action;
+          preparationButton.disabled =
+            checkboxes.length === 0 ||
+            checkboxes.some(item => !item.checked);
 
-          if (
-            processingOrders.has(order.id)
-          ) {
+        } else {
 
-            preparationButton.disabled = true;
-
-            return;
-
-          }
-
-          if (action === "ready") {
-
-            preparationButton.disabled =
-
-              checkboxes.length === 0 ||
-
-              checkboxes.some(
-                item => !item.checked
-              );
-
-          } else {
-
-            preparationButton.disabled = false;
-
-          }
-
-        };
+          preparationButton.disabled = false;
+        }
+      };
 
 
-        /* -----------------------------------
-           CHECKBOX CHANGE EVENTS
-        ----------------------------------- */
+      /* CHECKBOX CHANGE EVENT */
 
-        checkboxes.forEach(checkbox => {
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
 
-          checkbox.addEventListener(
-
-            "change",
-
-            updatePreparationButton
-
+          savePreparationChecklist(
+            order,
+            checkboxes
           );
 
+          updatePreparationButton();
         });
+      });
 
 
-        /* -----------------------------------
-           BUTTON CLICK
-        ----------------------------------- */
+      /* PREPARATION ACTION */
 
-        preparationButton.addEventListener(
+      preparationButton?.addEventListener(
+        "click",
+        async () => {
 
-          "click",
+          await handlePreparationAction(
+            order,
+            preparationButton,
+            checkboxes
+          );
+        }
+      );
 
-          async () => {
 
-            if (
-              processingOrders.has(order.id)
-            ) {
+      /* INITIAL BUTTON STATE */
 
-              return;
+      updatePreparationButton();
 
-            }
 
-
-            /* -------------------------------
-               VALIDATE CURRENT ELIGIBILITY
-            ------------------------------- */
-
-            const eligibility =
-              getPreparationEligibility(order);
-
-            if (!eligibility.allowed) {
-
-              inventoryNotify(
-                eligibility.reason
-              );
-
-              return;
-
-            }
-
-            const action =
-              preparationButton.dataset.action;
-
-            if (
-              action !== eligibility.action
-            ) {
-
-              inventoryNotify(
-
-                "Order status changed. Please refresh the page."
-
-              );
-
-              return;
-
-            }
-
-
-            /* -------------------------------
-               GET CHECKED ITEMS
-            ------------------------------- */
-
-            const checkedItems = checkboxes
-
-              .filter(
-                item => item.checked
-              )
-
-              .map(
-                item => Number(item.value)
-              );
-
-
-            /* -------------------------------
-               VALIDATE CHECKLIST
-            ------------------------------- */
-
-            if (
-
-              action === "ready" &&
-
-              (
-                !checkboxes.length ||
-
-                checkedItems.length !==
-                  checkboxes.length
-              )
-
-            ) {
-
-              inventoryNotify(
-
-                "Please check all ordered items before marking the order ready."
-
-              );
-
-              return;
-
-            }
-
-
-            /* -------------------------------
-               DISABLE DUPLICATE SUBMISSION
-            ------------------------------- */
-
-            processingOrders.add(order.id);
-
-            preparationButton.disabled = true;
-
-            const originalText =
-              preparationButton.textContent;
-
-            preparationButton.textContent =
-
-              action === "start"
-
-                ? "Starting Preparation..."
-
-                : "Completing Preparation...";
-
-
-            checkboxes.forEach(item => {
-
-              item.disabled = true;
-
-            });
-
-
-            try {
-
-
-              /* =============================
-                 SEND PREPARATION ACTION
-
-                 Backend handles:
-                 Pending -> Preparing
-                 Preparing -> To Ship
-
-                 No direct client DB update.
-              ============================= */
-
-              await inventoryRequest(
-
-                `/orders/${encodeURIComponent(order.id)}/preparation`,
-
-                "PATCH",
-
-                {
-
-                  action,
-
-                  revision:
-                    order.inventory_revision,
-
-                  checked:
-
-                    action === "start"
-
-                      ? []
-
-                      : checkedItems
-
-                }
-
-              );
-
-
-              /* -----------------------------
-                 SUCCESS NOTIFICATION
-              ----------------------------- */
-
-              inventoryNotify(
-
-                action === "ready"
-
-                  ? "Order marked ready for shipment."
-
-                  : "Order preparation started successfully."
-
-              );
-
-
-              /* -----------------------------
-                 RELOAD SERVER DATA
-              ----------------------------- */
-
-              processingOrders.delete(order.id);
-
-              await loadPreparationOrders();
-
-            } catch (error) {
-
-              console.error(
-
-                "PREPARATION ACTION ERROR:",
-
-                error
-
-              );
-
-              inventoryNotify(
-                error.message
-              );
-
-
-              /* -----------------------------
-                 RESTORE CHECKBOXES ON ERROR
-              ----------------------------- */
-
-              checkboxes.forEach(item => {
-
-                item.disabled =
-                  action !== "ready";
-
-              });
-
-            } finally {
-
-              processingOrders.delete(
-                order.id
-              );
-
-              preparationButton.textContent =
-                originalText;
-
-              updatePreparationButton();
-
-            }
-
-          }
-
-        );
-
-
-        /* -----------------------------------
-           INITIAL BUTTON STATE
-        ----------------------------------- */
-
-        updatePreparationButton();
-
-      }
-
-
-      /* =====================================
-         J&T TRACKING BUTTONS
-      ===================================== */
+      /* J&T TRACKING BUTTONS */
 
       card
-
         .querySelectorAll(
-
           '[data-action="add-tracking"], [data-action="edit-tracking"]'
-
         )
-
         .forEach(button => {
 
-          button.addEventListener(
-
-            "click",
-
-            () => {
-
-              openJntTrackingModal(order);
-
-            }
-
-          );
+          button.addEventListener("click", () => {
+            openJntTrackingModal(order);
+          });
 
         });
 
     });
-
 }
 
 
 /* =========================================================
-   18. PAGINATION
+   37. HANDLE PREPARATION ACTION
 ========================================================= */
 
-function setupPreparationPagination(data) {
+async function handlePreparationAction(
+  order,
+  preparationButton,
+  checkboxes
+) {
+  if (isInventoryPageBusy()) {
+    return;
+  }
 
-  const total =
-    Number(data.total) || 0;
 
-  const limit =
-    Number(data.limit) || 10;
+  /* VALIDATE CURRENT ELIGIBILITY */
+
+  const eligibility =
+    getPreparationEligibility(order);
+
+  if (!eligibility.allowed) {
+    inventoryNotify(eligibility.reason);
+    return;
+  }
+
+  const action =
+    preparationButton.dataset.action;
+
+  if (action !== eligibility.action) {
+    inventoryNotify(
+      "Order status changed. Please refresh the page."
+    );
+
+    return;
+  }
 
 
-  /* -----------------------------------------
-     PREVIOUS PAGE
-  ----------------------------------------- */
+  /* GET CHECKED ITEMS */
 
-  document
+  const checkedItems = checkboxes
+    .filter(item => item.checked)
+    .map(item => Number(item.value));
 
-    .getElementById("previousOrders")
 
-    ?.addEventListener(
+  /* VALIDATE COMPLETE CHECKLIST */
 
-      "click",
+  if (
+    action === "ready" &&
+    (
+      !checkboxes.length ||
+      checkedItems.length !== checkboxes.length
+    )
+  ) {
+    inventoryNotify(
+      "Please check all ordered items before marking the order ready."
+    );
 
-      () => {
+    return;
+  }
 
-        if (
-          currentPage > 1 &&
-          !loadingOrders &&
-          !processingOrders.size
-        ) {
 
-          currentPage--;
+  /* PREVENT DUPLICATE SUBMISSIONS */
 
-          loadPreparationOrders();
+  processingOrders.add(order.id);
 
-        }
+  updateOrderControlState();
 
+  preparationButton.disabled = true;
+
+  preparationButton.textContent =
+    action === "start"
+
+      ? "Starting Preparation..."
+
+      : "Completing Preparation...";
+
+
+  /* DISABLE CHECKBOXES */
+
+  checkboxes.forEach(item => {
+    item.disabled = true;
+  });
+
+
+  let success = false;
+
+  try {
+
+    /* SEND PREPARATION ACTION */
+
+    await inventoryRequest(
+
+      `/orders/${encodeURIComponent(order.id)}/preparation`,
+
+      "PATCH",
+
+      {
+        action,
+
+        revision: order.inventory_revision,
+
+        checked:
+          action === "start"
+            ? []
+            : checkedItems
       }
-
     );
 
 
-  /* -----------------------------------------
-     NEXT PAGE
-  ----------------------------------------- */
+    /* REMOVE OLD CHECKLIST */
 
-  document
-
-    .getElementById("nextOrders")
-
-    ?.addEventListener(
-
-      "click",
-
-      () => {
-
-        if (
-
-          !loadingOrders &&
-
-          !processingOrders.size &&
-
-          currentPage * limit < total
-
-        ) {
-
-          currentPage++;
-
-          loadPreparationOrders();
-
-        }
-
-      }
-
+    preparationChecklists.delete(
+      getChecklistKey(order)
     );
 
+    success = true;
 
-  /* -----------------------------------------
-     REFRESH ORDERS
-  ----------------------------------------- */
 
-  document
+    /* SUCCESS NOTIFICATION */
 
-    .getElementById("refreshOrders")
+    inventoryNotify(
 
-    ?.addEventListener(
+      action === "ready"
 
-      "click",
+        ? "Order marked ready for shipment."
 
-      () => {
-
-        if (
-
-          loadingOrders ||
-
-          processingOrders.size ||
-
-          savingTracking
-
-        ) {
-
-          return;
-
-        }
-
-        loadPreparationOrders();
-
-      }
-
+        : "Order preparation started successfully."
     );
 
+  } catch (error) {
+
+    console.error(
+      "PREPARATION ACTION ERROR:",
+      error
+    );
+
+    inventoryNotify(error.message);
+
+  } finally {
+
+    processingOrders.delete(order.id);
+
+    updateOrderControlState();
+
+    if (success) {
+
+      /* RELOAD ORDERS FROM THE SERVER */
+
+      await loadPreparationOrders();
+
+    } else {
+
+      /* RESTORE EXISTING ORDER CARDS */
+
+      applyOrderFilters();
+    }
+  }
 }
 
 
 /* =========================================================
-   19. INITIALIZE J&T TRACKING MODAL
+   38. ORDER PAGINATION
+========================================================= */
+
+function renderOrderPagination() {
+  const pagination =
+    document.getElementById("orderPagination");
+
+  if (!pagination) return;
+
+  const total = filteredOrders.length;
+
+  if (!total) {
+    pagination.innerHTML = "";
+    return;
+  }
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(total / PAGE_LIMIT)
+  );
+
+  const busy = isInventoryPageBusy();
+
+  pagination.innerHTML = `
+
+    <button
+      type="button"
+      id="previousOrders"
+      class="ghost"
+
+      ${
+        currentPage <= 1 || busy
+
+          ? "disabled"
+
+          : ""
+      }
+    >
+
+      <i class="fa-solid fa-chevron-left"></i>
+
+      Previous
+
+    </button>
+
+
+    <span>
+
+      Page ${currentPage} of ${totalPages}
+
+      ·
+
+      ${total} record(s)
+
+    </span>
+
+
+    <button
+      type="button"
+      id="nextOrders"
+      class="ghost"
+
+      ${
+        currentPage >= totalPages || busy
+
+          ? "disabled"
+
+          : ""
+      }
+    >
+
+      Next
+
+      <i class="fa-solid fa-chevron-right"></i>
+
+    </button>
+
+  `;
+
+
+  /* PREVIOUS PAGE */
+
+  document
+    .getElementById("previousOrders")
+    ?.addEventListener("click", () => {
+
+      if (
+        currentPage <= 1 ||
+        isInventoryPageBusy()
+      ) {
+        return;
+      }
+
+      currentPage--;
+
+      applyOrderFilters();
+    });
+
+
+  /* NEXT PAGE */
+
+  document
+    .getElementById("nextOrders")
+    ?.addEventListener("click", () => {
+
+      if (
+        currentPage >= totalPages ||
+        isInventoryPageBusy()
+      ) {
+        return;
+      }
+
+      currentPage++;
+
+      applyOrderFilters();
+    });
+}
+
+
+/* =========================================================
+   39. INITIALIZE J&T TRACKING MODAL
 ========================================================= */
 
 function setupTrackingModal() {
-
   const modal =
-    document.getElementById(
-      "jntTrackingModal"
-    );
+    document.getElementById("jntTrackingModal");
 
   const form =
-    document.getElementById(
-      "jntTrackingForm"
-    );
+    document.getElementById("jntTrackingForm");
 
   if (!modal || !form) {
-
     console.warn(
-
-      "J&T tracking modal not found in order-preparation.html"
-
+      "J&T tracking modal not found."
     );
 
     return;
-
   }
 
 
-  /* -----------------------------------------
-     CLOSE MODAL
-  ----------------------------------------- */
+  /* CLOSE BUTTON */
 
   document
-
     .getElementById("closeJntModal")
-
     ?.addEventListener(
-
       "click",
-
-      closeJntTrackingModal
-
+      () => closeJntTrackingModal()
     );
 
 
-  /* -----------------------------------------
-     CANCEL TRACKING
-  ----------------------------------------- */
+  /* CANCEL BUTTON */
 
   document
-
     .getElementById("cancelJntTracking")
-
     ?.addEventListener(
-
       "click",
-
-      closeJntTrackingModal
-
+      () => closeJntTrackingModal()
     );
 
 
-  /* -----------------------------------------
-     CLICK OUTSIDE MODAL
-  ----------------------------------------- */
+  /* CLICK OUTSIDE MODAL */
 
   modal
-
     .querySelector(".jnt-modal-overlay")
-
     ?.addEventListener(
-
       "click",
-
-      closeJntTrackingModal
-
+      () => closeJntTrackingModal()
     );
 
 
-  /* -----------------------------------------
-     ESCAPE KEY
-  ----------------------------------------- */
+  /* ESCAPE KEY */
 
-  document.addEventListener(
+  document.addEventListener("keydown", event => {
 
-    "keydown",
-
-    event => {
-
-      if (
-
-        event.key === "Escape" &&
-
-        !modal.classList.contains("hidden")
-
-      ) {
-
-        closeJntTrackingModal();
-
-      }
-
+    if (
+      event.key === "Escape" &&
+      !modal.classList.contains("hidden")
+    ) {
+      closeJntTrackingModal();
     }
+  });
 
-  );
 
-
-  /* -----------------------------------------
-     SUBMIT TRACKING NUMBER
-  ----------------------------------------- */
+  /* SAVE TRACKING NUMBER */
 
   form.addEventListener(
-
     "submit",
-
     saveJntTracking
-
   );
-
 }
 
 
 /* =========================================================
-   20. OPEN J&T TRACKING MODAL
+   40. OPEN J&T TRACKING MODAL
 ========================================================= */
 
 function openJntTrackingModal(order) {
-
-  if (savingTracking) {
-
+  if (isInventoryPageBusy()) {
     return;
-
   }
 
   const modal =
-    document.getElementById(
-      "jntTrackingModal"
-    );
+    document.getElementById("jntTrackingModal");
 
   const orderIdInput =
-    document.getElementById(
-      "jntOrderId"
-    );
+    document.getElementById("jntOrderId");
 
   const orderNumberElement =
-    document.getElementById(
-      "jntOrderNumber"
-    );
+    document.getElementById("jntOrderNumber");
 
   const trackingInput =
-    document.getElementById(
-      "jntTrackingNumber"
-    );
+    document.getElementById("jntTrackingNumber");
+
+  const saveButton =
+    document.getElementById("saveJntTracking");
+
+
+  /* VALIDATE MODAL ELEMENTS */
 
   if (
-
     !modal ||
-
     !orderIdInput ||
-
     !orderNumberElement ||
-
     !trackingInput
-
   ) {
-
     inventoryNotify(
-
       "J&T tracking form is missing."
-
     );
 
     return;
-
   }
 
 
-  /* -----------------------------------------
-     VALIDATE TRACKING ELIGIBILITY
-  ----------------------------------------- */
+  /* VALIDATE TRACKING ELIGIBILITY */
 
   if (!canManageInventoryTracking(order)) {
-
     inventoryNotify(
-
       "Complete inventory preparation before registering tracking."
-
     );
 
     return;
-
   }
 
 
-  /* -----------------------------------------
-     SAVE SELECTED ORDER
-  ----------------------------------------- */
+  /* SELECT ORDER */
 
   selectedTrackingOrder = order;
 
 
-  /* -----------------------------------------
-     INTERNAL ORDER UUID
-  ----------------------------------------- */
+  /* SET ORDER ID */
 
-  orderIdInput.value =
-    order.id;
+  orderIdInput.value = order.id;
 
 
-  /* -----------------------------------------
-     READABLE JCN ORDER NUMBER
-  ----------------------------------------- */
+  /* SET READABLE ORDER NUMBER */
 
   orderNumberElement.textContent =
     getInventoryOrderNumber(order);
 
 
-  /* -----------------------------------------
-     EXISTING TRACKING NUMBER
-  ----------------------------------------- */
+  /* EXISTING TRACKING NUMBER */
 
   trackingInput.value =
     order.tracking_number || "";
 
 
-  /* -----------------------------------------
-     OPEN MODAL
-  ----------------------------------------- */
+  /* UPDATE BUTTON TEXT */
+
+  if (saveButton) {
+    saveButton.innerHTML =
+
+      hasInventoryTracking(order)
+
+        ? `
+            <i class="fa-solid fa-floppy-disk"></i>
+            Update Tracking
+          `
+
+        : `
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save &amp; Register Tracking
+          `;
+  }
+
+
+  /* SHOW MODAL */
 
   modal.classList.remove("hidden");
 
   modal.setAttribute(
-
     "aria-hidden",
-
     "false"
-
   );
 
   trackingInput.focus();
-
 }
 
 
 /* =========================================================
-   21. CLOSE J&T TRACKING MODAL
+   41. CLOSE J&T TRACKING MODAL
 ========================================================= */
 
 function closeJntTrackingModal(force = false) {
-
   if (
     savingTracking &&
     force !== true
   ) {
-
     return;
-
   }
 
   const modal =
-    document.getElementById(
-      "jntTrackingModal"
-    );
+    document.getElementById("jntTrackingModal");
 
   if (!modal) return;
 
   modal.classList.add("hidden");
 
   modal.setAttribute(
-
     "aria-hidden",
-
     "true"
-
   );
 
   selectedTrackingOrder = null;
-
 }
 
 
 /* =========================================================
-   22. SAVE J&T TRACKING NUMBER
+   42. CHECK DUPLICATE TRACKING NUMBER
+========================================================= */
+
+function isDuplicateTrackingNumber(
+  trackingNumber,
+  orderId
+) {
+  const normalizedTracking =
+    normalizeInventoryValue(trackingNumber);
+
+  return currentOrders.some(order => {
+
+    const existingTracking =
+      normalizeInventoryValue(
+        order.tracking_number
+      );
+
+    return (
+      String(order.id) !== String(orderId) &&
+
+      existingTracking !== "" &&
+
+      existingTracking === normalizedTracking
+    );
+  });
+}
+
+
+/* =========================================================
+   43. SAVE J&T TRACKING NUMBER
 ========================================================= */
 
 async function saveJntTracking(event) {
-
   event.preventDefault();
 
   if (
-
     !selectedTrackingOrder ||
-
-    savingTracking
-
+    isInventoryPageBusy()
   ) {
-
     return;
-
   }
 
-  const order =
-    selectedTrackingOrder;
+  const order = selectedTrackingOrder;
 
 
-  /* -----------------------------------------
-     VALIDATE ORDER
-  ----------------------------------------- */
+  /* VALIDATE ORDER */
 
   if (!canManageInventoryTracking(order)) {
-
     inventoryNotify(
-
       "Tracking is unavailable for this order."
-
     );
 
     return;
-
   }
 
 
-  /* -----------------------------------------
-     GET TRACKING INPUT
-  ----------------------------------------- */
+  /* GET TRACKING INPUT */
 
   const trackingInput =
-    document.getElementById(
-      "jntTrackingNumber"
-    );
+    document.getElementById("jntTrackingNumber");
 
   const saveButton =
-    document.getElementById(
-      "saveJntTracking"
-    );
+    document.getElementById("saveJntTracking");
 
   if (!trackingInput || !saveButton) {
-
     inventoryNotify(
-
       "Tracking form is incomplete."
-
     );
 
     return;
-
   }
 
   const trackingNumber =
     trackingInput.value.trim();
 
 
-  /* -----------------------------------------
-     VALIDATE TRACKING NUMBER
-  ----------------------------------------- */
+  /* VALIDATE TRACKING NUMBER */
 
   if (
-
-    !/^[A-Za-z0-9-]{6,50}$/.test(
-      trackingNumber
-    )
-
+    !/^[A-Za-z0-9-]{6,50}$/.test(trackingNumber)
   ) {
-
     inventoryNotify(
-
       "Enter a valid tracking number from the J&T waybill."
-
     );
 
     return;
-
   }
 
 
-  /* -----------------------------------------
-     DISABLE DUPLICATE SUBMISSIONS
-  ----------------------------------------- */
+  /* PREVENT UNCHANGED TRACKING NUMBER */
+
+  if (
+    normalizeInventoryValue(trackingNumber) ===
+
+    normalizeInventoryValue(order.tracking_number)
+  ) {
+    inventoryNotify(
+      "This tracking number is already registered."
+    );
+
+    return;
+  }
+
+
+  /* PREVENT DUPLICATE TRACKING NUMBER */
+
+  if (
+    isDuplicateTrackingNumber(
+      trackingNumber,
+      order.id
+    )
+  ) {
+    inventoryNotify(
+      "This tracking number is already assigned to another order."
+    );
+
+    return;
+  }
+
+
+  /* CONFIRM TRACKING NUMBER */
+
+  const isUpdate = hasInventoryTracking(order);
+
+  const confirmed = window.confirm(
+
+    `${isUpdate ? "Update" : "Register"} J&T tracking number?\n\n` +
+
+    `Order: ${getInventoryOrderNumber(order)}\n` +
+
+    `Tracking Number: ${trackingNumber}\n\n` +
+
+    "Please make sure this is the correct J&T waybill number."
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  /* DISABLE DUPLICATE SUBMISSION */
 
   savingTracking = true;
 
+  updateOrderControlState();
+
   const originalText =
-    saveButton.textContent;
+    saveButton.innerHTML;
 
   saveButton.disabled = true;
 
@@ -2466,13 +2768,11 @@ async function saveJntTracking(event) {
 
   trackingInput.disabled = true;
 
+  let success = false;
 
   try {
 
-
-    /* =======================================
-       REGISTER J&T TRACKING NUMBER
-    ======================================= */
+    /* REGISTER J&T TRACKING NUMBER */
 
     await inventoryRequest(
 
@@ -2481,57 +2781,41 @@ async function saveJntTracking(event) {
       "POST",
 
       {
+        tracking_number: trackingNumber,
 
-        tracking_number:
-          trackingNumber,
-
-        courier:
-          "J&T Express"
-
+        courier: "J&T Express"
       },
 
       SERVER_API
-
     );
 
+    success = true;
 
-    /* ---------------------------------------
-       SUCCESS MESSAGE
-    --------------------------------------- */
+
+    /* SUCCESS MESSAGE */
 
     inventoryNotify(
 
-      "J&T tracking registered successfully."
+      isUpdate
 
+        ? "J&T tracking updated successfully."
+
+        : "J&T tracking registered successfully."
     );
 
 
-    /* ---------------------------------------
-       CLOSE MODAL
-    --------------------------------------- */
+    /* CLOSE MODAL */
 
     closeJntTrackingModal(true);
-
-
-    /* ---------------------------------------
-       RELOAD ORDERS
-    --------------------------------------- */
-
-    await loadPreparationOrders();
 
   } catch (error) {
 
     console.error(
-
       "SAVE J&T TRACKING ERROR:",
-
       error
-
     );
 
-    inventoryNotify(
-      error.message
-    );
+    inventoryNotify(error.message);
 
   } finally {
 
@@ -2539,21 +2823,31 @@ async function saveJntTracking(event) {
 
     saveButton.disabled = false;
 
-    saveButton.textContent =
-      originalText;
+    saveButton.innerHTML = originalText;
 
     trackingInput.disabled = false;
 
-  }
+    updateOrderControlState();
 
+    if (success) {
+
+      /* RELOAD AND UPDATE ORDER CATEGORY */
+
+      await loadPreparationOrders();
+
+    } else {
+
+      applyOrderFilters();
+    }
+  }
 }
 
+
 /* =========================================================
-   INVENTORY STAFF LOGOUT
+   44. INVENTORY STAFF LOGOUT
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-
+function setupInventoryLogout() {
   const logoutBtn =
     document.getElementById("inventoryLogoutBtn");
 
@@ -2578,7 +2872,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-
   let previousOverflow = "";
 
 
@@ -2586,7 +2879,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function openInventoryLogout() {
 
-    if (!logoutModal.classList.contains("hidden")) {
+    if (isInventoryPageBusy()) {
+      inventoryNotify(
+        "Please finish the current operation before logging out."
+      );
+
+      return;
+    }
+
+    if (
+      !logoutModal.classList.contains("hidden")
+    ) {
       return;
     }
 
@@ -2595,10 +2898,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     logoutModal.classList.remove("hidden");
 
+    logoutModal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
     document.body.style.overflow = "hidden";
 
     cancelLogout.focus();
-
   }
 
 
@@ -2608,11 +2915,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     logoutModal.classList.add("hidden");
 
+    logoutModal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
     document.body.style.overflow =
       previousOverflow;
 
     logoutBtn.focus();
-
   }
 
 
@@ -2644,7 +2955,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("keydown", event => {
 
-    if (logoutModal.classList.contains("hidden")) {
+    if (
+      logoutModal.classList.contains("hidden")
+    ) {
       return;
     }
 
@@ -2653,31 +2966,35 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
 
       closeInventoryLogout();
-
     }
 
     if (event.key === "Tab") {
 
       event.preventDefault();
 
-      if (document.activeElement === confirmLogout) {
-
+      if (
+        document.activeElement === confirmLogout
+      ) {
         cancelLogout.focus();
 
       } else {
-
         confirmLogout.focus();
-
       }
-
     }
-
   });
 
 
   /* CONFIRM LOGOUT */
 
   confirmLogout.addEventListener("click", () => {
+
+    if (isInventoryPageBusy()) {
+      inventoryNotify(
+        "Please finish the current operation first."
+      );
+
+      return;
+    }
 
     confirmLogout.disabled = true;
 
@@ -2688,10 +3005,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     localStorage.removeItem("staffUser");
 
-    window.location.replace(
-      "../../staff/html/staff-login.html"
-    );
+    preparationChecklists.clear();
 
+    window.location.replace(STAFF_LOGIN);
   });
+}
 
-});
+
+/* =========================================================
+   END OF ORDER PREPARATION JAVASCRIPT
+========================================================= */

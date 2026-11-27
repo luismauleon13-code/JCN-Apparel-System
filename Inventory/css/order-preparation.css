@@ -1813,6 +1813,324 @@ dialog label {
 
 }
 
+/* =========================================================
+   42. ORDER FILTERS AND SUMMARY
+========================================================= */
+
+.order-controls {
+  padding: 18px 20px;
+}
+
+/* =========================================================
+   43. ORDER SUMMARY CARDS
+========================================================= */
+
+.order-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.order-summary-card {
+  min-width: 0;
+  padding: 15px;
+
+  background: #191919;
+
+  border: 1px solid #343434;
+  border-radius: 10px;
+
+  transition: border-color 0.2s ease;
+}
+
+.order-summary-card:hover {
+  border-color: var(--gold);
+}
+
+.order-summary-card span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.order-summary-card strong {
+  display: block;
+
+  margin-top: 8px;
+
+  font-size: 28px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ALL ORDERS */
+
+#countAll {
+  color: var(--text);
+}
+
+
+/* FOR PREPARATION */
+
+#countPreparation {
+  color: var(--gold);
+}
+
+
+/* READY TO SHIP */
+
+#countReady {
+  color: var(--green);
+}
+
+
+/* WITH TRACKING NUMBER */
+
+#countTracking {
+  color: #89baff;
+}
+
+
+/* =========================================================
+   44. SEARCH AND FILTER TOOLBAR
+========================================================= */
+
+.order-toolbar {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(0, 1.2fr)
+    minmax(0, 1fr);
+
+  align-items: end;
+
+  gap: 12px;
+}
+
+.order-filter-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  min-width: 0;
+}
+
+.order-filter-field label {
+  color: var(--muted);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   45. SEARCH INPUT AND DROPDOWNS
+========================================================= */
+
+.order-filter-field input,
+.order-filter-field select {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+
+  padding: 10px 12px;
+
+  background: #0d0d0d;
+
+  border: 1px solid #393939;
+  border-radius: 8px;
+
+  color: var(--text);
+
+  font-size: 13px;
+}
+
+.order-filter-field select {
+  cursor: pointer;
+}
+
+.order-filter-field select option {
+  background: #171717;
+  color: var(--text);
+}
+
+.order-filter-field input:hover,
+.order-filter-field select:hover {
+  border-color: #75612d;
+}
+
+.order-filter-field input:focus,
+.order-filter-field select:focus {
+  border-color: var(--gold);
+}
+
+
+/* =========================================================
+   46. MATCHING ORDER COUNT
+========================================================= */
+
+#orderResultCount {
+  margin: 12px 0 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+#orderResultCount:empty {
+  display: none;
+}
+
+
+/* =========================================================
+   47. CUSTOMER ORDER RESULTS
+========================================================= */
+
+#orderResults .section-head {
+  margin-bottom: 14px;
+}
+
+#orderList {
+  display: grid;
+
+  gap: 14px;
+
+  min-width: 0;
+  width: 100%;
+}
+
+#orderList > :is(.order, .order-card) {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   48. EMPTY ORDER STATE
+========================================================= */
+
+#orderEmptyState {
+  padding: 30px 15px;
+  margin: 0;
+
+  color: var(--muted);
+
+  text-align: center;
+
+  border: 1px dashed #393939;
+  border-radius: 10px;
+}
+
+#orderEmptyState[hidden] {
+  display: none !important;
+}
+
+
+/* =========================================================
+   49. ORDER DATE AND TIME
+========================================================= */
+
+.order-date {
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   50. NEW ORDER BADGE
+========================================================= */
+
+.new-order-badge {
+  display: inline-block;
+
+  padding: 4px 8px;
+
+  background: #322a10;
+
+  color: var(--gold);
+
+  border-radius: 5px;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   51. TRACKING STATUS BADGE
+========================================================= */
+
+.badge.tracking {
+  background: #18283b;
+  color: #89baff;
+}
+
+
+/* =========================================================
+   52. RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 991px) {
+
+  .order-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .order-toolbar {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .order-filter-field:first-child {
+    grid-column: 1 / -1;
+  }
+
+}
+
+
+/* =========================================================
+   53. RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 550px) {
+
+  .order-controls {
+    padding: 14px;
+  }
+
+  .order-summary {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .order-summary-card {
+    padding: 12px;
+  }
+
+  .order-summary-card strong {
+    font-size: 24px;
+  }
+
+  .order-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .order-filter-field:first-child {
+    grid-column: auto;
+  }
+
+}
+
 
 /* =========================================================
    41. REDUCED MOTION
