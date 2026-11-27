@@ -10,13 +10,13 @@
     return e;
   };
   const navLinks=[
-    ['fa-house','Home','customer-home.html'],
+    ['fa-house','Home','dashboard.html'],
     ['fa-shirt','Shop Products','customer-shop.html'],
     ['fa-palette','Customization','customer-customize.html'],
     ['fa-bell','Notifications','customer-notifications.html'],
     ['fa-cart-shopping','Cart','customer-cart.html'],
     ['fa-bag-shopping','Orders','customer-orders.html'],
-    ['fa-user','Profile','customer-settings.html']
+    ['fa-user','Profile','customer-profile.html']
   ];
   const sidebar=make('aside','jcn-v4-sidebar');
   sidebar.id='jcnV4Nav';sidebar.setAttribute('aria-label','Customer navigation');
