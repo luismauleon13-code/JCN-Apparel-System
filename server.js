@@ -2274,82 +2274,124 @@ app.patch("/api/customer/orders/:id/cancel", verifyCustomerToken, async (req, re
   }
 });
 
-// =========================================================
-// CASHIER — LIVE ORDER LIST
-// =========================================================
+
+/* =========================================================
+   CASHIER - GET CUSTOMER ORDERS
+   ACTUAL JCN ORDER NUMBER
+========================================================= */
 
 app.get(
   "/api/cashier/orders",
+
   verifyStaffToken,
+
   allowRoles("cashier", "admin"),
+
   async (req, res) => {
+
     try {
-      // ----------------------------------------------------
-      // PAGINATION
-      // ----------------------------------------------------
+
+      /* ==========================================
+         01. PAGINATION
+      ========================================== */
+
       const requestedPage = Number(req.query.page);
       const requestedLimit = Number(req.query.limit);
 
       const page =
-        Number.isSafeInteger(requestedPage) && requestedPage > 0
+        Number.isSafeInteger(requestedPage) &&
+        requestedPage > 0
           ? requestedPage
           : 1;
 
       const limit =
-        Number.isSafeInteger(requestedLimit) && requestedLimit > 0
+        Number.isSafeInteger(requestedLimit) &&
+        requestedLimit > 0
           ? Math.min(requestedLimit, 100)
           : 10;
 
       const from = (page - 1) * limit;
       const to = from + limit - 1;
 
-      if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to)) {
+      if (
+        !Number.isSafeInteger(from) ||
+        !Number.isSafeInteger(to)
+      ) {
+
         return res.status(400).json({
+
           success: false,
+
           message: "Invalid page number."
+
         });
+
       }
 
-      // ----------------------------------------------------
-      // FILTERS
-      // ----------------------------------------------------
-      const search = String(req.query.search || "")
+
+      /* ==========================================
+         02. SEARCH AND PAYMENT FILTERS
+      ========================================== */
+
+      const search = String(
+        req.query.search || ""
+      )
         .trim()
         .slice(0, 120);
 
-      const requestedStatus = String(req.query.payment_status || "")
+      const requestedStatus = String(
+        req.query.payment_status || ""
+      )
         .trim()
         .toLowerCase();
 
       const paymentStatuses = {
+
         paid: "Paid",
+
         pending: "Pending",
+
         unpaid: "Unpaid"
+
       };
 
-      const paymentStatus = Object.prototype.hasOwnProperty.call(
-        paymentStatuses,
-        requestedStatus
-      )
-        ? paymentStatuses[requestedStatus]
-        : null;
+      const paymentStatus =
+        Object.prototype.hasOwnProperty.call(
+          paymentStatuses,
+          requestedStatus
+        )
+          ? paymentStatuses[requestedStatus]
+          : null;
 
       if (requestedStatus && !paymentStatus) {
+
         return res.status(400).json({
+
           success: false,
+
           message: "Invalid payment status."
+
         });
+
       }
 
-      // ----------------------------------------------------
-      // DATABASE QUERY
-      // Do not select order_number: that column does not exist.
-      // ----------------------------------------------------
+
+      /* ==========================================
+         03. DATABASE QUERY
+
+         IMPORTANT:
+         Get actual order_number from Supabase.
+         Keep id for internal transactions.
+      ========================================== */
+
       let query = supabase
+
         .from("orders")
+
         .select(
           `
             id,
+            order_number,
             customer_name,
             customer_email,
             total_amount,
@@ -2358,111 +2400,260 @@ app.get(
             status,
             created_at
           `,
-          { count: "exact" }
+          {
+            count: "exact"
+          }
         );
 
+
+      /* ==========================================
+         04. PAYMENT STATUS FILTER
+      ========================================== */
+
       if (paymentStatus) {
-        query = query.eq("payment_status", paymentStatus);
+
+        query = query.eq(
+          "payment_status",
+          paymentStatus
+        );
+
       }
 
+
+      /* ==========================================
+         05. CUSTOMER SEARCH
+      ========================================== */
+
       if (search) {
-        // Escape LIKE wildcards so input is treated literally.
+
         const escapedSearch = search.replace(
+
           /[\\%_]/g,
-          (character) => `\\${character}`
+
+          character => `\\${character}`
+
         );
 
         query = query.ilike(
+
           "customer_name",
+
           `%${escapedSearch}%`
+
         );
+
       }
 
-      const { data, error, count } = await query
-        .order("created_at", { ascending: false })
-        .order("id", { ascending: false })
+
+      /* ==========================================
+         06. NEWEST ORDER FIRST
+      ========================================== */
+
+      const {
+
+        data,
+
+        error,
+
+        count
+
+      } = await query
+
+        .order("created_at", {
+          ascending: false
+        })
+
+        .order("id", {
+          ascending: false
+        })
+
         .range(from, to);
 
+
+      /* ==========================================
+         07. DATABASE ERROR HANDLING
+      ========================================== */
+
       if (error) {
-        console.error("CASHIER ORDERS ERROR:", {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
+
+        console.error(
+          "CASHIER ORDERS ERROR:",
+          {
+
+            code: error.code,
+
+            message: error.message,
+
+            details: error.details,
+
+            hint: error.hint
+
+          }
+        );
 
         return res.status(500).json({
+
           success: false,
+
           message: "Unable to load cashier orders."
+
         });
+
       }
 
-      // ----------------------------------------------------
-      // RESPONSE FOR THE EXISTING CASHIER DASHBOARD
-      // ----------------------------------------------------
-      const orders = (data || []).map((order) => {
-        const payment = String(order.payment_status || "")
+
+      /* ==========================================
+         08. FORMAT CASHIER ORDER DATA
+      ========================================== */
+
+      const orders = (data || []).map(order => {
+
+        const payment = String(
+          order.payment_status || ""
+        )
           .trim()
           .toLowerCase();
 
-        const status = String(order.status || "")
+        const status = String(
+          order.status || ""
+        )
           .trim()
           .toLowerCase();
 
-        const total = Number(order.total_amount);
+        const total = Number(
+          order.total_amount
+        );
 
-        // Assumes the existing full-payment model.
-        // Unknown states keep an unknown outstanding balance.
+
+        /* --------------------------------------
+           ACTUAL JCN ORDER NUMBER
+        -------------------------------------- */
+
+        const orderNumber = String(
+          order.order_number ?? ""
+        ).trim();
+
+
+        /* --------------------------------------
+           CALCULATE OUTSTANDING AMOUNT
+        -------------------------------------- */
+
         let amountDue = null;
 
-        if (payment === "paid" || status === "cancelled") {
-          amountDue = 0;
-        } else if (
-          ["pending", "unpaid"].includes(payment) &&
-          order.total_amount != null &&
-          Number.isFinite(total) &&
-          total >= 0
+        if (
+
+          payment === "paid" ||
+
+          ["cancelled", "canceled"].includes(status)
+
         ) {
+
+          amountDue = 0;
+
+        } else if (
+
+          ["pending", "unpaid"].includes(payment) &&
+
+          order.total_amount != null &&
+
+          Number.isFinite(total) &&
+
+          total >= 0
+
+        ) {
+
           amountDue = total;
+
         }
 
+
+        /* --------------------------------------
+           RETURN FORMATTED ORDER
+        -------------------------------------- */
+
         return {
+
+          // INTERNAL DATABASE UUID
           id: order.id,
 
-          // Frontend compatibility field.
-          // This is derived from id, not a database column.
-          order_number: String(order.id),
+          // ACTUAL DISPLAY ORDER NUMBER
+          order_number:
+            orderNumber || String(order.id),
 
-          customer_name: order.customer_name,
-          customer_email: order.customer_email,
-          total_amount: order.total_amount,
-          payment_method: order.payment_method,
-          payment_status: order.payment_status,
-          status: order.status,
-          created_at: order.created_at,
-          amount_due: amountDue
+          // CUSTOMER INFORMATION
+          customer_name:
+            order.customer_name,
+
+          customer_email:
+            order.customer_email,
+
+          // PAYMENT INFORMATION
+          total_amount:
+            order.total_amount,
+
+          payment_method:
+            order.payment_method,
+
+          payment_status:
+            order.payment_status,
+
+          // ORDER STATUS
+          status:
+            order.status,
+
+          created_at:
+            order.created_at,
+
+          // OUTSTANDING PAYMENT
+          amount_due:
+            amountDue
+
         };
+
       });
+
+
+      /* ==========================================
+         09. RETURN CASHIER ORDERS
+      ========================================== */
 
       return res.status(200).json({
+
         success: true,
+
         orders,
-        total: count ?? 0,
+
+        total:
+          count ?? 0,
+
         page,
+
         limit,
-        totalPages: Math.ceil((count ?? 0) / limit)
+
+        totalPages:
+          Math.ceil((count ?? 0) / limit)
+
       });
+
     } catch (error) {
-      console.error("CASHIER ORDERS ERROR:", error);
+
+      console.error(
+        "CASHIER ORDERS ERROR:",
+        error
+      );
 
       return res.status(500).json({
+
         success: false,
+
         message: "Unable to load cashier orders."
+
       });
+
     }
+
   }
 );
-
 
 // =========================================================
 // CASHIER — PAYMENT RECORDS
@@ -2951,17 +3142,19 @@ const canVerify =
 
   return {
 
-    // ORDER INFORMATION
+  // ORDER INFORMATION
 
-    id: row.id,
+  id: row.id,
 
-    order_number: row.order_number || String(row.id),
+  order_number:
+    String(row.order_number ?? "").trim() ||
+    String(row.id),
 
-    waybill_order_number: String(
-      row.order_number || row.id
-    ),
+  waybill_order_number:
+    String(row.order_number ?? "").trim() ||
+    String(row.id),
 
-    created_at: row.created_at,
+  created_at: row.created_at,
 
     status: row.status,
 

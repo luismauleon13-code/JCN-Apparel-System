@@ -468,12 +468,12 @@ module.exports = function createInventoryRouter({
           { count: "exact" }
         )
         .order("created_at", {
-  ascending: false
-})
+          ascending: false
+          })
 
-.order("id", {
-  ascending: false
-})
+        .order("id", {
+          ascending: false
+          })
         .range(p.from, p.to);
 
       if (error) {
