@@ -105,3 +105,203 @@
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true }); else init();
 })();
+
+/* =========================================================
+   INVENTORY STAFF NAME AND LOGOUT CONFIRMATION
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const staffName =
+    document.getElementById("inventoryStaffName");
+
+  const logoutBtn =
+    document.getElementById("inventoryLogoutBtn");
+
+  const logoutModal =
+    document.getElementById("inventoryLogoutModal");
+
+  const confirmLogout =
+    document.getElementById("inventoryConfirmLogout");
+
+  const cancelLogout =
+    document.getElementById("inventoryCancelLogout");
+
+  const logoutBackdrop =
+    logoutModal?.querySelector(".logout-backdrop");
+
+
+  /* ==========================================
+     DISPLAY LOGGED-IN STAFF NAME
+  ========================================== */
+
+  try {
+
+    const staff = JSON.parse(
+      localStorage.getItem("staffUser") || "null"
+    );
+
+    if (staffName && staff) {
+
+      staffName.textContent =
+
+        staff.full_name ||
+
+        staff.username ||
+
+        "Inventory Staff";
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Unable to read staff information:",
+      error
+    );
+
+  }
+
+
+  /* ==========================================
+     VALIDATE LOGOUT ELEMENTS
+  ========================================== */
+
+  if (
+    !logoutBtn ||
+    !logoutModal ||
+    !confirmLogout ||
+    !cancelLogout
+  ) {
+
+    return;
+
+  }
+
+
+  /* ==========================================
+     OPEN LOGOUT CONFIRMATION
+  ========================================== */
+
+  let previousOverflow = "";
+
+  function openLogoutModal() {
+
+    previousOverflow =
+      document.body.style.overflow;
+
+    logoutModal.classList.remove("hidden");
+
+    document.body.style.overflow = "hidden";
+
+    cancelLogout.focus();
+
+  }
+
+
+  /* ==========================================
+     CLOSE LOGOUT CONFIRMATION
+  ========================================== */
+
+  function closeLogoutModal() {
+
+    logoutModal.classList.add("hidden");
+
+    document.body.style.overflow =
+      previousOverflow;
+
+    logoutBtn.focus();
+
+  }
+
+
+  /* ==========================================
+     LOGOUT BUTTON
+  ========================================== */
+
+  logoutBtn.addEventListener(
+    "click",
+    openLogoutModal
+  );
+
+
+  /* ==========================================
+     CANCEL LOGOUT
+  ========================================== */
+
+  cancelLogout.addEventListener(
+    "click",
+    closeLogoutModal
+  );
+
+
+  /* ==========================================
+     CLICK OUTSIDE MODAL
+  ========================================== */
+
+  logoutBackdrop?.addEventListener(
+    "click",
+    closeLogoutModal
+  );
+
+
+  /* ==========================================
+     KEYBOARD CONTROLS
+  ========================================== */
+
+  document.addEventListener("keydown", event => {
+
+    if (logoutModal.classList.contains("hidden")) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+
+      closeLogoutModal();
+
+    }
+
+    if (event.key === "Tab") {
+
+      event.preventDefault();
+
+      if (document.activeElement === confirmLogout) {
+
+        cancelLogout.focus();
+
+      } else {
+
+        confirmLogout.focus();
+
+      }
+
+    }
+
+  });
+
+
+  /* ==========================================
+     CONFIRM LOGOUT
+  ========================================== */
+
+  confirmLogout.addEventListener("click", () => {
+
+    confirmLogout.disabled = true;
+
+    confirmLogout.textContent =
+      "Logging out...";
+
+    // REMOVE STAFF SESSION ONLY
+
+    localStorage.removeItem("staffToken");
+    localStorage.removeItem("staffUser");
+
+    // REDIRECT TO STAFF LOGIN
+
+    window.location.replace(
+      "../../staff/html/staff-login.html"
+    );
+
+  });
+
+});
