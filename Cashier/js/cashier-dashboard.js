@@ -375,7 +375,7 @@
       () => null
     );
 
-    if (!response.ok) {
+    if (!response.ok || data?.success === false) {
 
       if (response.status === 403) {
 
@@ -1410,6 +1410,126 @@
      VERIFY ORDER / VERIFY PAYMENT / RELEASE
   ===================================================== */
 
+  /* =====================================================
+     CUSTOM CASHIER CONFIRMATION AND RESULT MODALS
+  ===================================================== */
+
+  const confirmationOptions = {
+    "verify-order": {
+      permission: "can_verify_order",
+      title: "Verify Order",
+      description: "Are you sure that the customer information and ordered items are correct?",
+      hint: "Once verified, this order will be available for inventory preparation.",
+      button: "Confirm Verify",
+      icon: "fa-clipboard-check",
+      success: "Order Verified"
+    },
+    "verify-payment": {
+      permission: "can_verify_payment",
+      title: "Verify Payment",
+      description: "Submit this payment reference for server verification?",
+      hint: "Please check the payment reference before continuing.",
+      button: "Confirm Payment",
+      icon: "fa-receipt",
+      success: "Payment Verified"
+    },
+    "release": {
+      permission: "can_release",
+      title: "Confirm Order Release",
+      description: "Are you sure this order has actually been released?",
+      hint: "Confirm only after the actual release of the order.",
+      button: "Confirm Release",
+      icon: "fa-box-open",
+      success: "Order Released"
+    }
+  };
+
+  let pendingConfirmation = null;
+  let confirmationRunning = false;
+
+  function openCashierConfirmation(action, extra = {}) {
+    const order = state.selected;
+    const config = confirmationOptions[action];
+    const dialog = $("cashierConfirmDialog");
+    if (!order || state.busy || confirmationRunning || dialog.open ||
+        !config || order.actions?.[config.permission] !== true) return;
+
+    pendingConfirmation = { action, extra, orderId: order.id, revision: order.revision,
+      orderNumber: order.order_number || String(order.id) };
+    $("cashierConfirmTitle").textContent = config.title;
+    $("cashierConfirmDescription").textContent = config.description;
+    $("cashierConfirmHint").textContent = config.hint;
+    $("cashierConfirmOrderNumber").textContent = pendingConfirmation.orderNumber;
+    $("cashierConfirmIcon").className = `fa-solid ${config.icon}`;
+    $("cashierConfirmButtonText").textContent = config.button;
+    $("cashierConfirmButtonIcon").className = "fa-solid fa-check";
+    $("cashierConfirmError").hidden = true;
+    $("cashierConfirmLoading").hidden = true;
+    $("confirmCashierAction").disabled = false;
+    $("cancelCashierAction").disabled = false;
+    dialog.showModal();
+    $("cancelCashierAction").focus();
+  }
+
+  function closeCashierConfirmation() {
+    if (confirmationRunning) return;
+    pendingConfirmation = null;
+    $("cashierConfirmDialog").close();
+  }
+
+  function showCashierResult(success, title, message, orderNumber) {
+    $("cashierResultTitle").textContent = title;
+    $("cashierResultMessage").textContent = message;
+    $("cashierResultOrderNumber").textContent = orderNumber;
+    $("cashierResultIconWrap").className = `cashier-result-icon ${success ? "success" : "error"}`;
+    $("cashierResultIcon").className = `fa-solid ${success ? "fa-circle-check" : "fa-circle-exclamation"}`;
+    const dialog = $("cashierResultDialog");
+    if (!dialog.open) dialog.showModal();
+    $("closeCashierResult").focus();
+  }
+
+  function bindCashierConfirmation() {
+    const dialog = $("cashierConfirmDialog");
+    $("cancelCashierAction").addEventListener("click", closeCashierConfirmation);
+    dialog.addEventListener("cancel", event => {
+      event.preventDefault();
+      closeCashierConfirmation();
+    });
+    $("closeCashierResult").addEventListener("click", () => $("cashierResultDialog").close());
+    $("confirmCashierAction").addEventListener("click", async () => {
+      if (confirmationRunning || state.busy || !pendingConfirmation) return;
+      const pending = pendingConfirmation;
+      const config = confirmationOptions[pending.action];
+      if (state.selected?.id !== pending.orderId || state.selected?.revision !== pending.revision ||
+          state.selected?.actions?.[config.permission] !== true) {
+        closeCashierConfirmation();
+        showCashierResult(false, "Order Changed", "Please reopen the order before continuing.", pending.orderNumber);
+        return;
+      }
+      confirmationRunning = true;
+      $("confirmCashierAction").disabled = true;
+      $("cancelCashierAction").disabled = true;
+      $("cashierConfirmLoading").hidden = false;
+      $("cashierConfirmButtonText").textContent = "Processing…";
+      $("cashierConfirmButtonIcon").className = "fa-solid fa-spinner fa-spin";
+      let result;
+      try {
+        result = await performAction(pending.action, pending.extra);
+      } catch (error) {
+        result = { success: false, message: error.message };
+      } finally {
+        confirmationRunning = false;
+        $("cashierConfirmLoading").hidden = true;
+        $("confirmCashierAction").disabled = false;
+        $("cancelCashierAction").disabled = false;
+        closeCashierConfirmation();
+      }
+      showCashierResult(result?.success === true,
+        result?.success === true ? config.success : "Unable to Complete Action",
+        result?.message || "Please refresh the order before trying again.", pending.orderNumber);
+    });
+  }
+
   async function performAction(
     action,
     extra = {}
@@ -1520,6 +1640,8 @@
 
       await loadRows();
 
+      return { success: true, message: data.message || "Saved successfully." };
+
     } catch (error) {
 
       showNotice(
@@ -1531,6 +1653,8 @@
         true
 
       );
+
+      return { success: false, message: `${error.message} Please refresh the order before trying again.` };
 
     } finally {
 
@@ -2840,17 +2964,7 @@
           return;
         }
 
-        const approved = confirm(
-
-          `Confirm na tama ang customer at items ng ${state.selected.order_number}?`
-
-        );
-
-        if (approved) {
-
-          performAction("verify-order");
-
-        }
+        openCashierConfirmation("verify-order");
 
       }
     );
@@ -2886,24 +3000,7 @@
 
         }
 
-        if (
-          confirm(
-            "Submit this payment reference for verification?"
-          )
-        ) {
-
-          performAction(
-
-            "verify-payment",
-
-            {
-              reference,
-              notes
-            }
-
-          );
-
-        }
+        openCashierConfirmation("verify-payment", { reference, notes });
 
       }
     );
@@ -2946,17 +3043,7 @@
           return;
         }
 
-        if (
-          confirm(
-
-            `Confirm actual release ng ${state.selected.order_number}?`
-
-          )
-        ) {
-
-          performAction("release");
-
-        }
+        openCashierConfirmation("release");
 
       }
     );
@@ -3116,6 +3203,7 @@
 
       "Cashier";
 
+    bindCashierConfirmation();
     bindEvents();
 
     updateActionButtons();

@@ -1,107 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>JCN | Cashier</title>
 
-  <link rel="stylesheet" href="../css/cashier-dashboard.css">
-  <script defer src="../js/cashier-dashboard.js"></script>
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+
+  <!-- CASHIER CSS -->
+
+  <link
+    rel="stylesheet"
+    href="../css/cashier-dashboard.css"
+  >
+
+  <!-- CASHIER JAVASCRIPT -->
+
+  <script
+    defer
+    src="../js/cashier-dashboard.js"
+  ></script>
+
 </head>
 
 <body>
+
   <div class="app">
+
+    <!-- =========================================
+         CASHIER SIDEBAR
+    ========================================== -->
 
     <aside class="sidebar">
 
-      <a class="brand" href="cashier-dashboard.html">
+      <a
+        class="brand"
+        href="cashier-dashboard.html"
+      >
+
         <span class="logo">JCN</span>
+
         <span>
+
           <strong>JCN Apparel</strong>
+
           <small>Cashier Portal</small>
+
         </span>
+
       </a>
 
-      <p class="nav-label">WORKSPACE</p>
+
+      <p class="nav-label">
+
+        WORKSPACE
+
+      </p>
+
+
+      <!-- CASHIER NAVIGATION -->
 
       <nav aria-label="Cashier navigation">
 
-        <button class="nav-button active" data-view="orders">
-          Orders & Payments
+        <button
+          type="button"
+          class="nav-button active"
+          data-view="orders"
+        >
+
+          Orders &amp; Payments
+
         </button>
 
-        <button class="nav-button" data-view="records">
+        <button
+          type="button"
+          class="nav-button"
+          data-view="records"
+        >
+
           Payment Records
+
         </button>
 
       </nav>
+
+
+      <!-- CASHIER ACCOUNT -->
 
       <div class="account">
 
         <small>Signed in as</small>
 
-        <strong id="staffName">Cashier</strong>
+        <strong id="staffName">
+
+          Cashier
+
+        </strong>
 
         <button
           type="button"
           id="logoutButton"
           class="secondary"
         >
+
           Log out
+
         </button>
 
       </div>
 
     </aside>
 
+
+    <!-- =========================================
+         MAIN CASHIER CONTENT
+    ========================================== -->
+
     <main>
+
+      <!-- PAGE HEADER -->
 
       <header class="topbar">
 
         <div>
-          <p class="eyebrow">JCN APPAREL PRINTING SERVICES</p>
 
-          <h1 id="pageTitle">Orders & Payments</h1>
+          <p class="eyebrow">
+
+            JCN APPAREL PRINTING SERVICES
+
+          </p>
+
+          <h1 id="pageTitle">
+
+            Orders &amp; Payments
+
+          </h1>
 
           <p class="muted">
-            Verify orders, review payments, and confirm release.
+
+            Verify orders, review payments,
+            and confirm release.
+
           </p>
+
         </div>
 
-        <button id="refreshButton" class="secondary">
+
+        <button
+          type="button"
+          id="refreshButton"
+          class="secondary"
+        >
+
           Refresh
+
         </button>
 
       </header>
 
-      <div id="notice" class="notice" role="status" hidden></div>
 
-      <section class="stats" aria-label="Current page summary">
+      <!-- SYSTEM NOTIFICATION -->
+
+      <div
+        id="notice"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+
+
+      <!-- =======================================
+           CASHIER SUMMARY CARDS
+      ======================================== -->
+
+      <section
+        class="stats"
+        aria-label="Current page summary"
+      >
 
         <article class="stat">
-          <small>Orders on this page</small>
-          <strong id="orderCount">—</strong>
+
+          <small>
+
+            Orders on this page
+
+          </small>
+
+          <strong id="orderCount">
+
+            —
+
+          </strong>
+
         </article>
 
-        <article class="stat">
-          <small>Paid on this page</small>
-          <strong id="paidCount">—</strong>
-        </article>
 
         <article class="stat">
-          <small>Outstanding on this page</small>
-          <strong id="dueTotal">—</strong>
+
+          <small>
+
+            Paid on this page
+
+          </small>
+
+          <strong id="paidCount">
+
+            —
+
+          </strong>
+
+        </article>
+
+
+        <article class="stat">
+
+          <small>
+
+            Outstanding on this page
+
+          </small>
+
+          <strong id="dueTotal">
+
+            —
+
+          </strong>
+
         </article>
 
       </section>
 
+
+      <!-- =======================================
+           ORDERS AND PAYMENT RECORDS
+      ======================================== -->
+
       <section class="panel">
 
-        <form id="filterForm" class="filters">
+
+        <!-- SEARCH AND FILTER -->
+
+        <form
+          id="filterForm"
+          class="filters"
+        >
 
           <div class="search-field">
 
-            <label for="searchInput">Search</label>
+            <label for="searchInput">
+
+              Search
+
+            </label>
 
             <input
               id="searchInput"
@@ -112,36 +275,72 @@
 
           </div>
 
+
+          <!-- PAYMENT STATUS FILTER -->
+
           <div id="statusFilter">
 
-            <label for="paymentFilter">Payment status</label>
+            <label for="paymentFilter">
+
+              Payment status
+
+            </label>
 
             <select id="paymentFilter">
 
-              <option value="">All payments</option>
+              <option value="">
 
-              <option value="Paid">Paid</option>
+                All payments
 
-              <option value="Pending">Pending</option>
+              </option>
 
-              <option value="Unpaid">Unpaid</option>
+              <option value="Paid">
+
+                Paid
+
+              </option>
+
+              <option value="Pending">
+
+                Pending
+
+              </option>
+
+              <option value="Unpaid">
+
+                Unpaid
+
+              </option>
 
             </select>
 
           </div>
 
+
           <button type="submit">
+
             Search
+
           </button>
 
         </form>
+
+
+        <!-- =====================================
+             CASHIER TABLE
+        ====================================== -->
 
         <div class="table-wrap">
 
           <table>
 
-            <caption class="sr-only" id="tableCaption">
+            <caption
+              class="sr-only"
+              id="tableCaption"
+            >
+
               Cashier orders
+
             </caption>
 
             <thead id="tableHead"></thead>
@@ -152,18 +351,37 @@
 
         </div>
 
+
+        <!-- PAGINATION -->
+
         <footer class="pagination">
 
-          <span id="pageInfo">Loading…</span>
+          <span id="pageInfo">
+
+            Loading…
+
+          </span>
 
           <div>
 
-            <button id="previousButton" class="secondary">
+            <button
+              type="button"
+              id="previousButton"
+              class="secondary"
+            >
+
               Previous
+
             </button>
 
-            <button id="nextButton" class="secondary">
+            <button
+              type="button"
+              id="nextButton"
+              class="secondary"
+            >
+
               Next
+
             </button>
 
           </div>
@@ -181,47 +399,85 @@
        ORDER DETAILS MODAL
   ========================================== -->
 
-  <dialog id="orderDialog" aria-labelledby="dialogTitle">
+  <dialog
+    id="orderDialog"
+    aria-labelledby="dialogTitle"
+  >
+
+    <!-- MODAL HEADER -->
 
     <header class="dialog-header">
 
       <div>
 
-        <p class="eyebrow">ORDER DETAILS</p>
+        <p class="eyebrow">
 
-        <h2 id="dialogTitle">Order</h2>
+          ORDER DETAILS
+
+        </p>
+
+        <h2 id="dialogTitle">
+
+          Order
+
+        </h2>
 
       </div>
 
       <button
+        type="button"
         id="closeDialog"
         class="secondary"
         aria-label="Close order details"
       >
+
         Close
+
       </button>
 
     </header>
 
+
+    <!-- DYNAMIC ORDER INFORMATION -->
+
     <div id="detailContent"></div>
 
 
-    <!-- PAYMENT VERIFICATION -->
+    <!-- =======================================
+         PAYMENT VERIFICATION FORM
+    ======================================== -->
 
-    <form id="paymentForm" class="payment-form" hidden>
+    <form
+      id="paymentForm"
+      class="payment-form"
+      hidden
+    >
 
-      <h3>Verify payment</h3>
+      <h3>
+
+        Verify payment
+
+      </h3>
 
       <p class="muted">
-        Submit the payment reference for server verification.
-        PayPal payments must match a captured transaction.
+
+        Submit the payment reference for server
+        verification. PayPal payments must match
+        a captured transaction.
+
       </p>
 
+
+      <!-- PAYMENT REFERENCE -->
+
       <label for="paymentReference">
+
         Payment / collection reference
+
       </label>
 
       <input
+        type="text"
         id="paymentReference"
         required
         maxlength="120"
@@ -229,8 +485,13 @@
         placeholder="Enter the payment or collection reference"
       >
 
+
+      <!-- PAYMENT NOTES -->
+
       <label for="paymentNote">
+
         Notes
+
       </label>
 
       <textarea
@@ -240,29 +501,53 @@
         placeholder="Optional verification notes"
       ></textarea>
 
-      <button id="paymentButton" type="submit">
+
+      <!-- VERIFY PAYMENT BUTTON -->
+
+      <button
+        id="paymentButton"
+        type="submit"
+      >
+
         Verify payment
+
       </button>
 
     </form>
 
-    <p id="detailNotice" class="notice" role="status" hidden></p>
+
+    <!-- ORDER DETAILS NOTIFICATION -->
+
+    <p
+      id="detailNotice"
+      class="notice"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></p>
 
 
-    <!-- =========================================
+    <!-- =======================================
          ORDER ACTION BUTTONS
-    ========================================== -->
+    ======================================== -->
 
     <footer class="dialog-actions">
 
-      <!-- EXISTING VERIFY ORDER BUTTON -->
 
-      <button id="verifyOrderButton" class="secondary">
+      <!-- VERIFY ORDER -->
+
+      <button
+        type="button"
+        id="verifyOrderButton"
+        class="secondary"
+      >
+
         Verify order
+
       </button>
 
 
-      <!-- NEW PRINT WAYBILL BUTTON -->
+      <!-- PRINT WAYBILL -->
 
       <button
         type="button"
@@ -283,6 +568,7 @@
           stroke-linejoin="round"
           aria-hidden="true"
         >
+
           <path d="M6 9V2h12v7"></path>
 
           <path
@@ -292,18 +578,33 @@
                a2 2 0 0 1-2 2h-2"
           ></path>
 
-          <rect x="6" y="14" width="12" height="8"></rect>
+          <rect
+            x="6"
+            y="14"
+            width="12"
+            height="8"
+          ></rect>
+
         </svg>
 
-        <span>Print Waybill</span>
+        <span>
+
+          Print Waybill
+
+        </span>
 
       </button>
 
 
-      <!-- EXISTING CONFIRM ORDER RELEASE -->
+      <!-- CONFIRM ORDER RELEASE -->
 
-      <button id="releaseButton">
+      <button
+        type="button"
+        id="releaseButton"
+      >
+
         Confirm order release
+
       </button>
 
     </footer>
@@ -311,7 +612,288 @@
   </dialog>
 
 
-  <!-- CASHIER LOGOUT CONFIRMATION -->
+  <!-- =========================================
+       NEW CASHIER ACTION CONFIRMATION MODAL
+
+       REUSABLE FOR:
+       - Verify Order
+       - Verify Payment
+       - Confirm Order Release
+
+       Replaces native window.confirm()
+  ========================================== -->
+
+  <dialog
+    id="cashierConfirmDialog"
+    class="cashier-confirm-dialog"
+    role="alertdialog"
+    aria-labelledby="cashierConfirmTitle"
+    aria-describedby="cashierConfirmDescription"
+  >
+
+    <div class="cashier-confirm-box">
+
+
+      <!-- CONFIRMATION ICON -->
+
+      <div class="cashier-confirm-icon">
+
+        <i
+          id="cashierConfirmIcon"
+          class="fa-solid fa-clipboard-check"
+          aria-hidden="true"
+        ></i>
+
+      </div>
+
+
+      <!-- CONFIRMATION TITLE -->
+
+      <p class="cashier-confirm-eyebrow">
+
+        JCN CASHIER CONFIRMATION
+
+      </p>
+
+      <h2 id="cashierConfirmTitle">
+
+        Verify Order
+
+      </h2>
+
+
+      <!-- CONFIRMATION DESCRIPTION -->
+
+      <p id="cashierConfirmDescription">
+
+        Are you sure that the customer information
+        and ordered items are correct?
+
+      </p>
+
+
+      <!-- SELECTED ORDER NUMBER -->
+
+      <div
+        id="cashierConfirmOrderInfo"
+        class="cashier-confirm-order"
+      >
+
+        <small>
+
+          <i class="fa-solid fa-receipt"></i>
+
+          Order Number
+
+        </small>
+
+        <strong id="cashierConfirmOrderNumber">
+
+          —
+
+        </strong>
+
+      </div>
+
+
+      <!-- ACTION INFORMATION -->
+
+      <p
+        id="cashierConfirmHint"
+        class="cashier-confirm-hint"
+      >
+
+        Once verified, this order will be
+        available for inventory preparation.
+
+      </p>
+
+
+      <!-- CONFIRMATION ERROR MESSAGE -->
+
+      <p
+        id="cashierConfirmError"
+        class="cashier-confirm-error"
+        role="alert"
+        hidden
+      ></p>
+
+
+      <!-- =====================================
+           CONFIRMATION ACTION BUTTONS
+      ====================================== -->
+
+      <div class="cashier-confirm-actions">
+
+
+        <!-- CANCEL CONFIRMATION -->
+
+        <button
+          type="button"
+          id="cancelCashierAction"
+          class="cashier-confirm-cancel"
+          autofocus
+        >
+
+          <i
+            class="fa-solid fa-xmark"
+            aria-hidden="true"
+          ></i>
+
+          Cancel
+
+        </button>
+
+
+        <!-- CONFIRM ACTION -->
+
+        <button
+          type="button"
+          id="confirmCashierAction"
+          class="cashier-confirm-submit"
+        >
+
+          <i
+            id="cashierConfirmButtonIcon"
+            class="fa-solid fa-check"
+            aria-hidden="true"
+          ></i>
+
+          <span id="cashierConfirmButtonText">
+
+            Confirm Verify
+
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <!-- LOADING MESSAGE -->
+
+      <p
+        id="cashierConfirmLoading"
+        class="cashier-confirm-loading"
+        role="status"
+        aria-live="polite"
+        hidden
+      >
+
+        <i
+          class="fa-solid fa-spinner fa-spin"
+          aria-hidden="true"
+        ></i>
+
+        Processing your request...
+
+      </p>
+
+    </div>
+
+  </dialog>
+
+
+  <!-- =========================================
+       CASHIER ACTION RESULT MODAL
+
+       SUCCESS AND ERROR NOTIFICATIONS
+  ========================================== -->
+
+  <dialog
+    id="cashierResultDialog"
+    class="cashier-result-dialog"
+    aria-labelledby="cashierResultTitle"
+    aria-describedby="cashierResultMessage"
+  >
+
+    <div class="cashier-result-box">
+
+
+      <!-- RESULT ICON -->
+
+      <div
+        id="cashierResultIconWrap"
+        class="cashier-result-icon success"
+      >
+
+        <i
+          id="cashierResultIcon"
+          class="fa-solid fa-circle-check"
+          aria-hidden="true"
+        ></i>
+
+      </div>
+
+
+      <!-- RESULT TITLE -->
+
+      <h2 id="cashierResultTitle">
+
+        Order Verified
+
+      </h2>
+
+
+      <!-- RESULT DESCRIPTION -->
+
+      <p id="cashierResultMessage">
+
+        The order has been verified successfully.
+
+      </p>
+
+
+      <!-- RESULT ORDER NUMBER -->
+
+      <div
+        id="cashierResultOrderInfo"
+        class="cashier-result-order"
+      >
+
+        <small>
+
+          Order Number
+
+        </small>
+
+        <strong id="cashierResultOrderNumber">
+
+          —
+
+        </strong>
+
+      </div>
+
+
+      <!-- CLOSE RESULT MODAL -->
+
+      <button
+        type="button"
+        id="closeCashierResult"
+        class="cashier-result-button"
+        autofocus
+      >
+
+        <i
+          class="fa-solid fa-check"
+          aria-hidden="true"
+        ></i>
+
+        OK
+
+      </button>
+
+    </div>
+
+  </dialog>
+
+
+  <!-- =========================================
+       CASHIER LOGOUT CONFIRMATION
+
+       EXISTING FUNCTIONALITY PRESERVED
+  ========================================== -->
 
   <div
     id="cashierLogoutModal"
@@ -327,17 +909,38 @@
       aria-describedby="cashierLogoutDescription"
     >
 
+      <!-- LOGOUT ICON -->
+
       <div class="cashier-logout-icon">
-        <i class="fa-solid fa-right-from-bracket"></i>
+
+        <i
+          class="fa-solid fa-right-from-bracket"
+          aria-hidden="true"
+        ></i>
+
       </div>
 
+
+      <!-- LOGOUT TITLE -->
+
       <h2 id="cashierLogoutTitle">
+
         Logout Confirmation
+
       </h2>
 
+
+      <!-- LOGOUT DESCRIPTION -->
+
       <p id="cashierLogoutDescription">
-        Are you sure you want to end your current session?
+
+        Are you sure you want to end your
+        current session?
+
       </p>
+
+
+      <!-- LOGOUT BUTTONS -->
 
       <div class="cashier-logout-actions">
 
@@ -345,14 +948,18 @@
           id="confirmCashierLogout"
           type="button"
         >
+
           Yes, Logout
+
         </button>
 
         <button
           id="cancelCashierLogout"
           type="button"
         >
+
           Cancel
+
         </button>
 
       </div>
@@ -361,5 +968,22 @@
 
   </div>
 
+
+  <!-- =========================================
+       NOSCRIPT WARNING
+  ========================================== -->
+
+  <noscript>
+
+    <p>
+
+      Please enable JavaScript to use
+      the JCN Cashier Portal.
+
+    </p>
+
+  </noscript>
+
 </body>
+
 </html>
