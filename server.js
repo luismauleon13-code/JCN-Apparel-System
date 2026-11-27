@@ -2735,6 +2735,7 @@ function cashierReadItems(value) {
 }
 
 function cashierOrderDetails(row) {
+
   const status = cashierNormalize(row.status);
   const paymentStatus = cashierNormalize(row.payment_status);
   const preparation = cashierNormalize(row.inventory_preparation);
@@ -2747,28 +2748,59 @@ function cashierOrderDetails(row) {
     Boolean(row.inventory_prepared_at) &&
     !["queued", "preparing"].includes(preparation);
 
+  // =====================================================
+  // SHIPPING ADDRESS
+  // =====================================================
+
+  const shippingAddress =
+    typeof row.shipping_address === "string"
+      ? row.shipping_address.trim()
+      : "";
+
+  // =====================================================
+  // ORDERED ITEMS
+  // =====================================================
+
   const items = cashierReadItems(row.inventory_items)
+
     .filter((item) => item && typeof item === "object")
+
     .map((item) => ({
+
       product_id: item.product_id ?? null,
+
       title:
         item.title ??
         item.product_name ??
         item.name ??
         "Unnamed item",
+
       size: item.size ?? null,
+
       color: item.color ?? null,
+
       quantity: item.quantity ?? item.qty ?? null,
+
       unit_price: item.unit_price ?? item.price ?? null
+
     }));
 
   const hasItems = items.length > 0;
+
+  // =====================================================
+  // VERIFY ORDER
+  // =====================================================
 
   const canVerify =
     !closed &&
     !released &&
     !verified &&
     hasItems;
+
+  // =====================================================
+  // CONFIRM ORDER RELEASE
+  // EXISTING VALIDATION PRESERVED
+  // =====================================================
 
   const canRelease =
     !closed &&
@@ -2778,85 +2810,233 @@ function cashierOrderDetails(row) {
     hasItems &&
     paymentStatus === "paid";
 
+  // =====================================================
+  // PRINT WAYBILL VALIDATION
+  // =====================================================
+
+  const canPrintWaybill =
+    status !== "cancelled" &&
+    verified &&
+    hasItems &&
+    Boolean(shippingAddress);
+
+  let waybillReason;
+
+  if (status === "cancelled") {
+
+    waybillReason =
+      "Cancelled orders cannot generate a waybill.";
+
+  } else if (!verified) {
+
+    waybillReason =
+      "Verify the order before printing a waybill.";
+
+  } else if (!shippingAddress) {
+
+    waybillReason =
+      "The customer shipping address is missing.";
+
+  } else if (!hasItems) {
+
+    waybillReason =
+      "Saved order items are missing.";
+
+  } else {
+
+    waybillReason =
+      "Waybill is available for printing.";
+
+  }
+
+  // =====================================================
+  // ORDER RELEASE VALIDATION MESSAGE
+  // =====================================================
+
   let releaseReason;
 
   if (released) {
-    releaseReason = "This order already has a cashier release record.";
+
+    releaseReason =
+      "This order already has a cashier release record.";
+
   } else if (status === "cancelled") {
-    releaseReason = "Cancelled orders cannot be released.";
+
+    releaseReason =
+      "Cancelled orders cannot be released.";
+
   } else if (status === "completed") {
+
     releaseReason =
       "This order is already completed. No separate cashier release record is available.";
+
   } else if (!hasItems) {
+
     releaseReason =
       "Saved inventory items are missing. Check the order's inventory record.";
+
   } else if (!verified) {
-    releaseReason = "Review the customer and items, then click Verify order.";
+
+    releaseReason =
+      "Review the customer and items, then click Verify order.";
+
   } else if (paymentStatus !== "paid") {
-    releaseReason = "Waiting for a recorded Paid payment status.";
+
+    releaseReason =
+      "Waiting for a recorded Paid payment status.";
+
   } else if (!prepared) {
-    releaseReason = "Waiting for inventory preparation to be completed.";
+
+    releaseReason =
+      "Waiting for inventory preparation to be completed.";
+
   } else {
+
     releaseReason =
       "Ready for release. Confirm only when the actual handover takes place.";
+
   }
 
+  // =====================================================
+  // PAYMENT AND AMOUNT DUE
+  // =====================================================
+
   const total = Number(row.total_amount);
+
   let amountDue = null;
 
-  if (paymentStatus === "paid" || status === "cancelled") {
+  if (
+    paymentStatus === "paid" ||
+    status === "cancelled"
+  ) {
+
     amountDue = 0;
+
   } else if (
+
     ["pending", "unpaid"].includes(paymentStatus) &&
     row.total_amount != null &&
     Number.isFinite(total) &&
     total >= 0
+
   ) {
+
     amountDue = total;
+
   }
 
+  // =====================================================
+  // ORDER DETAILS RESPONSE
+  // =====================================================
+
   return {
+
+    // ORDER INFORMATION
+
     id: row.id,
+
     order_number: String(row.id),
-    customer_name: row.customer_name,
-    customer_email: row.customer_email,
-    customer_phone: row.customer_phone,
-    total_amount: row.total_amount,
-    amount_due: amountDue,
-    payment_method: row.payment_method,
-    payment_status: row.payment_status,
-    status: row.status,
+
+    waybill_order_number: String(
+      row.order_number || row.id
+    ),
+
     created_at: row.created_at,
 
+    status: row.status,
+
+    // CUSTOMER INFORMATION
+
+    customer_name: row.customer_name,
+
+    customer_email: row.customer_email,
+
+    customer_phone: row.customer_phone,
+
+    // SHIPPING INFORMATION
+
+    shipping_address: shippingAddress || null,
+
     courier: row.courier ?? null,
+
     tracking_number: row.tracking_number ?? null,
-    inventory_preparation: row.inventory_preparation ?? null,
-    inventory_prepared_at: row.inventory_prepared_at ?? null,
+
+    // PAYMENT INFORMATION
+
+    total_amount: row.total_amount,
+
+    amount_due: amountDue,
+
+    payment_method: row.payment_method,
+
+    payment_status: row.payment_status,
+
+    // INVENTORY PREPARATION
+
+    inventory_preparation:
+      row.inventory_preparation ?? null,
+
+    inventory_prepared_at:
+      row.inventory_prepared_at ?? null,
+
+    // CASHIER TRANSACTION INFORMATION
 
     revision: row.cashier_revision,
-    verified_at: row.cashier_verified_at ?? null,
-    verified_by: row.cashier_verified_by ?? null,
-    released_at: row.cashier_released_at ?? null,
-    released_by: row.cashier_released_by ?? null,
+
+    verified_at:
+      row.cashier_verified_at ?? null,
+
+    verified_by:
+      row.cashier_verified_by ?? null,
+
+    released_at:
+      row.cashier_released_at ?? null,
+
+    released_by:
+      row.cashier_released_by ?? null,
+
+    // ORDERED ITEMS
 
     items,
 
-    // Separate payment history has not been implemented.
+    // PAYMENT HISTORY
+
     payments: [],
+
     payment_history_available: false,
 
+    // AVAILABLE CASHIER ACTIONS
+
     actions: {
+
       can_verify_order: canVerify,
+
       can_verify_payment: false,
+
       can_release: canRelease,
-      release_reason: releaseReason
+
+      release_reason: releaseReason,
+
+      can_print_waybill: canPrintWaybill,
+
+      waybill_reason: waybillReason
+
     }
+
   };
+
 }
 
+// =====================================================
+// VALIDATE ORDER ID
+// =====================================================
+
 function cashierValidId(value) {
+
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
     .test(String(value || ""));
+
 }
 
 /* REVIEW ORDER */

@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JCN | Cashier</title>
 
-   <link rel="stylesheet" href="../css/cashier-dashboard.css">
+  <link rel="stylesheet" href="../css/cashier-dashboard.css">
   <script defer src="../js/cashier-dashboard.js"></script>
 </head>
 
 <body>
   <div class="app">
+
     <aside class="sidebar">
+
       <a class="brand" href="cashier-dashboard.html">
         <span class="logo">JCN</span>
         <span>
@@ -23,6 +25,7 @@
       <p class="nav-label">WORKSPACE</p>
 
       <nav aria-label="Cashier navigation">
+
         <button class="nav-button active" data-view="orders">
           Orders & Payments
         </button>
@@ -30,37 +33,51 @@
         <button class="nav-button" data-view="records">
           Payment Records
         </button>
+
       </nav>
 
       <div class="account">
-  <small>Signed in as</small>
 
-  <strong id="staffName">Cashier</strong>
+        <small>Signed in as</small>
 
-  <button
-    type="button"
-    id="logoutButton"
-    class="secondary"
-  >
-    Log out
-  </button>
-</div>
+        <strong id="staffName">Cashier</strong>
+
+        <button
+          type="button"
+          id="logoutButton"
+          class="secondary"
+        >
+          Log out
+        </button>
+
+      </div>
+
     </aside>
 
     <main>
+
       <header class="topbar">
+
         <div>
           <p class="eyebrow">JCN APPAREL PRINTING SERVICES</p>
+
           <h1 id="pageTitle">Orders & Payments</h1>
-          <p class="muted">Verify orders, review payments, and confirm release.</p>
+
+          <p class="muted">
+            Verify orders, review payments, and confirm release.
+          </p>
         </div>
 
-        <button id="refreshButton" class="secondary">Refresh</button>
+        <button id="refreshButton" class="secondary">
+          Refresh
+        </button>
+
       </header>
 
       <div id="notice" class="notice" role="status" hidden></div>
 
       <section class="stats" aria-label="Current page summary">
+
         <article class="stat">
           <small>Orders on this page</small>
           <strong id="orderCount">—</strong>
@@ -75,66 +92,124 @@
           <small>Outstanding on this page</small>
           <strong id="dueTotal">—</strong>
         </article>
+
       </section>
 
       <section class="panel">
+
         <form id="filterForm" class="filters">
+
           <div class="search-field">
+
             <label for="searchInput">Search</label>
+
             <input
-  id="searchInput"
-  type="search"
-  placeholder="Search customer name"
-  maxlength="120"
->
+              id="searchInput"
+              type="search"
+              placeholder="Search customer name"
+              maxlength="120"
+            >
+
           </div>
 
           <div id="statusFilter">
+
             <label for="paymentFilter">Payment status</label>
+
             <select id="paymentFilter">
+
               <option value="">All payments</option>
+
               <option value="Paid">Paid</option>
+
               <option value="Pending">Pending</option>
+
               <option value="Unpaid">Unpaid</option>
+
             </select>
+
           </div>
 
-          <button type="submit">Search</button>
+          <button type="submit">
+            Search
+          </button>
+
         </form>
 
         <div class="table-wrap">
+
           <table>
-            <caption class="sr-only" id="tableCaption">Cashier orders</caption>
+
+            <caption class="sr-only" id="tableCaption">
+              Cashier orders
+            </caption>
+
             <thead id="tableHead"></thead>
+
             <tbody id="tableBody"></tbody>
+
           </table>
+
         </div>
 
         <footer class="pagination">
+
           <span id="pageInfo">Loading…</span>
+
           <div>
-            <button id="previousButton" class="secondary">Previous</button>
-            <button id="nextButton" class="secondary">Next</button>
+
+            <button id="previousButton" class="secondary">
+              Previous
+            </button>
+
+            <button id="nextButton" class="secondary">
+              Next
+            </button>
+
           </div>
+
         </footer>
+
       </section>
+
     </main>
+
   </div>
 
+
+  <!-- =========================================
+       ORDER DETAILS MODAL
+  ========================================== -->
+
   <dialog id="orderDialog" aria-labelledby="dialogTitle">
+
     <header class="dialog-header">
+
       <div>
+
         <p class="eyebrow">ORDER DETAILS</p>
+
         <h2 id="dialogTitle">Order</h2>
+
       </div>
-      <button id="closeDialog" class="secondary" aria-label="Close order details">
+
+      <button
+        id="closeDialog"
+        class="secondary"
+        aria-label="Close order details"
+      >
         Close
       </button>
+
     </header>
 
     <div id="detailContent"></div>
 
+
+    <!-- PAYMENT VERIFICATION -->
+
     <form id="paymentForm" class="payment-form" hidden>
+
       <h3>Verify payment</h3>
 
       <p class="muted">
@@ -142,7 +217,10 @@
         PayPal payments must match a captured transaction.
       </p>
 
-      <label for="paymentReference">Payment / collection reference</label>
+      <label for="paymentReference">
+        Payment / collection reference
+      </label>
+
       <input
         id="paymentReference"
         required
@@ -151,7 +229,10 @@
         placeholder="Enter the payment or collection reference"
       >
 
-      <label for="paymentNote">Notes</label>
+      <label for="paymentNote">
+        Notes
+      </label>
+
       <textarea
         id="paymentNote"
         rows="2"
@@ -162,66 +243,123 @@
       <button id="paymentButton" type="submit">
         Verify payment
       </button>
+
     </form>
 
     <p id="detailNotice" class="notice" role="status" hidden></p>
 
+
+    <!-- =========================================
+         ORDER ACTION BUTTONS
+    ========================================== -->
+
     <footer class="dialog-actions">
-      <button id="verifyOrderButton" class="secondary">Verify order</button>
-      <button id="releaseButton">Confirm order release</button>
+
+      <!-- EXISTING VERIFY ORDER BUTTON -->
+
+      <button id="verifyOrderButton" class="secondary">
+        Verify order
+      </button>
+
+
+      <!-- NEW PRINT WAYBILL BUTTON -->
+
+      <button
+        type="button"
+        id="printWaybillBtn"
+        class="secondary btn-print-waybill"
+        disabled
+      >
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 9V2h12v7"></path>
+
+          <path
+            d="M6 18H4a2 2 0 0 1-2-2v-5
+               a2 2 0 0 1 2-2h16
+               a2 2 0 0 1 2 2v5
+               a2 2 0 0 1-2 2h-2"
+          ></path>
+
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+
+        <span>Print Waybill</span>
+
+      </button>
+
+
+      <!-- EXISTING CONFIRM ORDER RELEASE -->
+
+      <button id="releaseButton">
+        Confirm order release
+      </button>
+
     </footer>
+
   </dialog>
 
-  
 
-<!-- CASHIER LOGOUT CONFIRMATION -->
+  <!-- CASHIER LOGOUT CONFIRMATION -->
 
-<div
-  id="cashierLogoutModal"
-  class="cashier-logout-modal"
-  hidden
->
   <div
-    class="cashier-logout-box"
-    role="alertdialog"
-    aria-modal="true"
-    aria-labelledby="cashierLogoutTitle"
-    aria-describedby="cashierLogoutDescription"
+    id="cashierLogoutModal"
+    class="cashier-logout-modal"
+    hidden
   >
 
-    <div class="cashier-logout-icon">
-      <i class="fa-solid fa-right-from-bracket"></i>
-    </div>
+    <div
+      class="cashier-logout-box"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="cashierLogoutTitle"
+      aria-describedby="cashierLogoutDescription"
+    >
 
-    <h2 id="cashierLogoutTitle">
-      Logout Confirmation
-    </h2>
+      <div class="cashier-logout-icon">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </div>
 
-    <p id="cashierLogoutDescription">
-      Are you sure you want to end your current session?
-    </p>
+      <h2 id="cashierLogoutTitle">
+        Logout Confirmation
+      </h2>
 
-    <div class="cashier-logout-actions">
+      <p id="cashierLogoutDescription">
+        Are you sure you want to end your current session?
+      </p>
 
-      <button
-        id="confirmCashierLogout"
-        type="button"
-      >
-        Yes, Logout
-      </button>
+      <div class="cashier-logout-actions">
 
-      <button
-        id="cancelCashierLogout"
-        type="button"
-      >
-        Cancel
-      </button>
+        <button
+          id="confirmCashierLogout"
+          type="button"
+        >
+          Yes, Logout
+        </button>
+
+        <button
+          id="cancelCashierLogout"
+          type="button"
+        >
+          Cancel
+        </button>
+
+      </div>
 
     </div>
 
   </div>
-</div>
-
 
 </body>
 </html>
