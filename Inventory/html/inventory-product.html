@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -11,25 +12,28 @@
 
   <title>Products | JCN Inventory</title>
 
-  <!-- Bootstrap -->
+  <!-- BOOTSTRAP -->
+
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
 
-  <!-- Font Awesome -->
+  <!-- FONT AWESOME -->
+
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   >
 
-  <!-- Inventory CSS -->
+  <!-- INVENTORY CSS -->
+
   <link
     rel="stylesheet"
     href="../css/inventory-product.css"
   >
-</head>
 
+</head>
 
 <body class="dashboard-body">
 
@@ -38,261 +42,195 @@
     <div class="dashboard-wrapper mx-auto">
 
 
-      <!-- ====================================================== -->
-      <!-- NAVBAR -->
-      <!-- ====================================================== -->
+      <!-- ==================================================
+           PAGE HEADER
+      =================================================== -->
 
-      <nav
-        class="navbar navbar-expand-lg dashboard-nav px-4 py-3 mb-4"
-      >
+      <header class="page-header">
 
-        <div class="container-fluid p-0">
+        <!-- HEADER INFORMATION -->
 
-          <!-- BRAND -->
-          <a
-            class="navbar-brand text-light fw-bold d-flex align-items-center gap-2"
-            href="inventory-dashboard.html"
-          >
-            <i class="fa-solid fa-boxes-stacked text-gold"></i>
+        <div class="page-header-info">
 
-            JCN Inventory
-          </a>
+          <p class="page-label">
+            JCN APPAREL PRINTING SERVICES
+          </p>
 
+          <h2>
+            Product Management
+          </h2>
 
-          <!-- MOBILE TOGGLE -->
-          <button
-            class="navbar-toggler border-0"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#inventoryNav"
-            aria-controls="inventoryNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <i class="fa-solid fa-bars text-light"></i>
-          </button>
+          <p class="text-secondary mb-0">
+            Add products, manage product information,
+            sizes, colors, pricing, and available stock.
+          </p>
+
+        </div>
 
 
-          <!-- NAVIGATION -->
-          <div
-            class="collapse navbar-collapse"
-            id="inventoryNav"
-          >
+        <!-- INVENTORY STAFF INFORMATION -->
 
-            <ul class="navbar-nav mx-auto gap-lg-4">
+        <div class="inventory-role">
 
+          <i class="fa-solid fa-user-check"></i>
 
-              <li class="nav-item">
-                <a
-                  class="nav-link text-gold fw-semibold"
-                  href="inventory-product.html"
-                >
-                  Products
-                </a>
-              </li>
+          <div class="inventory-staff-details">
 
+            <span id="inventoryStaffName">
+              Inventory Staff
+            </span>
 
-              <li class="nav-item">
-                <a
-                  class="nav-link text-light"
-                  href="inventory-stock.html"
-                >
-                  Stock
-                </a>
-              </li>
-
-
-              <li class="nav-item">
-                <a
-                  class="nav-link text-light"
-                  href="inventory-orders.html"
-                >
-                  Orders
-                </a>
-              </li>
-
-
-              <li class="nav-item">
-                <a
-                  class="nav-link text-light"
-                  href="inventory-history.html"
-                >
-                  History
-                </a>
-              </li>
-
-            </ul>
-
-
-            <!-- STAFF INFORMATION -->
-            <div class="d-flex align-items-center gap-3">
-
-              <div
-                class="staff-info d-none d-lg-block text-end"
-              >
-
-                <small class="d-block text-secondary">
-                  Logged in as
-                </small>
-
-                <span
-                  id="inventoryStaffName"
-                  class="text-light fw-semibold"
-                >
-                  Inventory Staff
-                </span>
-
-              </div>
-
-
-              <button
-                id="inventoryLogoutBtn"
-                class="btn btn-gold px-4"
-                type="button"
-              >
-                <i class="fa-solid fa-right-from-bracket me-2"></i>
-                Logout
-              </button>
-
-            </div>
+            <small>
+              Inventory Staff
+            </small>
 
           </div>
 
         </div>
 
-      </nav>
+      </header>
 
 
 
-      <!-- ====================================================== -->
-      <!-- PAGE HEADER -->
-      <!-- ====================================================== -->
+      <!-- ==================================================
+           MAIN INVENTORY LAYOUT
+      =================================================== -->
 
-      <section class="page-header mb-4">
-
-        <div
-          class="d-flex justify-content-between align-items-center flex-wrap gap-3"
-        >
-
-          <div>
-
-            <p class="page-label mb-2">
-              INVENTORY MANAGEMENT
-            </p>
-
-            <h2 class="text-light fw-bold mb-2">
-              Product Management
-            </h2>
-
-            <p class="text-secondary mb-0">
-              Add products, manage product information,
-              sizes, colors, pricing, and available stock.
-            </p>
-
-          </div>
+      <div class="inventory-layout">
 
 
-          <div class="inventory-role">
-  <i class="fa-solid fa-user-check"></i>
+        <!-- =================================================
+             INVENTORY SIDEBAR
+        ================================================== -->
 
-  <div class="inventory-staff-details">
-    <span id="inventoryStaffName">Inventory Staff</span>
-    <small>Inventory Staff</small>
-  </div>
-</div>
+        <aside class="inventory-sidebar">
 
-      </section>
+          <div class="dashboard-card">
 
+            <!-- INVENTORY MENU TITLE -->
 
+            <h5 class="inventory-menu-title">
 
-      <!-- ====================================================== -->
-      <!-- MAIN CONTENT -->
-      <!-- ====================================================== -->
-
-      <section class="row g-4">
-
-
-        <!-- ==================================================== -->
-        <!-- INVENTORY MENU -->
-        <!-- ==================================================== -->
-
-        <div class="col-lg-3">
-
-          <div class="dashboard-card p-4">
-
-            <h5 class="text-light mb-4">
-
-              <i class="fa-solid fa-warehouse text-gold me-2"></i>
+              <i class="fa-solid fa-bars"></i>
 
               Inventory Menu
 
             </h5>
 
 
-            <div class="list-group dashboard-menu">
+            <!-- INVENTORY NAVIGATION -->
 
-            
-              <!-- PRODUCTS -->
+            <nav
+              class="list-group dashboard-menu"
+              aria-label="Inventory navigation"
+            >
+
+
+              <!-- MANAGE PRODUCTS -->
+
               <a
-                href="inventory-product.html"
+                href="./inventory-product.html"
                 class="list-group-item list-group-item-action active-menu"
+                aria-current="page"
               >
-                <i class="fa-solid fa-shirt me-2"></i>
 
-                Manage Products
+                <i class="fa-solid fa-shirt"></i>
+
+                <span>
+                  Manage Products
+                </span>
+
               </a>
 
 
-              <!-- STOCK -->
+              <!-- STOCK MANAGEMENT -->
+
               <a
-                href="../html/stock-management.html"
+                href="./stock-management.html"
                 class="list-group-item list-group-item-action"
               >
-                <i class="fa-solid fa-boxes-stacked me-2"></i>
 
-                Stock Management
+                <i class="fa-solid fa-boxes-stacked"></i>
+
+                <span>
+                  Stock Management
+                </span>
+
               </a>
 
 
-              <!-- ORDERS -->
+              <!-- ORDER PREPARATION -->
+
               <a
-                href="../html/order-preparation.html"
+                href="./order-preparation.html"
                 class="list-group-item list-group-item-action"
               >
-                <i class="fa-solid fa-box-open me-2"></i>
 
-                Order Preparation
+                <i class="fa-solid fa-box-open"></i>
+
+                <span>
+                  Order Preparation
+                </span>
+
               </a>
 
 
-              <!-- HISTORY -->
+              <!-- STOCK HISTORY -->
+
               <a
-                href="../html/stock-history.html"
+                href="./stock-history.html"
                 class="list-group-item list-group-item-action"
               >
-                <i class="fa-solid fa-clock-rotate-left me-2"></i>
 
-                Stock History
+                <i class="fa-solid fa-clock-rotate-left"></i>
+
+                <span>
+                  Stock History
+                </span>
+
               </a>
 
-            </div>
+            </nav>
+
+
+            <!-- =============================================
+                 LOGOUT BUTTON
+                 DIRECTLY BELOW STOCK HISTORY
+            ============================================== -->
+
+            <button
+              type="button"
+              id="inventoryLogoutBtn"
+              class="inventory-logout-btn"
+            >
+
+              <i class="fa-solid fa-right-from-bracket"></i>
+
+              <span>
+                Logout
+              </span>
+
+            </button>
 
           </div>
 
-        </div>
+        </aside>
 
 
 
-        <!-- ==================================================== -->
-        <!-- PRODUCTS -->
-        <!-- ==================================================== -->
+        <!-- =================================================
+             INVENTORY MAIN CONTENT
+        ================================================== -->
 
-        <div class="col-lg-9">
+        <main class="inventory-content">
 
-          <div class="dashboard-card p-4">
+          <section class="dashboard-card">
 
 
-            <!-- PRODUCT HEADER -->
+            <!-- =============================================
+                 PRODUCT MANAGEMENT HEADER
+            ============================================== -->
+
             <div
               class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
             >
@@ -308,13 +246,16 @@
                 </h4>
 
                 <p class="text-secondary mb-0 small mt-2">
+
                   Add, edit, and manage JCN apparel products.
+
                 </p>
 
               </div>
 
 
               <!-- ADD PRODUCT BUTTON -->
+
               <button
                 class="btn btn-gold px-4"
                 type="button"
@@ -322,7 +263,7 @@
                 data-bs-target="#addProductModal"
               >
 
-                <i class="fa-solid fa-plus me-2"></i>
+                <i class="fa-solid fa-plus"></i>
 
                 Add New Product
 
@@ -332,14 +273,15 @@
 
 
 
-            <!-- ================================================= -->
-            <!-- PRODUCT TOOLS -->
-            <!-- ================================================= -->
+            <!-- =============================================
+                 PRODUCT SEARCH AND FILTERS
+            ============================================== -->
 
             <div class="product-toolbar mb-4">
 
 
-              <!-- SEARCH -->
+              <!-- PRODUCT SEARCH -->
+
               <div class="product-search">
 
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -349,15 +291,18 @@
                   id="productSearch"
                   placeholder="Search products..."
                   autocomplete="off"
+                  aria-label="Search products"
                 >
 
               </div>
 
 
-              <!-- CATEGORY FILTER -->
+              <!-- PRODUCT CATEGORY FILTER -->
+
               <select
                 id="productCategoryFilter"
                 class="product-filter"
+                aria-label="Filter product category"
               >
 
                 <option value="all">
@@ -386,9 +331,9 @@
 
 
 
-            <!-- ================================================= -->
-            <!-- PRODUCTS CONTAINER -->
-            <!-- ================================================= -->
+            <!-- =============================================
+                 DYNAMIC PRODUCT CONTAINER
+            ============================================== -->
 
             <div
               id="productsContainer"
@@ -407,11 +352,12 @@
 
             </div>
 
-          </div>
 
-        </div>
+          </section>
 
-      </section>
+        </main>
+
+      </div>
 
     </div>
 
@@ -419,9 +365,9 @@
 
 
 
-  <!-- ========================================================== -->
-  <!-- ADD PRODUCT MODAL -->
-  <!-- ========================================================== -->
+  <!-- ======================================================
+       ADD PRODUCT MODAL
+  ======================================================= -->
 
   <div
     class="modal fade"
@@ -438,9 +384,9 @@
       <div class="modal-content custom-modal">
 
 
-        <!-- ==================================================== -->
-        <!-- ADD PRODUCT FORM -->
-        <!-- ==================================================== -->
+        <!-- =================================================
+             ADD PRODUCT FORM
+        ================================================== -->
 
         <form
           id="addProductForm"
@@ -448,31 +394,37 @@
         >
 
 
-          <!-- ================================================== -->
-          <!-- MODAL HEADER -->
-          <!-- ================================================== -->
+          <!-- ===============================================
+               MODAL HEADER
+          ================================================ -->
 
           <div class="modal-header border-0">
 
             <div>
 
               <p class="modal-label mb-1">
-                INVENTORY
+
+                INVENTORY MANAGEMENT
+
               </p>
 
               <h5
                 class="modal-title text-light fw-bold"
                 id="addProductModalLabel"
               >
+
                 Add New Product
+
               </h5>
 
             </div>
 
 
+            <!-- CLOSE MODAL -->
+
             <button
               type="button"
-              class="btn-close btn-close-white"
+              class="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>
@@ -481,18 +433,18 @@
 
 
 
-          <!-- ================================================== -->
-          <!-- MODAL BODY -->
-          <!-- ================================================== -->
+          <!-- ===============================================
+               MODAL BODY
+          ================================================ -->
 
           <div class="modal-body">
 
             <div class="row g-4">
 
 
-              <!-- ============================================== -->
-              <!-- PRODUCT TITLE -->
-              <!-- ============================================== -->
+              <!-- ===========================================
+                   PRODUCT TITLE
+              ============================================ -->
 
               <div class="col-md-8">
 
@@ -500,7 +452,9 @@
                   for="productTitle"
                   class="form-label"
                 >
+
                   Product Title
+
                 </label>
 
                 <input
@@ -517,9 +471,9 @@
 
 
 
-              <!-- ============================================== -->
-              <!-- PRICE -->
-              <!-- ============================================== -->
+              <!-- ===========================================
+                   PRODUCT BASE PRICE
+              ============================================ -->
 
               <div class="col-md-4">
 
@@ -527,15 +481,17 @@
                   for="productPrice"
                   class="form-label"
                 >
+
                   Base Price
+
                 </label>
 
                 <div class="input-group">
 
-                  <span
-                    class="input-group-text custom-input-addon"
-                  >
+                  <span class="input-group-text custom-input-addon">
+
                     ₱
+
                   </span>
 
                   <input
@@ -555,9 +511,9 @@
 
 
 
-              <!-- ============================================== -->
-              <!-- PRODUCT TYPE -->
-              <!-- ============================================== -->
+              <!-- ===========================================
+                   PRODUCT CATEGORY
+              ============================================ -->
 
               <div class="col-md-6">
 
@@ -565,7 +521,9 @@
                   for="productCategory"
                   class="form-label"
                 >
+
                   Product Type
+
                 </label>
 
                 <select
@@ -601,9 +559,9 @@
 
 
 
-              <!-- ============================================== -->
-              <!-- DESCRIPTION -->
-              <!-- ============================================== -->
+              <!-- ===========================================
+                   PRODUCT DESCRIPTION
+              ============================================ -->
 
               <div class="col-md-6">
 
@@ -611,7 +569,9 @@
                   for="productDescription"
                   class="form-label"
                 >
+
                   Description
+
                 </label>
 
                 <textarea
@@ -626,9 +586,9 @@
 
 
 
-              <!-- ============================================== -->
-              <!-- AVAILABLE SIZES -->
-              <!-- ============================================== -->
+              <!-- ===========================================
+                   AVAILABLE PRODUCT SIZES
+              ============================================ -->
 
               <div class="col-12">
 
@@ -640,17 +600,17 @@
 
                       <h6>
 
-                        <i
-                          class="fa-solid fa-ruler text-gold me-2"
-                        ></i>
+                        <i class="fa-solid fa-ruler text-gold me-2"></i>
 
                         Available Sizes
 
                       </h6>
 
                       <small>
+
                         Select the available sizes and enter
                         the stock quantity for each size.
+
                       </small>
 
                     </div>
@@ -659,9 +619,12 @@
 
 
                   <!--
-                    JavaScript will automatically create:
+                    DYNAMIC SIZE OPTIONS
+
+                    JavaScript automatically creates:
                     XS, S, M, L, XL, 2XL, 3XL
                   -->
+
                   <div
                     id="sizesContainer"
                     class="option-grid mt-3"
@@ -673,9 +636,9 @@
 
 
 
-              <!-- ============================================== -->
-              <!-- AVAILABLE COLORS -->
-              <!-- ============================================== -->
+              <!-- ===========================================
+                   AVAILABLE PRODUCT COLORS
+              ============================================ -->
 
               <div class="col-12">
 
@@ -687,17 +650,17 @@
 
                       <h6>
 
-                        <i
-                          class="fa-solid fa-palette text-gold me-2"
-                        ></i>
+                        <i class="fa-solid fa-palette text-gold me-2"></i>
 
                         Available Colors
 
                       </h6>
 
                       <small>
+
                         Select the colors available for this
                         apparel product.
+
                       </small>
 
                     </div>
@@ -705,10 +668,8 @@
                   </div>
 
 
-                  <!--
-                    JavaScript will automatically create
-                    the available product colors here.
-                  -->
+                  <!-- DYNAMIC COLOR OPTIONS -->
+
                   <div
                     id="colorsContainer"
                     class="option-grid mt-3"
@@ -720,9 +681,9 @@
 
 
 
-              <!-- ============================================== -->
-              <!-- PRODUCT IMAGE -->
-              <!-- ============================================== -->
+              <!-- ===========================================
+                   PRODUCT IMAGE UPLOAD
+              ============================================ -->
 
               <div class="col-12">
 
@@ -730,31 +691,35 @@
                   for="productImage"
                   class="form-label"
                 >
-                  Product Image
-                </label>
 
+                  Product Image
+
+                </label>
 
                 <div class="image-upload-box">
 
 
                   <!-- REAL FILE INPUT -->
+
                   <input
                     type="file"
                     id="productImage"
                     name="product_image"
                     accept="image/png,image/jpeg,image/jpg,image/webp"
-                    class="d-none"
+                    class="visually-hidden"
                   >
 
 
                   <!-- CLICKABLE UPLOAD AREA -->
+
                   <label
                     for="productImage"
                     class="upload-preview"
                   >
 
 
-                    <!-- PLACEHOLDER -->
+                    <!-- IMAGE UPLOAD PLACEHOLDER -->
+
                     <div
                       class="upload-placeholder"
                       id="uploadPlaceholder"
@@ -762,34 +727,36 @@
 
                       <div class="upload-icon">
 
-                        <i
-                          class="fa-solid fa-cloud-arrow-up"
-                        ></i>
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
 
                       </div>
 
-
                       <strong>
+
                         Upload Product Image
+
                       </strong>
 
-
                       <span>
+
                         Click here to choose an image
+
                       </span>
 
-
                       <small>
+
                         PNG, JPG, JPEG or WEBP
+                        · Maximum 5MB
+
                       </small>
 
                     </div>
 
 
-                    <!-- IMAGE PREVIEW -->
+                    <!-- SELECTED IMAGE PREVIEW -->
+
                     <img
                       id="previewImage"
-                      src=""
                       alt="Product Preview"
                     >
 
@@ -806,20 +773,27 @@
 
 
 
-          <!-- ================================================== -->
-          <!-- MODAL FOOTER -->
-          <!-- ================================================== -->
+          <!-- ===============================================
+               MODAL FOOTER
+          ================================================ -->
 
           <div class="modal-footer border-0">
+
+
+            <!-- CANCEL ADD PRODUCT -->
 
             <button
               type="button"
               class="btn btn-outline-warning text-gold border-gold px-4"
               data-bs-dismiss="modal"
             >
+
               Cancel
+
             </button>
 
+
+            <!-- SAVE PRODUCT -->
 
             <button
               type="submit"
@@ -827,7 +801,7 @@
               id="saveProductBtn"
             >
 
-              <i class="fa-solid fa-floppy-disk me-2"></i>
+              <i class="fa-solid fa-floppy-disk"></i>
 
               Save Product
 
@@ -846,19 +820,34 @@
 
 
 
-  <!-- ========================================================== -->
-  <!-- INVENTORY LOGOUT MODAL -->
-  <!-- ========================================================== -->
+  <!-- ======================================================
+       INVENTORY LOGOUT CONFIRMATION
+
+       SAME DESIGN AS ADMIN LOGOUT
+       HIDDEN UNTIL LOGOUT BUTTON IS CLICKED
+  ======================================================= -->
 
   <div
     id="inventoryLogoutModal"
     class="hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="inventoryLogoutTitle"
+    aria-describedby="inventoryLogoutDescription"
   >
+
+
+    <!-- DARK BLURRED BACKGROUND -->
 
     <div class="logout-backdrop"></div>
 
 
+    <!-- LOGOUT CONFIRMATION PANEL -->
+
     <div class="logout-box">
+
+
+      <!-- GOLD LOGOUT ICON -->
 
       <div class="logout-icon">
 
@@ -867,32 +856,50 @@
       </div>
 
 
-      <h4>
+      <!-- LOGOUT TITLE -->
+
+      <h4 id="inventoryLogoutTitle">
+
         Logout Confirmation
+
       </h4>
 
 
-      <p>
-        Are you sure you want to end your current
-        Inventory Staff session?
+      <!-- LOGOUT DESCRIPTION -->
+
+      <p id="inventoryLogoutDescription">
+
+        Are you sure you want to end your current session?
+
       </p>
 
 
+      <!-- LOGOUT ACTIONS -->
+
       <div class="logout-actions">
 
+
+        <!-- CONFIRM LOGOUT -->
+
         <button
-          id="inventoryConfirmLogout"
           type="button"
+          id="inventoryConfirmLogout"
         >
+
           Yes, Logout
+
         </button>
 
 
+        <!-- CANCEL LOGOUT -->
+
         <button
-          id="inventoryCancelLogout"
           type="button"
+          id="inventoryCancelLogout"
         >
+
           Cancel
+
         </button>
 
       </div>
@@ -903,21 +910,26 @@
 
 
 
-  <!-- ========================================================== -->
-  <!-- JAVASCRIPT -->
-  <!-- ========================================================== -->
+  <!-- ======================================================
+       JAVASCRIPT LIBRARIES
+  ======================================================= -->
 
-  <!-- Bootstrap JS -->
+  <!-- BOOTSTRAP JAVASCRIPT -->
+
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
   ></script>
 
-  <!-- SweetAlert2 -->
+
+  <!-- SWEETALERT2 -->
+
   <script
     src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
   ></script>
 
-  <!-- Inventory Product JS -->
+
+  <!-- INVENTORY PRODUCT JAVASCRIPT -->
+
   <script
     src="../js/inventory-product.js"
   ></script>
