@@ -1,6 +1,21 @@
-(() => {
-  const API_BASE = "/api/cashier";
+/* =========================================================
+   JCN APPAREL PRINTING SERVICES
+   CASHIER DASHBOARD - COMPLETE JAVASCRIPT
 
+   Features:
+   - Orders and Payments
+   - Payment Records
+   - Order Verification
+   - Confirm Order Release
+   - Shipping Address
+   - Delivery Status
+   - Print Waybill
+   - Logout Confirmation
+========================================================= */
+
+(() => {
+
+  const API_BASE = "/api/cashier";
   const STAFF_LOGIN = "../../staff/html/staff-login.html";
   const PAGE_SIZE = 10;
 
@@ -24,9 +39,10 @@
 
   let token = "";
 
-  // =====================================================
-  // STAFF SESSION
-  // =====================================================
+
+  /* =====================================================
+     01. STAFF SESSION
+  ===================================================== */
 
   function signOut() {
     localStorage.removeItem("staffToken");
@@ -36,17 +52,22 @@
   }
 
   function readSession() {
+
     token = localStorage.getItem("staffToken") || "";
 
     let user;
 
     try {
+
       user = JSON.parse(
         localStorage.getItem("staffUser") || "null"
       );
+
     } catch {
+
       signOut();
       return null;
+
     }
 
     const role = String(user?.role || "")
@@ -68,13 +89,16 @@
     }
 
     return user;
+
   }
 
-  // =====================================================
-  // HTML SECURITY
-  // =====================================================
+
+  /* =====================================================
+     02. HTML SECURITY
+  ===================================================== */
 
   function escapeHTML(value) {
+
     return String(value ?? "").replace(
       /[&<>"']/g,
       (character) => ({
@@ -85,13 +109,16 @@
         "'": "&#39;"
       })[character]
     );
+
   }
 
-  // =====================================================
-  // MONEY FORMAT
-  // =====================================================
+
+  /* =====================================================
+     03. MONEY FORMAT
+  ===================================================== */
 
   function money(value) {
+
     if (
       value === null ||
       value === undefined ||
@@ -108,13 +135,16 @@
           currency: "PHP"
         }).format(amount)
       : "—";
+
   }
 
-  // =====================================================
-  // DATE AND TIME FORMAT
-  // =====================================================
+
+  /* =====================================================
+     04. DATE AND TIME FORMAT
+  ===================================================== */
 
   function dateTime(value) {
+
     if (!value) return "—";
 
     const date = new Date(value);
@@ -126,15 +156,30 @@
           timeStyle: "short",
           timeZone: "Asia/Manila"
         }).format(date);
+
   }
 
-  // =====================================================
-  // STATUS BADGES
-  // =====================================================
+
+  /* =====================================================
+     05. NORMALIZE VALUES
+  ===================================================== */
+
+  function normalize(value) {
+
+    return String(value ?? "")
+      .trim()
+      .toLowerCase();
+
+  }
+
+
+  /* =====================================================
+     06. STATUS BADGES
+  ===================================================== */
 
   function badge(value) {
-    const text = String(value || "Unknown");
 
+    const text = String(value || "Unknown");
     const normalized = text.toLowerCase();
 
     const className = [
@@ -150,16 +195,15 @@
         ${escapeHTML(text)}
       </span>
     `;
+
   }
 
-  // =====================================================
-  // DELIVERY STATUS
-  // NEW FUNCTION
-  // =====================================================
+
+  /* =====================================================
+     07. DELIVERY STATUS
+  ===================================================== */
 
   function getDeliveryStatus(order) {
-    const normalize = (value) =>
-      String(value ?? "").trim().toLowerCase();
 
     const status = normalize(order.status);
 
@@ -171,7 +215,7 @@
       order.inventory_preparation
     );
 
-    // CANCELLED ORDER
+    // Cancelled order
 
     if (
       status === "cancelled" ||
@@ -180,7 +224,7 @@
       return "Cancelled";
     }
 
-    // ACTUAL DELIVERY STATUS FROM BACKEND
+    // Actual delivery status from the backend
 
     if (
       delivery &&
@@ -195,8 +239,8 @@
       return delivery;
     }
 
-    // RELEASED OR SHIPPED
-    // WAITING FOR ACTUAL LOGISTICS UPDATE
+    // Released or shipped order
+    // Waiting for actual logistics information
 
     if (
       [
@@ -213,7 +257,7 @@
       return "Awaiting delivery update";
     }
 
-    // INVENTORY PREPARATION COMPLETED
+    // Inventory preparation completed
 
     if (
       order.inventory_prepared_at &&
@@ -222,7 +266,7 @@
       return "Ready for shipment";
     }
 
-    // ORDER HAS NOT BEEN SHIPPED
+    // Order has not been shipped
 
     if (
       [
@@ -237,55 +281,64 @@
     }
 
     return "No delivery update";
+
   }
 
-  // =====================================================
-  // SHIPPING ADDRESS
-  // NEW FUNCTION
-  // =====================================================
+
+  /* =====================================================
+     08. SHIPPING ADDRESS
+  ===================================================== */
 
   function getShippingAddress(order) {
+
     const address = String(
       order.shipping_address ?? ""
     ).trim();
 
     return address || "No shipping address saved";
+
   }
 
-  // =====================================================
-  // NOTIFICATIONS
-  // =====================================================
+
+  /* =====================================================
+     09. NOTIFICATIONS
+  ===================================================== */
 
   function showNotice(
     message,
     error = false,
     detail = false
   ) {
+
     const element = $(
       detail ? "detailNotice" : "notice"
     );
 
     element.textContent = message;
-
     element.classList.toggle("error", error);
-
     element.hidden = !message;
+
   }
 
-  // =====================================================
-  // CASHIER API
-  // =====================================================
+
+  /* =====================================================
+     10. CASHIER API
+  ===================================================== */
 
   async function api(path, options = {}) {
+
     let response;
 
     try {
+
       response = await fetch(`${API_BASE}${path}`, {
+
         ...options,
 
         cache: "no-store",
 
         headers: {
+
           Accept: "application/json",
 
           Authorization: `Bearer ${token}`,
@@ -295,21 +348,27 @@
             : {}),
 
           ...options.headers
+
         }
+
       });
 
     } catch {
+
       throw new Error(
-        "Hindi makakonekta sa server. Tingnan kung running ang backend sa port 5000."
+        "Hindi makakonekta sa server. Check your internet connection and backend."
       );
+
     }
 
     if (response.status === 401) {
+
       signOut();
 
       throw new Error(
         "Expired ang staff session. Mag-login muli."
       );
+
     }
 
     const data = await response.json().catch(
@@ -319,15 +378,19 @@
     if (!response.ok) {
 
       if (response.status === 403) {
+
         throw new Error(
           "Walang cashier permission ang account na ito."
         );
+
       }
 
       if (response.status === 409) {
+
         throw new Error(
           "Nagbago na ang record. Isara at buksan muli ang order bago magpatuloy."
         );
+
       }
 
       throw new Error(
@@ -335,20 +398,25 @@
         data?.error ||
         `Request failed (${response.status}).`
       );
+
     }
 
     if (!data) {
+
       throw new Error(
         "Walang valid JSON response mula sa cashier API."
       );
+
     }
 
     return data;
+
   }
 
-  // =====================================================
-  // PAGINATION
-  // =====================================================
+
+  /* =====================================================
+     11. PAGINATION
+  ===================================================== */
 
   function updatePagination() {
 
@@ -370,11 +438,13 @@
 
     $("refreshButton").disabled =
       state.loading;
+
   }
 
-  // =====================================================
-  // DASHBOARD SUMMARY
-  // =====================================================
+
+  /* =====================================================
+     12. DASHBOARD SUMMARY
+  ===================================================== */
 
   function renderSummary() {
 
@@ -406,6 +476,7 @@
       )
         ? NaN
         : Number(value);
+
     });
 
     $("dueTotal").textContent = amounts.every(
@@ -420,11 +491,13 @@
           )
         )
       : "—";
+
   }
 
-  // =====================================================
-  // RENDER ORDERS AND PAYMENT RECORDS
-  // =====================================================
+
+  /* =====================================================
+     13. RENDER ORDERS AND PAYMENT RECORDS
+  ===================================================== */
 
   function renderRows() {
 
@@ -472,8 +545,8 @@
       `;
 
       renderSummary();
-
       return;
+
     }
 
     $("tableBody").innerHTML =
@@ -490,9 +563,7 @@
                 </strong>
 
                 <small>
-                  ${escapeHTML(
-                    dateTime(row.created_at)
-                  )}
+                  ${escapeHTML(dateTime(row.created_at))}
                 </small>
               </td>
 
@@ -535,15 +606,14 @@
 
             </tr>
           `;
+
         }
 
         return `
           <tr>
 
             <td>
-              ${escapeHTML(
-                dateTime(row.created_at)
-              )}
+              ${escapeHTML(dateTime(row.created_at))}
             </td>
 
             <td>
@@ -576,11 +646,13 @@
       }).join("");
 
     renderSummary();
+
   }
 
-  // =====================================================
-  // LOAD TABLE RECORDS
-  // =====================================================
+
+  /* =====================================================
+     14. LOAD TABLE RECORDS
+  ===================================================== */
 
   async function loadRows() {
 
@@ -605,19 +677,23 @@
     updatePagination();
 
     const parameters = new URLSearchParams({
+
       page: String(state.page),
       limit: String(PAGE_SIZE),
       search: state.query
+
     });
 
     if (
       state.view === "orders" &&
       state.paymentStatus
     ) {
+
       parameters.set(
         "payment_status",
         state.paymentStatus
       );
+
     }
 
     const endpoint =
@@ -647,9 +723,11 @@
         !Number.isInteger(total) ||
         total < 0
       ) {
+
         throw new Error(
           "Hindi tugma ang API response. Kailangan ng records array at total."
         );
+
       }
 
       state.rows = rows;
@@ -680,13 +758,17 @@
         state.loading = false;
 
         updatePagination();
+
       }
+
     }
+
   }
 
-  // =====================================================
-  // ORDER DETAILS FIELD
-  // =====================================================
+
+  /* =====================================================
+     15. ORDER DETAILS FIELD
+  ===================================================== */
 
   function detailField(label, value) {
 
@@ -703,11 +785,179 @@
 
       </div>
     `;
+
   }
 
-  // =====================================================
-  // UPDATE CASHIER ACTION BUTTONS
-  // =====================================================
+
+  /* =====================================================
+     16. WAYBILL ELIGIBILITY
+     NEW FUNCTION
+  ===================================================== */
+
+  function getWaybillEligibility(order) {
+
+    if (!order) {
+
+      return {
+        allowed: false,
+        reason: "Select an order first."
+      };
+
+    }
+
+    const status = normalize(order.status);
+
+    const paymentMethod = normalize(
+      order.payment_method
+    );
+
+    const paymentStatus = normalize(
+      order.payment_status
+    );
+
+    const address = String(
+      order.shipping_address ?? ""
+    ).trim();
+
+    // Cancelled orders are not allowed
+
+    if (["cancelled", "canceled"].includes(status)) {
+
+      return {
+        allowed: false,
+        reason: "Cancelled orders cannot be printed."
+      };
+
+    }
+
+    // Require permission from the backend
+
+    if (order.actions?.can_print_waybill !== true) {
+
+      return {
+        allowed: false,
+
+        reason:
+          order.actions?.waybill_reason ||
+          "Verify the order before printing."
+      };
+
+    }
+
+    // Require shipping address
+
+    if (!address) {
+
+      return {
+        allowed: false,
+        reason: "Shipping address is missing."
+      };
+
+    }
+
+    // Require customer information
+
+    if (
+      !String(order.customer_name ?? "").trim() ||
+      !String(order.customer_phone ?? "").trim()
+    ) {
+
+      return {
+        allowed: false,
+        reason: "Customer information is incomplete."
+      };
+
+    }
+
+    // Require saved order items
+
+    if (
+      !Array.isArray(order.items) ||
+      !order.items.length
+    ) {
+
+      return {
+        allowed: false,
+        reason: "Order items are missing."
+      };
+
+    }
+
+    // Validate supported payment methods
+
+    if (!["cod", "paypal"].includes(paymentMethod)) {
+
+      return {
+        allowed: false,
+        reason: "Unsupported payment method."
+      };
+
+    }
+
+    // PayPal must be paid before printing
+
+    if (
+      paymentMethod === "paypal" &&
+      paymentStatus !== "paid"
+    ) {
+
+      return {
+        allowed: false,
+        reason: "Waiting for successful PayPal payment."
+      };
+
+    }
+
+    // Calculate COD collection amount
+
+    if (
+      paymentMethod === "cod" &&
+      paymentStatus !== "paid"
+    ) {
+
+      if (!["pending", "unpaid"].includes(paymentStatus)) {
+
+        return {
+          allowed: false,
+          reason: "Unknown COD payment status."
+        };
+
+      }
+
+      const rawDue = order.amount_due;
+
+      const amountDue =
+        rawDue === null ||
+        rawDue === undefined ||
+        rawDue === ""
+          ? NaN
+          : Number(rawDue);
+
+      if (
+        !Number.isFinite(amountDue) ||
+        amountDue < 0
+      ) {
+
+        return {
+          allowed: false,
+          reason: "Invalid COD collection amount."
+        };
+
+      }
+
+    }
+
+    return {
+      allowed: true,
+      reason: "Waybill is ready for printing."
+    };
+
+  }
+
+
+  /* =====================================================
+     17. UPDATE CASHIER ACTION BUTTONS
+  ===================================================== */
 
   function updateActionButtons() {
 
@@ -715,13 +965,13 @@
 
     const actions = order?.actions || {};
 
-    // VERIFY ORDER
+    // Verify order
 
     $("verifyOrderButton").disabled =
       state.busy ||
       actions.can_verify_order !== true;
 
-    // PAYMENT VERIFICATION
+    // Payment verification
 
     $("paymentForm").hidden =
       actions.can_verify_payment !== true;
@@ -735,22 +985,48 @@
     $("paymentNote").disabled =
       state.busy;
 
-    // CONFIRM ORDER RELEASE
+    // Confirm order release
 
     $("releaseButton").disabled =
       state.busy ||
       actions.can_release !== true;
 
-    // CLOSE MODAL
+    // Close order details
 
     $("closeDialog").disabled =
       state.busy;
+
+    /* ===============================================
+       PRINT WAYBILL BUTTON
+       NEW FUNCTIONALITY
+    =============================================== */
+
+    const printButton = $("printWaybillBtn");
+
+    if (printButton) {
+
+      const eligibility = getWaybillEligibility(order);
+
+      printButton.disabled =
+        state.busy ||
+        !eligibility.allowed;
+
+      printButton.title =
+        eligibility.reason;
+
+      printButton.setAttribute(
+        "aria-disabled",
+        String(printButton.disabled)
+      );
+
+    }
+
   }
 
-  // =====================================================
-  // RENDER ORDER DETAILS
-  // UPDATED SHIPPING ADDRESS AND DELIVERY STATUS
-  // =====================================================
+
+  /* =====================================================
+     18. RENDER ORDER DETAILS
+  ===================================================== */
 
   function renderOrder() {
 
@@ -906,9 +1182,7 @@
                   <tr>
 
                     <td colspan="5" class="empty">
-
                       No item details available.
-
                     </td>
 
                   </tr>
@@ -982,9 +1256,7 @@
                   <tr>
 
                     <td colspan="4" class="empty">
-
                       No payment records.
-
                     </td>
 
                   </tr>
@@ -1004,11 +1276,22 @@
       <p class="muted">
 
         ${escapeHTML(
-
           order.actions?.release_reason ||
-
           "Release eligibility is determined by the server."
+        )}
 
+      </p>
+
+
+      <!-- PRINT WAYBILL STATUS -->
+
+      <p
+        class="muted"
+        style="margin-top:10px"
+      >
+
+        ${escapeHTML(
+          getWaybillEligibility(order).reason
         )}
 
       </p>
@@ -1016,11 +1299,13 @@
     `;
 
     updateActionButtons();
+
   }
 
-  // =====================================================
-  // VALIDATE ORDER RESPONSE
-  // =====================================================
+
+  /* =====================================================
+     19. VALIDATE ORDER RESPONSE
+  ===================================================== */
 
   function validateOrder(order) {
 
@@ -1029,17 +1314,21 @@
       order.id === undefined ||
       order.revision === undefined
     ) {
+
       throw new Error(
         "Missing order ID or revision in the API response."
       );
+
     }
 
     return order;
+
   }
 
-  // =====================================================
-  // OPEN ORDER DETAILS
-  // =====================================================
+
+  /* =====================================================
+     20. OPEN ORDER DETAILS
+  ===================================================== */
 
   async function openOrder(id) {
 
@@ -1064,6 +1353,7 @@
     if (!$("orderDialog").open) {
 
       $("orderDialog").showModal();
+
     }
 
     try {
@@ -1090,13 +1380,16 @@
         "Unable to load this order.";
 
       showNotice(error.message, true, true);
+
     }
+
   }
 
-  // =====================================================
-  // REQUEST KEY
-  // IDEMPOTENCY PROTECTION
-  // =====================================================
+
+  /* =====================================================
+     21. REQUEST KEY
+     IDEMPOTENCY PROTECTION
+  ===================================================== */
 
   function createRequestKey() {
 
@@ -1108,12 +1401,14 @@
       bytes,
       (byte) => byte.toString(16).padStart(2, "0")
     ).join("");
+
   }
 
-  // =====================================================
-  // CASHIER TRANSACTIONS
-  // VERIFY ORDER / VERIFY PAYMENT / RELEASE
-  // =====================================================
+
+  /* =====================================================
+     22. CASHIER TRANSACTIONS
+     VERIFY ORDER / VERIFY PAYMENT / RELEASE
+  ===================================================== */
 
   async function performAction(
     action,
@@ -1153,6 +1448,7 @@
       );
 
       return;
+
     }
 
     const payload = {
@@ -1172,6 +1468,7 @@
         operation,
         createRequestKey()
       );
+
     }
 
     state.busy = true;
@@ -1191,6 +1488,7 @@
         `/orders/${encodeURIComponent(order.id)}/${action}`,
 
         {
+
           method: "POST",
 
           headers: {
@@ -1201,7 +1499,9 @@
           },
 
           body: JSON.stringify(payload)
+
         }
+
       );
 
       state.selected = validateOrder(data.order);
@@ -1229,6 +1529,7 @@
         true,
 
         true
+
       );
 
     } finally {
@@ -1236,12 +1537,1093 @@
       state.busy = false;
 
       updateActionButtons();
+
     }
+
   }
 
-  // =====================================================
-  // CLOSE ORDER DETAILS
-  // =====================================================
+
+  /* =====================================================
+     23. PRINT WAYBILL
+     COMPLETE SHIPPING LABEL GENERATOR
+  ===================================================== */
+
+  async function printWaybill() {
+
+    if (
+      state.busy ||
+      !state.selected
+    ) {
+      return;
+    }
+
+    const selectedOrder = state.selected;
+
+    const initialEligibility =
+      getWaybillEligibility(selectedOrder);
+
+    if (!initialEligibility.allowed) {
+
+      showNotice(
+        initialEligibility.reason,
+        true,
+        true
+      );
+
+      return;
+
+    }
+
+
+    /* ===============================================
+       OPEN PRINT PREVIEW WINDOW
+    =============================================== */
+
+    const printWindow = window.open(
+
+      "",
+
+      "_blank",
+
+      "width=650,height=850"
+
+    );
+
+    if (!printWindow) {
+
+      showNotice(
+        "Please allow pop-ups to print the waybill.",
+        true,
+        true
+      );
+
+      return;
+
+    }
+
+    printWindow.opener = null;
+
+    state.busy = true;
+
+    updateActionButtons();
+
+    showNotice(
+      "Preparing waybill…",
+      false,
+      true
+    );
+
+    try {
+
+      printWindow.document.open();
+
+      printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html lang="en">
+
+        <head>
+
+          <meta charset="UTF-8">
+
+          <title>Preparing Waybill</title>
+
+        </head>
+
+        <body style="
+          font-family:Arial,sans-serif;
+          padding:30px;
+          text-align:center;
+        ">
+
+          Preparing shipping waybill…
+
+        </body>
+
+        </html>
+
+      `);
+
+      printWindow.document.close();
+
+
+      /* =============================================
+         REFRESH ORDER BEFORE PRINTING
+
+         Prevent printing outdated order details.
+      ============================================= */
+
+      const data = await api(
+        `/orders/${encodeURIComponent(selectedOrder.id)}`
+      );
+
+      const order = validateOrder(data.order);
+
+      state.selected = order;
+
+      renderOrder();
+
+      const eligibility =
+        getWaybillEligibility(order);
+
+      if (!eligibility.allowed) {
+
+        throw new Error(eligibility.reason);
+
+      }
+
+      if (printWindow.closed) {
+
+        throw new Error(
+          "The print preview was closed."
+        );
+
+      }
+
+
+      /* =============================================
+         ORDER INFORMATION
+      ============================================= */
+
+      const orderNumber =
+        order.waybill_order_number ||
+        order.order_number ||
+        order.id;
+
+      const address = String(
+        order.shipping_address ?? ""
+      ).trim();
+
+      const paymentMethod = String(
+        order.payment_method || "Unknown"
+      );
+
+      const paymentStatus = String(
+        order.payment_status || "Unknown"
+      );
+
+      const isCOD =
+        normalize(paymentMethod) === "cod";
+
+      const isPaid =
+        normalize(paymentStatus) === "paid";
+
+      const amountToCollect =
+        isCOD && !isPaid
+          ? Number(order.amount_due)
+          : 0;
+
+      const items = order.items;
+
+      const quantities = items.map(
+        (item) => Number(item.quantity)
+      );
+
+      const totalQuantity = quantities.every(
+        (quantity) =>
+          Number.isSafeInteger(quantity) &&
+          quantity > 0
+      )
+        ? quantities.reduce(
+            (sum, quantity) => sum + quantity,
+            0
+          )
+        : "—";
+
+
+      /* =============================================
+         PARCEL ITEMS
+      ============================================= */
+
+      const itemHTML = items.map((item) => `
+
+        <div class="parcel-item">
+
+          <strong>
+
+            ${escapeHTML(item.quantity ?? "—")} ×
+
+            ${escapeHTML(
+              item.title || "Unnamed item"
+            )}
+
+          </strong>
+
+          <div class="small">
+
+            Size: ${escapeHTML(item.size || "—")}
+
+            |
+
+            Color: ${escapeHTML(item.color || "—")}
+
+          </div>
+
+        </div>
+
+      `).join("");
+
+
+      /* =============================================
+         GENERATE WAYBILL HTML
+      ============================================= */
+
+      printWindow.document.open();
+
+      printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html lang="en">
+
+        <head>
+
+          <meta charset="UTF-8">
+
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          >
+
+          <title>
+            Waybill - ${escapeHTML(orderNumber)}
+          </title>
+
+          <style>
+
+            /* =====================================
+               PAGE SIZE - 4 x 6 INCHES
+            ===================================== */
+
+            @page {
+
+              size: 4in 6in;
+              margin: 4mm;
+
+            }
+
+            * {
+              box-sizing: border-box;
+            }
+
+            html,
+            body {
+
+              margin: 0;
+              padding: 0;
+
+              background: #ffffff;
+              color: #000000;
+
+              font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+              font-size: 11px;
+
+            }
+
+            body {
+
+              padding: 18px 12px;
+
+              background: #eeeeee;
+
+            }
+
+
+            /* =====================================
+               MAIN WAYBILL
+            ===================================== */
+
+            .waybill {
+
+              width: 100%;
+              max-width: 93mm;
+
+              margin: 0 auto;
+
+              background: #ffffff;
+
+              border: 2px solid #000000;
+
+            }
+
+
+            /* =====================================
+               WAYBILL HEADER
+            ===================================== */
+
+            .waybill-header {
+
+              display: flex;
+
+              align-items: center;
+              justify-content: space-between;
+
+              gap: 8px;
+
+              padding: 10px;
+
+              border-bottom: 2px solid #000000;
+
+            }
+
+            .brand {
+
+              display: flex;
+
+              align-items: center;
+
+              gap: 7px;
+
+              min-width: 0;
+
+            }
+
+            .logo {
+
+              display: flex;
+
+              align-items: center;
+              justify-content: center;
+
+              flex-shrink: 0;
+
+              width: 36px;
+              height: 36px;
+
+              border: 2px solid #000000;
+              border-radius: 50%;
+
+              font-size: 12px;
+              font-weight: 900;
+
+            }
+
+            .brand-name {
+
+              font-size: 12px;
+              font-weight: 900;
+
+            }
+
+            .brand-subtitle {
+
+              margin-top: 3px;
+
+              font-size: 8px;
+              letter-spacing: 0.5px;
+
+            }
+
+            .payment-type {
+
+              font-size: 19px;
+              font-weight: 900;
+
+              text-transform: uppercase;
+
+            }
+
+
+            /* =====================================
+               WAYBILL TITLE
+            ===================================== */
+
+            .waybill-title {
+
+              padding: 8px;
+
+              text-align: center;
+
+              font-size: 15px;
+              font-weight: 900;
+
+              border-bottom: 1px solid #000000;
+
+            }
+
+
+            /* =====================================
+               INFORMATION SECTIONS
+            ===================================== */
+
+            .section {
+
+              padding: 8px 10px;
+
+              border-bottom: 1px solid #000000;
+
+              overflow-wrap: anywhere;
+
+            }
+
+            .label {
+
+              margin-bottom: 5px;
+
+              font-size: 9px;
+              font-weight: 900;
+
+              letter-spacing: 0.6px;
+
+              text-transform: uppercase;
+
+            }
+
+            .order-number {
+
+              font-size: 14px;
+              font-weight: 900;
+
+              text-align: center;
+
+              overflow-wrap: anywhere;
+
+            }
+
+            .order-date {
+
+              margin-top: 5px;
+
+              text-align: center;
+
+              font-size: 9px;
+
+            }
+
+
+            /* =====================================
+               RECIPIENT INFORMATION
+            ===================================== */
+
+            .recipient-name {
+
+              margin-bottom: 5px;
+
+              font-size: 16px;
+              font-weight: 900;
+
+            }
+
+            .phone {
+
+              margin-bottom: 5px;
+
+              font-size: 12px;
+              font-weight: 700;
+
+            }
+
+            .address {
+
+              font-size: 12px;
+
+              line-height: 1.45;
+
+              white-space: pre-wrap;
+
+              overflow-wrap: anywhere;
+
+            }
+
+
+            /* =====================================
+               PAYMENT INFORMATION
+            ===================================== */
+
+            .payment-grid {
+
+              display: grid;
+
+              grid-template-columns: 1fr 1fr;
+
+              border-bottom: 2px solid #000000;
+
+            }
+
+            .payment-cell {
+
+              min-width: 0;
+
+              padding: 9px;
+
+              overflow-wrap: anywhere;
+
+            }
+
+            .payment-cell:first-child {
+
+              border-right: 1px solid #000000;
+
+            }
+
+            .payment-value {
+
+              font-size: 15px;
+              font-weight: 900;
+
+            }
+
+            .cod-amount {
+
+              font-size: 22px;
+              font-weight: 900;
+
+            }
+
+
+            /* =====================================
+               PARCEL DETAILS
+            ===================================== */
+
+            .parcel-item {
+
+              padding: 5px 0;
+
+              line-height: 1.4;
+
+              overflow-wrap: anywhere;
+
+            }
+
+            .parcel-item + .parcel-item {
+
+              border-top: 1px dashed #999999;
+
+            }
+
+            .small {
+
+              font-size: 10px;
+
+              line-height: 1.5;
+
+            }
+
+            .total-quantity {
+
+              margin-top: 5px;
+
+              font-weight: 700;
+
+            }
+
+
+            /* =====================================
+               TRACKING INFORMATION
+            ===================================== */
+
+            .tracking-number {
+
+              font-size: 13px;
+              font-weight: 800;
+
+              overflow-wrap: anywhere;
+
+            }
+
+
+            /* =====================================
+               WAYBILL FOOTER
+            ===================================== */
+
+            .waybill-footer {
+
+              padding: 8px;
+
+              background: #000000;
+              color: #ffffff;
+
+              text-align: center;
+
+              font-size: 11px;
+              font-weight: 900;
+
+              letter-spacing: 1px;
+
+            }
+
+
+            /* =====================================
+               PRINT PREVIEW ACTIONS
+            ===================================== */
+
+            .print-controls {
+
+              display: flex;
+
+              justify-content: center;
+
+              gap: 10px;
+
+              max-width: 93mm;
+
+              margin: 16px auto;
+
+            }
+
+            .print-controls button {
+
+              flex: 1;
+
+              padding: 12px 14px;
+
+              border: 1px solid #000000;
+
+              border-radius: 6px;
+
+              background: #111111;
+              color: #ffffff;
+
+              font-family: inherit;
+
+              font-size: 12px;
+              font-weight: 700;
+
+              cursor: pointer;
+
+            }
+
+            .print-controls button:hover {
+
+              background: #333333;
+
+            }
+
+            .print-controls .close-button {
+
+              background: #ffffff;
+              color: #111111;
+
+            }
+
+            .print-controls .close-button:hover {
+
+              background: #dddddd;
+
+            }
+
+            .print-description {
+
+              max-width: 93mm;
+
+              margin: 0 auto 15px;
+
+              text-align: center;
+
+              color: #555555;
+
+              font-size: 11px;
+
+              line-height: 1.5;
+
+            }
+
+
+            /* =====================================
+               ACTUAL PRINT SETTINGS
+            ===================================== */
+
+            @media print {
+
+              html,
+              body {
+
+                margin: 0;
+                padding: 0;
+
+                background: #ffffff;
+                color: #000000;
+
+              }
+
+              .print-controls,
+              .print-description {
+
+                display: none !important;
+
+              }
+
+              .waybill {
+
+                width: 100%;
+
+                max-width: none;
+
+                margin: 0;
+
+                box-shadow: none;
+
+              }
+
+              .waybill-header,
+              .payment-grid,
+              .parcel-item,
+              .recipient-section {
+
+                break-inside: avoid;
+
+              }
+
+              .waybill-footer {
+
+                background: #000000 !important;
+                color: #ffffff !important;
+
+                print-color-adjust: exact;
+
+                -webkit-print-color-adjust: exact;
+
+              }
+
+            }
+
+          </style>
+
+        </head>
+
+
+        <body>
+
+          <div class="waybill">
+
+
+            <!-- WAYBILL HEADER -->
+
+            <header class="waybill-header">
+
+              <div class="brand">
+
+                <div class="logo">
+                  JCN
+                </div>
+
+                <div>
+
+                  <div class="brand-name">
+                    JCN APPAREL
+                  </div>
+
+                  <div class="brand-subtitle">
+                    PRINTING SERVICES
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="payment-type">
+
+                ${escapeHTML(paymentMethod)}
+
+              </div>
+
+            </header>
+
+
+            <!-- WAYBILL TITLE -->
+
+            <div class="waybill-title">
+
+              SHIPPING WAYBILL
+
+            </div>
+
+
+            <!-- ORDER NUMBER -->
+
+            <section class="section">
+
+              <div class="label">
+                Order Number
+              </div>
+
+              <div class="order-number">
+
+                ${escapeHTML(orderNumber)}
+
+              </div>
+
+              <div class="order-date">
+
+                ${escapeHTML(
+                  dateTime(order.created_at)
+                )}
+
+              </div>
+
+            </section>
+
+
+            <!-- SENDER -->
+
+            <section class="section">
+
+              <div class="label">
+                Sender
+              </div>
+
+              <strong>
+                JCN Apparel Printing Services
+              </strong>
+
+            </section>
+
+
+            <!-- RECIPIENT -->
+
+            <section class="section recipient-section">
+
+              <div class="label">
+                Recipient
+              </div>
+
+              <div class="recipient-name">
+
+                ${escapeHTML(order.customer_name)}
+
+              </div>
+
+              <div class="phone">
+
+                ${escapeHTML(order.customer_phone)}
+
+              </div>
+
+              <div class="address">${escapeHTML(address)}</div>
+
+            </section>
+
+
+            <!-- PAYMENT INFORMATION -->
+
+            <div class="payment-grid">
+
+              <div class="payment-cell">
+
+                <div class="label">
+                  Payment Method
+                </div>
+
+                <div class="payment-value">
+
+                  ${escapeHTML(paymentMethod)}
+
+                </div>
+
+                <div class="small">
+
+                  ${escapeHTML(paymentStatus)}
+
+                </div>
+
+              </div>
+
+              <div class="payment-cell">
+
+                <div class="label">
+                  Amount to Collect
+                </div>
+
+                <div class="cod-amount">
+
+                  ${escapeHTML(
+                    money(amountToCollect)
+                  )}
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- PARCEL CONTENTS -->
+
+            <section class="section">
+
+              <div class="label">
+                Parcel Contents
+              </div>
+
+              ${itemHTML}
+
+              <div class="small total-quantity">
+
+                Total quantity:
+
+                ${escapeHTML(totalQuantity)}
+
+              </div>
+
+            </section>
+
+
+            <!-- TRACKING INFORMATION -->
+
+            <section class="section">
+
+              <div class="label">
+                Tracking Number
+              </div>
+
+              <div class="tracking-number">
+
+                ${escapeHTML(
+                  order.tracking_number ||
+                  "Not yet assigned"
+                )}
+
+              </div>
+
+              <div class="small">
+
+                Internal JCN Shipping Label
+
+              </div>
+
+            </section>
+
+
+            <!-- FOOTER -->
+
+            <footer class="waybill-footer">
+
+              HANDLE WITH CARE
+
+            </footer>
+
+          </div>
+
+
+          <!-- PRINT PREVIEW CONTROLS -->
+
+          <div class="print-controls">
+
+            <button
+              id="printLabelButton"
+              type="button"
+            >
+
+              Print Waybill
+
+            </button>
+
+            <button
+              id="closeLabelButton"
+              type="button"
+              class="close-button"
+            >
+
+              Close
+
+            </button>
+
+          </div>
+
+
+          <p class="print-description">
+
+            Recommended paper size: 4 × 6 inches.
+
+            You can also choose Save as PDF from
+            the browser print dialog.
+
+          </p>
+
+        </body>
+
+        </html>
+
+      `);
+
+      printWindow.document.close();
+
+
+      /* =============================================
+         PRINT BUTTON
+      ============================================= */
+
+      const printLabelButton =
+        printWindow.document.getElementById(
+          "printLabelButton"
+        );
+
+      printLabelButton.addEventListener(
+        "click",
+        () => {
+
+          printWindow.focus();
+
+          printWindow.print();
+
+        }
+      );
+
+
+      /* =============================================
+         CLOSE PRINT PREVIEW
+      ============================================= */
+
+      const closeLabelButton =
+        printWindow.document.getElementById(
+          "closeLabelButton"
+        );
+
+      closeLabelButton.addEventListener(
+        "click",
+        () => {
+
+          printWindow.close();
+
+        }
+      );
+
+      printWindow.focus();
+
+      showNotice(
+        "Waybill preview is ready.",
+        false,
+        true
+      );
+
+    } catch (error) {
+
+      if (!printWindow.closed) {
+
+        printWindow.close();
+
+      }
+
+      showNotice(
+
+        error.message ||
+        "Unable to generate the shipping waybill.",
+
+        true,
+
+        true
+
+      );
+
+    } finally {
+
+      state.busy = false;
+
+      updateActionButtons();
+
+    }
+
+  }
+
+
+  /* =====================================================
+     24. CLOSE ORDER DETAILS
+  ===================================================== */
 
   function closeOrder() {
 
@@ -1251,16 +2633,23 @@
 
     state.selected = null;
 
+    updateActionButtons();
+
     $("orderDialog").close();
+
   }
 
-  // =====================================================
-  // BIND DASHBOARD EVENTS
-  // =====================================================
+
+  /* =====================================================
+     25. BIND DASHBOARD EVENTS
+  ===================================================== */
 
   function bindEvents() {
 
-    // SIDEBAR NAVIGATION
+
+    /* ===============================================
+       SIDEBAR NAVIGATION
+    =============================================== */
 
     document.querySelectorAll("[data-view]")
       .forEach((button) => {
@@ -1301,7 +2690,9 @@
       });
 
 
-    // SEARCH AND PAYMENT FILTER
+    /* ===============================================
+       SEARCH AND PAYMENT FILTER
+    =============================================== */
 
     $("filterForm").addEventListener(
       "submit",
@@ -1323,7 +2714,9 @@
     );
 
 
-    // REFRESH BUTTON
+    /* ===============================================
+       REFRESH BUTTON
+    =============================================== */
 
     $("refreshButton").addEventListener(
       "click",
@@ -1331,7 +2724,9 @@
     );
 
 
-    // PREVIOUS PAGE
+    /* ===============================================
+       PREVIOUS PAGE
+    =============================================== */
 
     $("previousButton").addEventListener(
       "click",
@@ -1352,7 +2747,9 @@
     );
 
 
-    // NEXT PAGE
+    /* ===============================================
+       NEXT PAGE
+    =============================================== */
 
     $("nextButton").addEventListener(
       "click",
@@ -1373,7 +2770,9 @@
     );
 
 
-    // REVIEW ORDER BUTTON
+    /* ===============================================
+       REVIEW ORDER BUTTON
+    =============================================== */
 
     $("tableBody").addEventListener(
       "click",
@@ -1404,13 +2803,14 @@
     );
 
 
-    // CLOSE ORDER DETAILS
+    /* ===============================================
+       CLOSE ORDER DETAILS
+    =============================================== */
 
     $("closeDialog").addEventListener(
       "click",
       closeOrder
     );
-
 
     $("orderDialog").addEventListener(
       "cancel",
@@ -1424,10 +2824,10 @@
     );
 
 
-    // ===================================================
-    // VERIFY ORDER
-    // EXISTING FUNCTIONALITY PRESERVED
-    // ===================================================
+    /* ===============================================
+       VERIFY ORDER
+       EXISTING FUNCTIONALITY PRESERVED
+    =============================================== */
 
     $("verifyOrderButton").addEventListener(
       "click",
@@ -1456,9 +2856,9 @@
     );
 
 
-    // ===================================================
-    // VERIFY PAYMENT
-    // ===================================================
+    /* ===============================================
+       VERIFY PAYMENT
+    =============================================== */
 
     $("paymentForm").addEventListener(
       "submit",
@@ -1483,6 +2883,7 @@
           $("paymentReference").focus();
 
           return;
+
         }
 
         if (
@@ -1492,11 +2893,14 @@
         ) {
 
           performAction(
+
             "verify-payment",
+
             {
               reference,
               notes
             }
+
           );
 
         }
@@ -1505,10 +2909,31 @@
     );
 
 
-    // ===================================================
-    // CONFIRM ORDER RELEASE
-    // EXISTING FUNCTIONALITY PRESERVED
-    // ===================================================
+    /* ===============================================
+       PRINT WAYBILL BUTTON
+       NEW EVENT
+    =============================================== */
+
+    const printWaybillButton =
+      $("printWaybillBtn");
+
+    if (printWaybillButton) {
+
+      printWaybillButton.addEventListener(
+
+        "click",
+
+        printWaybill
+
+      );
+
+    }
+
+
+    /* ===============================================
+       CONFIRM ORDER RELEASE
+       EXISTING FUNCTIONALITY PRESERVED
+    =============================================== */
 
     $("releaseButton").addEventListener(
       "click",
@@ -1523,7 +2948,9 @@
 
         if (
           confirm(
+
             `Confirm actual release ng ${state.selected.order_number}?`
+
           )
         ) {
 
@@ -1535,10 +2962,10 @@
     );
 
 
-    // ===================================================
-    // CASHIER LOGOUT CONFIRMATION
-    // SAME DESIGN AS ADMIN
-    // ===================================================
+    /* ===============================================
+       CASHIER LOGOUT CONFIRMATION
+       SAME DESIGN AS ADMIN
+    =============================================== */
 
     const cashierLogoutModal =
       document.getElementById(
@@ -1556,7 +2983,9 @@
       );
 
 
-    // OPEN LOGOUT MODAL
+    /* ===============================================
+       OPEN LOGOUT MODAL
+    =============================================== */
 
     $("logoutButton").addEventListener(
       "click",
@@ -1572,7 +3001,9 @@
     );
 
 
-    // CANCEL LOGOUT
+    /* ===============================================
+       CANCEL LOGOUT
+    =============================================== */
 
     cancelCashierLogout.addEventListener(
       "click",
@@ -1584,7 +3015,9 @@
     );
 
 
-    // CONFIRM LOGOUT
+    /* ===============================================
+       CONFIRM LOGOUT
+    =============================================== */
 
     confirmCashierLogout.addEventListener(
       "click",
@@ -1600,7 +3033,9 @@
     );
 
 
-    // CLOSE WHEN CLICKING OUTSIDE
+    /* ===============================================
+       CLOSE WHEN CLICKING OUTSIDE
+    =============================================== */
 
     cashierLogoutModal.addEventListener(
       "click",
@@ -1618,7 +3053,9 @@
     );
 
 
-    // CLOSE USING ESC KEY
+    /* ===============================================
+       CLOSE USING ESC KEY
+    =============================================== */
 
     document.addEventListener(
       "keydown",
@@ -1637,7 +3074,9 @@
     );
 
 
-    // SESSION STORAGE CHANGE
+    /* ===============================================
+       SESSION STORAGE CHANGE
+    =============================================== */
 
     window.addEventListener(
       "storage",
@@ -1658,9 +3097,10 @@
 
   }
 
-  // =====================================================
-  // INITIALIZE CASHIER DASHBOARD
-  // =====================================================
+
+  /* =====================================================
+     26. INITIALIZE CASHIER DASHBOARD
+  ===================================================== */
 
   function init() {
 
@@ -1678,7 +3118,10 @@
 
     bindEvents();
 
+    updateActionButtons();
+
     loadRows();
+
   }
 
   init();
