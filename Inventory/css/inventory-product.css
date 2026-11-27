@@ -1006,3 +1006,37 @@
   }
 
 }
+
+/* INVENTORY MENU LOGOUT BUTTON */
+
+.inventory-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  width: 100%;
+  height: 40px;
+  margin-top: 12px;
+  padding: 10px 15px;
+
+  background: linear-gradient(135deg, #f4c542, #d8a719);
+  border: none;
+  border-radius: 8px;
+
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.inventory-logout-btn i {
+  color: #000;
+}
+
+.inventory-logout-btn:hover {
+  background: #ffd34e;
+  color: #000;
+}
