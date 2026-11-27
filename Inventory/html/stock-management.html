@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -9,104 +12,244 @@
 
   <title>JCN | Stock Management</title>
 
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+
+  <!-- STOCK MANAGEMENT CSS -->
+
   <link
     rel="stylesheet"
     href="../css/stock-management.css"
   >
 
+  <!-- STOCK MANAGEMENT JS -->
+
   <script
     defer
     src="../js/stock-management.js"
   ></script>
+
 </head>
 
 <body data-page="stock-management">
+
   <div class="container">
 
-    <header class="topbar">
-      <a href="inventory-product.html" class="brand">
-        <span aria-hidden="true">▣</span>
-        JCN Inventory
-      </a>
 
-      <nav aria-label="Main navigation">
-        <a href="inventory-product.html">
-          Products
-        </a>
+    <!-- ==================================================
+         PAGE HEADER
+    =================================================== -->
 
-        <a
-          href="stock-management.html"
-          class="active"
-          aria-current="page"
-        >
-          Stock
-        </a>
+    <header class="page-header topbar">
 
-        <a href="order-preparation.html">
-          Orders
-        </a>
+      <div class="page-header-info">
 
-        <a href="stock-history.html">
-          History
-        </a>
-      </nav>
+        <p class="page-label">
+          JCN APPAREL PRINTING SERVICES
+        </p>
 
-      <span class="staff staff-badge">
-        Inventory Staff
-      </span>
+        <h1>
+          Stock Management
+        </h1>
+
+        <p>
+          Monitor available apparel and record stock adjustments.
+        </p>
+
+      </div>
+
+
+      <!-- INVENTORY STAFF INFORMATION -->
+
+      <div class="inventory-role">
+
+        <i class="fa-solid fa-user-check"></i>
+
+        <div class="inventory-staff-details">
+
+          <span
+            id="inventoryStaffName"
+            class="staff"
+          >
+            Inventory Staff
+          </span>
+
+          <small>
+            Inventory Staff
+          </small>
+
+        </div>
+
+      </div>
+
     </header>
 
-    <section class="page-heading">
-      <small>INVENTORY MANAGEMENT</small>
 
-      <h1>Stock Management</h1>
 
-      <p>
-        Monitor available apparel and record stock adjustments.
-      </p>
-    </section>
+    <!-- ==================================================
+         MAIN INVENTORY LAYOUT
+    =================================================== -->
 
     <div class="layout">
+
+
+      <!-- =================================================
+           INVENTORY SIDEBAR
+      ================================================== -->
+
       <aside class="panel sidebar">
-        <h2>Inventory Menu</h2>
+
+
+        <!-- INVENTORY MENU TITLE -->
+
+        <h2 class="inventory-menu-title">
+
+          <i class="fa-solid fa-bars"></i>
+
+          Inventory Menu
+
+        </h2>
+
+
+        <!-- INVENTORY MENU LINKS -->
 
         <nav aria-label="Inventory menu">
-          <a href="inventory-product.html">
-            Manage Products
+
+
+          <!-- MANAGE PRODUCTS -->
+
+          <a href="./inventory-product.html">
+
+            <i class="fa-solid fa-shirt"></i>
+
+            <span>
+              Manage Products
+            </span>
+
           </a>
 
+
+          <!-- STOCK MANAGEMENT -->
+
           <a
-            href="stock-management.html"
+            href="./stock-management.html"
             class="active"
             aria-current="page"
           >
-            Stock Management
+
+            <i class="fa-solid fa-boxes-stacked"></i>
+
+            <span>
+              Stock Management
+            </span>
+
           </a>
 
-          <a href="order-preparation.html">
-            Order Preparation
+
+          <!-- ORDER PREPARATION -->
+
+          <a href="./order-preparation.html">
+
+            <i class="fa-solid fa-box-open"></i>
+
+            <span>
+              Order Preparation
+            </span>
+
           </a>
 
-          <a href="stock-history.html">
-            Stock History
+
+          <!-- STOCK HISTORY -->
+
+          <a href="./stock-history.html">
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            <span>
+              Stock History
+            </span>
+
           </a>
+
         </nav>
+
+
+        <!-- =============================================
+             LOGOUT BUTTON
+             BELOW STOCK HISTORY
+        ============================================== -->
+
+        <button
+          type="button"
+          id="inventoryLogoutBtn"
+          class="inventory-logout-btn"
+        >
+
+          <i class="fa-solid fa-right-from-bracket"></i>
+
+          <span>
+            Logout
+          </span>
+
+        </button>
+
       </aside>
 
-      <!-- Live content is loaded by stock-management.js -->
-      <main id="main" aria-label="Stock management">
+
+
+      <!-- =================================================
+           MAIN STOCK MANAGEMENT CONTENT
+
+           Content is automatically generated
+           by stock-management.js
+      ================================================== -->
+
+      <main
+        id="main"
+        class="inventory-content"
+        aria-label="Stock management"
+      >
+
         <section class="panel">
-          <p role="status">Loading inventory…</p>
+
+          <p role="status">
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            Loading inventory...
+
+          </p>
+
         </section>
+
       </main>
+
     </div>
+
   </div>
 
-  <!-- The adjustment form is generated by JavaScript -->
+
+
+  <!-- ======================================================
+       STOCK ADJUSTMENT DIALOG
+
+       Form is generated by stock-management.js
+  ======================================================= -->
+
   <dialog
     id="modal"
     aria-label="Adjust stock"
   ></dialog>
+
+
+
+  <!-- ======================================================
+       INVENTORY NOTIFICATION
+  ======================================================= -->
 
   <div
     id="notification"
@@ -115,8 +258,109 @@
     aria-atomic="true"
   ></div>
 
+
+
+  <!-- ======================================================
+       INVENTORY LOGOUT CONFIRMATION
+
+       SAME DESIGN AS ADMIN AND INVENTORY PRODUCTS
+  ======================================================= -->
+
+  <div
+    id="inventoryLogoutModal"
+    class="hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="inventoryLogoutTitle"
+    aria-describedby="inventoryLogoutDescription"
+  >
+
+
+    <!-- BLURRED BACKGROUND -->
+
+    <div class="logout-backdrop"></div>
+
+
+    <!-- LOGOUT CONFIRMATION PANEL -->
+
+    <div class="logout-box">
+
+
+      <!-- LOGOUT ICON -->
+
+      <div class="logout-icon">
+
+        <i class="fa-solid fa-right-from-bracket"></i>
+
+      </div>
+
+
+      <!-- LOGOUT TITLE -->
+
+      <h4 id="inventoryLogoutTitle">
+
+        Logout Confirmation
+
+      </h4>
+
+
+      <!-- LOGOUT DESCRIPTION -->
+
+      <p id="inventoryLogoutDescription">
+
+        Are you sure you want to end your current session?
+
+      </p>
+
+
+      <!-- LOGOUT ACTION BUTTONS -->
+
+      <div class="logout-actions">
+
+
+        <!-- CONFIRM LOGOUT -->
+
+        <button
+          type="button"
+          id="inventoryConfirmLogout"
+        >
+
+          Yes, Logout
+
+        </button>
+
+
+        <!-- CANCEL LOGOUT -->
+
+        <button
+          type="button"
+          id="inventoryCancelLogout"
+        >
+
+          Cancel
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ======================================================
+       JAVASCRIPT REQUIRED
+  ======================================================= -->
+
   <noscript>
-    <p>Please enable JavaScript to use Stock Management.</p>
+
+    <p>
+      Please enable JavaScript to use Stock Management.
+    </p>
+
   </noscript>
+
 </body>
+
 </html>
