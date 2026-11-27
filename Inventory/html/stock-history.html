@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
 
@@ -10,145 +11,362 @@
 
   <title>JCN | Stock History</title>
 
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+
+  <!-- STOCK HISTORY CSS -->
+
   <link
     rel="stylesheet"
     href="../css/stock-history.css"
   >
 
+  <!-- STOCK HISTORY JAVASCRIPT -->
+
   <script
     defer
     src="../js/stock-history.js"
   ></script>
+
 </head>
 
 <body data-page="stock-history">
+
   <div class="container shell">
 
-    <!-- TOP NAVIGATION -->
-    <header class="topbar">
-      <a
-        href="inventory-product.html"
-        class="brand"
-      >
-        <span aria-hidden="true">▣</span>
-        JCN Inventory
-      </a>
+    <!-- ==========================================
+         PAGE HEADER
+    =========================================== -->
 
-      <nav aria-label="Main navigation">
-        <a href="inventory-product.html">
-          Products
-        </a>
+    <header class="page-header topbar"
+            aria-labelledby="page-title">
 
-        <a href="stock-management.html">
-          Stock
-        </a>
+      <div class="page-header-info">
 
-        <a href="order-preparation.html">
-          Orders
-        </a>
+        <p class="page-label">
+          JCN APPAREL PRINTING SERVICES
+        </p>
 
-        <a
-          href="stock-history.html"
-          class="active"
-          aria-current="page"
-        >
-          History
-        </a>
-      </nav>
+        <h1 id="page-title">
+          Stock History
+        </h1>
 
-      <span
-        id="inventoryStaffName"
-        class="staff-badge staff"
-      >
-        Inventory Staff
-      </span>
+        <p>
+          Review recorded stock additions, deductions,
+          and physical count adjustments.
+        </p>
+
+      </div>
+
+
+      <!-- INVENTORY STAFF INFORMATION -->
+
+      <div class="inventory-role">
+
+        <i class="fa-solid fa-user-check"></i>
+
+        <div class="inventory-staff-details">
+
+          <span
+            id="inventoryStaffName"
+            class="staff staff-badge"
+          >
+            Inventory Staff
+          </span>
+
+          <small>
+            Inventory Staff
+          </small>
+
+        </div>
+
+      </div>
+
     </header>
 
-    <!-- PAGE HEADING -->
-    <section
-      class="page-heading heading"
-      aria-labelledby="page-title"
-    >
-      <small>INVENTORY MANAGEMENT</small>
 
-      <h1 id="page-title">
-        Stock History
-      </h1>
+    <!-- ==========================================
+         MAIN INVENTORY LAYOUT
+    =========================================== -->
 
-      <p>
-        Review recorded stock additions, deductions,
-        and physical count adjustments.
-      </p>
-    </section>
-
-    <!-- PAGE LAYOUT -->
     <div class="layout">
 
-      <!-- INVENTORY MENU -->
+
+      <!-- ========================================
+           INVENTORY SIDEBAR
+      ========================================= -->
+
       <aside
         class="panel sidebar"
         aria-labelledby="inventory-menu-title"
       >
-        <h2 id="inventory-menu-title">
-          <span aria-hidden="true">▣</span>
+
+        <!-- INVENTORY MENU TITLE -->
+
+        <h2
+          id="inventory-menu-title"
+          class="inventory-menu-title"
+        >
+
+          <i class="fa-solid fa-bars"></i>
+
           Inventory Menu
+
         </h2>
 
+
+        <!-- INVENTORY MENU LINKS -->
+
         <nav aria-label="Inventory menu">
-          <a href="inventory-product.html">
-            Manage Products
+
+
+          <!-- MANAGE PRODUCTS -->
+
+          <a href="./inventory-product.html">
+
+            <i class="fa-solid fa-shirt"></i>
+
+            <span>
+              Manage Products
+            </span>
+
           </a>
 
-          <a href="stock-management.html">
-            Stock Management
+
+          <!-- STOCK MANAGEMENT -->
+
+          <a href="./stock-management.html">
+
+            <i class="fa-solid fa-boxes-stacked"></i>
+
+            <span>
+              Stock Management
+            </span>
+
           </a>
 
-          <a href="order-preparation.html">
-            Order Preparation
+
+          <!-- ORDER PREPARATION -->
+
+          <a href="./order-preparation.html">
+
+            <i class="fa-solid fa-box-open"></i>
+
+            <span>
+              Order Preparation
+            </span>
+
           </a>
+
+
+          <!-- STOCK HISTORY -->
 
           <a
-            href="stock-history.html"
+            href="./stock-history.html"
             class="active"
             aria-current="page"
           >
-            Stock History
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            <span>
+              Stock History
+            </span>
+
           </a>
+
         </nav>
+
+
+        <!-- ======================================
+             LOGOUT BUTTON
+             BELOW STOCK HISTORY
+        ======================================= -->
+
+        <button
+          type="button"
+          id="inventoryLogoutBtn"
+          class="inventory-logout-btn"
+        >
+
+          <i class="fa-solid fa-right-from-bracket"></i>
+
+          <span>
+            Logout
+          </span>
+
+        </button>
+
       </aside>
 
-      <!--
-        The live stock-history.js renders the history table,
-        search, refresh, pagination, and CSV export here.
-      -->
+
+      <!-- ========================================
+           STOCK HISTORY CONTENT
+
+           Existing JavaScript renders:
+           - Movement History
+           - Search
+           - Refresh
+           - Pagination
+           - CSV Export
+      ========================================= -->
+
       <main
         id="main"
+        class="inventory-content"
         aria-label="Stock movement history"
       >
+
         <section class="panel">
-          <h2>Movement History</h2>
+
+          <div class="section-head">
+
+            <h2>
+
+              <i class="fa-solid fa-clock-rotate-left"></i>
+
+              Movement History
+
+            </h2>
+
+          </div>
+
+
+          <!-- LOADING STATE -->
 
           <p role="status">
-            Loading stock history…
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            Loading stock history...
+
           </p>
 
-          <noscript>
-            <p>
-              Please enable JavaScript to view stock history.
-            </p>
-          </noscript>
         </section>
+
       </main>
 
     </div>
+
   </div>
 
-  <!-- STATUS AND ERROR MESSAGES -->
+
+  <!-- ==========================================
+       INVENTORY LOGOUT CONFIRMATION
+
+       SAME DESIGN AS ADMIN AND OTHER
+       INVENTORY MODULES
+  =========================================== -->
+
+  <div
+    id="inventoryLogoutModal"
+    class="hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="inventoryLogoutTitle"
+    aria-describedby="inventoryLogoutDescription"
+  >
+
+    <!-- DARK BLURRED BACKGROUND -->
+
+    <div class="logout-backdrop"></div>
+
+
+    <!-- LOGOUT CONFIRMATION BOX -->
+
+    <div class="logout-box">
+
+
+      <!-- GOLD LOGOUT ICON -->
+
+      <div class="logout-icon">
+
+        <i class="fa-solid fa-right-from-bracket"></i>
+
+      </div>
+
+
+      <!-- LOGOUT TITLE -->
+
+      <h4 id="inventoryLogoutTitle">
+
+        Logout Confirmation
+
+      </h4>
+
+
+      <!-- LOGOUT DESCRIPTION -->
+
+      <p id="inventoryLogoutDescription">
+
+        Are you sure you want to end your current session?
+
+      </p>
+
+
+      <!-- LOGOUT ACTION BUTTONS -->
+
+      <div class="logout-actions">
+
+
+        <!-- CONFIRM LOGOUT -->
+
+        <button
+          type="button"
+          id="inventoryConfirmLogout"
+        >
+
+          Yes, Logout
+
+        </button>
+
+
+        <!-- CANCEL LOGOUT -->
+
+        <button
+          type="button"
+          id="inventoryCancelLogout"
+        >
+
+          Cancel
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================
+       STATUS AND ERROR MESSAGES
+  =========================================== -->
+
   <div
     id="notification"
     role="status"
     aria-live="polite"
     aria-atomic="true"
   ></div>
+
+
+  <!-- ==========================================
+       NOSCRIPT WARNING
+  =========================================== -->
+
+  <noscript>
+
+    <p>
+      Please enable JavaScript to view stock history.
+    </p>
+
+  </noscript>
+
 </body>
+
 </html>

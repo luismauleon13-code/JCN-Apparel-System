@@ -1,508 +1,1728 @@
-/* stock-history — standalone stylesheet; no shared CSS required. */
-* {
-  box-sizing:border-box
+/* =========================================================
+   JCN APPAREL PRINTING SERVICES
+   INVENTORY - STOCK HISTORY
+   STANDARD INVENTORY UI
+========================================================= */
+
+/* =========================================================
+   01. ROOT VARIABLES
+========================================================= */
+
+:root {
+  color-scheme: dark;
+
+  --gold: #f4c542;
+  --gold-bright: #ffd34e;
+  --gold-dark: #d8a719;
+
+  --background: #101010;
+  --panel: #111111;
+  --panel-light: #171717;
+
+  --text: #ffffff;
+  --muted: #b8bec8;
+
+  --border: #292929;
+  --panel-border: rgba(244, 197, 66, 0.24);
+
+  --green: #85d6a6;
+  --red: #f3939d;
 }
 
- :root {
-  color-scheme:dark;
-  --gold:#edc536;
-  --muted:#9da8bb;
-  --border:#292929;
-  --panel:#111111
+
+/* =========================================================
+   02. RESET
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  font-size: 16px;
 }
 
 body {
-  margin:0;
-  background:radial-gradient(ellipse at top left,#211c09 0,transparent 45%),#080808;
-  color:#f5f5f5;
-  font:14px Arial,sans-serif;
-  min-height:100vh
+  width: 100%;
+  min-height: 100vh;
+
+  margin: 0;
+
+  background: linear-gradient(
+    135deg,
+    #101010,
+    #191919,
+    #101010
+  );
+
+  color: var(--text);
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
 }
 
-:is(.shell,.container) {
-  max-width:1280px;
-  margin:auto;
-  padding:20px
-}
-
-.topbar {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:24px;
-  background:#111;
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:20px
-}
-
-.brand {
-  font-size:18px;
-  font-weight:800
-}
-
-.brand span,small,h2>span {
-  color:var(--gold)
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 a {
-  color:inherit;
-  text-decoration:none
+  color: inherit;
+  text-decoration: none;
 }
 
-.topbar nav {
-  display:flex;
-  gap:28px;
-  font-size:13px
-}
-
-.active {
-  color:var(--gold)!important
-}
-
-:is(.staff,.staff-badge) {
-  padding:9px 14px;
-  border:1px solid #514415;
-  border-radius:9px;
-  color:var(--gold);
-  font-size:12px
-}
-
-:is(.heading,.page-heading) {
-  margin:30px 3px 20px
-}
-
-:is(.heading,.page-heading) small {
-  font-size:10px;
-  letter-spacing:2px;
-  font-weight:bold
-}
-
-h1 {
-  font-size:30px;
-  margin:8px 0
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text);
 }
 
 p {
-  color:var(--muted);
-  line-height:1.6
+  color: var(--muted);
+  line-height: 1.6;
 }
 
-h2 {
-  font-size:18px;
-  margin:0 0 14px
+.hidden {
+  display: none !important;
 }
 
-h3 {
-  margin:0
+
+/* =========================================================
+   03. MAIN CONTAINER
+========================================================= */
+
+:is(.shell, .container) {
+  width: 100%;
+  max-width: 1440px;
+
+  margin: 0 auto;
+  padding: 10px 18px 30px;
 }
 
-:is(.demo,.demo-note) {
-  font-size:12px;
-  padding:10px 14px;
-  border:1px solid #514415;
-  background:#1b180e;
-  border-radius:8px
+
+/* =========================================================
+   04. STANDARD PAGE HEADER
+========================================================= */
+
+.page-header,
+.topbar {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-height: 118px;
+  height: auto;
+
+  gap: 20px;
+
+  margin: 0 0 14px;
+  padding: 18px 20px;
+
+  background: linear-gradient(
+    135deg,
+    #151515,
+    #0e0e0e
+  );
+
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
 }
+
+
+/* REMOVE OLD TOP NAVBAR */
+
+.topbar nav,
+.dashboard-nav {
+  display: none !important;
+}
+
+.brand {
+  color: var(--gold);
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.page-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* COMPANY NAME */
+
+.page-header .page-label {
+  display: block;
+
+  margin: 0 0 6px;
+
+  color: var(--gold) !important;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 16px;
+
+  letter-spacing: 0;
+}
+
+
+/* PAGE TITLE */
+
+.page-header h1,
+.page-header h2 {
+  margin: 0 0 6px;
+
+  color: #ffffff;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 29px;
+  font-weight: 700;
+  line-height: 35px;
+}
+
+
+/* PAGE DESCRIPTION */
+
+.page-header-info > p:last-child {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+
+/* OLD HEADING COMPATIBILITY */
+
+:is(.heading, .page-heading) {
+  margin: 0 0 14px;
+  padding: 18px 20px;
+
+  background: var(--panel);
+
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+}
+
+:is(.heading, .page-heading) small {
+  color: var(--gold);
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+:is(.heading, .page-heading) h1 {
+  margin: 6px 0;
+
+  font-size: 29px;
+  font-weight: 700;
+}
+
+:is(.heading, .page-heading) p {
+  margin: 0;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   05. INVENTORY STAFF NAME
+   SAME AS INVENTORY PRODUCT
+========================================================= */
+
+.inventory-role {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  min-height: 54px;
+
+  gap: 9px;
+
+  margin-left: auto;
+  padding: 8px 14px;
+
+  background: rgba(244, 197, 66, 0.08);
+
+  border: 1px solid rgba(244, 197, 66, 0.35);
+  border-radius: 30px;
+
+  color: var(--gold);
+}
+
+.inventory-role > i {
+  color: var(--gold);
+  font-size: 17px;
+}
+
+.inventory-staff-details {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+  justify-content: center;
+
+  min-width: 0;
+
+  gap: 3px;
+}
+
+
+/* PREVENT DOUBLE BORDER */
+
+.page-header #inventoryStaffName,
+.page-header .inventory-role .staff,
+.page-header .inventory-role .staff-badge {
+  display: block !important;
+
+  width: auto;
+  min-height: 0;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+
+  color: var(--gold) !important;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.inventory-staff-details small {
+  margin: 0;
+  padding: 0;
+
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 13px;
+}
+
+
+/* EXISTING STAFF BADGE COMPATIBILITY */
+
+.topbar > .staff,
+.topbar > .staff-badge {
+  padding: 8px 14px;
+
+  border: 1px solid rgba(244, 197, 66, 0.35);
+  border-radius: 30px;
+
+  color: var(--gold);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   06. MAIN INVENTORY LAYOUT
+========================================================= */
 
 .layout {
-  display:grid;
-  grid-template-columns:270px minmax(0,1fr);
-  gap:20px;
-  margin-top:22px
+  display: grid;
+
+  grid-template-columns:
+    238px minmax(0, 1fr);
+
+  align-items: start;
+
+  width: 100%;
+
+  gap: 14px;
+  margin-top: 0;
 }
+
+.layout > * {
+  min-width: 0;
+}
+
+#main,
+.inventory-content {
+  position: static;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+}
+
+.inventory-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+
+/* =========================================================
+   07. MAIN PANELS
+========================================================= */
 
 .panel {
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:22px
+  width: 100%;
+  min-width: 0;
+  height: auto;
+
+  margin: 0;
+  padding: 20px;
+
+  background: linear-gradient(
+    135deg,
+    #141414,
+    #0f0f0f
+  );
+
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+
+  color: var(--text);
+
+  box-shadow: none;
 }
 
-aside {
-  align-self:start;
-  min-height:420px
+.panel h2 {
+  margin: 0 0 14px;
+
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: 700;
 }
 
+.panel h2 i {
+  color: var(--gold);
+}
+
+.panel h3 {
+  margin: 0;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   08. INVENTORY SIDEBAR
+========================================================= */
+
+.layout > aside,
+.layout > aside.sidebar {
+  position: sticky;
+  top: 14px;
+
+  align-self: start;
+
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  margin: 0;
+  padding: 20px;
+}
+
+
+/* INVENTORY MENU TITLE */
+
+.inventory-menu-title,
+aside > h2 {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  margin: 0 0 18px !important;
+
+  color: #ffffff;
+
+  font-size: 18px !important;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.inventory-menu-title i,
+aside > h2 i {
+  color: var(--gold);
+  font-size: 17px;
+}
+
+
+/* =========================================================
+   09. INVENTORY MENU LINKS
+========================================================= */
+
+.sidebar nav,
 aside nav {
-  display:grid;
-  gap:8px;
-  margin-top:20px
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+
+  width: 100%;
+
+  gap: 4px;
+
+  margin: 0;
+  padding: 0;
 }
 
+.sidebar nav a,
 aside nav a {
-  padding:15px 12px;
-  border-radius:8px;
-  font-size:12px;
-  font-weight:bold
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+
+  gap: 9px;
+
+  margin: 0;
+  padding: 12px 13px;
+
+  background: transparent;
+
+  border: none;
+  border-radius: 9px;
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-aside nav a.active {
-  background:#302914
+.sidebar nav a i,
+aside nav a i {
+  width: 19px;
+
+  flex-shrink: 0;
+
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active,
+.sidebar nav a.active-menu {
+  background: rgba(244, 197, 66, 0.16);
+
+  color: var(--gold);
+}
+
+.sidebar nav a:hover i,
+.sidebar nav a.active i,
+.sidebar nav a.active-menu i {
+  color: var(--gold);
+}
+
+.active {
+  color: var(--gold) !important;
 }
 
 .aside-note {
-  margin-top:80px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:2
+  margin-top: 15px;
+
+  color: var(--muted);
+
+  font-size: 11px;
+  line-height: 1.7;
 }
 
 .aside-note small {
-  color:#738096
+  color: var(--muted);
 }
 
-.dot {
-  display:inline-block;
-  width:6px;
-  height:6px;
-  background:var(--gold);
-  border-radius:50%;
-  margin-right:5px
+
+/* =========================================================
+   10. LOGOUT BUTTON BELOW STOCK HISTORY
+========================================================= */
+
+#inventoryLogoutBtn,
+.inventory-logout-btn {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  width: 100%;
+  min-height: 40px;
+
+  margin: 12px 0 0;
+  padding: 10px 14px;
+
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d8a719
+  );
+
+  border: none;
+  border-radius: 8px;
+
+  color: #080808;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
 }
 
-:is(.cards,.summary-grid) {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  margin-bottom:18px
+#inventoryLogoutBtn i {
+  color: #080808;
+  font-size: 13px;
 }
 
-:is(.metric,.summary-card) {
-  padding:20px;
-  border:1px solid var(--border);
-  background:linear-gradient(130deg,#19170f,#111);
-  border-radius:12px
+#inventoryLogoutBtn:hover {
+  background: var(--gold-bright);
+  filter: none;
 }
 
-:is(.metric,.summary-card) span {
-  color:var(--muted);
-  font-size:12px
+
+/* =========================================================
+   11. STOCK HISTORY SUMMARY CARDS
+========================================================= */
+
+:is(.cards, .summary-grid) {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
-:is(.metric,.summary-card) strong {
-  display:block;
-  font-size:30px;
-  margin-top:12px
+:is(.metric, .summary-card) {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 0;
+  min-height: 125px;
+
+  gap: 8px;
+  padding: 16px;
+
+  background: linear-gradient(
+    135deg,
+    #151515,
+    #0f0f0f
+  );
+
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+
+  text-align: center;
 }
 
-:is(.section-head,.section-heading),.toolbar {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:20px
+:is(.metric, .summary-card) i {
+  color: var(--gold);
+  font-size: 25px;
 }
 
-:is(.section-head,.section-heading) h2 {
-  margin:0
+:is(.metric, .summary-card) span {
+  color: var(--muted);
+
+  font-size: 13px;
+  font-weight: 400;
+}
+
+:is(.metric, .summary-card) strong {
+  display: block;
+
+  margin: 0;
+
+  color: var(--gold);
+
+  font-size: 29px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   12. SECTION HEADINGS
+========================================================= */
+
+:is(.section-head, .section-heading) {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+:is(.section-head, .section-heading) h2 {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+:is(.section-head, .section-heading) h2 i {
+  color: var(--gold);
+}
+
+
+/* =========================================================
+   13. SEARCH, FILTER AND PAGINATION TOOLBAR
+========================================================= */
+
+.toolbar {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .toolbar input {
-  flex:1;
-  min-width:180px
+  flex: 1;
+
+  min-width: 180px;
+  max-width: 440px;
 }
 
-input,select,textarea {
-  background:#0b0b0b;
-  border:1px solid #333;
-  border-radius:8px;
-  padding:12px;
-  color:#eee;
-  font:inherit
+.toolbar select {
+  min-width: 150px;
 }
 
-button {
-  border:0;
-  border-radius:8px;
-  background:var(--gold);
-  color:#080808;
-  padding:11px 16px;
-  font:700 12px Arial;
-  cursor:pointer
+.toolbar span {
+  color: var(--muted);
+  font-size: 12px;
 }
 
-button:hover {
-  filter:brightness(1.1)
+
+/* =========================================================
+   14. FORM INPUTS
+========================================================= */
+
+input,
+select,
+textarea {
+  max-width: 100%;
+
+  padding: 10px 12px;
+
+  background: #101010;
+
+  border: 1px solid #333333;
+  border-radius: 8px;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
 }
 
-button:disabled {
-  opacity:.4;
-  cursor:not-allowed
+input:not([type="checkbox"]),
+select {
+  min-height: 40px;
 }
 
-:is(.ghost,.secondary) {
-  background:transparent;
-  border:1px solid #444;
-  color:#eee
+input::placeholder,
+textarea::placeholder {
+  color: #858585;
 }
 
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
-  outline:2px solid var(--gold);
-  outline-offset:3px
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--gold);
+
+  box-shadow:
+    0 0 0 2px rgba(244, 197, 66, 0.08);
 }
 
-:is(.table-wrap,.table-wrapper) {
-  overflow:auto
+select {
+  cursor: pointer;
 }
 
-table {
-  border-collapse:collapse;
-  width:100%;
-  white-space:nowrap
-}
-
-th {
-  text-align:left;
-  color:#8e98aa;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  font-size:10px;
-  background:#171717
-}
-
-th,td {
-  padding:16px 12px;
-  border-bottom:1px solid #252525
-}
-
-td {
-  font-size:12px
-}
-
-td small {
-  display:block;
-  margin-top:6px;
-  color:#8995a7
-}
-
-.badge {
-  display:inline-block;
-  padding:6px 9px;
-  border-radius:6px;
-  background:#14271d;
-  color:#80d6a1;
-  font-size:11px
-}
-
-.badge:is(.warn,.warning) {
-  background:#322a10;
-  color:#f0ca50
-}
-
-.badge.danger {
-  background:#32191c;
-  color:#f1939b
-}
-
-.empty {
-  text-align:center;
-  padding:35px;
-  color:var(--muted)
-}
-
-:is(#notice,#notification) {
-  position:fixed;
-  bottom:20px;
-  right:24px;
-  max-width:440px;
-  background:#242010;
-  color:#ffe28a;
-  border-radius:9px;
-  padding:0;
-  z-index:5
-}
-
-:is(#notice,#notification):not(:empty) {
-  padding:14px 20px;
-  border:1px solid #685922
-}
-
-dialog {
-  width:min(520px,94vw);
-  background:#141414;
-  color:#fff;
-  border:1px solid #4c4326;
-  border-radius:16px;
-  padding:25px
-}
-
-dialog::backdrop {
-  background:#000b;
-  backdrop-filter:blur(4px)
-}
-
-dialog label {
-  display:grid;
-  gap:8px;
-  margin:16px 0;
-  color:#c8cbd1
+select option {
+  background: #111111;
+  color: #ffffff;
 }
 
 textarea {
-  resize:vertical;
-  min-height:80px
+  min-height: 80px;
+  resize: vertical;
 }
 
-:is(.dialog-actions,.modal-actions) {
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top:20px
+
+/* =========================================================
+   15. STANDARD BUTTONS
+========================================================= */
+
+button,
+.btn-gold {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 37px;
+
+  padding: 9px 15px;
+
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d8a719
+  );
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: #080808;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
-#form-error {
-  color:#ff9b9b
+button:hover:not(:disabled) {
+  background: var(--gold-bright);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 button.small {
-  padding:8px 11px
+  min-height: 32px;
+  padding: 7px 12px;
+  font-size: 11px;
 }
 
-:is(.order,.order-card) {
-  margin-top:16px;
-  border:1px solid #303030;
-  border-radius:10px;
-  padding:18px
+:is(.ghost, .secondary) {
+  background: transparent;
+
+  border: 1px solid rgba(244, 197, 66, 0.45);
+
+  color: var(--gold);
 }
 
-:is(.order,.order-card) p {
-  margin:8px 0
+:is(.ghost, .secondary):hover:not(:disabled) {
+  background: rgba(244, 197, 66, 0.08);
+
+  border-color: var(--gold);
+  color: var(--gold-bright);
 }
 
-:is(.order,.order-card) footer {
-  display:flex;
-  justify-content:flex-end;
-  margin-top:16px
+
+/* =========================================================
+   16. CSV EXPORT BUTTON
+========================================================= */
+
+#exportCsv,
+#exportCSV,
+#exportCsvBtn,
+.export-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 37px;
+  padding: 9px 15px;
+
+  background: rgba(244, 197, 66, 0.06);
+
+  border: 1px solid rgba(244, 197, 66, 0.45);
+  border-radius: 8px;
+
+  color: var(--gold);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
 }
 
-:is(.check,.order-item) {
-  display:flex;
-  gap:12px;
-  align-items:center;
-  padding:12px;
-  background:#191919;
-  margin-top:8px;
-  border-radius:6px
+#exportCsv:hover,
+#exportCSV:hover,
+#exportCsvBtn:hover,
+.export-btn:hover {
+  background: rgba(244, 197, 66, 0.14);
+
+  border-color: var(--gold);
+  color: var(--gold-bright);
 }
 
-:is(.check,.order-item) input {
-  accent-color:var(--gold)
+
+/* =========================================================
+   17. STOCK HISTORY TABLE WRAPPER
+========================================================= */
+
+:is(.table-wrap, .table-wrapper) {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid #2b2b2b;
+  border-radius: 10px;
+
+  scrollbar-width: thin;
+  scrollbar-color: #665525 #111111;
 }
 
-.positive {
-  color:#80d6a1
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+  white-space: nowrap;
 }
 
-.negative {
-  color:#f1939b
+
+/* =========================================================
+   18. TABLE HEADER
+========================================================= */
+
+thead {
+  background: #1a1a1a;
 }
 
-@media(max-width:900px) {
+th {
+  padding: 14px 12px;
+
+  background: #1a1a1a;
+
+  border-bottom: 1px solid #333333;
+
+  color: var(--gold);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  text-align: left;
+  text-transform: uppercase;
+
+  letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   19. TABLE ROWS
+========================================================= */
+
+td {
+  padding: 14px 12px;
+
+  border-bottom: 1px solid #292929;
+
+  color: #eeeeee;
+
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+tbody tr {
+  background: #151515;
+
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: #1c1c1c;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+td strong {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+td small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--muted);
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   20. STOCK HISTORY STATUS BADGES
+========================================================= */
+
+.badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  padding: 5px 9px;
+
+  background: #14271d;
+
+  border: 1px solid rgba(34, 197, 94, 0.12);
+  border-radius: 6px;
+
+  color: #80d6a1;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.badge:is(.warn, .warning) {
+  background: #322a10;
+
+  border-color: rgba(244, 197, 66, 0.15);
+
+  color: #f0ca50;
+}
+
+.badge.danger {
+  background: #32191c;
+
+  border-color: rgba(239, 68, 68, 0.15);
+
+  color: #f1939b;
+}
+
+
+/* =========================================================
+   21. STOCK MOVEMENT COLORS
+========================================================= */
+
+.positive,
+.text-success,
+.stock-in {
+  color: var(--green);
+}
+
+.negative,
+.error,
+.text-danger,
+.stock-out {
+  color: var(--red);
+}
+
+.text-gold {
+  color: var(--gold);
+}
+
+.muted,
+.item-details {
+  color: var(--muted);
+}
+
+.item-details {
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 11px;
+}
+
+.dot {
+  display: inline-block;
+
+  width: 6px;
+  height: 6px;
+
+  margin-right: 5px;
+
+  background: var(--gold);
+  border-radius: 50%;
+}
+
+
+/* =========================================================
+   22. EMPTY STATE AND INFORMATION NOTES
+========================================================= */
+
+.empty {
+  padding: 35px 15px;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  text-align: center;
+}
+
+:is(.demo, .demo-note) {
+  margin-bottom: 14px;
+
+  padding: 10px 14px;
+
+  background: rgba(244, 197, 66, 0.05);
+
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   23. SYSTEM NOTIFICATIONS
+========================================================= */
+
+:is(#notice, #notification) {
+  position: fixed;
+
+  right: 24px;
+  bottom: 20px;
+
+  z-index: 1000000;
+
+  width: fit-content;
+  max-width: min(440px, calc(100vw - 32px));
+
+  padding: 0;
+
+  background: #242010;
+
+  border-radius: 9px;
+
+  color: #ffe28a;
+
+  font-size: 13px;
+}
+
+:is(#notice, #notification):empty {
+  display: none;
+}
+
+:is(#notice, #notification):not(:empty) {
+  padding: 14px 20px;
+
+  border: 1px solid #685922;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   24. EXISTING DIALOG SUPPORT
+========================================================= */
+
+dialog {
+  position: fixed;
+
+  inset: 0;
+
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+
+  margin: auto;
+  padding: 25px;
+
+  background: #171717;
+
+  border: 1px solid rgba(244, 197, 66, 0.35);
+  border-radius: 16px;
+
+  color: #ffffff;
+
+  overflow-y: auto;
+}
+
+dialog:not([open]) {
+  display: none;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+dialog label {
+  display: grid;
+
+  gap: 8px;
+  margin: 16px 0;
+
+  color: #c8cbd1;
+}
+
+dialog input:not([type="checkbox"]),
+dialog select,
+dialog textarea {
+  width: 100%;
+}
+
+:is(.dialog-actions, .modal-actions) {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#form-error {
+  color: #ff9b9b;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   25. ORDER CARD COMPATIBILITY
+========================================================= */
+
+:is(.order, .order-card) {
+  margin-top: 14px;
+  padding: 18px;
+
+  background: #151515;
+
+  border: 1px solid #303030;
+  border-radius: 10px;
+}
+
+:is(.order, .order-card) p {
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+:is(.order, .order-card) footer,
+.order-actions {
+  display: flex;
+
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  gap: 8px;
+  margin-top: 16px;
+}
+
+:is(.check, .order-item) {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 8px;
+  padding: 12px;
+
+  background: #191919;
+
+  border-radius: 6px;
+}
+
+:is(.check, .order-item) input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+
+  padding: 0;
+
+  accent-color: var(--gold);
+}
+
+
+/* =========================================================
+   26. LOGOUT CONFIRMATION MODAL
+========================================================= */
+
+#inventoryLogoutModal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 999999;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  margin: 0;
+  padding: 16px;
+}
+
+#inventoryLogoutModal.hidden,
+#inventoryLogoutModal[hidden] {
+  display: none !important;
+}
+
+
+/* =========================================================
+   27. LOGOUT BLURRED BACKGROUND
+========================================================= */
+
+#inventoryLogoutModal .logout-backdrop {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  background: rgba(0, 0, 0, 0.78);
+
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+
+/* =========================================================
+   28. LOGOUT CONFIRMATION BOX
+========================================================= */
+
+#inventoryLogoutModal .logout-box {
+  position: relative;
+
+  z-index: 2;
+
+  width: 350px;
+  max-width: 100%;
+
+  padding: 27px 25px;
+
+  background: #171717;
+
+  border: 1px solid rgba(244, 197, 66, 0.35);
+  border-radius: 18px;
+
+  color: #ffffff;
+
+  text-align: center;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.45);
+
+  animation: logoutEnter 0.2s ease;
+}
+
+
+/* LOGOUT ICON */
+
+#inventoryLogoutModal .logout-icon {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 20px;
+
+  background: transparent;
+
+  border: none;
+}
+
+#inventoryLogoutModal .logout-icon i {
+  color: var(--gold);
+  font-size: 29px;
+}
+
+
+/* LOGOUT TITLE */
+
+#inventoryLogoutTitle,
+#inventoryLogoutModal .logout-box h4 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+
+/* LOGOUT DESCRIPTION */
+
+#inventoryLogoutDescription,
+#inventoryLogoutModal .logout-box p {
+  margin: 0 0 25px;
+
+  color: #bdbdbd;
+
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   29. LOGOUT ACTION BUTTONS
+========================================================= */
+
+#inventoryLogoutModal .logout-actions {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  width: 100%;
+
+  gap: 11px;
+}
+
+#inventoryConfirmLogout,
+#inventoryCancelLogout {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 42px;
+
+  padding: 10px 12px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+/* YES, LOGOUT BUTTON */
+
+#inventoryConfirmLogout {
+  background: linear-gradient(
+    135deg,
+    #f4c542,
+    #d8a719
+  );
+
+  border: 1px solid transparent;
+
+  color: #080808;
+}
+
+#inventoryConfirmLogout:hover:not(:disabled) {
+  background: var(--gold-bright);
+}
+
+
+/* CANCEL BUTTON */
+
+#inventoryCancelLogout {
+  background: transparent;
+
+  border: 1px solid var(--gold-dark);
+
+  color: var(--gold);
+}
+
+#inventoryCancelLogout:hover {
+  background: rgba(244, 197, 66, 0.08);
+
+  border-color: var(--gold);
+}
+
+
+/* =========================================================
+   30. LOGOUT ANIMATION
+========================================================= */
+
+@keyframes logoutEnter {
+
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+/* =========================================================
+   31. KEYBOARD FOCUS
+========================================================= */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   32. RESPONSIVE - LARGE DESKTOP
+========================================================= */
+
+@media (max-width: 1200px) {
+
   .layout {
-  grid-template-columns:1fr
-}
-
-aside {
-  min-height:0
-}
-
-aside nav {
-  display:flex;
-  flex-wrap:wrap
-}
-
-.aside-note {
-  display:none
-}
-
-.topbar {
-  flex-wrap:wrap
-}
-
-.topbar nav {
-  order:3;
-  width:100%;
-  justify-content:space-between
-}
-
-
-}
-
-@media(max-width:550px) {
-  :is(.shell,.container) {
-  padding:12px
-}
-
-.panel {
-  padding:15px
-}
-
-:is(.cards,.summary-grid) {
-  gap:8px
-}
-
-:is(.metric,.summary-card) {
-  padding:14px 10px
-}
-
-:is(.metric,.summary-card) strong {
-  font-size:24px
-}
-
-:is(.staff,.staff-badge) {
-  display:none
-}
-
-h1 {
-  font-size:26px
-}
-
-.toolbar>* {
-  width:100%
-}
-
-.topbar nav {
-  gap:10px
-}
-
+    grid-template-columns:
+      220px minmax(0, 1fr);
+  }
 
 }
 
 
-:root  {
-   --background:#080808;
-   --text:#f5f5f5;
-   --green:#85d6a6;
-   --red:#f3939d;
-   
+/* =========================================================
+   33. RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 991px) {
+
+  :is(.shell, .container) {
+    padding: 10px 14px 20px;
+  }
+
+  .layout {
+    grid-template-columns:
+      200px minmax(0, 1fr);
+  }
+
+  .panel,
+  .layout > aside.sidebar {
+    padding: 15px;
+  }
+
+  :is(.metric, .summary-card) {
+    min-height: 110px;
+    padding: 12px;
+  }
+
+  :is(.metric, .summary-card) strong {
+    font-size: 26px;
+  }
+
 }
 
 
-.muted,.item-details {
-  color:var(--muted)
+/* =========================================================
+   34. RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 767px) {
+
+  :is(.shell, .container) {
+    padding: 10px 12px 20px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+  }
+
+  .layout > aside.sidebar {
+    position: static;
+
+    width: 100%;
+    min-height: 0;
+  }
+
+  .page-header,
+  .topbar {
+    min-height: 0;
+    height: auto;
+
+    flex-wrap: wrap;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 16px;
+  }
+
+  .page-header-info {
+    flex-basis: 100%;
+  }
+
+  .page-header h1,
+  .page-header h2 {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .inventory-role {
+    min-height: 48px;
+
+    max-width: 100%;
+
+    margin-left: 0;
+  }
+
+  .sidebar nav {
+    flex-direction: column;
+  }
+
+  :is(.cards, .summary-grid) {
+    gap: 8px;
+  }
+
+  :is(.metric, .summary-card) {
+    min-height: 105px;
+    padding: 12px 8px;
+  }
+
+  :is(.metric, .summary-card) span {
+    font-size: 11px;
+  }
+
+  :is(.metric, .summary-card) strong {
+    font-size: 24px;
+  }
+
+  .toolbar input {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .aside-note {
+    display: none;
+  }
+
 }
 
- .error {
-  color:var(--red)
+
+/* =========================================================
+   35. RESPONSIVE - SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .panel {
+    padding: 14px;
+  }
+
+  :is(.metric, .summary-card) {
+    min-height: 95px;
+  }
+
+  :is(.metric, .summary-card) strong {
+    font-size: 22px;
+  }
+
+  .toolbar input,
+  .toolbar select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .toolbar button {
+    flex: 1;
+  }
+
+  #inventoryLogoutModal .logout-box {
+    padding: 24px 18px;
+  }
+
+  #inventoryLogoutTitle {
+    font-size: 20px;
+  }
+
+  dialog {
+    padding: 20px;
+  }
+
+  :is(#notice, #notification) {
+    right: 16px;
+    bottom: 16px;
+  }
+
 }
 
- .item-details {
-  display:block;
-  margin-top:6px;
-  font-size:11px
+
+/* =========================================================
+   36. REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    animation: none !important;
+    transition: none !important;
+  }
+
 }
-
-
-.sidebar {
-  align-self:start
-}
-
- .order-actions {
-  display:flex;
-  justify-content:flex-end;
-  margin-top:16px
-}
-
-
